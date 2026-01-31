@@ -177,9 +177,24 @@ public class QuantumStorageTabCompleter implements TabCompleter {
     private List<String> getNexoItemsWithPrefix() {
         List<String> items = new ArrayList<>();
         try {
-            // Get all Nexo items - NexoItems.items() returns Set<String>
-            for (String itemId : NexoItems.items()) {
-                items.add("nexo:" + itemId);
+            // NexoItems.items() returns Set<ItemBuilder>, we need to get the IDs
+            // Use reflection or try to extract the item ID from each builder
+            var nexoItems = NexoItems.items();
+            for (Object itemObj : nexoItems) {
+                try {
+                    // ItemBuilder has a build() method that returns ItemStack
+                    // We can get the item ID using NexoItems.idFromItem()
+                    if (itemObj instanceof com.nexomc.nexo.items.ItemBuilder) {
+                        com.nexomc.nexo.items.ItemBuilder builder = (com.nexomc.nexo.items.ItemBuilder) itemObj;
+                        org.bukkit.inventory.ItemStack itemStack = builder.build();
+                        String itemId = NexoItems.idFromItem(itemStack);
+                        if (itemId != null) {
+                            items.add("nexo:" + itemId);
+                        }
+                    }
+                } catch (Exception ignored) {
+                    // Skip items that can't be processed
+                }
             }
         } catch (Exception e) {
             // Nexo might not be available or no items

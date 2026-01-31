@@ -60,7 +60,8 @@ public class QuantumStorageCommand implements CommandExecutor {
 
     private boolean handleTransfer(CommandSender sender, String[] args) {
         // Console command: /qstorage transfer <nexo:id|minecraft:id> <amount> <player>
-        // Player command: /qstorage transfer <nexo:id|minecraft:id|hand|all> [amount]
+        // Admin command: /qstorage transfer <nexo:id|minecraft:id> [amount] - DIRECT add to storage
+        // Player command: /qstorage transfer hand|all [amount]
         
         if (sender instanceof ConsoleCommandSender) {
             return handleConsoleTransfer(sender, args);
@@ -126,10 +127,10 @@ public class QuantumStorageCommand implements CommandExecutor {
             String nexoId = NexoItems.idFromItem(handItem);
             if (nexoId != null) {
                 storage.addNexoItem(nexoId, amount);
-                player.sendMessage("§a§l✓ §aTransferred §e" + amount + "x §f" + nexoId + " §ato storage!");
+                player.sendMessage("§a§l✓ §aTransferred §e" + amount + "x §fnexo:" + nexoId + " §ato storage!");
             } else {
                 storage.addItem(handItem.getType(), amount);
-                player.sendMessage("§a§l✓ §aTransferred §e" + amount + "x §f" + handItem.getType().name() + " §ato storage!");
+                player.sendMessage("§a§l✓ §aTransferred §e" + amount + "x §fminecraft:" + handItem.getType().name() + " §ato storage!");
             }
 
             handItem.setAmount(handItem.getAmount() - amount);
@@ -138,8 +139,8 @@ public class QuantumStorageCommand implements CommandExecutor {
             return true;
         }
 
-        // Transfer specific item with nexo: or minecraft: prefix
-        boolean result = transferSpecificItem(player, storage, itemArg, args.length >= 3 ? args[2] : "1");
+        // Admin direct transfer: nexo:id or minecraft:id - ADD DIRECTLY TO STORAGE
+        boolean result = transferSpecificItemDirect(player, storage, player, itemArg, args.length >= 3 ? args[2] : "1");
         refreshStorageGUI(player);
         return result;
     }
@@ -162,16 +163,15 @@ public class QuantumStorageCommand implements CommandExecutor {
         }
 
         PlayerStorage storage = plugin.getStorageManager().getStorage(target);
-        boolean result = transferSpecificItem(sender, storage, target, itemArg, amountStr);
+        boolean result = transferSpecificItemDirect(sender, storage, target, itemArg, amountStr);
         refreshStorageGUI(target);
         return result;
     }
 
-    private boolean transferSpecificItem(Player player, PlayerStorage storage, String itemArg, String amountStr) {
-        return transferSpecificItem(player, storage, player, itemArg, amountStr);
-    }
-
-    private boolean transferSpecificItem(CommandSender sender, PlayerStorage storage, Player target, String itemArg, String amountStr) {
+    /**
+     * Admin/Console DIRECT transfer - adds to storage WITHOUT checking inventory
+     */
+    private boolean transferSpecificItemDirect(CommandSender sender, PlayerStorage storage, Player target, String itemArg, String amountStr) {
         int amount;
         try {
             amount = Integer.parseInt(amountStr);
@@ -188,14 +188,10 @@ public class QuantumStorageCommand implements CommandExecutor {
                 return true;
             }
 
-            int transferred = removeFromInventory(target, nexoId, amount, true);
-            if (transferred > 0) {
-                storage.addNexoItem(nexoId, transferred);
-                storage.save(plugin);
-                sender.sendMessage("§a§l✓ §aTransferred §e" + transferred + "x §fnexo:" + nexoId + " §ato storage!");
-            } else {
-                sender.sendMessage("§c" + target.getName() + " doesn't have this item in inventory!");
-            }
+            // DIRECT ADD - no inventory check
+            storage.addNexoItem(nexoId, amount);
+            storage.save(plugin);
+            sender.sendMessage("§a§l✓ §aAdded §e" + amount + "x §fnexo:" + nexoId + " §ato " + target.getName() + "'s storage!");
             return true;
         }
 
@@ -203,14 +199,11 @@ public class QuantumStorageCommand implements CommandExecutor {
             String materialName = itemArg.substring(10).toUpperCase();
             try {
                 Material material = Material.valueOf(materialName);
-                int transferred = removeFromInventory(target, material.name(), amount, false);
-                if (transferred > 0) {
-                    storage.addItem(material, transferred);
-                    storage.save(plugin);
-                    sender.sendMessage("§a§l✓ §aTransferred §e" + transferred + "x §fminecraft:" + material.name() + " §ato storage!");
-                } else {
-                    sender.sendMessage("§c" + target.getName() + " doesn't have this item in inventory!");
-                }
+                
+                // DIRECT ADD - no inventory check
+                storage.addItem(material, amount);
+                storage.save(plugin);
+                sender.sendMessage("§a§l✓ §aAdded §e" + amount + "x §fminecraft:" + material.name() + " §ato " + target.getName() + "'s storage!");
             } catch (IllegalArgumentException e) {
                 sender.sendMessage("§cMinecraft item not found: §7" + materialName);
             }
@@ -219,27 +212,19 @@ public class QuantumStorageCommand implements CommandExecutor {
 
         // No prefix - try Nexo first, then vanilla
         if (NexoItems.exists(itemArg)) {
-            int transferred = removeFromInventory(target, itemArg, amount, true);
-            if (transferred > 0) {
-                storage.addNexoItem(itemArg, transferred);
-                storage.save(plugin);
-                sender.sendMessage("§a§l✓ §aTransferred §e" + transferred + "x §f" + itemArg + " §ato storage!");
-            } else {
-                sender.sendMessage("§c" + target.getName() + " doesn't have this item in inventory!");
-            }
+            // DIRECT ADD
+            storage.addNexoItem(itemArg, amount);
+            storage.save(plugin);
+            sender.sendMessage("§a§l✓ §aAdded §e" + amount + "x §fnexo:" + itemArg + " §ato " + target.getName() + "'s storage!");
             return true;
         }
 
         try {
             Material material = Material.valueOf(itemArg.toUpperCase());
-            int transferred = removeFromInventory(target, material.name(), amount, false);
-            if (transferred > 0) {
-                storage.addItem(material, transferred);
-                storage.save(plugin);
-                sender.sendMessage("§a§l✓ §aTransferred §e" + transferred + "x §f" + material.name() + " §ato storage!");
-            } else {
-                sender.sendMessage("§c" + target.getName() + " doesn't have this item in inventory!");
-            }
+            // DIRECT ADD
+            storage.addItem(material, amount);
+            storage.save(plugin);
+            sender.sendMessage("§a§l✓ §aAdded §e" + amount + "x §fminecraft:" + material.name() + " §ato " + target.getName() + "'s storage!");
         } catch (IllegalArgumentException e) {
             sender.sendMessage("§cItem not found: §7" + itemArg);
         }
@@ -355,7 +340,7 @@ public class QuantumStorageCommand implements CommandExecutor {
         storage.removeNexoItem(nexoId, toRemove);
         giveNexoItems(target, nexoId, toRemove);
         storage.save(plugin);
-        sender.sendMessage("§a§l✓ §aWithdrawn §e" + toRemove + "x §fnexo:" + nexoId + " §afrom storage!");
+        sender.sendMessage("§a§l✓ §aWithdrawn §e" + toRemove + "x §fnexo:" + nexoId + " §afrom " + target.getName() + "'s storage!");
         return true;
     }
 
@@ -376,7 +361,7 @@ public class QuantumStorageCommand implements CommandExecutor {
         storage.removeItem(material, toRemove);
         giveVanillaItems(target, material, toRemove);
         storage.save(plugin);
-        sender.sendMessage("§a§l✓ §aWithdrawn §e" + toRemove + "x §fminecraft:" + material.name() + " §afrom storage!");
+        sender.sendMessage("§a§l✓ §aWithdrawn §e" + toRemove + "x §fminecraft:" + material.name() + " §afrom " + target.getName() + "'s storage!");
         return true;
     }
 
@@ -398,33 +383,6 @@ public class QuantumStorageCommand implements CommandExecutor {
             // Re-open the menu to refresh it - pass plugin instance
             Bukkit.getScheduler().runTask(plugin, () -> storageMenu.open(player, plugin));
         }
-    }
-
-    private int removeFromInventory(Player player, String identifier, int maxAmount, boolean isNexo) {
-        int removed = 0;
-        int remaining = maxAmount;
-
-        for (ItemStack item : player.getInventory().getContents()) {
-            if (item == null || item.getType() == Material.AIR) continue;
-            if (remaining <= 0) break;
-
-            boolean matches = false;
-            if (isNexo) {
-                String nexoId = NexoItems.idFromItem(item);
-                matches = nexoId != null && nexoId.equals(identifier);
-            } else {
-                matches = item.getType().name().equalsIgnoreCase(identifier);
-            }
-
-            if (matches) {
-                int toRemove = Math.min(item.getAmount(), remaining);
-                item.setAmount(item.getAmount() - toRemove);
-                removed += toRemove;
-                remaining -= toRemove;
-            }
-        }
-
-        return removed;
     }
 
     private void giveNexoItems(Player player, String nexoId, int amount) {
@@ -466,21 +424,20 @@ public class QuantumStorageCommand implements CommandExecutor {
     }
 
     private void sendHelp(Player player) {
-        player.sendMessage("§6§l■ §eQuantum Storage Commands");
+        player.sendMessage("§6§l■ §eQuantum Storage Commands §7(Admin)");
         player.sendMessage("");
-        player.sendMessage("§e/qstorage transfer <item|hand|all> [amount] §7- Transfer items to storage");
-        player.sendMessage("§e/qstorage remove <item> [amount] §7- Remove items from storage");
+        player.sendMessage("§e/qstorage transfer hand [amount] §7- Transfer item in hand");
+        player.sendMessage("§e/qstorage transfer all §7- Transfer all inventory");
+        player.sendMessage("§e/qstorage transfer <item> <amount> §7- Add directly to storage");
+        player.sendMessage("§e/qstorage remove <item> [amount] §7- Remove from storage");
         player.sendMessage("");
-        player.sendMessage("§7Syntax:");
+        player.sendMessage("§7Item Syntax:");
         player.sendMessage("§fnexo:<id> §7- Nexo custom item");
         player.sendMessage("§fminecraft:<id> §7- Minecraft vanilla item");
         player.sendMessage("");
         player.sendMessage("§7Examples:");
-        player.sendMessage("§f/qstorage transfer hand §7- Transfer item in hand");
-        player.sendMessage("§f/qstorage transfer all §7- Transfer all items");
-        player.sendMessage("§f/qstorage transfer nexo:custom_sword 10");
-        player.sendMessage("§f/qstorage transfer minecraft:diamond 64");
-        player.sendMessage("§f/qstorage remove nexo:custom_sword 5");
-        player.sendMessage("§f/qstorage remove minecraft:diamond 32");
+        player.sendMessage("§f/qstorage transfer nexo:afzelia_bark 1 §7- Add 1 bark to storage");
+        player.sendMessage("§f/qstorage transfer minecraft:diamond 64 §7- Add 64 diamonds");
+        player.sendMessage("§f/qstorage remove nexo:afzelia_bark 5 §7- Remove 5 from storage");
     }
 }

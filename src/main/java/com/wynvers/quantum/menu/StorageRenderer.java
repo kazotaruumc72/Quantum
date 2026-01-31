@@ -79,6 +79,16 @@ public class StorageRenderer {
             }
         }
         
+        // Vérifier si le GUI est plein (tous les slots remplis)
+        if (items.size() >= quantumSlots.size() && quantumSlots.size() > 0) {
+            // Envoyer titre + sous-titre depuis messages.yml
+            String title = plugin.getMessagesManager().get("storage.full-title", false);
+            String subtitle = plugin.getMessagesManager().get("storage.full-subtitle", false);
+            
+            // Envoyer le titre (1.20.6 compatible)
+            player.sendTitle(title, subtitle, 10, 70, 20);
+        }
+        
         // Remplir les slots avec les items
         int index = 0;
         for (int slot : quantumSlots) {

@@ -9,7 +9,7 @@
 - [Configuration](#️-configuration)
 - [Commandes](#-commandes)
 - [Permissions](#-permissions)
-- [Storage Interactif](#-storage-interactif-nouveau)
+- [Storage System](#-storage-system-nouveau)
 - [PlaceholderAPI](#-placeholderapi-nouveau)
 - [Menus](#-menus)
 - [API Développeur](#-api-développeur)
@@ -20,13 +20,14 @@
 ### 🎒 Système de Stockage Virtuel
 
 - **Capacité illimitée** - Stockez autant d'items que vous voulez
-- **GUI Interactif** 🆕 - Cliquez pour déposer/retirer des items directement
-- **Drag & Drop** 🆕 - Glissez-déposez vos items dans le storage
+- **GUI en lecture seule** 🆕 - Joueurs visualisent, admins interagissent
+- **Commandes puissantes** 🆕 - Gestion complète via `/qstorage`
+- **Support Console** 🆕 - Commandes automatisées avec ciblage joueur
 - **Support Nexo** - Compatible avec les items custom Nexo
 - **Items Vanilla** - Support complet des items Minecraft
 - **Syntaxe explicite** - `nexo:id` et `minecraft:id` pour éviter les conflits
 - **Base de données** - Sauvegarde MySQL ou SQLite
-- **GUI Dynamique** - Menu storage qui se met à jour automatiquement
+- **GUI Dynamique** - Menu storage avec placeholders temps réel
 - **PlaceholderAPI** 🆕 - Placeholders pour afficher les quantités stockées
 
 ### 🎨 Constructeur de GUI
@@ -74,7 +75,7 @@ plugins/Quantum/
 ├── menus/                  # Dossier des menus
 │   ├── example.yml         # Menu d'exemple simple
 │   ├── example_advanced.yml # Menu avec toutes les features
-│   └── storage.yml         # Menu du storage 🆕 (avec placeholders)
+│   └── storage.yml         # Menu du storage 🆕 (read-only + placeholders)
 └── messages/               # Dossier des messages
     ├── messages_en.yml     # Messages anglais
     └── messages_fr.yml     # Messages français
@@ -129,7 +130,7 @@ items:
 
 ### Commandes Joueur
 
-#### `/qstorage` (Aliaqs`, `/quantumstorage`)
+#### `/qstorage` (Aliases: `/qs`, `/quantumstorage`)
 
 **Transfer (Transférer vers le storage):**
 ```
@@ -173,54 +174,78 @@ items:
 ## 🔑 Permissions
 
 ```yaml
-quantum.admin              # Accès admin complet
+quantum.admin              # Accès admin complet + GUI interactif
 quantum.reload             # Recharger le plugin
-quantum.storage.use        # Utiliser le storage
+quantum.storage.use        # Utiliser le storage (view + commands)
 quantum.storage.transfer   # Transférer des items
 quantum.storage.remove     # Retirer des items
 quantum.menu.open          # Ouvrir les menus
 quantum.menu.admin         # Ouvrir menus d'autres joueurs
 ```
 
-## 🖱️ Storage Interactif 🆕
+## 💾 Storage System 🆕
 
-### **Comment Utiliser le Storage GUI**
+### **Comment Fonctionne le Storage**
 
-#### **Déposer des Items**
+#### **👥 Pour les Joueurs (View-Only GUI)**
 
-**Méthode 1: Drag & Drop**
-- Prenez un item avec votre curseur
-- **Clic Gauche** sur un slot vide → Déposer tous les items
-- **Clic Droit** sur un slot vide → Déposer 1 item
-
-**Méthode 2: Shift-Click**
-- **Shift + Clic Gauche** sur un item dans votre inventaire
-- L'item se dépose automatiquement dans le storage
-
-**Méthode 3: Commandes**
+**Voir son storage:**
 ```
+/storage
+```
+
+Le GUI est **en lecture seule** - vous pouvez:
+- ✅ Voir tous les items stockés
+- ✅ Voir les quantités en temps réel (PlaceholderAPI)
+- ❌ Pas de drag & drop
+- ❌ Pas de clic pour retirer
+
+**Gérer son storage via commandes:**
+```bash
+# Déposer des items
 /qstorage transfer hand
 /qstorage transfer all
-```
+/qstorage transfer diamond 64
 
-#### **Retirer des Items**
-
-**Cliquez sur les items dans le storage:**
-- **Clic Gauche** → Retirer 1 stack (64 max)
-- **Clic Droit** → Retirer 1 item
-- **Shift + Clic Gauche** → Retirer TOUS les items de ce type
-
-**Ou via commandes:**
-```
+# Retirer des items
 /qstorage remove diamond 32
+/qstorage remove nexo:custom_sword 5
 ```
 
-### **Feedback Visuel**
+#### **🔑 Pour les Admins (`quantum.admin`)**
 
-✅ Sons de confirmation
-✅ Messages dans le chat
-✅ Rafraîchissement automatique du GUI
-✅ Placeholders mis à jour en temps réel
+Les admins ont **accès complet au GUI interactif**:
+- ✅ Drag & drop pour déposer
+- ✅ Clic gauche: retirer 1 stack (64 max)
+- ✅ Clic droit: retirer 1 item
+- ✅ Shift + Clic: retirer TOUT
+- ✅ Toutes les commandes également disponibles
+
+#### **🖥️ Pour la Console**
+
+**Gestion ciblée:**
+```bash
+# Ajouter au storage d'un joueur
+qstorage transfer minecraft:diamond 64 Notch
+qstorage transfer nexo:ruby 10 Steve
+
+# Retirer du storage d'un joueur
+qstorage remove minecraft:diamond 32 Notch
+qstorage remove nexo:custom_item 5 Steve
+```
+
+**Parfait pour:**
+- Récompenses automatiques
+- Systèmes de shop
+- Quêtes
+- Scripts administratifs
+
+### **Pourquoi Read-Only pour les Joueurs ?**
+
+1. **Contrôle centralisé** - Les admins/console gèrent les flux d'items
+2. **Sécurité** - Évite les exploits de duplication via GUI
+3. **Auditabilité** - Toutes les actions via commandes = logs clairs
+4. **Flexibilité** - Console peut automatiser complètement
 
 **Voir [STORAGE_GUIDE.md](STORAGE_GUIDE.md) pour le guide complet !**
 
@@ -268,7 +293,7 @@ items:
     lore:
       - '&7Amount: &f%quantum_amt_minecraft-diamond%'
       - '&7'
-      - '&aClick to withdraw!'
+      - '&7Use &a/qstorage remove diamond <amt>'
     slots: [10]
 ```
 
@@ -430,7 +455,7 @@ public void onMenuOpen(MenuOpenEvent event) {
 
 - [COMMANDS.md](COMMANDS.md) - Documentation complète des commandes
 - [MENU_GUIDE.md](MENU_GUIDE.md) - Guide de création de menus
-- [STORAGE_GUIDE.md](STORAGE_GUIDE.md) - 🆕 Guide complet du storage interactif
+- [STORAGE_GUIDE.md](STORAGE_GUIDE.md) - 🆕 Guide complet du storage (read-only GUI + commandes)
 - [API.md](API.md) - Documentation API pour développeurs
 
 ## 🐛 Support

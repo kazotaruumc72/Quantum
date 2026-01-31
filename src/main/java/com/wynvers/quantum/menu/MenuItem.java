@@ -1,6 +1,8 @@
 package com.wynvers.quantum.menu;
 
+import com.wynvers.quantum.Quantum;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,7 @@ public class MenuItem {
     // Requirements
     private List<Requirement> viewRequirements;
     private List<Requirement> clickRequirements;
+    private String denyMessage;
     
     public MenuItem(String id) {
         this.id = id;
@@ -99,6 +102,10 @@ public class MenuItem {
         return clickRequirements;
     }
     
+    public String getDenyMessage() {
+        return denyMessage;
+    }
+    
     public boolean isNexoItem() {
         return nexoId != null && !nexoId.isEmpty();
     }
@@ -137,6 +144,10 @@ public class MenuItem {
         this.customModelData = customModelData;
     }
     
+    public void setDenyMessage(String denyMessage) {
+        this.denyMessage = denyMessage;
+    }
+    
     public void addLeftClickAction(MenuAction action) {
         leftClickActions.add(action);
     }
@@ -156,8 +167,31 @@ public class MenuItem {
     public void addClickRequirement(Requirement requirement) {
         clickRequirements.add(requirement);
     }
+    
+    /**
+     * Check if player meets all requirements to interact with this item
+     */
+    public boolean meetsRequirements(Player player, Quantum plugin) {
+        // Check click requirements (when item is clicked)
+        for (Requirement requirement : clickRequirements) {
+            if (!requirement.check(player, plugin)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Execute all actions for this item
+     */
+    public void executeActions(Player player, Quantum plugin) {
+        // Execute all left click actions (default)
+        for (MenuAction action : leftClickActions) {
+            action.execute(player, plugin);
+        }
+    }
 
-        /**
+    /**
      * Convert this MenuItem to a Bukkit ItemStack
      */
     public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin) {
@@ -165,12 +199,17 @@ public class MenuItem {
         
         // Check if this is a Nexo item
         if (isNexoItem()) {
-            // TODO: Implement Nexo item creation when Nexo API is available
-            // For now, fallback to material
-            if (material != null) {
-                itemStack = new org.bukkit.inventory.ItemStack(material, amount);
-            } else {
-                return null;
+            // Try to create Nexo item
+            try {
+                itemStack = com.nexomc.nexo.api.NexoItems.itemFromId(nexoId).build();
+                itemStack.setAmount(amount);
+            } catch (Exception e) {
+                // Nexo not available or item not found, fallback to material
+                if (material != null) {
+                    itemStack = new org.bukkit.inventory.ItemStack(material, amount);
+                } else {
+                    return null;
+                }
             }
         } else {
             // Create vanilla Minecraft item
@@ -178,27 +217,29 @@ public class MenuItem {
             itemStack = new org.bukkit.inventory.ItemStack(material, amount);
         }
         
-        // Apply metadata
-        org.bukkit.inventory.meta.ItemMeta meta = itemStack.getItemMeta();
-        if (meta != null) {
-            if (displayName != null) {
-                meta.setDisplayName(displayName);
+        // Apply metadata (only if not Nexo item or Nexo failed)
+        if (!isNexoItem() || itemStack.getType() == material) {
+            org.bukkit.inventory.meta.ItemMeta meta = itemStack.getItemMeta();
+            if (meta != null) {
+                if (displayName != null) {
+                    meta.setDisplayName(displayName);
+                }
+                
+                if (lore != null && !lore.isEmpty()) {
+                    meta.setLore(lore);
+                }
+                
+                if (customModelData > 0) {
+                    meta.setCustomModelData(customModelData);
+                }
+                
+                // Handle skull owner
+                if (skullOwner != null && meta instanceof org.bukkit.inventory.meta.SkullMeta) {
+                    ((org.bukkit.inventory.meta.SkullMeta) meta).setOwner(skullOwner);
+                }
+                
+                itemStack.setItemMeta(meta);
             }
-            
-            if (lore != null && !lore.isEmpty()) {
-                meta.setLore(lore);
-            }
-            
-            if (customModelData > 0) {
-                meta.setCustomModelData(customModelData);
-            }
-            
-            // Handle skull owner
-            if (skullOwner != null && meta instanceof org.bukkit.inventory.meta.SkullMeta) {
-                ((org.bukkit.inventory.meta.SkullMeta) meta).setOwner(skullOwner);
-            }
-            
-            itemStack.setItemMeta(meta);
         }
         
         return itemStack;

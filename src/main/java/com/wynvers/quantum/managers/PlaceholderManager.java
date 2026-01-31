@@ -28,7 +28,6 @@ public class PlaceholderManager {
                 // Remplacer le placeholder %mode%
         if (text.contains("%mode%")) {
             // StorageModeManager functionality temporarily disabled            text = text.replace("%mode%", mode.getDisplayName());
-        //             }
         
         return PlaceholderAPI.setPlaceholders(player, text);
     }
@@ -55,5 +54,6 @@ public class PlaceholderManager {
         return enabled;
     }
 }
+
 
 

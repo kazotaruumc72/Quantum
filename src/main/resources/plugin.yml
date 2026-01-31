@@ -1,6 +1,6 @@
 name: Quantum
 version: '${project.version}'
-main: fr.robie.quantum.Quantum
+main: com.wynvers.quantum.Quantum
 api-version: '1.21'
 load: POSTWORLD
 author: Robie

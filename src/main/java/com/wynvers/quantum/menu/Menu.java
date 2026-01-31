@@ -5,6 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.wynvers.quantum.Quantum;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+
 public class Menu {
     
     private final String id;
@@ -100,4 +105,17 @@ public class Menu {
     public void addItem(MenuItem item) {
         items.put(item.getId(), item);
     }
+
+        /**
+     * Open this menu for a player
+     */
+    public void open(Player player, Quantum plugin) {
+        Inventory inventory = Bukkit.createInventory(null, size, title);
+        
+        // TODO: Populate inventory with items
+        // For now, just open empty inventory
+        
+        player.openInventory(inventory);
+    }
 }
+

@@ -26,6 +26,7 @@ public class StorageInventory {
         this.plugin = plugin;
         this.player = player;
         this.storage = plugin.getStorageManager().getStorage(player.getUniqueId());
+            }
                 
         
 

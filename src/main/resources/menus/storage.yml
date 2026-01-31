@@ -1,50 +1,132 @@
-# Menu de Storage Quantum
-# Système de stockage virtuel infini avec support Nexo
+# Quantum Storage Menu
+# Interactive storage system with unlimited capacity
+# Supports Nexo custom items and PlaceholderAPI
 
-menu_title: '&6&lStorage - Mode: %mode%'
-size: 54  # Must be multiple of 9 (9-54)
-update_interval: 20
+title: '&6&lStorage - Node: %nodeX%'
+size: 54
+
+# Optional animated title
+animated_title:
+  enabled: false
+  frames:
+    - '&6&lStorage &f- &aReady'
+    - '&6&lStorage &f- &eLoading'
+  speed: 10
 
 items:
-  # Bouton de changement de mode
-  mode_toggle:
-    slot: 49
-    type: quantum_sell
-    material: CHEST
-    display_name: '&e&lMode: %mode%'
-    lore:
-      - "&7Cliquez pour changer de mode"
-      - "&7"
-      - "&7Modes disponibles:"
-      - "&a• STORAGE &7- Voir vos items"
-      - "&e• VENTE &7- Vendre vos items"
-
-  # Slots de storage (10-43 = 34 slots)
-  storage_slots:
-    slots: [10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43]
-    type: quantum_storage
-    # Les items apparaîtront dynamiquement
-
-  # Bordure décorative
+  # Border decoration
   border:
-    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 50, 51, 52, 53]
     material: GRAY_STAINED_GLASS_PANE
     display_name: ' '
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 50, 51, 52, 53]
 
-  # Information
+  # Info button
   info:
-    slot: 4
     material: BOOK
-    display_name: '&e&lInformations Storage'
+    display_name: '&e&lHow to Use Storage'
     lore:
-      - "&7"
-      - "&7Mode actuel: &e%mode%"
-      - "&7"
-      - "&7En mode STORAGE:"
-      - "&a  • Visualisez vos items stockés"
-      - "&a  • Quantité infinie par item"
-      - "&7"
-      - "&7En mode VENTE:"
-      - "&e  • Clic droit pour vendre"
-      - "&e  • Sélectionnez le pourcentage"
-      - "&e  • Confirmez la vente"
+      - '&7'
+      - '&7Deposit items:'
+      - '&a  • Drag items to any slot'
+      - '&a  • Shift-click items from inventory'
+      - '&7'
+      - '&7Withdraw items:'
+      - '&e  • Left Click - Withdraw 64'
+      - '&e  • Right Click - Withdraw 1'
+      - '&e  • Shift Click - Withdraw ALL'
+      - '&7'
+      - '&7Your storage is &aunlimited&7!'
+    slots: [4]
+    click_actions:
+      - '[MESSAGE] &aStorage system ready!'
+      - '[SOUND] ENTITY_PLAYER_LEVELUP'
+
+  # Example: Diamond display with placeholder
+  diamond_display:
+    material: DIAMOND
+    display_name: '&b&lDiamond Storage'
+    lore:
+      - '&7Amount: &f%quantum_amt_minecraft-diamond%'
+      - '&7'
+      - '&aLeft Click &7- Withdraw 64'
+      - '&aRight Click &7- Withdraw 1'
+      - '&aShift Click &7- Withdraw ALL'
+    slots: [10]
+    # This slot is interactive - clicking will withdraw diamonds!
+
+  # Example: Gold display
+  gold_display:
+    material: GOLD_INGOT
+    display_name: '&e&lGold Storage'
+    lore:
+      - '&7Current: &f%quantum_amt_minecraft-gold_ingot%'
+      - '&7Value: &6$%quantum_amt_minecraft-gold_ingot%'
+      - '&7'
+      - '&eClick to withdraw'
+    slots: [11]
+
+  # Example: Iron display
+  iron_display:
+    material: IRON_INGOT
+    display_name: '&f&lIron Storage'
+    lore:
+      - '&7Amount: &f%quantum_amt_minecraft-iron_ingot%'
+      - '&7'
+      - '&eClick to withdraw'
+    slots: [12]
+
+  # Example: Emerald display
+  emerald_display:
+    material: EMERALD
+    display_name: '&a&lEmerald Storage'
+    lore:
+      - '&7Stock: &f%quantum_amt_minecraft-emerald%'
+      - '&7'
+      - '&aClick to withdraw'
+    slots: [13]
+
+  # Example: Nexo custom item (if you have Nexo items)
+  # Uncomment and replace with your Nexo item IDs
+  # custom_sword_display:
+  #   nexo_item: 'custom_sword'
+  #   display_name: '&c&lCustom Sword Storage'
+  #   lore:
+  #     - '&7Amount: &e%quantum_amt_nexo-custom_sword%'
+  #     - '&7'
+  #     - '&cClick to withdraw'
+  #   slots: [14]
+
+  # Storage slots (interactive - for drag & drop or displaying stored items)
+  # Slots 15-16, 19-25, 28-34, 37-43 are available for storage
+  # These slots don't need configuration - they're automatically interactive!
+  # Players can:
+  #   - Drag items to deposit
+  #   - Click displayed items to withdraw
+
+  # Resource counter display
+  resource_counter:
+    material: CHEST
+    display_name: '&e&lYour Resources'
+    lore:
+      - '&7'
+      - '&7Diamonds: &b%quantum_amt_minecraft-diamond%'
+      - '&7Gold: &e%quantum_amt_minecraft-gold_ingot%'
+      - '&7Iron: &f%quantum_amt_minecraft-iron_ingot%'
+      - '&7Emeralds: &a%quantum_amt_minecraft-emerald%'
+      - '&7'
+      - '&aStorage is unlimited!'
+    slots: [49]
+
+  # Close button
+  close:
+    material: BARRIER
+    display_name: '&c&lClose'
+    lore:
+      - '&7Click to close'
+    slots: [53]
+    click_actions:
+      - '[CLOSE]'
+
+# Note: Empty slots (not configured) are automatically interactive for storage
+# Players can deposit items by dragging or shift-clicking
+# Stored items will appear dynamically and can be clicked to withdraw

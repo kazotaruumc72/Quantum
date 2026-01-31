@@ -1,5 +1,6 @@
 # Quantum Storage Menu
-# Interactive storage system with unlimited capacity
+# View-only GUI for players - use /qstorage commands to manage items
+# Admins with 'quantum.admin' can interact with GUI directly
 # Supports Nexo custom items and PlaceholderAPI
 
 title: '&6&lStorage - Node: %nodeX%'
@@ -23,22 +24,24 @@ items:
   # Info button
   info:
     material: BOOK
-    display_name: '&e&lHow to Use Storage'
+    display_name: '&e&lStorage Info'
     lore:
       - '&7'
-      - '&7Deposit items:'
-      - '&a  • Drag items to any slot'
-      - '&a  • Shift-click items from inventory'
+      - '&7This storage is &cview-only&7.'
       - '&7'
-      - '&7Withdraw items:'
-      - '&e  • Left Click - Withdraw 64'
-      - '&e  • Right Click - Withdraw 1'
-      - '&e  • Shift Click - Withdraw ALL'
+      - '&7To manage items:'
+      - '&a  • /qstorage transfer <item> <amount>'
+      - '&a  • /qstorage remove <item> <amount>'
+      - '&7'
+      - '&7Admins with &equantum.admin&7:'
+      - '&e  • Can drag & drop items'
+      - '&e  • Can click to withdraw'
+      - '&e  • Can shift-click to deposit'
       - '&7'
       - '&7Your storage is &aunlimited&7!'
     slots: [4]
     click_actions:
-      - '[MESSAGE] &aStorage system ready!'
+      - '[MESSAGE] &aUse /qstorage commands to manage your items!'
       - '[SOUND] ENTITY_PLAYER_LEVELUP'
 
   # Example: Diamond display with placeholder
@@ -48,11 +51,14 @@ items:
     lore:
       - '&7Amount: &f%quantum_amt_minecraft-diamond%'
       - '&7'
-      - '&aLeft Click &7- Withdraw 64'
-      - '&aRight Click &7- Withdraw 1'
-      - '&aShift Click &7- Withdraw ALL'
+      - '&7For admins only:'
+      - '&e  Left Click - Withdraw 64'
+      - '&e  Right Click - Withdraw 1'
+      - '&e  Shift Click - Withdraw ALL'
+      - '&7'
+      - '&7Players: Use &a/qstorage remove diamond <amt>'
     slots: [10]
-    # This slot is interactive - clicking will withdraw diamonds!
+    # Admins can click to withdraw
 
   # Example: Gold display
   gold_display:
@@ -62,7 +68,7 @@ items:
       - '&7Current: &f%quantum_amt_minecraft-gold_ingot%'
       - '&7Value: &6$%quantum_amt_minecraft-gold_ingot%'
       - '&7'
-      - '&eClick to withdraw'
+      - '&7Use &a/qstorage remove gold_ingot <amt>'
     slots: [11]
 
   # Example: Iron display
@@ -72,7 +78,7 @@ items:
     lore:
       - '&7Amount: &f%quantum_amt_minecraft-iron_ingot%'
       - '&7'
-      - '&eClick to withdraw'
+      - '&7Use &a/qstorage remove iron_ingot <amt>'
     slots: [12]
 
   # Example: Emerald display
@@ -82,7 +88,7 @@ items:
     lore:
       - '&7Stock: &f%quantum_amt_minecraft-emerald%'
       - '&7'
-      - '&aClick to withdraw'
+      - '&7Use &a/qstorage remove emerald <amt>'
     slots: [13]
 
   # Example: Nexo custom item (if you have Nexo items)
@@ -93,15 +99,14 @@ items:
   #   lore:
   #     - '&7Amount: &e%quantum_amt_nexo-custom_sword%'
   #     - '&7'
-  #     - '&cClick to withdraw'
+  #     - '&7Use &a/qstorage remove nexo:custom_sword <amt>'
   #   slots: [14]
 
-  # Storage slots (interactive - for drag & drop or displaying stored items)
-  # Slots 15-16, 19-25, 28-34, 37-43 are available for storage
-  # These slots don't need configuration - they're automatically interactive!
-  # Players can:
-  #   - Drag items to deposit
-  #   - Click displayed items to withdraw
+  # Storage slots (displayed items)
+  # Slots 15-16, 19-25, 28-34, 37-43 are available for storage items display
+  # These slots show stored items dynamically with quantities
+  # Players can view but not interact (read-only)
+  # Admins can click to withdraw
 
   # Resource counter display
   resource_counter:
@@ -115,7 +120,28 @@ items:
       - '&7Emeralds: &a%quantum_amt_minecraft-emerald%'
       - '&7'
       - '&aStorage is unlimited!'
+      - '&7Use &e/qstorage&7 to manage items'
     slots: [49]
+
+  # Commands info
+  commands_info:
+    material: COMMAND_BLOCK
+    display_name: '&6&lAvailable Commands'
+    lore:
+      - '&7'
+      - '&a/qstorage transfer <item> <amount>'
+      - '&7  → Deposit items to storage'
+      - '&7'
+      - '&a/qstorage remove <item> <amount>'
+      - '&7  → Withdraw items from storage'
+      - '&7'
+      - '&7Examples:'
+      - '&e  /qstorage transfer diamond 64'
+      - '&e  /qstorage remove gold_ingot 32'
+      - '&e  /qstorage transfer nexo:custom_sword 10'
+    slots: [52]
+    click_actions:
+      - '[MESSAGE] &aUse /qstorage transfer or /qstorage remove!'
 
   # Close button
   close:
@@ -127,6 +153,8 @@ items:
     click_actions:
       - '[CLOSE]'
 
-# Note: Empty slots (not configured) are automatically interactive for storage
-# Players can deposit items by dragging or shift-clicking
-# Stored items will appear dynamically and can be clicked to withdraw
+# Note:
+# - GUI is VIEW-ONLY for regular players
+# - Players must use /qstorage commands to manage items
+# - Admins with 'quantum.admin' can interact with GUI directly
+# - Console can use: /qstorage transfer/remove <item> <amt> <player>

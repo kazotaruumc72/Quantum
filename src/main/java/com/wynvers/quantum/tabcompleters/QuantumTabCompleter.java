@@ -26,7 +26,8 @@ public class QuantumTabCompleter implements TabCompleter {
                 "reload",
                 "help",
                 "info",
-                "version"
+                "version",
+                "storage"
             );
             
             // Filtrer les suggestions basées sur ce que l'utilisateur a tapé

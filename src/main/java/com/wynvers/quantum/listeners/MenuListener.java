@@ -3,6 +3,7 @@ package com.wynvers.quantum.listeners;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.menu.Menu;
 import com.wynvers.quantum.menu.MenuItem;
+import com.wynvers.quantum.menu.StorageMenuHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,9 +20,11 @@ import org.bukkit.inventory.InventoryView;
 public class MenuListener implements Listener {
 
     private final Quantum plugin;
+    private final StorageMenuHandler storageHandler;
 
     public MenuListener(Quantum plugin) {
         this.plugin = plugin;
+        this.storageHandler = new StorageMenuHandler(plugin);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -35,6 +38,12 @@ public class MenuListener implements Listener {
         // Check if this is a Quantum menu
         Menu menu = plugin.getMenuManager().getMenuByTitle(title);
         if (menu == null) return;
+        
+        // Special handling for storage menu
+        if (menu.getId().equals("storage")) {
+            handleStorageMenu(event, player, menu);
+            return;
+        }
         
         // Cancel all clicks in menu inventory
         Inventory clickedInv = event.getClickedInventory();
@@ -64,6 +73,52 @@ public class MenuListener implements Listener {
         // If clicking in player inventory while menu is open, prevent shift-click to menu
         else if (event.getClick().isShiftClick()) {
             event.setCancelled(true);
+        }
+    }
+    
+    /**
+     * Handle storage menu clicks with special interactive behavior
+     */
+    private void handleStorageMenu(InventoryClickEvent event, Player player, Menu menu) {
+        Inventory clickedInv = event.getClickedInventory();
+        Inventory topInv = event.getView().getTopInventory();
+        
+        // If clicking in the storage menu (top inventory)
+        if (clickedInv != null && clickedInv.equals(topInv)) {
+            event.setCancelled(true);
+            
+            int slot = event.getSlot();
+            MenuItem menuItem = menu.getItemAt(slot);
+            
+            // If clicking on a configured menu item (buttons, decorations)
+            if (menuItem != null) {
+                // Check requirements
+                if (!menuItem.meetsRequirements(player, plugin)) {
+                    if (menuItem.getDenyMessage() != null && !menuItem.getDenyMessage().isEmpty()) {
+                        player.sendMessage(menuItem.getDenyMessage());
+                    }
+                    return;
+                }
+                
+                // Execute actions
+                menuItem.executeActions(player, plugin);
+            }
+            // If clicking on an empty slot or storage item slot
+            else {
+                // Handle deposit/withdrawal via StorageMenuHandler
+                storageHandler.handleClick(player, slot, event.getClick(), event.getCursor());
+            }
+        }
+        // If clicking in player inventory while storage is open
+        else if (clickedInv != null && clickedInv.equals(player.getInventory())) {
+            // Allow shift-click to deposit items to storage
+            if (event.getClick().isShiftClick()) {
+                event.setCancelled(true);
+                // Handle shift-click deposit
+                if (event.getCurrentItem() != null) {
+                    storageHandler.handleClick(player, -1, event.getClick(), event.getCurrentItem());
+                }
+            }
         }
     }
     

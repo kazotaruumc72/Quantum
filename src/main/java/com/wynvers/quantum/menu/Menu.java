@@ -59,6 +59,10 @@ public class Menu {
     public boolean hasAnimatedTitle() {
         return animatedTitle;
     }
+    
+    public boolean isAnimatedTitle() {
+        return animatedTitle;
+    }
  
     public List<String> getTitleFrames() {
         return titleFrames;
@@ -74,6 +78,18 @@ public class Menu {
  
     public MenuItem getItem(String id) {
         return items.get(id);
+    }
+    
+    /**
+     * Get menu item at specific slot
+     */
+    public MenuItem getItemAt(int slot) {
+        for (MenuItem item : items.values()) {
+            if (item.getSlots().contains(slot)) {
+                return item;
+            }
+        }
+        return null;
     }
  
     // === SETTERS ===

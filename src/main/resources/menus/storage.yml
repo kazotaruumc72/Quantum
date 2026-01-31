@@ -1,160 +1,76 @@
-# Quantum Storage Menu
-# View-only GUI for players - use /qstorage commands to manage items
-# Admins with 'quantum.admin' can interact with GUI directly
-# Supports Nexo custom items and PlaceholderAPI
+# Menu Storage Quantum
+# Interface lecture seule pour les joueurs - utilisez /qstorage pour gérer les items
+# Les admins avec 'quantum.admin' peuvent interagir directement avec l'interface
+# Support des items custom Nexo et PlaceholderAPI
 
-title: '&6&lStorage - Node: %nodeX%'
+title: '&6&lStorage - Mode: %mode%'
 size: 54
 
-# Optional animated title
+# Titre animé optionnel
 animated_title:
-  enabled: false
+  enabled: true
   frames:
-    - '&6&lStorage &f- &aReady'
-    - '&6&lStorage &f- &eLoading'
-  speed: 10
+    - '&b&lStorage - Mode: %mode%'
+    - '&a&lStorage - Mode: %mode%'
+  speed: 10 # en secondes
 
 items:
-  # Border decoration
+  # Bordure décorative
   border:
     material: GRAY_STAINED_GLASS_PANE
     display_name: ' '
-    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 50, 51, 52, 53]
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 45, 46, 47, 48, 50, 51, 52, 53]
 
-  # Info button
-  info:
-    material: BOOK
-    display_name: '&e&lStorage Info'
-    lore:
-      - '&7'
-      - '&7This storage is &cview-only&7.'
-      - '&7'
-      - '&7To manage items:'
-      - '&a  • /qstorage transfer <item> <amount>'
-      - '&a  • /qstorage remove <item> <amount>'
-      - '&7'
-      - '&7Admins with &equantum.admin&7:'
-      - '&e  • Can drag & drop items'
-      - '&e  • Can click to withdraw'
-      - '&e  • Can shift-click to deposit'
-      - '&7'
-      - '&7Your storage is &aunlimited&7!'
-    slots: [4]
-    click_actions:
-      - '[MESSAGE] &aUse /qstorage commands to manage your items!'
-      - '[SOUND] ENTITY_PLAYER_LEVELUP'
+  # Slots de storage (zone centrale)
+  storage_slots:
+    slots: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44]
+    type: quantum_storage
+    lore_append:
+      - ' '
+      - ' &fQuantité: &a%quantity%'
+      - ' &fPrix unitaire: %price%'
+      - ' &fPrix total: %total_price%'
 
-  # Example: Diamond display with placeholder
-  diamond_display:
-    material: DIAMOND
-    display_name: '&b&lDiamond Storage'
-    lore:
-      - '&7Amount: &f%quantum_amt_minecraft-diamond%'
-      - '&7'
-      - '&7For admins only:'
-      - '&e  Left Click - Withdraw 64'
-      - '&e  Right Click - Withdraw 1'
-      - '&e  Shift Click - Withdraw ALL'
-      - '&7'
-      - '&7Players: Use &a/qstorage remove diamond <amt>'
-    slots: [10]
-    # Admins can click to withdraw
-
-  # Example: Gold display
-  gold_display:
+  # Bouton: Mode Vente
+  storage_change_mode_sell:
+    slots: [45]
     material: GOLD_INGOT
-    display_name: '&e&lGold Storage'
+    display_name: '&e&lMode Vente'
     lore:
-      - '&7Current: &f%quantum_amt_minecraft-gold_ingot%'
-      - '&7Value: &6$%quantum_amt_minecraft-gold_ingot%'
-      - '&7'
-      - '&7Use &a/qstorage remove gold_ingot <amt>'
-    slots: [11]
-
-  # Example: Iron display
-  iron_display:
-    material: IRON_INGOT
-    display_name: '&f&lIron Storage'
-    lore:
-      - '&7Amount: &f%quantum_amt_minecraft-iron_ingot%'
-      - '&7'
-      - '&7Use &a/qstorage remove iron_ingot <amt>'
-    slots: [12]
-
-  # Example: Emerald display
-  emerald_display:
-    material: EMERALD
-    display_name: '&a&lEmerald Storage'
-    lore:
-      - '&7Stock: &f%quantum_amt_minecraft-emerald%'
-      - '&7'
-      - '&7Use &a/qstorage remove emerald <amt>'
-    slots: [13]
-
-  # Example: Nexo custom item (if you have Nexo items)
-  # Uncomment and replace with your Nexo item IDs
-  # custom_sword_display:
-  #   nexo_item: 'custom_sword'
-  #   display_name: '&c&lCustom Sword Storage'
-  #   lore:
-  #     - '&7Amount: &e%quantum_amt_nexo-custom_sword%'
-  #     - '&7'
-  #     - '&7Use &a/qstorage remove nexo:custom_sword <amt>'
-  #   slots: [14]
-
-  # Storage slots (displayed items)
-  # Slots 15-16, 19-25, 28-34, 37-43 are available for storage items display
-  # These slots show stored items dynamically with quantities
-  # Players can view but not interact (read-only)
-  # Admins can click to withdraw
-
-  # Resource counter display
-  resource_counter:
+      - '&7Cliquez pour passer en mode vente'
+      - '&7Mode actuel: &a%mode%'
+      - ' '
+      - '&7En mode vente, vous pouvez vendre'
+      - '&7vos items directement depuis le storage'
+    type: QUANTUM_CHANGE_MODE
+    mode: SELL
+  
+  # Bouton: Mode Storage
+  storage_change_mode_storage:
+    slots: [46]
     material: CHEST
-    display_name: '&e&lYour Resources'
+    display_name: '&e&lMode Storage'
     lore:
-      - '&7'
-      - '&7Diamonds: &b%quantum_amt_minecraft-diamond%'
-      - '&7Gold: &e%quantum_amt_minecraft-gold_ingot%'
-      - '&7Iron: &f%quantum_amt_minecraft-iron_ingot%'
-      - '&7Emeralds: &a%quantum_amt_minecraft-emerald%'
-      - '&7'
-      - '&aStorage is unlimited!'
-      - '&7Use &e/qstorage&7 to manage items'
-    slots: [49]
-
-  # Commands info
-  commands_info:
-    material: COMMAND_BLOCK
-    display_name: '&6&lAvailable Commands'
-    lore:
-      - '&7'
-      - '&a/qstorage transfer <item> <amount>'
-      - '&7  → Deposit items to storage'
-      - '&7'
-      - '&a/qstorage remove <item> <amount>'
-      - '&7  → Withdraw items from storage'
-      - '&7'
-      - '&7Examples:'
-      - '&e  /qstorage transfer diamond 64'
-      - '&e  /qstorage remove gold_ingot 32'
-      - '&e  /qstorage transfer nexo:custom_sword 10'
-    slots: [52]
-    click_actions:
-      - '[MESSAGE] &aUse /qstorage transfer or /qstorage remove!'
-
-  # Close button
+      - '&7Cliquez pour passer en mode storage'
+      - '&7Mode actuel: &a%mode%'
+      - ' '
+      - '&7En mode storage, vous pouvez déposer'
+      - '&7et retirer vos items'
+    type: QUANTUM_CHANGE_MODE
+    mode: STORAGE
+                              
+  # Bouton: Fermer
   close:
     material: BARRIER
-    display_name: '&c&lClose'
+    display_name: '&c&lFermer'
     lore:
-      - '&7Click to close'
+      - '&7Cliquez pour fermer le menu'
     slots: [53]
     click_actions:
       - '[CLOSE]'
 
 # Note:
-# - GUI is VIEW-ONLY for regular players
-# - Players must use /qstorage commands to manage items
-# - Admins with 'quantum.admin' can interact with GUI directly
-# - Console can use: /qstorage transfer/remove <item> <amt> <player>
+# - L'interface est EN LECTURE SEULE pour les joueurs normaux
+# - Les joueurs doivent utiliser /qstorage pour gérer leurs items
+# - Les admins avec 'quantum.admin' peuvent interagir directement
+# - Console: /qstorage transfer/remove <item> <quantité> <joueur>

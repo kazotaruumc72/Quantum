@@ -31,8 +31,8 @@ menu:
 # Command Messages
 command:
   usage: "&cUsage: &7{usage}"
-  help-header: "&8───────────────────────────"
-  help-footer: "&8───────────────────────────"
+  help-header: "&8&l=== &6&lQuantum Aide &8&l==="
+  help-footer: "&8&l=======================&r"
 
 # Error Messages
 error:

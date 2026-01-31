@@ -33,6 +33,7 @@ public final class Quantum extends JavaPlugin {
     private MenuManager menuManager;
     private PlaceholderManager placeholderManager;
     private AnimationManager animationManager;
+        private MessagesManager messagesManager;
 
     @Override
     public void onEnable() {
@@ -47,6 +48,9 @@ public final class Quantum extends JavaPlugin {
         
         // Save default config
         saveDefaultConfig();
+
+                // Initialize MessagesManager first
+        this.messagesManager = new MessagesManager(this);
         
         // Initialize managers
         initializeManagers();
@@ -173,4 +177,9 @@ public final class Quantum extends JavaPlugin {
     public AnimationManager getAnimationManager() {
         return animationManager;
     }
+
+        public MessagesManager getMessagesManager() {
+                    return messagesManager;
+                }
 }
+

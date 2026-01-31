@@ -46,6 +46,7 @@ public final class Quantum extends JavaPlugin {
     private PlaceholderManager placeholderManager;
     private AnimationManager animationManager;
     private MessagesManager messagesManager;
+    private PriceManager priceManager;
     
     // PlaceholderAPI expansion
     private QuantumPlaceholderExpansion placeholderExpansion;
@@ -164,6 +165,10 @@ public final class Quantum extends JavaPlugin {
         this.storageManager = new StorageManager(this);
         logger.success("✓ Storage Manager");
         
+        // Price Manager
+        this.priceManager = new PriceManager(this);
+        logger.success("✓ Price Manager");
+        
         // Animation
         this.animationManager = new AnimationManager(this);
         logger.success("✓ Animation Manager");
@@ -261,6 +266,8 @@ public final class Quantum extends JavaPlugin {
         if (storageManager != null) storageManager.reload();
         if (menuManager != null) menuManager.reload();
         if (animationManager != null) animationManager.reload();
+        if (messagesManager != null) messagesManager.reload();
+        if (priceManager != null) priceManager.reload();
         
         logger.success("Quantum reloaded successfully!");
     }
@@ -297,5 +304,9 @@ public final class Quantum extends JavaPlugin {
 
     public MessagesManager getMessagesManager() {
         return messagesManager;
+    }
+
+    public PriceManager getPriceManager() {
+        return priceManager;
     }
 }

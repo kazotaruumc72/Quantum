@@ -2,7 +2,9 @@ package com.wynvers.quantum.menu;
 
 import com.wynvers.quantum.Quantum;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,8 @@ public class MenuItem {
     private List<String> lore;
     private String skullOwner;
     private int customModelData;
+    private boolean glow;
+    private List<ItemFlag> hideFlags;
     
     // Actions
     private List<MenuAction> leftClickActions;
@@ -41,7 +45,9 @@ public class MenuItem {
         this.middleClickActions = new ArrayList<>();
         this.viewRequirements = new ArrayList<>();
         this.clickRequirements = new ArrayList<>();
+        this.hideFlags = new ArrayList<>();
         this.customModelData = -1;
+        this.glow = false;
     }
     
     // === GETTERS ===
@@ -80,6 +86,14 @@ public class MenuItem {
     
     public int getCustomModelData() {
         return customModelData;
+    }
+    
+    public boolean isGlow() {
+        return glow;
+    }
+    
+    public List<ItemFlag> getHideFlags() {
+        return hideFlags;
     }
     
     public List<MenuAction> getLeftClickActions() {
@@ -142,6 +156,16 @@ public class MenuItem {
     
     public void setCustomModelData(int customModelData) {
         this.customModelData = customModelData;
+    }
+    
+    public void setGlow(boolean glow) {
+        this.glow = glow;
+    }
+    
+    public void addHideFlag(ItemFlag flag) {
+        if (!hideFlags.contains(flag)) {
+            hideFlags.add(flag);
+        }
     }
     
     public void setDenyMessage(String denyMessage) {
@@ -221,16 +245,32 @@ public class MenuItem {
         if (!isNexoItem() || itemStack.getType() == material) {
             org.bukkit.inventory.meta.ItemMeta meta = itemStack.getItemMeta();
             if (meta != null) {
+                // Display name
                 if (displayName != null) {
                     meta.setDisplayName(displayName);
                 }
                 
+                // Lore
                 if (lore != null && !lore.isEmpty()) {
                     meta.setLore(lore);
                 }
                 
+                // Custom model data
                 if (customModelData > 0) {
                     meta.setCustomModelData(customModelData);
+                }
+                
+                // Glow effect (fake enchantment)
+                if (glow) {
+                    meta.addEnchant(Enchantment.LUCK, 1, true);
+                    meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                }
+                
+                // Hide flags (custom tooltips)
+                if (!hideFlags.isEmpty()) {
+                    for (ItemFlag flag : hideFlags) {
+                        meta.addItemFlags(flag);
+                    }
                 }
                 
                 // Handle skull owner

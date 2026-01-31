@@ -14,6 +14,12 @@ import com.wynvers.quantum.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
 /**
  * Quantum - Advanced Virtual Storage & Dynamic GUI Builder
  * 
@@ -38,7 +44,7 @@ public final class Quantum extends JavaPlugin {
     private MenuManager menuManager;
     private PlaceholderManager placeholderManager;
     private AnimationManager animationManager;
-        private MessagesManager messagesManager;
+    private MessagesManager messagesManager;
 
     @Override
     public void onEnable() {
@@ -51,10 +57,13 @@ public final class Quantum extends JavaPlugin {
         logger.info("│       §7v1.0.0 by Kazotaruu_      │");
         logger.info("└───────────────────────────────────┘");
         
+        // Extract default resources
+        extractDefaultResources();
+        
         // Save default config
         saveDefaultConfig();
 
-                // Initialize MessagesManager first
+        // Initialize MessagesManager first
         this.messagesManager = new MessagesManager(this);
         
         // Initialize managers
@@ -69,6 +78,72 @@ public final class Quantum extends JavaPlugin {
         logger.success("✓ Quantum enabled successfully!");
         logger.info("Dynamic GUI system loaded!");
         logger.info("Storage system ready!");
+    }
+    
+    /**
+     * Extract all default resources from JAR to plugin folder
+     */
+    private void extractDefaultResources() {
+        logger.info("Extracting default resources...");
+        
+        // Create directories
+        createDirectory("menus");
+        createDirectory("messages");
+        
+        // Extract menu files
+        extractResource("menus/example.yml");
+        extractResource("menus/example_advanced.yml");
+        extractResource("menus/storage.yml");
+        
+        // Extract message files
+        extractResource("messages/messages_en.yml");
+        extractResource("messages/messages_fr.yml");
+        
+        logger.success("✓ Default resources extracted");
+    }
+    
+    /**
+     * Create directory if it doesn't exist
+     */
+    private void createDirectory(String path) {
+        File dir = new File(getDataFolder(), path);
+        if (!dir.exists()) {
+            dir.mkdirs();
+            logger.info("Created directory: " + path);
+        }
+    }
+    
+    /**
+     * Extract resource from JAR if it doesn't exist
+     */
+    private void extractResource(String resourcePath) {
+        File file = new File(getDataFolder(), resourcePath);
+        
+        // Only extract if file doesn't exist
+        if (file.exists()) {
+            return;
+        }
+        
+        try (InputStream in = getResource(resourcePath)) {
+            if (in == null) {
+                logger.warning("Resource not found in JAR: " + resourcePath);
+                return;
+            }
+            
+            // Create parent directories if needed
+            File parent = file.getParentFile();
+            if (parent != null && !parent.exists()) {
+                parent.mkdirs();
+            }
+            
+            // Copy resource
+            Files.copy(in, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            logger.info("Extracted: " + resourcePath);
+            
+        } catch (IOException e) {
+            logger.error("Failed to extract resource: " + resourcePath);
+            e.printStackTrace();
+        }
     }
     
     private void initializeManagers() {
@@ -114,7 +189,7 @@ public final class Quantum extends JavaPlugin {
         getCommand("menu").setExecutor(new MenuCommand(this));
         getCommand("qstorage").setExecutor(new QuantumStorageCommand(this));
 
-                // Register TabCompleters
+        // Register TabCompleters
         getCommand("quantum").setTabCompleter(new QuantumTabCompleter());
         getCommand("storage").setTabCompleter(new StorageTabCompleter());
         getCommand("menu").setTabCompleter(new MenuTabCompleter(this));
@@ -190,9 +265,9 @@ public final class Quantum extends JavaPlugin {
         return animationManager;
     }
 
-        public MessagesManager getMessagesManager() {
-                    return messagesManager;
-                }
+    public MessagesManager getMessagesManager() {
+        return messagesManager;
+    }
 }
 
 

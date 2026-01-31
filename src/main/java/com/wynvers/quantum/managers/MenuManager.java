@@ -121,6 +121,16 @@ public class MenuManager {
             }
         }
         
+        // Type de slot (quantum_storage, etc.)
+        if (section.contains("type")) {
+            item.setType(section.getString("type"));
+        }
+        
+        // Lore append pour quantum_storage
+        if (section.contains("lore_append")) {
+            item.setLoreAppend(colorList(section.getStringList("lore_append")));
+        }
+        
         // Material or Nexo item
         if (section.contains("nexo_item")) {
             item.setNexoId(section.getString("nexo_item"));

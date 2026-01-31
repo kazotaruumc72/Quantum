@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -72,13 +73,21 @@ public class StorageMenuHandler {
 
         // Check if it's a Nexo item
         String nexoId = NexoItems.idFromItem(cursorItem);
+        String itemName;
+        
         if (nexoId != null) {
             storage.addNexoItem(nexoId, amount);
-            player.sendMessage("§a§l✓ §aDeposited §e" + amount + "x §f" + nexoId + " §ato storage!");
+            itemName = nexoId;
         } else {
             storage.addItem(cursorItem.getType(), amount);
-            player.sendMessage("§a§l✓ §aDeposited §e" + amount + "x §f" + cursorItem.getType().name() + " §ato storage!");
+            itemName = cursorItem.getType().name();
         }
+        
+        // Send message from messages.yml
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("amount", String.valueOf(amount));
+        placeholders.put("item", itemName);
+        player.sendMessage(plugin.getMessagesManager().get("storage.deposited", placeholders, false));
 
         // Remove from cursor
         cursorItem.setAmount(cursorItem.getAmount() - amount);
@@ -123,7 +132,7 @@ public class StorageMenuHandler {
         }
 
         if (available <= 0) {
-            player.sendMessage("§cThis item is not in your storage!");
+            player.sendMessage(plugin.getMessagesManager().get("storage.not-in-storage", false));
             return;
         }
 
@@ -132,20 +141,28 @@ public class StorageMenuHandler {
 
         // Check if player has space
         if (!hasSpace(player, toWithdraw)) {
-            player.sendMessage("§cYour inventory is full!");
+            player.sendMessage(plugin.getMessagesManager().get("storage.inventory-full", false));
             return;
         }
 
+        String itemName;
+        
         // Withdraw from storage
         if (nexoId != null) {
             storage.removeNexoItem(nexoId, toWithdraw);
             giveNexoItems(player, nexoId, toWithdraw);
-            player.sendMessage("§a§l✓ §aWithdrawn §e" + toWithdraw + "x §f" + nexoId + " §afrom storage!");
+            itemName = nexoId;
         } else {
             storage.removeItem(material, toWithdraw);
             giveVanillaItems(player, material, toWithdraw);
-            player.sendMessage("§a§l✓ §aWithdrawn §e" + toWithdraw + "x §f" + material.name() + " §afrom storage!");
+            itemName = material.name();
         }
+        
+        // Send message from messages.yml
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("amount", String.valueOf(toWithdraw));
+        placeholders.put("item", itemName);
+        player.sendMessage(plugin.getMessagesManager().get("storage.withdrawn", placeholders, false));
 
         // Save and refresh
         storage.save(plugin);

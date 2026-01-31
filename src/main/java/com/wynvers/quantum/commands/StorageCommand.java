@@ -1,7 +1,7 @@
 package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.gui.StorageInventory;
+import com.wynvers.quantum.menu.Menu;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -30,9 +30,13 @@ public class StorageCommand implements CommandExecutor {
             return true;
         }
 
-        // Open storage GUI
-        StorageInventory storageGUI = new StorageInventory(plugin, player);
-        storageGUI.open();
+        // Open storage menu from storage.yml
+        Menu storageMenu = plugin.getMenuManager().getMenu("storage");
+        if (storageMenu != null) {
+            storageMenu.open(player, plugin);
+        } else {
+            player.sendMessage("§cErreur: Menu storage non trouvé!");
+        }
 
         return true;
     }

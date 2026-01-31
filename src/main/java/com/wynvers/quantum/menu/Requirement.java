@@ -1,5 +1,10 @@
 package com.wynvers.quantum.menu;
 
+import com.wynvers.quantum.Quantum;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
 public class Requirement {
     
     private final RequirementType type;
@@ -16,6 +21,71 @@ public class Requirement {
     
     public String getValue() {
         return value;
+    }
+    
+    /**
+     * Check if player meets this requirement
+     */
+    public boolean check(Player player, Quantum plugin) {
+        switch (type) {
+            case PERMISSION:
+                return player.hasPermission(value);
+                
+            case PLACEHOLDER:
+                // TODO: Implement PlaceholderAPI check when available
+                return true;
+                
+            case MONEY:
+                // TODO: Implement Vault check when available
+                return true;
+                
+            case ITEM:
+                return checkItem(player);
+                
+            case EXP:
+                return checkExp(player);
+                
+            default:
+                return false;
+        }
+    }
+    
+    private boolean checkItem(Player player) {
+        // Format: MATERIAL:AMOUNT or item_id:amount
+        String[] parts = value.split(":");
+        if (parts.length < 2) return false;
+        
+        try {
+            String itemId = parts[0];
+            int required = Integer.parseInt(parts[1]);
+            
+            // Try vanilla material
+            try {
+                Material material = Material.valueOf(itemId.toUpperCase());
+                int count = 0;
+                for (ItemStack item : player.getInventory().getContents()) {
+                    if (item != null && item.getType() == material) {
+                        count += item.getAmount();
+                    }
+                }
+                return count >= required;
+            } catch (IllegalArgumentException e) {
+                // Not a vanilla material, might be Nexo
+                // TODO: Implement Nexo check
+                return true;
+            }
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+    
+    private boolean checkExp(Player player) {
+        try {
+            int required = Integer.parseInt(value);
+            return player.getLevel() >= required;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
     
     /**

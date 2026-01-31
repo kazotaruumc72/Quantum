@@ -1,0 +1,42 @@
+# ===============================================
+# QUANTUM - Messages Configuration
+# ===============================================
+# Supports color codes with & symbol
+# Placeholders: {player}, {amount}, {item}, etc.
+
+prefix: "&8[&6Quantum&8]&r "
+
+# General Messages
+no-permission: "&cVous n'avez pas la permission!"
+only-player: "&cSeule les joueurs peuvent utiliser cette commande!"
+player-not-found: "&cJoueur introuvable: &7{player}"
+reload-success: "&a&l✓ &aQuantum rechargé avec succès!"
+
+# Storage Messages
+storage:
+  opened: "&a&l✓ &aStorage ouvert"
+  admin-opened: "&a&l✓ &aStorage de &e{player} &aouvert"
+  item-added: "&a&l+ &a{amount}x {item} ajouté au storage"
+  item-removed: "&c&l- &c{amount}x {item} retiré du storage"
+  inventory-full: "&cInventaire plein!"
+  not-enough: "&cPas assez de {item} dans le storage!"
+  cleared: "&c&l✓ &cStorage vidé!"
+
+# Menu Messages
+menu:
+  not-found: "&cMenu introuvable: &7{menu}"
+  opened: "&a&l✓ &aMenu ouvert: &e{menu}"
+  requirement-not-met: "&cVous ne remplissez pas les conditions!"
+  
+# Command Messages
+command:
+  usage: "&cUsage: &7{usage}"
+  help-header: "&8───────────────────────────"
+  help-footer: "&8───────────────────────────"
+
+# Error Messages
+error:
+  generic: "&cUne erreur s'est produite!"
+  database: "&cErreur de base de données!"
+  nexo-not-found: "&cItem Nexo introuvable: &7{id}"
+  invalid-amount: "&cQuantité invalide!"

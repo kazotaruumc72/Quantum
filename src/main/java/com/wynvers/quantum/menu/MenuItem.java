@@ -260,9 +260,9 @@ public class MenuItem {
                     meta.setCustomModelData(customModelData);
                 }
                 
-                // Glow effect (fake enchantment)
+                // Glow effect (fake enchantment - use ARROW_DAMAGE as it's universally compatible)
                 if (glow) {
-                    meta.addEnchant(Enchantment.LUCK, 1, true);
+                    meta.addEnchant(Enchantment.ARROW_DAMAGE, 1, true);
                     meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 }
                 

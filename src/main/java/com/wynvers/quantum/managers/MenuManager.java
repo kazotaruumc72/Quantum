@@ -72,8 +72,7 @@ public class MenuManager {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         
         String menuId = file.getName().replace(".yml", "");
-        Menu menu = new Menu(menuId);
-        
+        Menu menu = new Menu(plugin, menuId);        
         // Basic properties
         menu.setTitle(color(config.getString("menu_title", "Menu")));
         menu.setSize(config.getInt("size", 54));
@@ -267,3 +266,4 @@ public class MenuManager {
         loadMenus();
     }
 }
+

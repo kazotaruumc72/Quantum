@@ -112,10 +112,23 @@ public class Menu {
     public void open(Player player, Quantum plugin) {
         Inventory inventory = Bukkit.createInventory(null, size, title);
         
-        // TODO: Populate inventory with items
-        // For now, just open empty inventory
-        
+        // Populate inventory with items from config
+        for (MenuItem item : items.values()) {
+            if (item.getSlots().isEmpty()) continue;
+            
+            // Create ItemStack from MenuItem
+            org.bukkit.inventory.ItemStack itemStack = item.toItemStack(plugin);
+            if (itemStack == null) continue;
+            
+            // Place item in all configured slots
+            for (int slot : item.getSlots()) {
+                if (slot >= 0 && slot < size) {
+                    inventory.setItem(slot, itemStack);
+                }
+            }
+        }        
         player.openInventory(inventory);
     }
 }
+
 

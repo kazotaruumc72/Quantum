@@ -16,7 +16,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 public class Menu {
  
     private final String id;
-        private final Quantum plugin;
+    private final Quantum plugin;
     private String title;
     private int size;
     private String openCommand;
@@ -28,6 +28,9 @@ public class Menu {
  
     // Items
     private final Map<String, MenuItem> items;
+    
+    // Storage renderer pour slots quantum_storage
+    private StorageRenderer storageRenderer;
  
     public Menu(Quantum plugin, String id) {
         this.plugin = plugin;
@@ -36,6 +39,7 @@ public class Menu {
         this.items = new HashMap<>();
         this.titleFrames = new ArrayList<>();
         this.titleSpeed = 10;
+        this.storageRenderer = new StorageRenderer(plugin);
     }
  
     // === GETTERS ===
@@ -134,20 +138,7 @@ public class Menu {
         Inventory inventory = Bukkit.createInventory(null, size, title);
  
         // Populate inventory with items from config
-        for (MenuItem item : items.values()) {
-            if (item.getSlots().isEmpty()) continue;
- 
-            // Create ItemStack from MenuItem
-            org.bukkit.inventory.ItemStack itemStack = item.toItemStack(plugin);
-            if (itemStack == null) continue;
- 
-            // Place item in all configured slots
-            for (int slot : item.getSlots()) {
-                if (slot >= 0 && slot < size) {
-                    inventory.setItem(slot, itemStack);
-                }
-            }
-        } 
+        populateInventory(inventory, player);
         
         player.openInventory(inventory);
     }
@@ -177,19 +168,62 @@ public class Menu {
         // This is a limitation of the Bukkit API
     }
  
+    /**
+     * Remplit l'inventaire avec les items du menu
+     * Gère aussi les slots quantum_storage avec le StorageRenderer
+     */
     public void populateInventory(Inventory inventory) {
+        populateInventory(inventory, null);
+    }
+    
+    /**
+     * Remplit l'inventaire avec les items du menu pour un joueur spécifique
+     */
+    public void populateInventory(Inventory inventory, Player player) {
         inventory.clear();
+        
+        // Premièrement, remplir les items standards (non-quantum_storage)
         for (MenuItem item : items.values()) {
             if (item.getSlots().isEmpty()) continue;
+            
+            // Si c'est un slot quantum_storage, le StorageRenderer s'en occupera
+            if (item.isQuantumStorage()) {
+                continue;
+            }
  
+            // Créer l'ItemStack depuis le MenuItem
             org.bukkit.inventory.ItemStack itemStack = item.toItemStack(plugin);
             if (itemStack == null) continue;
  
+            // Placer l'item dans tous les slots configurés
             for (int slot : item.getSlots()) {
                 if (slot >= 0 && slot < size) {
                     inventory.setItem(slot, itemStack);
                 }
             }
         }
+        
+        // Ensuite, remplir les slots quantum_storage avec les items du joueur
+        if (player != null) {
+            renderStorageSlots(player, inventory);
+        }
+    }
+    
+    /**
+     * Render storage slots for a player
+     */
+    private void renderStorageSlots(Player player, Inventory inventory) {
+        // Trouver le premier item avec lore_append pour obtenir la config
+        StorageRenderer.LoreAppendConfig loreConfig = null;
+        
+        for (MenuItem item : items.values()) {
+            if (item.isQuantumStorage() && item.getLoreAppend() != null && !item.getLoreAppend().isEmpty()) {
+                loreConfig = new StorageRenderer.LoreAppendConfig(item.getLoreAppend());
+                break;
+            }
+        }
+        
+        // Utiliser le StorageRenderer pour remplir les slots
+        storageRenderer.renderStorageSlots(player, inventory, this, loreConfig);
     }
 }

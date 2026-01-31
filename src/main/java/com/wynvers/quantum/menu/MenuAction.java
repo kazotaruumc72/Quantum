@@ -4,10 +4,16 @@ public class MenuAction {
     
     private final ActionType type;
     private final String value;
+        private final java.util.Map<String, String> settings;
     
-    public MenuAction(ActionType type, String value) {
-        this.type = type;
+    public MenuAction(ActionType type, String value, java.util.Map<String, String> settings) {        this.type = type;
         this.value = value;
+                                                                                                      this.settings = settings != null ? settings : new java.util.HashMap<>();
+    }
+
+        // Constructeur de compatibilité pour les actions sans settings
+    public MenuAction(ActionType type, String value) {
+        this(type, value, null);
     }
     
     public ActionType getType() {
@@ -16,6 +22,14 @@ public class MenuAction {
     
     public String getValue() {
         return value;
+    }
+
+        public java.util.Map<String, String> getSettings() {
+        return settings;
+    }
+    
+    public String getSetting(String key) {
+        return settings.get(key);
     }
     
     /**
@@ -64,3 +78,4 @@ public class MenuAction {
         EFFECT        // Give potion effect
     }
 }
+

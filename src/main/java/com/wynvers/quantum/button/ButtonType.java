@@ -33,6 +33,14 @@ public enum ButtonType {
      * Pourcentages disponibles: 25%, 50%, 75%, 100%
      */
     QUANTUM_SELL_POURCENTAGE;
+
+        /**
+     * Bouton de changement de mode
+     * Bascule entre les modes STORAGE et VENTE
+     * Modifie le placeholder %mode%
+     * Paramètre: mode:<mode>
+     */
+    QUANTUM_CHANGE_MODE;
     
     /**
      * Récupère un type de bouton depuis une chaîne de caractères

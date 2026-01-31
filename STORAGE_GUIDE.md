@@ -1,12 +1,30 @@
 # Quantum Storage System - Complete Guide
 
-## 📦 **Interactive Storage GUI**
+## 📦 **Storage GUI Overview**
 
-The storage menu is now **fully interactive** - you can click items to deposit and withdraw them directly!
+### **Access Levels**
 
-### **How to Use Storage GUI**
+#### **👥 Players (View-Only)**
+- Can **VIEW** all stored items and quantities
+- **Cannot** drag & drop or click items in GUI
+- Must use `/qstorage` commands to manage items
+- Real-time PlaceholderAPI updates
 
-#### **Opening Storage**
+#### **🔑 Admins (`quantum.admin` permission)**
+- Full GUI interaction (drag & drop, click withdraw)
+- Can use commands OR GUI
+- Can manage storage for other players
+
+#### **🖥️ Console**
+- Full command access with player targeting
+- Perfect for automated systems and scripts
+- Can transfer/remove items for any player
+
+---
+
+## 💻 **How to Use Storage**
+
+### **Opening Storage**
 ```
 /storage
 ```
@@ -15,7 +33,60 @@ or
 /menu storage
 ```
 
+### **For Players: Command-Based Management**
+
 #### **Depositing Items (Adding to Storage)**
+
+```bash
+# Transfer item in hand
+/qstorage transfer hand [amount]
+
+# Transfer all inventory
+/qstorage transfer all
+
+# Transfer specific Nexo item
+/qstorage transfer nexo:custom_sword 10
+
+# Transfer specific Minecraft item
+/qstorage transfer minecraft:diamond 64
+
+# Auto-detection (checks Nexo first, then Minecraft)
+/qstorage transfer diamond 64
+```
+
+**Examples:**
+```
+/qstorage transfer hand          # Transfer all items in hand
+/qstorage transfer hand 32       # Transfer 32 items from hand
+/qstorage transfer all           # Transfer entire inventory
+/qstorage transfer diamond 64    # Transfer 64 diamonds
+```
+
+#### **Withdrawing Items (Taking from Storage)**
+
+```bash
+# Remove specific Nexo item
+/qstorage remove nexo:custom_sword 5
+
+# Remove specific Minecraft item
+/qstorage remove minecraft:diamond 32
+
+# Auto-detection
+/qstorage remove emerald 16
+```
+
+**Examples:**
+```
+/qstorage remove diamond 32        # Remove 32 diamonds
+/qstorage remove nexo:ruby 10      # Remove 10 custom rubies
+/qstorage remove iron_ingot 128    # Remove 128 iron ingots
+```
+
+### **For Admins: GUI Interaction**
+
+Admins with `quantum.admin` permission can interact directly with the GUI:
+
+#### **Depositing Items (GUI)**
 
 **Method 1: Drag & Drop**
 - Hold an item on your cursor
@@ -28,25 +99,23 @@ or
 - **Shift + Left Click** an item in your inventory
 - Item automatically deposits to storage
 
-**Method 3: Commands** (still available)
-```
-/qstorage transfer hand [amount]
-/qstorage transfer all
-/qstorage transfer nexo:custom_sword 10
-/qstorage transfer minecraft:diamond 64
-```
+#### **Withdrawing Items (GUI)**
 
-#### **Withdrawing Items (Taking from Storage)**
-
-**Method 1: Click Storage Items**
+**Click Storage Items:**
 - **Left Click** - Withdraw 1 full stack (up to 64)
 - **Right Click** - Withdraw 1 item
 - **Shift + Left Click** - Withdraw ALL of that item type
 
-**Method 2: Commands** (still available)
-```
-/qstorage remove nexo:custom_sword 5
-/qstorage remove minecraft:diamond 32
+### **For Console: Targeted Commands**
+
+```bash
+# Transfer items to player's storage
+qstorage transfer minecraft:diamond 64 Notch
+qstorage transfer nexo:custom_item 10 Steve
+
+# Remove items from player's storage
+qstorage remove minecraft:diamond 64 Notch
+qstorage remove nexo:custom_item 10 Steve
 ```
 
 ---
@@ -78,6 +147,8 @@ items:
     lore:
       - "&7You have &e%quantum_amt_nexo-ruby% &7rubies"
       - "&7in your storage!"
+      - ""
+      - "&7Use &a/qstorage remove nexo:ruby <amt>"
 ```
 
 #### **Minecraft Items**
@@ -102,7 +173,7 @@ items:
     lore:
       - "&7Amount: &f%quantum_amt_minecraft-diamond%"
       - ""
-      - "&aClick to withdraw!"
+      - "&7Use &a/qstorage remove diamond <amt>"
 ```
 
 #### **Automatic Detection (No Prefix)**
@@ -143,28 +214,47 @@ items:
       - 9,17,18,26,27,35,36,44
       - 45-53
 
-  # Diamond storage display (clickable!)
+  # Info button
+  info:
+    material: BOOK
+    display_name: "&e&lStorage Info"
+    lore:
+      - ""
+      - "&7This storage is &cview-only&7."
+      - ""
+      - "&7To manage items:"
+      - "&a  • /qstorage transfer <item> <amt>"
+      - "&a  • /qstorage remove <item> <amt>"
+      - ""
+      - "&7Admins with &equantum.admin&7:"
+      - "&e  • Can drag & drop items"
+      - "&e  • Can click to withdraw"
+    slots:
+      - 4
+
+  # Diamond storage display (read-only for players)
   diamond_slot:
     material: DIAMOND
     display_name: "&b&lDiamond Storage"
     lore:
       - "&7Stored: &f%quantum_amt_minecraft-diamond%"
       - ""
-      - "&aLeft Click &7- Withdraw 64"
-      - "&aRight Click &7- Withdraw 1"
-      - "&aShift Click &7- Withdraw ALL"
+      - "&7For admins only:"
+      - "&e  Left Click - Withdraw 64"
+      - "&e  Right Click - Withdraw 1"
+      - ""
+      - "&7Players: &a/qstorage remove diamond <amt>"
     slots:
       - 10
-    # Items at this slot are interactive - no click actions needed!
 
-  # Nexo custom item display (clickable!)
+  # Nexo custom item display
   custom_sword:
     nexo_item: "custom_sword"
     display_name: "&c&lCustom Sword Storage"
     lore:
       - "&7Amount: &e%quantum_amt_nexo-custom_sword%"
       - ""
-      - "&eClick to withdraw"
+      - "&7Use &a/qstorage remove nexo:custom_sword <amt>"
     slots:
       - 11
 
@@ -174,26 +264,44 @@ items:
     display_name: "&e&lGold Storage"
     lore:
       - "&7Current: &f%quantum_amt_minecraft-gold_ingot%"
-      - "&7Value: &6$%quantum_amt_minecraft-gold_ingot * 10%"
+      - ""
+      - "&7Use &a/qstorage remove gold_ingot <amt>"
     slots:
       - 12
 
-  # Info button (not clickable - has actions)
-  info:
-    material: BOOK
-    display_name: "&e&lHow to Use"
+  # Resource counter
+  resource_counter:
+    material: CHEST
+    display_name: "&e&lYour Resources"
     lore:
-      - "&7Drag items to deposit"
-      - "&7Click items to withdraw"
       - ""
-      - "&aLeft Click &7- Withdraw stack"
-      - "&aRight Click &7- Withdraw 1"
-      - "&aShift Click &7- Withdraw all"
+      - "&7Diamonds: &b%quantum_amt_minecraft-diamond%"
+      - "&7Gold: &e%quantum_amt_minecraft-gold_ingot%"
+      - "&7Iron: &f%quantum_amt_minecraft-iron_ingot%"
+      - "&7Emeralds: &a%quantum_amt_minecraft-emerald%"
+      - ""
+      - "&aStorage is unlimited!"
+      - "&7Use &e/qstorage&7 to manage items"
     slots:
       - 49
-    click_actions:
-      - "[MESSAGE] &aStorage system ready!"
-      - "[SOUND] ENTITY_PLAYER_LEVELUP"
+
+  # Commands info
+  commands_info:
+    material: COMMAND_BLOCK
+    display_name: "&6&lAvailable Commands"
+    lore:
+      - ""
+      - "&a/qstorage transfer <item> <amount>"
+      - "&7  → Deposit items to storage"
+      - ""
+      - "&a/qstorage remove <item> <amount>"
+      - "&7  → Withdraw items from storage"
+      - ""
+      - "&7Examples:"
+      - "&e  /qstorage transfer diamond 64"
+      - "&e  /qstorage remove gold_ingot 32"
+    slots:
+      - 52
 
   # Close button
   close:
@@ -214,8 +322,8 @@ items:
 The storage GUI **automatically refreshes** when:
 - You use `/qstorage transfer` command
 - You use `/qstorage remove` command
-- You click items in the GUI
-- You drag items to the GUI
+- An admin clicks items in the GUI (if you're that admin)
+- Console executes commands affecting your storage
 
 ### **Smart Item Detection**
 
@@ -226,9 +334,9 @@ Quantum automatically detects:
 - ✅ Items with enchantments
 - ✅ Items with NBT data
 
-### **Click Behavior**
+### **Admin Click Behavior**
 
-| Action | Result |
+| Action (Admins Only) | Result |
 |--------|--------|
 | **Left Click** item in storage | Withdraw 1 stack (64 max) |
 | **Right Click** item in storage | Withdraw 1 item |
@@ -236,6 +344,8 @@ Quantum automatically detects:
 | **Left Click** with item on cursor | Deposit all items |
 | **Right Click** with item on cursor | Deposit 1 item |
 | **Shift + Click** item in player inventory | Deposit to storage |
+
+**Players:** All these actions are blocked - use commands instead!
 
 ---
 
@@ -255,29 +365,33 @@ items:
       - "&7Gold: &e%quantum_amt_minecraft-gold_ingot%"
       - "&7Iron: &f%quantum_amt_minecraft-iron_ingot%"
       - "&7Emeralds: &a%quantum_amt_minecraft-emerald%"
+      - ""
+      - "&7Use &a/qstorage&7 commands!"
     slots:
       - 4
 ```
 
-### **Example 2: Custom Item Shop**
+### **Example 2: Command Shortcut Buttons**
 
-Display Nexo items with storage count:
+Create buttons that execute withdrawal commands:
 
 ```yaml
 items:
-  custom_sword_shop:
-    nexo_item: "custom_sword"
-    display_name: "&c&lLegendary Sword"
+  withdraw_diamonds_button:
+    material: DIAMOND
+    display_name: "&b&lWithdraw 64 Diamonds"
     lore:
-      - "&7Price: &6$5000"
-      - "&7In Storage: &e%quantum_amt_nexo-custom_sword%"
+      - "&7Available: &f%quantum_amt_minecraft-diamond%"
       - ""
-      - "&aClick to purchase!"
+      - "&aClick to withdraw 64!"
     slots:
       - 20
     click_actions:
-      - "[CONSOLE] eco take %player_name% 5000"
-      - "[CONSOLE] qstorage transfer nexo:custom_sword 1 %player_name%"
+      - "[CONSOLE] qstorage remove minecraft:diamond 64 %player_name%"
+      - "[MESSAGE] &aWithdrawn 64 diamonds!"
+      - "[SOUND] ENTITY_PLAYER_LEVELUP"
+    requirements:
+      - "quantum_amt_minecraft-diamond >= 64"
 ```
 
 ### **Example 3: Storage Limits Display**
@@ -291,7 +405,7 @@ items:
     display_name: "&c&lStorage Alert"
     lore:
       - "&7Redstone: &c%quantum_amt_minecraft-redstone%"
-      - "&7Max: &e10000"
+      - "&7You're approaching the limit!"
     slots:
       - 13
     requirements:
@@ -324,16 +438,22 @@ qstorage remove nexo:<id> <amount> <player>
 qstorage remove minecraft:<id> <amount> <player>
 ```
 
+**Examples:**
+```
+qstorage transfer minecraft:diamond 64 Notch
+qstorage remove nexo:ruby 10 Steve
+```
+
 ---
 
 ## 💡 **Tips & Best Practices**
 
 1. **Use placeholders in lore** to show real-time storage amounts
-2. **Combine with requirements** to create conditional displays
-3. **Empty slots are interactive** - perfect for drag & drop
-4. **Decorated slots with items** execute click actions
-5. **Background items** should have no click actions
-6. **Storage slots** (10-44 excluding borders) are perfect for item display
+2. **Create command shortcut buttons** for quick withdrawals
+3. **Add requirements** to hide buttons when items unavailable
+4. **Players use commands** - GUI is for viewing only
+5. **Admins use GUI** - full drag & drop support
+6. **Console commands** perfect for automated systems
 
 ---
 
@@ -341,47 +461,64 @@ qstorage remove minecraft:<id> <amount> <player>
 
 ### **Visual Feedback**
 
-- ✅ Sound plays on deposit/withdrawal
+- ✅ Sound plays on command success
 - ✅ Chat messages confirm actions
-- ✅ GUI refreshes automatically
 - ✅ Placeholders update in real-time
+- ✅ GUI refreshes automatically
 
 ### **Error Handling**
 
 - "Inventory is full" if no space to withdraw
 - "Not in storage" if item doesn't exist
 - "No permission" for restricted actions
+- "Storage is view-only" for GUI interaction attempts
+
+---
+
+## 🔑 **Permissions**
+
+```yaml
+quantum.storage.use        # View storage GUI and use commands
+quantum.storage.transfer   # Transfer items to storage
+quantum.storage.remove     # Remove items from storage
+quantum.admin              # Full GUI interaction + admin commands
+```
 
 ---
 
 ## 📚 **Integration Examples**
 
-### **With DeluxeMenus-style Actions**
+### **With Shop Systems**
 
 ```yaml
 items:
-  withdraw_button:
+  buy_button:
     material: DIAMOND
-    display_name: "&b&lQuick Withdraw"
+    display_name: "&b&lBuy 64 Diamonds"
     lore:
-      - "&7Available: &f%quantum_amt_minecraft-diamond%"
+      - "&7Price: &6$1000"
+      - ""
+      - "&aClick to purchase!"
     click_actions:
-      - "[CONSOLE] qstorage remove minecraft:diamond 64 %player_name%"
-      - "[MESSAGE] &aWithdrawn 64 diamonds!"
-      - "[SOUND] ENTITY_PLAYER_LEVELUP"
+      - "[CONSOLE] eco take %player_name% 1000"
+      - "[CONSOLE] qstorage transfer minecraft:diamond 64 %player_name%"
+      - "[MESSAGE] &aPurchased 64 diamonds!"
+    requirements:
+      - "money >= 1000"
 ```
 
-### **With Requirements**
+### **With Quests/Rewards**
 
 ```yaml
 items:
-  full_storage_warning:
-    material: BARRIER
-    display_name: "&c&lStorage Full!"
-    requirements:
-      - "quantum_amt_minecraft-diamond >= 10000"
+  quest_reward:
+    nexo_item: "legendary_sword"
+    display_name: "&c&lQuest Reward"
     click_actions:
-      - "[MESSAGE] &cYou've reached the display limit!"
+      - "[CONSOLE] qstorage transfer nexo:legendary_sword 1 %player_name%"
+      - "[MESSAGE] &aReward claimed!"
+    requirements:
+      - "permission: quests.completed.dragon"
 ```
 
 ---
@@ -391,8 +528,8 @@ items:
 - **Database-backed** - all storage persists
 - **Async operations** - no server lag
 - **Efficient caching** - instant placeholder updates
-- **Smart refresh** - only when needed
+- **Command-based** - no GUI overhead for players
 
 ---
 
-**Quantum Storage - The most advanced storage system for Minecraft!** 🎉
+**Quantum Storage - Efficient command-based storage with admin GUI support!** 🎉

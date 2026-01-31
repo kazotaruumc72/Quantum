@@ -25,6 +25,12 @@ public class MenuItem {
     private boolean glow;
     private List<ItemFlag> hideFlags;
     
+    // Type de slot (quantum_storage, etc.)
+    private String type;
+    
+    // Lore append pour quantum_storage
+    private List<String> loreAppend;
+    
     // Actions
     private List<MenuAction> leftClickActions;
     private List<MenuAction> rightClickActions;
@@ -40,6 +46,7 @@ public class MenuItem {
         this.slots = new ArrayList<>();
         this.amount = 1;
         this.lore = new ArrayList<>();
+        this.loreAppend = new ArrayList<>();
         this.leftClickActions = new ArrayList<>();
         this.rightClickActions = new ArrayList<>();
         this.middleClickActions = new ArrayList<>();
@@ -96,6 +103,14 @@ public class MenuItem {
         return hideFlags;
     }
     
+    public String getType() {
+        return type;
+    }
+    
+    public List<String> getLoreAppend() {
+        return loreAppend;
+    }
+    
     public List<MenuAction> getLeftClickActions() {
         return leftClickActions;
     }
@@ -122,6 +137,10 @@ public class MenuItem {
     
     public boolean isNexoItem() {
         return nexoId != null && !nexoId.isEmpty();
+    }
+    
+    public boolean isQuantumStorage() {
+        return "quantum_storage".equalsIgnoreCase(type);
     }
     
     // === SETTERS ===
@@ -160,6 +179,14 @@ public class MenuItem {
     
     public void setGlow(boolean glow) {
         this.glow = glow;
+    }
+    
+    public void setType(String type) {
+        this.type = type;
+    }
+    
+    public void setLoreAppend(List<String> loreAppend) {
+        this.loreAppend = loreAppend;
     }
     
     public void addHideFlag(ItemFlag flag) {
@@ -219,6 +246,12 @@ public class MenuItem {
      * Convert this MenuItem to a Bukkit ItemStack
      */
     public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin) {
+        // Si c'est un slot quantum_storage, ne pas créer d'item ici
+        // Le StorageRenderer s'en occupera
+        if (isQuantumStorage()) {
+            return null;
+        }
+        
         org.bukkit.inventory.ItemStack itemStack;
         
         // Check if this is a Nexo item

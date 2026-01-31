@@ -25,14 +25,17 @@ storage:
   transferred: "&a&l✓ &aTransféré &e{amount}x &f{item} &aau storage!"
   transferred-all: "&a&l✓ &aTransféré &e{amount} items &aau storage!"
   
+  # Dépôt/Retrait via GUI (Menu)
+  deposited: "&a&l✓ &aDeposited &e{amount}x &f{item} &ato storage!"
+  withdrawn: "&a&l✓ &aWithdrawn &e{amount}x &f{item} &afrom storage!"
+  
   # Remove (Storage → Inventaire)
   item-removed: "&a&l✓ &aRetiré &e{amount}x &f{item} &adu storage!"
-  withdrawn: "&a&l✓ &aRetiré &e{amount}x &f{item} &adu storage de &e{player}&a!"
   
   # Erreurs Storage
-  inventory-full: "&cL'inventaire de &e{player} &cest plein!"
+  inventory-full: "&cYour inventory is full!"
   not-enough: "&cPas assez de &f{item} &cdans le storage!"
-  not-in-storage: "&e{player} &cn'a pas cet item dans son storage!"
+  not-in-storage: "&cThis item is not in your storage!"
   not-in-inventory: "&e{player} &cn'a pas cet item dans son inventaire!"
   cleared: "&c&l✓ &cStorage vidé!"
   

@@ -26,6 +26,11 @@ public class StorageInventory {
         this.plugin = plugin;
         this.player = player;
         this.storage = plugin.getStorageManager().getStorage(player.getUniqueId());
+                
+        // Create storage if it doesn't exist
+        if (this.storage == null) {
+            this.storage = plugin.getStorageManager().createStorage(player.getUniqueId());
+        }
     }
 
     /**

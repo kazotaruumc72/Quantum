@@ -2,6 +2,7 @@ package com.wynvers.quantum.commands;
 
 import com.nexomc.nexo.api.NexoItems;
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.menu.Menu;
 import com.wynvers.quantum.storage.PlayerStorage;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -9,6 +10,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.Bukkit;
 
@@ -98,6 +100,7 @@ public class QuantumStorageCommand implements CommandExecutor {
                 }
             }
             storage.save(plugin);
+            refreshStorageGUI(player);
             player.sendMessage("§a§l✓ §aTransferred §e" + totalTransferred + " §aitems to storage!");
             return true;
         }
@@ -131,11 +134,14 @@ public class QuantumStorageCommand implements CommandExecutor {
 
             handItem.setAmount(handItem.getAmount() - amount);
             storage.save(plugin);
+            refreshStorageGUI(player);
             return true;
         }
 
         // Transfer specific item with nexo: or minecraft: prefix
-        return transferSpecificItem(player, storage, itemArg, args.length >= 3 ? args[2] : "1");
+        boolean result = transferSpecificItem(player, storage, itemArg, args.length >= 3 ? args[2] : "1");
+        refreshStorageGUI(player);
+        return result;
     }
 
     private boolean handleConsoleTransfer(CommandSender sender, String[] args) {
@@ -156,7 +162,9 @@ public class QuantumStorageCommand implements CommandExecutor {
         }
 
         PlayerStorage storage = plugin.getStorageManager().getStorage(target);
-        return transferSpecificItem(sender, storage, target, itemArg, amountStr);
+        boolean result = transferSpecificItem(sender, storage, target, itemArg, amountStr);
+        refreshStorageGUI(target);
+        return result;
     }
 
     private boolean transferSpecificItem(Player player, PlayerStorage storage, String itemArg, String amountStr) {
@@ -263,7 +271,9 @@ public class QuantumStorageCommand implements CommandExecutor {
         String itemArg = args[1];
         String amountStr = args.length >= 3 ? args[2] : "1";
 
-        return removeSpecificItem(player, storage, player, itemArg, amountStr);
+        boolean result = removeSpecificItem(player, storage, player, itemArg, amountStr);
+        refreshStorageGUI(player);
+        return result;
     }
 
     private boolean handleConsoleRemove(CommandSender sender, String[] args) {
@@ -283,7 +293,9 @@ public class QuantumStorageCommand implements CommandExecutor {
         }
 
         PlayerStorage storage = plugin.getStorageManager().getStorage(target);
-        return removeSpecificItem(sender, storage, target, itemArg, amountStr);
+        boolean result = removeSpecificItem(sender, storage, target, itemArg, amountStr);
+        refreshStorageGUI(target);
+        return result;
     }
 
     private boolean removeSpecificItem(CommandSender sender, PlayerStorage storage, Player target, String itemArg, String amountStr) {
@@ -366,6 +378,26 @@ public class QuantumStorageCommand implements CommandExecutor {
         storage.save(plugin);
         sender.sendMessage("§a§l✓ §aWithdrawn §e" + toRemove + "x §fminecraft:" + material.name() + " §afrom storage!");
         return true;
+    }
+
+    /**
+     * Refresh storage GUI if player has it open
+     */
+    private void refreshStorageGUI(Player player) {
+        if (player == null || !player.isOnline()) return;
+        
+        Inventory openInv = player.getOpenInventory().getTopInventory();
+        if (openInv == null) return;
+        
+        String title = player.getOpenInventory().getTitle();
+        if (title == null) return;
+        
+        // Check if it's the storage menu
+        Menu storageMenu = plugin.getMenuManager().getMenuByTitle(title);
+        if (storageMenu != null && storageMenu.getId().equals("storage")) {
+            // Re-open the menu to refresh it
+            Bukkit.getScheduler().runTask(plugin, () -> storageMenu.open(player));
+        }
     }
 
     private int removeFromInventory(Player player, String identifier, int maxAmount, boolean isNexo) {

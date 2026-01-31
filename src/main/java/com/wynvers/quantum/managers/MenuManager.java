@@ -252,6 +252,31 @@ public class MenuManager {
         return commandMenus.get(command.toLowerCase());
     }
     
+    /**
+     * Get menu by its title (for listener detection)
+     */
+    public Menu getMenuByTitle(String title) {
+        if (title == null) return null;
+        
+        for (Menu menu : menus.values()) {
+            // Check static title
+            if (title.equals(menu.getTitle())) {
+                return menu;
+            }
+            
+            // Check animated title frames
+            if (menu.isAnimatedTitle() && menu.getTitleFrames() != null) {
+                for (String frame : menu.getTitleFrames()) {
+                    if (title.equals(frame)) {
+                        return menu;
+                    }
+                }
+            }
+        }
+        
+        return null;
+    }
+    
     public Collection<Menu> getAllMenus() {
         return menus.values();
     }

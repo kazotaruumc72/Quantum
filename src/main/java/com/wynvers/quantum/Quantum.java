@@ -3,6 +3,7 @@ package com.wynvers.quantum;
 import com.wynvers.quantum.commands.MenuCommand;
 import com.wynvers.quantum.commands.QuantumCommand;
 import com.wynvers.quantum.commands.QuantumStorageCommand;
+import com.wynvers.quantum.commands.QuantumStorageTabCompleter;
 import com.wynvers.quantum.commands.StorageCommand;
 import com.wynvers.quantum.listeners.MenuListener;
 import com.wynvers.quantum.tabcompleters.MenuTabCompleter;
@@ -117,6 +118,7 @@ public final class Quantum extends JavaPlugin {
         getCommand("quantum").setTabCompleter(new QuantumTabCompleter());
         getCommand("storage").setTabCompleter(new StorageTabCompleter());
         getCommand("menu").setTabCompleter(new MenuTabCompleter(this));
+        getCommand("qstorage").setTabCompleter(new QuantumStorageTabCompleter(this));
         
         logger.success("✓ Commands registered");
     }

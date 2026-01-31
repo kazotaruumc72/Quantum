@@ -33,7 +33,9 @@ public class StorageTabCompleter implements TabCompleter {
                 subcommands.addAll(Arrays.asList(
                     "view",
                     "clear",
-                    "reload"
+                    "reload",
+                        "transfert",
+                        "remove"
                 ));
             }
             
@@ -44,7 +46,7 @@ public class StorageTabCompleter implements TabCompleter {
                     completions.add(subcmd);
                 }
             }
-        } else if (args.length == 2 && (args[0].equalsIgnoreCase("view") || args[0].equalsIgnoreCase("clear"))) {
+        } else if (args.length == 2 && (args[0].equalsIgnoreCase("view") || args[0].equalsIgnoreCase("clear")) || args[0].equalsIgnoreCase("transfert") || args[0].equalsIgnoreCase("remove"))) {
             // Auto-complétion des noms de joueurs pour view et clear
             if (sender.hasPermission("quantum.storage.admin")) {
                 String input = args[1].toLowerCase();
@@ -52,6 +54,23 @@ public class StorageTabCompleter implements TabCompleter {
                     .map(Player::getName)
                     .filter(name -> name.toLowerCase().startsWith(input))
                     .collect(Collectors.toList());
+            }
+        } else if (args.length == 3 && (args[0].equalsIgnoreCase("transfert") || args[0].equalsIgnoreCase("remove"))) {
+            // Auto-complétion des types d'items pour transfert et remove
+            if (sender.hasPermission("quantum.storage.admin")) {
+                completions.addAll(Arrays.asList(
+                        "nexo:<id>",
+                        "<material>"
+                ));
+            }
+        } else if (args.length == 4 && (args[0].equalsIgnoreCase("transfert") || args[0].equalsIgnoreCase("remove"))) {
+            // Auto-complétion de la quantité
+            if (sender.hasPermission("quantum.storage.admin")) {
+                completions.addAll(Arrays.asList(
+                        "1",
+                        "64",
+                        "<quantité>"
+                ));
             }
         }
         

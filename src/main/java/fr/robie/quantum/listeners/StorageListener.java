@@ -25,12 +25,13 @@ public class StorageListener implements Listener {
     
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onStorageClick(InventoryClickEvent event) {
-        Inventory topInv = event.getView().getTopInventory();
-        
-        // Check if it's storage GUI
-        if (topInv == null || !isStorageGUI(topInv)) {
+        // Check if it's storage GUI using view title
+        String title = event.getView().getTitle();
+        if (title == null || !title.equals("§6§lVirtual Storage")) {
             return;
         }
+        
+        Inventory topInv = event.getView().getTopInventory();
         
         // If clicking in storage inventory
         if (event.getClickedInventory() != null && event.getClickedInventory().equals(topInv)) {
@@ -52,17 +53,10 @@ public class StorageListener implements Listener {
     
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onStorageDrag(InventoryDragEvent event) {
-        Inventory topInv = event.getView().getTopInventory();
-        
-        if (topInv != null && isStorageGUI(topInv)) {
+        String title = event.getView().getTitle();
+        if (title != null && title.equals("§6§lVirtual Storage")) {
             event.setCancelled(true);
         }
-    }
-    
-    private boolean isStorageGUI(Inventory inv) {
-        return inv.getHolder() == null && 
-               inv.getSize() == 54 && 
-               "§6§lVirtual Storage".equals(inv.getTitle());
     }
     
     private void handleWithdraw(Player player, ItemStack displayItem, boolean shiftClick, boolean rightClick) {

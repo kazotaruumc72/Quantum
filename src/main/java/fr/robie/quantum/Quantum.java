@@ -4,6 +4,7 @@ import fr.robie.quantum.commands.MenuCommand;
 import fr.robie.quantum.commands.QuantumCommand;
 import fr.robie.quantum.commands.StorageCommand;
 import fr.robie.quantum.listeners.MenuListener;
+import fr.robie.quantum.listeners.StorageListener;
 import fr.robie.quantum.managers.*;
 import fr.robie.quantum.utils.Logger;
 import org.bukkit.Bukkit;
@@ -95,6 +96,9 @@ public final class Quantum extends JavaPlugin {
         
         Bukkit.getPluginManager().registerEvents(new MenuListener(this), this);
         logger.success("✓ Menu Listener");
+        
+        Bukkit.getPluginManager().registerEvents(new StorageListener(this), this);
+        logger.success("✓ Storage Listener");
     }
     
     private void registerCommands() {

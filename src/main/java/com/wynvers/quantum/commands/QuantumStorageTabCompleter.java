@@ -109,7 +109,7 @@ public class QuantumStorageTabCompleter implements TabCompleter {
                 }
                 
                 // Add vanilla materials from player's storage with prefix
-                for (Material material : storage.getItems().keySet()) {
+                for (Material material : storage.getVanillaItems().keySet()) {
                     completions.add("minecraft:" + material.name().toLowerCase());
                     completions.add(material.name().toLowerCase()); // Also without prefix
                 }
@@ -177,7 +177,7 @@ public class QuantumStorageTabCompleter implements TabCompleter {
     private List<String> getNexoItemsWithPrefix() {
         List<String> items = new ArrayList<>();
         try {
-            // Get all Nexo items
+            // Get all Nexo items - NexoItems.items() returns Set<String>
             for (String itemId : NexoItems.items()) {
                 items.add("nexo:" + itemId);
             }

@@ -260,9 +260,16 @@ public class MenuItem {
                     meta.setCustomModelData(customModelData);
                 }
                 
-                // Glow effect (fake enchantment - use ARROW_DAMAGE as it's universally compatible)
+                // Glow effect (fake enchantment - use durability/unbreaking as most compatible)
                 if (glow) {
-                    meta.addEnchant(Enchantment.ARROW_DAMAGE, 1, true);
+                    // Try to get a safe enchantment for glow effect
+                    Enchantment glowEnchant = Enchantment.getByName("DURABILITY");
+                    if (glowEnchant == null) {
+                        glowEnchant = Enchantment.getByName("PROTECTION_ENVIRONMENTAL");
+                    }
+                    if (glowEnchant != null) {
+                        meta.addEnchant(glowEnchant, 1, true);
+                    }
                     meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 }
                 

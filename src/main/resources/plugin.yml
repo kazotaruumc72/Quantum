@@ -25,6 +25,11 @@ commands:
     description: Open custom menu
     usage: /menu <menu_name>
     aliases: [openmenu]
+  
+  qstorage:
+    description: Manage storage (transfer/remove items)
+    usage: /qstorage <transfer|remove> <item|hand|all> [amount]
+    aliases: [quantumstorage, qs]
 
 permissions:
   quantum.*:
@@ -33,6 +38,8 @@ permissions:
     children:
       quantum.admin: true
       quantum.storage: true
+      quantum.storage.transfer: true
+      quantum.storage.remove: true
       quantum.menu: true
   
   quantum.admin:
@@ -41,6 +48,14 @@ permissions:
   
   quantum.storage:
     description: Use storage system
+    default: true
+  
+  quantum.storage.transfer:
+    description: Transfer items to storage
+    default: true
+  
+  quantum.storage.remove:
+    description: Remove items from storage
     default: true
   
   quantum.menu:

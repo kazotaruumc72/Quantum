@@ -395,8 +395,8 @@ public class QuantumStorageCommand implements CommandExecutor {
         // Check if it's the storage menu
         Menu storageMenu = plugin.getMenuManager().getMenuByTitle(title);
         if (storageMenu != null && storageMenu.getId().equals("storage")) {
-            // Re-open the menu to refresh it
-            Bukkit.getScheduler().runTask(plugin, () -> storageMenu.open(player));
+            // Re-open the menu to refresh it - pass plugin instance
+            Bukkit.getScheduler().runTask(plugin, () -> storageMenu.open(player, plugin));
         }
     }
 

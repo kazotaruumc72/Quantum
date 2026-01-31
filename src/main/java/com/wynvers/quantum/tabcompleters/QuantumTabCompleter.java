@@ -25,9 +25,7 @@ public class QuantumTabCompleter implements TabCompleter {
             List<String> subcommands = Arrays.asList(
                 "reload",
                 "help",
-                "info",
-                "version",
-                "storage"
+                "version"
             );
             
             // Filtrer les suggestions basées sur ce que l'utilisateur a tapé
@@ -35,6 +33,22 @@ public class QuantumTabCompleter implements TabCompleter {
             for (String subcmd : subcommands) {
                 if (subcmd.toLowerCase().startsWith(input)) {
                     completions.add(subcmd);
+                }
+            }
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("reload")) {
+            // Sous-commandes pour /quantum reload
+            List<String> reloadTypes = Arrays.asList(
+                "all",
+                "price",
+                "config",
+                "menus",
+                "messages"
+            );
+            
+            String input = args[1].toLowerCase();
+            for (String type : reloadTypes) {
+                if (type.toLowerCase().startsWith(input)) {
+                    completions.add(type);
                 }
             }
         }

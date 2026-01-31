@@ -20,26 +20,9 @@ database:
   sqlite:
     file: quantum.db
 
-# Storage Settings
-storage:
-  # Title animation settings
-  title:
-    enabled: true
-    frames:
-      - '&6&l✦ &e&lQUANTUM STORAGE &6&l✦'
-      - '&e&l✦ &6&lQUANTUM STORAGE &e&l✦'
-    speed: 10  # ticks between frames
-  
-  # Storage size (rows)
-  rows: 6
-  
-  # Default storage capacity per material (0 = unlimited)
-  default-capacity: 0
-
 # PlaceholderAPI Settings
 placeholders:
   enabled: true
-  refresh-rate: 20  # ticks
 
 # Debug mode
 debug: false

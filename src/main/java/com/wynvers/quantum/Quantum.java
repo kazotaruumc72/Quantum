@@ -6,6 +6,7 @@ import com.wynvers.quantum.commands.QuantumStorageCommand;
 import com.wynvers.quantum.commands.QuantumStorageTabCompleter;
 import com.wynvers.quantum.commands.StorageCommand;
 import com.wynvers.quantum.listeners.MenuListener;
+import com.wynvers.quantum.placeholder.QuantumPlaceholderExpansion;
 import com.wynvers.quantum.tabcompleters.MenuTabCompleter;
 import com.wynvers.quantum.tabcompleters.QuantumTabCompleter;
 import com.wynvers.quantum.tabcompleters.StorageTabCompleter;
@@ -45,6 +46,9 @@ public final class Quantum extends JavaPlugin {
     private PlaceholderManager placeholderManager;
     private AnimationManager animationManager;
     private MessagesManager messagesManager;
+    
+    // PlaceholderAPI expansion
+    private QuantumPlaceholderExpansion placeholderExpansion;
 
     @Override
     public void onEnable() {
@@ -68,6 +72,9 @@ public final class Quantum extends JavaPlugin {
         
         // Initialize managers
         initializeManagers();
+        
+        // Register PlaceholderAPI expansion
+        registerPlaceholderExpansion();
         
         // Register listeners
         registerListeners();
@@ -174,6 +181,24 @@ public final class Quantum extends JavaPlugin {
         logger.success("✓ Menu Manager (" + menuManager.getMenuCount() + " menus loaded)");
     }
     
+    /**
+     * Register PlaceholderAPI expansion for storage amount placeholders
+     */
+    private void registerPlaceholderExpansion() {
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            logger.info("Registering PlaceholderAPI expansion...");
+            this.placeholderExpansion = new QuantumPlaceholderExpansion(this);
+            if (placeholderExpansion.register()) {
+                logger.success("✓ PlaceholderAPI expansion registered");
+                logger.info("  Available placeholders:");
+                logger.info("  - %quantum_amt_nexo-<id>% (e.g., %quantum_amt_nexo-custom_sword%)");
+                logger.info("  - %quantum_amt_minecraft-<id>% (e.g., %quantum_amt_minecraft-diamond%)");
+            } else {
+                logger.error("✗ Failed to register PlaceholderAPI expansion");
+            }
+        }
+    }
+    
     private void registerListeners() {
         logger.info("Registering listeners...");
         
@@ -201,6 +226,11 @@ public final class Quantum extends JavaPlugin {
     @Override
     public void onDisable() {
         logger.info("Disabling Quantum...");
+        
+        // Unregister PlaceholderAPI expansion
+        if (placeholderExpansion != null) {
+            placeholderExpansion.unregister();
+        }
         
         // Stop animations
         if (animationManager != null) {
@@ -269,5 +299,3 @@ public final class Quantum extends JavaPlugin {
         return messagesManager;
     }
 }
-
-

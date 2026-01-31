@@ -1,5 +1,10 @@
 package com.wynvers.quantum.menu;
 
+import com.wynvers.quantum.Quantum;
+import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+
 public class MenuAction {
     
     private final ActionType type;
@@ -30,6 +35,95 @@ public class MenuAction {
     
     public String getSetting(String key) {
         return settings.get(key);
+    }
+    
+    /**
+     * Execute this action for a player
+     */
+    public void execute(Player player, Quantum plugin) {
+        String processedValue = processPlaceholders(value, player);
+        
+        switch (type) {
+            case MESSAGE:
+                player.sendMessage(processedValue);
+                break;
+                
+            case CONSOLE:
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), processedValue);
+                break;
+                
+            case PLAYER:
+                player.performCommand(processedValue);
+                break;
+                
+            case CLOSE:
+                player.closeInventory();
+                break;
+                
+            case MENU:
+                Menu menu = plugin.getMenuManager().getMenu(processedValue);
+                if (menu != null) {
+                    menu.open(player, plugin);
+                }
+                break;
+                
+            case SOUND:
+                playSound(player, processedValue);
+                break;
+                
+            case BROADCAST:
+                Bukkit.broadcastMessage(processedValue);
+                break;
+                
+            case ACTIONBAR:
+                player.sendActionBar(processedValue);
+                break;
+                
+            case TITLE:
+                sendTitle(player, processedValue);
+                break;
+                
+            case EFFECT:
+                // TODO: Implement potion effects
+                break;
+        }
+    }
+    
+    private String processPlaceholders(String text, Player player) {
+        if (text == null) return "";
+        
+        // Replace basic placeholders
+        text = text.replace("%player%", player.getName());
+        text = text.replace("%player_name%", player.getName());
+        text = text.replace("%player_uuid%", player.getUniqueId().toString());
+        
+        // TODO: Integrate PlaceholderAPI when available
+        
+        return text;
+    }
+    
+    private void playSound(Player player, String soundStr) {
+        try {
+            String[] parts = soundStr.split(":");
+            Sound sound = Sound.valueOf(parts[0].toUpperCase());
+            float volume = parts.length > 1 ? Float.parseFloat(parts[1]) : 1.0f;
+            float pitch = parts.length > 2 ? Float.parseFloat(parts[2]) : 1.0f;
+            
+            player.playSound(player.getLocation(), sound, volume, pitch);
+        } catch (Exception e) {
+            // Invalid sound format
+        }
+    }
+    
+    private void sendTitle(Player player, String titleStr) {
+        String[] parts = titleStr.split("\\|");
+        String title = parts.length > 0 ? parts[0] : "";
+        String subtitle = parts.length > 1 ? parts[1] : "";
+        int fadeIn = parts.length > 2 ? Integer.parseInt(parts[2]) : 10;
+        int stay = parts.length > 3 ? Integer.parseInt(parts[3]) : 70;
+        int fadeOut = parts.length > 4 ? Integer.parseInt(parts[4]) : 20;
+        
+        player.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
     }
     
     /**

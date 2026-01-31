@@ -33,8 +33,11 @@ public class StorageManager {
      * Get storage by UUID
      */
     public PlayerStorage getStorage(UUID uuid) {
-        return storages.get(uuid);
-    }
+        return storages.computeIfAbsent(uuid, uuid2 -> {
+            PlayerStorage storage = new PlayerStorage(uuid2);
+            storage.load(plugin);
+            return storage;
+        });    }
     
     /**
      * Save specific storage
@@ -77,3 +80,4 @@ public class StorageManager {
         storages.clear();
     }
 }
+

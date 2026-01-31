@@ -1,42 +1,111 @@
 # ===============================================
-# QUANTUM - Messages Configuration
+# QUANTUM - Configuration des Messages (FR)
 # ===============================================
-# Supports color codes with & symbol
-# Placeholders: {player}, {amount}, {item}, etc.
+# Support des codes couleur avec & (&c = rouge, &a = vert, etc.)
+# Placeholders disponibles: {player}, {amount}, {item}, {menu}
 
 prefix: "&8[&6Quantum&8]&r "
 
-# General Messages
-no-permission: "&cVous n'avez pas la permission!"
-only-player: "&cSeule les joueurs peuvent utiliser cette commande!"
+# Messages Généraux
+no-permission: "&cVous n'avez pas la permission d'utiliser cette commande!"
+only-player: "&cSeuls les joueurs peuvent utiliser cette commande!"
 player-not-found: "&cJoueur introuvable: &7{player}"
 reload-success: "&a&l✓ &aQuantum rechargé avec succès!"
+invalid-command: "&cCommande invalide! Utilisez &7/quantum help"
 
-# Storage Messages
+# Messages Storage (Admin)
 storage:
+  # Ouverture
   opened: "&a&l✓ &aStorage ouvert"
   admin-opened: "&a&l✓ &aStorage de &e{player} &aouvert"
-  item-added: "&a&l+ &a{amount}x {item} ajouté au storage"
-  item-removed: "&c&l- &c{amount}x {item} retiré du storage"
-  inventory-full: "&cInventaire plein!"
-  not-enough: "&cPas assez de {item} dans le storage!"
+  
+  # Transfer (Admin/Console → Storage)
+  item-added: "&a&l✓ &aAjouté &e{amount}x &f{item} &aau storage!"
+  item-added-target: "&a&l✓ &aAjouté &e{amount}x &f{item} &aau storage de &e{player}&a!"
+  transferred: "&a&l✓ &aTransféré &e{amount}x &f{item} &aau storage!"
+  transferred-all: "&a&l✓ &aTransféré &e{amount} items &aau storage!"
+  
+  # Remove (Storage → Inventaire)
+  item-removed: "&a&l✓ &aRetiré &e{amount}x &f{item} &adu storage!"
+  withdrawn: "&a&l✓ &aRetiré &e{amount}x &f{item} &adu storage de &e{player}&a!"
+  
+  # Erreurs Storage
+  inventory-full: "&cL'inventaire de &e{player} &cest plein!"
+  not-enough: "&cPas assez de &f{item} &cdans le storage!"
+  not-in-storage: "&e{player} &cn'a pas cet item dans son storage!"
+  not-in-inventory: "&e{player} &cn'a pas cet item dans son inventaire!"
   cleared: "&c&l✓ &cStorage vidé!"
+  
+  # Messages GUI
+  view-only: "&cLe storage est en lecture seule. Contactez un administrateur pour gérer les items."
+  admin-mode: "&a&lMODE ADMIN &7- Vous pouvez déposer/retirer des items"
 
-# Menu Messages
+# Messages Commandes Storage
+storage-command:
+  # Usage
+  usage-transfer: "&cUsage: &7/qstorage transfer <nexo:id|minecraft:id|hand|all> [amount]"
+  usage-remove: "&cUsage: &7/qstorage remove <nexo:id|minecraft:id> [amount]"
+  usage-console-transfer: "&cUsage: &7qstorage transfer <nexo:id|minecraft:id> <amount> <player>"
+  usage-console-remove: "&cUsage: &7qstorage remove <nexo:id|minecraft:id> <amount> <player>"
+  
+  # Erreurs items
+  nexo-not-found: "&cItem Nexo introuvable: &7{id}"
+  minecraft-not-found: "&cItem Minecraft introuvable: &7{material}"
+  item-not-found: "&cItem introuvable: &7{item}"
+  invalid-amount: "&cQuantité invalide!"
+  
+  # Main/All
+  must-hold-item: "&cVous devez tenir un item dans votre main!"
+  no-items-to-transfer: "&cAucun item à transférer!"
+  
+  # Help Admin
+  help-header: "&6&l■ &eCommandes Quantum Storage &7(Admin)"
+  help-blank: ""
+  help-transfer-hand: "&e/qstorage transfer hand [amount] &7- Transférer l'item en main"
+  help-transfer-all: "&e/qstorage transfer all &7- Transférer tout l'inventaire"
+  help-transfer-item: "&e/qstorage transfer <item> <amount> &7- Ajouter directement au storage"
+  help-remove: "&e/qstorage remove <item> [amount] &7- Retirer du storage"
+  help-syntax: "&7Syntaxe des items:"
+  help-nexo: "&fnexo:<id> &7- Item custom Nexo"
+  help-minecraft: "&fminecraft:<id> &7- Item vanilla Minecraft"
+  help-examples: "&7Exemples:"
+  help-example-1: "&f/qstorage transfer nexo:afzelia_bark 1 &7- Ajouter 1 écorce au storage"
+  help-example-2: "&f/qstorage transfer minecraft:diamond 64 &7- Ajouter 64 diamants"
+  help-example-3: "&f/qstorage remove nexo:afzelia_bark 5 &7- Retirer 5 du storage"
+
+# Messages Menu
 menu:
   not-found: "&cMenu introuvable: &7{menu}"
   opened: "&a&l✓ &aMenu ouvert: &e{menu}"
   requirement-not-met: "&cVous ne remplissez pas les conditions!"
+  requirement-permission: "&cPermission requise: &7{permission}"
+  requirement-money: "&cArgent requis: &e{amount}$"
+  requirement-item: "&cItem requis: &7{item} x{amount}"
   
-# Command Messages
+# Messages Commandes Générales
 command:
   usage: "&cUsage: &7{usage}"
   help-header: "&8&l=== &6&lQuantum Aide &8&l==="
   help-footer: "&8&l=======================&r"
-
-# Error Messages
+  help-reload: "&e/quantum reload &7- Recharger la configuration"
+  help-storage: "&e/storage &7- Ouvrir votre storage"
+  help-storage-admin: "&e/storage <player> &7- Ouvrir le storage d'un joueur"
+  help-menu: "&e/menu <nom> &7- Ouvrir un menu"
+  
+# Messages d'Erreur
 error:
   generic: "&cUne erreur s'est produite!"
   database: "&cErreur de base de données!"
-  nexo-not-found: "&cItem Nexo introuvable: &7{id}"
-  invalid-amount: "&cQuantité invalide!"
+  database-connection: "&cImpossible de se connecter à la base de données!"
+  file-not-found: "&cFichier introuvable: &7{file}"
+  invalid-configuration: "&cConfiguration invalide dans &7{file}"
+  menu-load-failed: "&cErreur lors du chargement du menu: &7{menu}"
+  
+# Messages Debug
+debug:
+  enabled: "&7[DEBUG] Mode debug activé"
+  disabled: "&7[DEBUG] Mode debug désactivé"
+  storage-loaded: "&7[DEBUG] Storage chargé pour {player}"
+  storage-saved: "&7[DEBUG] Storage sauvegardé pour {player}"
+  menu-loaded: "&7[DEBUG] Menu chargé: {menu}"
+  placeholder-registered: "&7[DEBUG] PlaceholderAPI enregistré"

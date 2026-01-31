@@ -3,6 +3,7 @@ package com.wynvers.quantum.managers;
 import com.wynvers.quantum.Quantum;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.entity.Player;
+import com.wynvers.quantum.storage.StorageModeManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,12 @@ public class PlaceholderManager {
     public String parse(Player player, String text) {
         if (!enabled || text == null) {
             return text;
+        }
+
+                // Remplacer le placeholder %mode%
+        if (text.contains("%mode%")) {
+            StorageModeManager.StorageMode mode = plugin.getStorageModeManager().getMode(player);
+            text = text.replace("%mode%", mode.getDisplayName());
         }
         
         return PlaceholderAPI.setPlaceholders(player, text);
@@ -50,3 +57,4 @@ public class PlaceholderManager {
         return enabled;
     }
 }
+

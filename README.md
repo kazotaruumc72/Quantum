@@ -9,6 +9,8 @@
 - [Configuration](#️-configuration)
 - [Commandes](#-commandes)
 - [Permissions](#-permissions)
+- [Storage Interactif](#-storage-interactif-nouveau)
+- [PlaceholderAPI](#-placeholderapi-nouveau)
 - [Menus](#-menus)
 - [API Développeur](#-api-développeur)
 - [Support](#-support)
@@ -18,11 +20,14 @@
 ### 🎒 Système de Stockage Virtuel
 
 - **Capacité illimitée** - Stockez autant d'items que vous voulez
+- **GUI Interactif** 🆕 - Cliquez pour déposer/retirer des items directement
+- **Drag & Drop** 🆕 - Glissez-déposez vos items dans le storage
 - **Support Nexo** - Compatible avec les items custom Nexo
 - **Items Vanilla** - Support complet des items Minecraft
 - **Syntaxe explicite** - `nexo:id` et `minecraft:id` pour éviter les conflits
 - **Base de données** - Sauvegarde MySQL ou SQLite
 - **GUI Dynamique** - Menu storage qui se met à jour automatiquement
+- **PlaceholderAPI** 🆕 - Placeholders pour afficher les quantités stockées
 
 ### 🎨 Constructeur de GUI
 
@@ -52,7 +57,7 @@
 - **Java**: 11 ou supérieur
 - **Optionnel**: 
   - [Nexo](https://nexomc.com/) pour les items custom
-  - [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) pour les placeholders
+  - [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) pour les placeholders 🆕
 
 ### Installation
 
@@ -69,7 +74,7 @@ plugins/Quantum/
 ├── menus/                  # Dossier des menus
 │   ├── example.yml         # Menu d'exemple simple
 │   ├── example_advanced.yml # Menu avec toutes les features
-│   └── storage.yml         # Menu du storage
+│   └── storage.yml         # Menu du storage 🆕 (avec placeholders)
 └── messages/               # Dossier des messages
     ├── messages_en.yml     # Messages anglais
     └── messages_fr.yml     # Messages français
@@ -124,7 +129,7 @@ items:
 
 ### Commandes Joueur
 
-#### `/qstorage` (Aliases: `/qs`, `/quantumstorage`)
+#### `/qstorage` (Aliaqs`, `/quantumstorage`)
 
 **Transfer (Transférer vers le storage):**
 ```
@@ -176,6 +181,98 @@ quantum.storage.remove     # Retirer des items
 quantum.menu.open          # Ouvrir les menus
 quantum.menu.admin         # Ouvrir menus d'autres joueurs
 ```
+
+## 🖱️ Storage Interactif 🆕
+
+### **Comment Utiliser le Storage GUI**
+
+#### **Déposer des Items**
+
+**Méthode 1: Drag & Drop**
+- Prenez un item avec votre curseur
+- **Clic Gauche** sur un slot vide → Déposer tous les items
+- **Clic Droit** sur un slot vide → Déposer 1 item
+
+**Méthode 2: Shift-Click**
+- **Shift + Clic Gauche** sur un item dans votre inventaire
+- L'item se dépose automatiquement dans le storage
+
+**Méthode 3: Commandes**
+```
+/qstorage transfer hand
+/qstorage transfer all
+```
+
+#### **Retirer des Items**
+
+**Cliquez sur les items dans le storage:**
+- **Clic Gauche** → Retirer 1 stack (64 max)
+- **Clic Droit** → Retirer 1 item
+- **Shift + Clic Gauche** → Retirer TOUS les items de ce type
+
+**Ou via commandes:**
+```
+/qstorage remove diamond 32
+```
+
+### **Feedback Visuel**
+
+✅ Sons de confirmation
+✅ Messages dans le chat
+✅ Rafraîchissement automatique du GUI
+✅ Placeholders mis à jour en temps réel
+
+**Voir [STORAGE_GUIDE.md](STORAGE_GUIDE.md) pour le guide complet !**
+
+## 📊 PlaceholderAPI 🆕
+
+### **Placeholders Disponibles**
+
+#### **Items Nexo**
+```
+%quantum_amt_nexo-<item_id>%
+```
+
+**Exemples:**
+```
+%quantum_amt_nexo-custom_sword%
+%quantum_amt_nexo-ruby%
+%quantum_amt_nexo-magic_wand%
+```
+
+#### **Items Minecraft**
+```
+%quantum_amt_minecraft-<material>%
+```
+
+**Exemples:**
+```
+%quantum_amt_minecraft-diamond%
+%quantum_amt_minecraft-iron_ingot%
+%quantum_amt_minecraft-gold_block%
+```
+
+#### **Auto-détection (sans préfixe)**
+```
+%quantum_amt_custom_sword%    → Cherche Nexo d'abord, puis Minecraft
+%quantum_amt_diamond%         → Cherche Nexo d'abord, puis Minecraft
+```
+
+### **Utilisation dans les Menus**
+
+```yaml
+items:
+  diamond_display:
+    material: DIAMOND
+    display_name: '&b&lDiamond Storage'
+    lore:
+      - '&7Amount: &f%quantum_amt_minecraft-diamond%'
+      - '&7'
+      - '&aClick to withdraw!'
+    slots: [10]
+```
+
+**Voir [STORAGE_GUIDE.md](STORAGE_GUIDE.md) pour plus d'exemples !**
 
 ## 📚 Menus
 
@@ -333,6 +430,7 @@ public void onMenuOpen(MenuOpenEvent event) {
 
 - [COMMANDS.md](COMMANDS.md) - Documentation complète des commandes
 - [MENU_GUIDE.md](MENU_GUIDE.md) - Guide de création de menus
+- [STORAGE_GUIDE.md](STORAGE_GUIDE.md) - 🆕 Guide complet du storage interactif
 - [API.md](API.md) - Documentation API pour développeurs
 
 ## 🐛 Support

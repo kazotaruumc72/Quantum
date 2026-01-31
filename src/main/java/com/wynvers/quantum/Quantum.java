@@ -4,6 +4,9 @@ import com.wynvers.quantum.commands.MenuCommand;
 import com.wynvers.quantum.commands.QuantumCommand;
 import com.wynvers.quantum.commands.StorageCommand;
 import com.wynvers.quantum.listeners.MenuListener;
+import com.wynvers.quantum.tabcompleters.MenuTabCompleter;
+import com.wynvers.quantum.tabcompleters.QuantumTabCompleter;
+import com.wynvers.quantum.tabcompleters.StorageTabCompleter;
 import com.wynvers.quantum.managers.*;
 import com.wynvers.quantum.utils.Logger;
 import org.bukkit.Bukkit;
@@ -107,6 +110,11 @@ public final class Quantum extends JavaPlugin {
         getCommand("quantum").setExecutor(new QuantumCommand(this));
         getCommand("storage").setExecutor(new StorageCommand(this));
         getCommand("menu").setExecutor(new MenuCommand(this));
+
+                // Register TabCompleters
+        getCommand("quantum").setTabCompleter(new QuantumTabCompleter());
+        getCommand("storage").setTabCompleter(new StorageTabCompleter());
+        getCommand("menu").setTabCompleter(new MenuTabCompleter(this));
         
         logger.success("✓ Commands registered");
     }
@@ -182,4 +190,5 @@ public final class Quantum extends JavaPlugin {
                     return messagesManager;
                 }
 }
+
 

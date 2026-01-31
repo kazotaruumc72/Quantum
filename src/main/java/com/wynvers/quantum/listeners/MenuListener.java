@@ -33,174 +33,93 @@ public class MenuListener implements Listener {
         
         if (clickedInventory == null) return;
         
-        // Check if this is a menu inventory
-        String inventoryTitle = event.getView().getTitle();
-        Menu menu = findMenuByTitle(inventoryTitle);
-        
-        if (menu == null) return;
-        
-        // Cancel the event to prevent item movement
-        event.setCancelled(true);
-        
-        int slot = event.getSlot();
-        ItemStack clickedItem = event.getCurrentItem();
-        
-        if (clickedItem == null) return;
-        
-        // Find the MenuItem for this slot
-        MenuItem menuItem = findMenuItemBySlot(menu, slot);
-        
-        if (menuItem == null) return;
-        
-        // Check click requirements
-        // TODO: Implement requirement checking
-        
-        // Get button type if specified
-        ButtonType buttonType = getButtonType(menuItem);
-        
-        // Handle button type actions
-        if (buttonType != null && buttonType != ButtonType.DEFAULT) {
-            handleButtonTypeAction(player, menu, menuItem, buttonType, event.getClick());
-        }
-        
-        // Execute actions based on click type
-        List<MenuAction> actions = null;
-        
-        if (event.getClick() == ClickType.LEFT) {
-            actions = menuItem.getLeftClickActions();
-        } else if (event.getClick() == ClickType.RIGHT) {
-            actions = menuItem.getRightClickActions();
-        } else if (event.getClick() == ClickType.MIDDLE) {
-            actions = menuItem.getMiddleClickActions();
-        }
-        
-        if (actions != null && !actions.isEmpty()) {
-            for (MenuAction action : actions) {
-                executeAction(player, action);
+        // Cancel all clicks in menu inventories to prevent item movement
+        Menu menu = plugin.getMenuManager().getOpenMenu(player);
+        if (menu != null) {
+            event.setCancelled(true);
+            
+            int slot = event.getSlot();
+            MenuItem menuItem = menu.getMenuItem(slot);
+            
+            if (menuItem == null) return;
+            
+            // Execute actions for the clicked item
+            List<MenuAction> actions = menuItem.getActions();
+            if (actions != null && !actions.isEmpty()) {
+                for (MenuAction action : actions) {
+                    executeAction(player, menu, action, event.getClick());
+                }
             }
         }
     }
-
-    /**
-     * Find a menu by its inventory title
-     */
-    private Menu findMenuByTitle(String title) {
-        for (Menu menu : plugin.getMenuManager().getAllMenus()) {
-            if (menu.getTitle().equals(title)) {
-                return menu;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Find a MenuItem by slot in a menu
-     */
-    private MenuItem findMenuItemBySlot(Menu menu, int slot) {
-        for (MenuItem item : menu.getItems().values()) {
-            if (item.getSlots().contains(slot)) {
-                return item;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Get button type from MenuItem
-     */
-    private ButtonType getButtonType(MenuItem menuItem) {
-        // TODO: Add type field to MenuItem or retrieve from config
-        // For now, return DEFAULT
-        return ButtonType.DEFAULT;
-    }
-
-    /**
-     * Handle special button type actions
-     */
-    private void handleButtonTypeAction(Player player, Menu menu, MenuItem menuItem, ButtonType buttonType, ClickType clickType) {
-        switch (buttonType) {
-            case QUANTUM_STORAGE:
-                // TODO: Handle storage button (show stored items)
-                plugin.getQuantumLogger().debug("Storage button clicked by " + player.getName());
-                break;
-                
-            case QUANTUM_SELL:
-                // TODO: Toggle between STORAGE and VENTE modes
-                plugin.getQuantumLogger().debug("Sell mode toggle clicked by " + player.getName());
-                break;
-                
-            case QUANTUM_SELL_POURCENTAGE:
-                // TODO: Handle percentage selection
-                plugin.getQuantumLogger().debug("Sell percentage button clicked by " + player.getName());
-                break;
-                
-            default:
-                break;
-        }
-    }
-
-    /**
-     * Execute a menu action
-     */
-    private void executeAction(Player player, MenuAction action) {
-        if (action == null) return;
+    
+    @EventHandler
+    public void onInventoryClose(InventoryCloseEvent event) {
+        if (!(event.getPlayer() instanceof Player)) return;
         
-        switch (action.getType()) {
-            case CLOSE:
+        Player player = (Player) event.getPlayer();
+        plugin.getMenuManager().closeMenu(player);
+    }
+    
+    private void executeAction(Player player, Menu menu, MenuAction action, ClickType clickType) {
+        String actionType = action.getType();
+        String actionValue = action.getValue();
+        
+        switch (actionType.toLowerCase()) {
+            case "command":
+                if (actionValue.startsWith("console:")) {
+                    String command = actionValue.substring(8).replace("%player%", player.getName());
+                    plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), command);
+                } else if (actionValue.startsWith("player:")) {
+                    String command = actionValue.substring(7).replace("%player%", player.getName());
+                    player.performCommand(command);
+                } else {
+                    player.performCommand(actionValue.replace("%player%", player.getName()));
+                }
+                break;
+                
+            case "close":
                 player.closeInventory();
                 break;
                 
-            case COMMAND:
-                // Execute command as player
-                String command = action.getData();
-                if (command != null) {
-                    player.performCommand(command);
-                }
+            case "openmenu":
+                plugin.getMenuManager().openMenu(actionValue, player);
                 break;
                 
-            case CONSOLE_COMMAND:
-                // Execute command as console
-                String consoleCmd = action.getData();
-                if (consoleCmd != null) {
-                    plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), 
-                        consoleCmd.replace("%player%", player.getName()));
-                }
+            case "message":
+                player.sendMessage(plugin.getMessagesManager().getMessage(actionValue));
                 break;
                 
-            case MESSAGE:
-                // Send message to player
-                String message = action.getData();
-                if (message != null) {
-                    player.sendMessage(message);
-                }
-                break;
-                
-            case SOUND:
-                // Play sound
-                // TODO: Implement sound playing
-                break;
-                
-            case OPEN_MENU:
-                // Open another menu
-                String menuId = action.getData();
-                if (menuId != null) {
-                    Menu targetMenu = plugin.getMenuManager().getMenu(menuId);
-                    if (targetMenu != null) {
-                        targetMenu.open(player, plugin);
-                    }
-                }
-                break;
-                
-            default:
+            case "button":
+                handleButtonAction(player, menu, actionValue, clickType);
                 break;
         }
     }
-
-    @EventHandler
-    public void onInventoryClose(InventoryCloseEvent event) {
-        // Stop title animation if any
-        if (event.getPlayer() != null) {
-            plugin.getAnimationManager().stopAnimation((org.bukkit.entity.Player) event.getPlayer());
+    
+    private void handleButtonAction(Player player, Menu menu, String buttonTypeStr, ClickType clickType) {
+        try {
+            ButtonType buttonType = ButtonType.valueOf(buttonTypeStr.toUpperCase());
+            
+            switch (buttonType) {
+                case QUANTUM_STORAGE:
+                    // Open storage menu
+                    plugin.getMenuManager().openMenu("storage", player);
+                    break;
+                    
+                case QUANTUM_SELL:
+                    // Handle sell all items in storage
+                    // TODO: Implement sell logic
+                    player.sendMessage(plugin.getMessagesManager().getMessage("storage.sell"));
+                    break;
+                    
+                case QUANTUM_SELL_POURCENTAGE:
+                    // Handle sell percentage of items
+                    // TODO: Implement percentage sell logic
+                    player.sendMessage(plugin.getMessagesManager().getMessage("storage.sell-percentage"));
+                    break;
+            }
+        } catch (IllegalArgumentException e) {
+            plugin.getLogger().warning("Unknown button type: " + buttonTypeStr);
         }
     }
 }

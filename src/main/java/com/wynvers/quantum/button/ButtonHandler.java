@@ -1,7 +1,6 @@
 package com.wynvers.quantum.button;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.storage.StorageManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
@@ -13,11 +12,9 @@ import java.util.Map;
 public class ButtonHandler {
 
     private final Quantum plugin;
-    private final StorageManager storageManager;
 
     public ButtonHandler(Quantum plugin) {
         this.plugin = plugin;
-        this.storageManager = plugin.getStorageManager();
     }
 
     /**

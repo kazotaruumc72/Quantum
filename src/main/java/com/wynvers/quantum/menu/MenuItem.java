@@ -156,4 +156,52 @@ public class MenuItem {
     public void addClickRequirement(Requirement requirement) {
         clickRequirements.add(requirement);
     }
+
+        /**
+     * Convert this MenuItem to a Bukkit ItemStack
+     */
+    public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin) {
+        org.bukkit.inventory.ItemStack itemStack;
+        
+        // Check if this is a Nexo item
+        if (isNexoItem()) {
+            // TODO: Implement Nexo item creation when Nexo API is available
+            // For now, fallback to material
+            if (material != null) {
+                itemStack = new org.bukkit.inventory.ItemStack(material, amount);
+            } else {
+                return null;
+            }
+        } else {
+            // Create vanilla Minecraft item
+            if (material == null) return null;
+            itemStack = new org.bukkit.inventory.ItemStack(material, amount);
+        }
+        
+        // Apply metadata
+        org.bukkit.inventory.meta.ItemMeta meta = itemStack.getItemMeta();
+        if (meta != null) {
+            if (displayName != null) {
+                meta.setDisplayName(displayName);
+            }
+            
+            if (lore != null && !lore.isEmpty()) {
+                meta.setLore(lore);
+            }
+            
+            if (customModelData > 0) {
+                meta.setCustomModelData(customModelData);
+            }
+            
+            // Handle skull owner
+            if (skullOwner != null && meta instanceof org.bukkit.inventory.meta.SkullMeta) {
+                ((org.bukkit.inventory.meta.SkullMeta) meta).setOwner(skullOwner);
+            }
+            
+            itemStack.setItemMeta(meta);
+        }
+        
+        return itemStack;
+    }
 }
+

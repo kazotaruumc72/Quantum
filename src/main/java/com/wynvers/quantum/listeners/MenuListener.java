@@ -5,6 +5,7 @@ import com.wynvers.quantum.menu.Menu;
 import com.wynvers.quantum.menu.MenuItem;
 import com.wynvers.quantum.menu.MenuAction;
 import com.wynvers.quantum.button.ButtonType;
+import com.wynvers.quantum.storage.StorageModeManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -117,9 +118,36 @@ public class MenuListener implements Listener {
                     // TODO: Implement percentage sell logic
                     player.sendMessage(plugin.getMessagesManager().getMessage("storage.sell-percentage"));
                     break;
+
+                                    case QUANTUM_CHANGE_MODE:
+                    // Parse le paramètre mode depuis actionValue (format: "mode:STORAGE" ou "mode:VENTE")
+                    String modeParam = null;
+                    if (buttonTypeStr.contains(":")) {
+                        String[] parts = buttonTypeStr.split(":", 2);
+                        if (parts.length == 2 && parts[0].equalsIgnoreCase("mode")) {
+                            modeParam = parts[1];
+                        }
+                    }
+                    
+                    // Change le mode du joueur
+                    if (modeParam != null) {
+                        com.wynvers.quantum.storage.StorageModeManager.StorageMode newMode = 
+                            com.wynvers.quantum.storage.StorageModeManager.StorageMode.fromString(modeParam);
+                        plugin.getStorageModeManager().setMode(player, newMode);
+                        player.sendMessage(plugin.getMessagesManager().getMessage("storage.mode-changed")
+                            .replace("%mode%", newMode.getDisplayName()));
+                    } else {
+                        // Si pas de paramètre, on bascule simplement
+                        com.wynvers.quantum.storage.StorageModeManager.StorageMode newMode = 
+                            plugin.getStorageModeManager().toggleMode(player);
+                        player.sendMessage(plugin.getMessagesManager().getMessage("storage.mode-changed")
+                            .replace("%mode%", newMode.getDisplayName()));
+                    }
+                    break;
             }
         } catch (IllegalArgumentException e) {
             plugin.getLogger().warning("Unknown button type: " + buttonTypeStr);
         }
     }
 }
+

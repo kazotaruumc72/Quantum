@@ -1,38 +1,39 @@
 package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.gui.StorageInventory;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class StorageCommand implements CommandExecutor {
-    
+
     private final Quantum plugin;
-    
+
     public StorageCommand(Quantum plugin) {
         this.plugin = plugin;
     }
-    
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        
+
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§cOnly players can use this command!");
+            sender.sendMessage(plugin.getMessagesManager().get("only-player"));
             return true;
         }
-        
+
         Player player = (Player) sender;
-        
+
         if (!player.hasPermission("quantum.storage")) {
-            player.sendMessage("§cYou don't have permission!");
+            player.sendMessage(plugin.getMessagesManager().get("no-permission"));
             return true;
         }
-        
-        // TODO: Open storage GUI
-        player.sendMessage("§a§l✓ §aOpening virtual storage...");
-        plugin.getQuantumLogger().debug("Opening storage for: " + player.getName());
-        
+
+        // Open storage GUI
+        StorageInventory storageGUI = new StorageInventory(plugin, player);
+        storageGUI.open();
+
         return true;
     }
 }

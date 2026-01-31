@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlaceholderManager {
-    
+
     private final Quantum plugin;
     private final boolean enabled;
-    
+
     public PlaceholderManager(Quantum plugin) {
         this.plugin = plugin;
         this.enabled = plugin.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI");
     }
-    
+
     /**
      * Parse placeholders in string
      */
@@ -25,12 +25,15 @@ public class PlaceholderManager {
             return text;
         }
 
-                // Remplacer le placeholder %mode%
+        // Remplacer le placeholder %mode%
         if (text.contains("%mode%")) {
-            // StorageModeManager functionality temporarily disabled        
+            // StorageModeManager functionality temporarily disabled 
+            return PlaceholderAPI.setPlaceholders(player, text);
+        }
+        
         return PlaceholderAPI.setPlaceholders(player, text);
     }
-    
+
     /**
      * Parse placeholders in list
      */
@@ -38,14 +41,14 @@ public class PlaceholderManager {
         if (!enabled || texts == null) {
             return texts;
         }
-        
+
         List<String> parsed = new ArrayList<>();
         for (String text : texts) {
             parsed.add(parse(player, text));
         }
         return parsed;
     }
-    
+
     /**
      * Check if PlaceholderAPI is enabled
      */
@@ -53,7 +56,3 @@ public class PlaceholderManager {
         return enabled;
     }
 }
-
-
-
-

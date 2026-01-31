@@ -1,0 +1,48 @@
+name: Quantum
+version: '${project.version}'
+main: fr.robie.quantum.Quantum
+api-version: '1.21'
+load: POSTWORLD
+author: Robie
+description: Advanced virtual storage with dynamic GUI builder
+
+softdepend:
+  - PlaceholderAPI
+  - Nexo
+
+commands:
+  quantum:
+    description: Main Quantum command
+    usage: /quantum <reload|help>
+    aliases: [q]
+  
+  storage:
+    description: Open virtual storage
+    usage: /storage
+    aliases: [store, st]
+  
+  menu:
+    description: Open custom menu
+    usage: /menu <menu_name>
+    aliases: [openmenu]
+
+permissions:
+  quantum.*:
+    description: All Quantum permissions
+    default: op
+    children:
+      quantum.admin: true
+      quantum.storage: true
+      quantum.menu: true
+  
+  quantum.admin:
+    description: Admin permissions
+    default: op
+  
+  quantum.storage:
+    description: Use storage system
+    default: true
+  
+  quantum.menu:
+    description: Use menu system
+    default: true

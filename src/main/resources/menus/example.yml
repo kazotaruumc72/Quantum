@@ -1,0 +1,106 @@
+# ====================================
+#       QUANTUM MENU EXAMPLE
+# ====================================
+# DeluxeMenus-style configuration
+# Supports: Nexo items, animated titles, placeholders, requirements, actions
+
+menu_title: '&6&lExample Menu'
+open_command: examplemenu
+size: 54  # Must be multiple of 9 (9-54)
+
+# Optional: Animated title
+animated_title:
+  enabled: true
+  frames:
+    - '&6&l✦ &e&lEXAMPLE MENU &6&l✦'
+    - '&e&l✦ &6&lEXAMPLE MENU &e&l✦'
+  speed: 10  # ticks
+
+# Menu items
+items:
+  # Simple vanilla item
+  'example_vanilla':
+    slot: 13
+    material: DIAMOND
+    amount: 1
+    display_name: '&b&lDiamond Item'
+    lore:
+      - '&7This is a vanilla item'
+      - '&7Click to do something!'
+    
+    # Click actions
+    left_click:
+      actions:
+        - '[message] &aYou left-clicked!'
+        - '[sound] ENTITY_PLAYER_LEVELUP'
+    
+    right_click:
+      actions:
+        - '[message] &cYou right-clicked!'
+        - '[console] give %player% diamond 1'
+  
+  # Nexo custom item
+  'example_nexo':
+    slot: 22
+    nexo_item: 'your_nexo_id'  # ID from Nexo
+    amount: 1
+    
+    # Override display (optional, Nexo defaults used if not set)
+    display_name: '&d&lCustom Nexo Item'
+    lore:
+      - '&7This is a Nexo item'
+      - '&7With custom properties'
+    
+    # Requirements to see this item
+    view_requirements:
+      - 'permission:quantum.vip'
+      - 'placeholder:%player_level% >= 10'
+    
+    # Actions
+    left_click:
+      actions:
+        - '[close]'
+        - '[message] &aOpening special menu!'
+        - '[menu] special_menu'
+  
+  # Item with PlaceholderAPI
+  'player_info':
+    slot: 31
+    material: PLAYER_HEAD
+    amount: 1
+    skull_owner: '%player%'
+    display_name: '&e&l%player%'
+    lore:
+      - '&7Level: &e%player_level%'
+      - '&7Money: &a$%vault_eco_balance%'
+      - '&7Ping: &b%player_ping%ms'
+    
+    left_click:
+      actions:
+        - '[message] &aYour stats have been updated!'
+  
+  # Close button
+  'close':
+    slot: 49
+    material: BARRIER
+    amount: 1
+    display_name: '&c&lClose'
+    lore:
+      - '&7Click to close this menu'
+    
+    left_click:
+      actions:
+        - '[close]'
+    
+    right_click:
+      actions:
+        - '[close]'
+  
+  # Fill glass pane
+  'filler':
+    slots:
+      - 0-8
+      - 45-53
+    material: GRAY_STAINED_GLASS_PANE
+    amount: 1
+    display_name: ' '

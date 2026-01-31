@@ -1,0 +1,45 @@
+# ====================================
+#         QUANTUM CONFIGURATION
+# ====================================
+# Advanced virtual storage with dynamic GUI builder
+# Version: 1.0.0
+
+# Database Configuration
+database:
+  type: sqlite  # sqlite or mysql
+  
+  # MySQL Settings (only if type: mysql)
+  mysql:
+    host: localhost
+    port: 3306
+    database: quantum
+    username: root
+    password: password
+    
+  # SQLite Settings (only if type: sqlite)
+  sqlite:
+    file: quantum.db
+
+# Storage Settings
+storage:
+  # Title animation settings
+  title:
+    enabled: true
+    frames:
+      - '&6&l✦ &e&lQUANTUM STORAGE &6&l✦'
+      - '&e&l✦ &6&lQUANTUM STORAGE &e&l✦'
+    speed: 10  # ticks between frames
+  
+  # Storage size (rows)
+  rows: 6
+  
+  # Default storage capacity per material (0 = unlimited)
+  default-capacity: 0
+
+# PlaceholderAPI Settings
+placeholders:
+  enabled: true
+  refresh-rate: 20  # ticks
+
+# Debug mode
+debug: false

@@ -74,8 +74,12 @@ public class MenuManager {
         
         String menuId = file.getName().replace(".yml", "");
         Menu menu = new Menu(plugin, menuId);        
-        // Basic properties
-        menu.setTitle(color(config.getString("menu_title", "Menu")));
+        // Basic properties - support both "title" and "menu_title"
+        String title = config.getString("title");
+        if (title == null) {
+            title = config.getString("menu_title", "Menu");
+        }
+        menu.setTitle(color(title));
         menu.setSize(config.getInt("size", 54));
         menu.setOpenCommand(config.getString("open_command"));
         
@@ -116,8 +120,15 @@ public class MenuManager {
             item.addSlot(section.getInt("slot"));
         }
         if (section.contains("slots")) {
-            for (String slotDef : section.getStringList("slots")) {
-                parseSlots(slotDef, item);
+            List<?> slotList = section.getList("slots");
+            if (slotList != null) {
+                for (Object slotObj : slotList) {
+                    if (slotObj instanceof Integer) {
+                        item.addSlot((Integer) slotObj);
+                    } else if (slotObj instanceof String) {
+                        parseSlots((String) slotObj, item);
+                    }
+                }
             }
         }
         
@@ -177,9 +188,20 @@ public class MenuManager {
             }
         }
         
-        // Actions
-        loadActions(section, "left_click", item, true);
-        loadActions(section, "right_click", item, false);
+        // Actions - support both old format (left_click/right_click) and new format (click_actions)
+        if (section.contains("click_actions")) {
+            List<String> actionStrings = section.getStringList("click_actions");
+            for (String actionStr : actionStrings) {
+                MenuAction action = MenuAction.parse(actionStr);
+                if (action != null) {
+                    item.addLeftClickAction(action);  // Par défaut, les click_actions sont pour le clic gauche
+                }
+            }
+        } else {
+            // Ancien format
+            loadActions(section, "left_click", item, true);
+            loadActions(section, "right_click", item, false);
+        }
         
         // Requirements
         loadRequirements(section, "view_requirements", item, true);
@@ -320,4 +342,3 @@ public class MenuManager {
         loadMenus();
     }
 }
-

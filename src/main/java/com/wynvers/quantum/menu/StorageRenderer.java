@@ -3,7 +3,6 @@ package com.wynvers.quantum.menu;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.managers.PriceManager;
 import com.wynvers.quantum.storage.PlayerStorage;
-import com.wynvers.quantum.utils.NexoUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -106,9 +105,15 @@ public class StorageRenderer {
         
         // Créer l'item (Nexo ou vanilla)
         if (item.nexoId != null) {
-            stack = NexoUtils.createNexoItem(item.nexoId);
-            if (stack == null) {
-                plugin.getQuantumLogger().warning("Failed to create Nexo item: " + item.nexoId);
+            // Utiliser l'API Nexo directement
+            try {
+                stack = com.nexomc.nexo.api.NexoItems.itemFromId(item.nexoId).build();
+                if (stack == null) {
+                    plugin.getQuantumLogger().warning("Failed to create Nexo item: " + item.nexoId);
+                    return null;
+                }
+            } catch (Exception e) {
+                plugin.getQuantumLogger().warning("Failed to create Nexo item: " + item.nexoId + " - " + e.getMessage());
                 return null;
             }
         } else if (item.material != null) {

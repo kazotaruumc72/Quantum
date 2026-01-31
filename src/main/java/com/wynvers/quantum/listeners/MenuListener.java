@@ -78,10 +78,17 @@ public class MenuListener implements Listener {
     
     /**
      * Handle storage menu clicks with special interactive behavior
+     * 
+     * GUI is READ-ONLY for normal players
+     * Only admins with 'quantum.admin' permission can deposit/withdraw interactively
+     * Console commands and admins can use /qstorage transfer/remove for management
      */
     private void handleStorageMenu(InventoryClickEvent event, Player player, Menu menu) {
         Inventory clickedInv = event.getClickedInventory();
         Inventory topInv = event.getView().getTopInventory();
+        
+        // Check if player has admin permission for interactive storage
+        boolean isAdmin = player.hasPermission("quantum.admin");
         
         // If clicking in the storage menu (top inventory)
         if (clickedInv != null && clickedInv.equals(topInv)) {
@@ -104,19 +111,28 @@ public class MenuListener implements Listener {
                 menuItem.executeActions(player, plugin);
             }
             // If clicking on an empty slot or storage item slot
-            else {
-                // Handle deposit/withdrawal via StorageMenuHandler
+            else if (isAdmin) {
+                // Only admins can deposit/withdraw via GUI
                 storageHandler.handleClick(player, slot, event.getClick(), event.getCursor());
+            } else {
+                // Non-admins: show message about read-only access
+                player.sendMessage("§cStorage is view-only. Use /qstorage commands or contact an admin.");
             }
         }
         // If clicking in player inventory while storage is open
         else if (clickedInv != null && clickedInv.equals(player.getInventory())) {
-            // Allow shift-click to deposit items to storage
+            // Allow shift-click to deposit items to storage (admin only)
             if (event.getClick().isShiftClick()) {
                 event.setCancelled(true);
-                // Handle shift-click deposit
-                if (event.getCurrentItem() != null) {
-                    storageHandler.handleClick(player, -1, event.getClick(), event.getCurrentItem());
+                
+                if (isAdmin) {
+                    // Admin: allow shift-click deposit
+                    if (event.getCurrentItem() != null) {
+                        storageHandler.handleClick(player, -1, event.getClick(), event.getCurrentItem());
+                    }
+                } else {
+                    // Non-admin: show message
+                    player.sendMessage("§cYou don't have permission to deposit items. Use /qstorage transfer or contact an admin.");
                 }
             }
         }
@@ -134,6 +150,14 @@ public class MenuListener implements Listener {
         if (menu != null) {
             // Cancel all drag events in menu
             event.setCancelled(true);
+            
+            // For storage menu, show message if non-admin tries to drag
+            if (menu.getId().equals("storage")) {
+                Player player = (Player) event.getWhoClicked();
+                if (!player.hasPermission("quantum.admin")) {
+                    player.sendMessage("§cStorage is view-only. Use /qstorage commands or contact an admin.");
+                }
+            }
         }
     }
     

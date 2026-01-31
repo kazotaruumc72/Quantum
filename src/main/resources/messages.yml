@@ -39,6 +39,10 @@ storage:
   not-in-inventory: "&e{player} &cn'a pas cet item dans son inventaire!"
   cleared: "&c&l✓ &cStorage vidé!"
   
+  # Storage Plein - Titre/Sous-titre
+  full-title: "&c&l⚠ STORAGE PLEIN ⚠"
+  full-subtitle: "&7Vendez ou retirez des items pour libérer de l'espace"
+  
   # Messages GUI
   view-only: "&cLe storage est en lecture seule. Contactez un administrateur pour gérer les items."
   admin-mode: "&a&lMODE ADMIN &7- Vous pouvez déposer/retirer des items"

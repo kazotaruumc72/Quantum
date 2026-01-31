@@ -6,6 +6,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemFlag;
 
 import java.io.File;
 import java.util.*;
@@ -146,6 +147,24 @@ public class MenuManager {
         }
         if (section.contains("custom_model_data")) {
             item.setCustomModelData(section.getInt("custom_model_data"));
+        }
+        
+        // Glow effect
+        if (section.contains("glow")) {
+            item.setGlow(section.getBoolean("glow"));
+        }
+        
+        // Hide flags for custom tooltips
+        if (section.contains("hide_flags")) {
+            List<String> flagStrings = section.getStringList("hide_flags");
+            for (String flagStr : flagStrings) {
+                try {
+                    ItemFlag flag = ItemFlag.valueOf(flagStr.toUpperCase());
+                    item.addHideFlag(flag);
+                } catch (IllegalArgumentException e) {
+                    plugin.getQuantumLogger().warning("Invalid hide flag: " + flagStr);
+                }
+            }
         }
         
         // Actions

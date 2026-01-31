@@ -2,194 +2,194 @@ package com.wynvers.quantum.menu;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.managers.PriceManager;
-import com.wynvers.quantum.storage.StorageItem;
+import com.wynvers.quantum.storage.PlayerStorage;
+import com.wynvers.quantum.utils.NexoUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
- * Classe responsable du rendu des items du storage dans les menus
- * Gère le type quantum_storage et l'append de lore (quantité + prix)
+ * Gère le rendu des items du storage dans les slots quantum_storage
  */
 public class StorageRenderer {
-
+    
     private final Quantum plugin;
     private final PriceManager priceManager;
-
+    
     public StorageRenderer(Quantum plugin) {
         this.plugin = plugin;
         this.priceManager = plugin.getPriceManager();
     }
-
+    
     /**
-     * Remplit les slots quantum_storage dans l'inventaire avec les items du joueur
-     * @param player Le joueur
-     * @param inventory L'inventaire du menu
-     * @param menu Le menu à remplir
-     * @param loreAppendConfig Configuration du lore à ajouter (peut être null)
-     */
-    public void renderStorageSlots(Player player, Inventory inventory, Menu menu, LoreAppendConfig loreAppendConfig) {
-        // Récupérer tous les items du storage du joueur
-        Map<String, StorageItem> storageItems = plugin.getStorageManager().getPlayerStorage(player.getUniqueId());
-        
-        // Trouver tous les MenuItem de type quantum_storage
-        List<MenuItem> storageSlotItems = new ArrayList<>();
-        for (MenuItem item : menu.getItems().values()) {
-            if (item.getType() != null && item.getType().equalsIgnoreCase("quantum_storage")) {
-                storageSlotItems.add(item);
-            }
-        }
-        
-        if (storageSlotItems.isEmpty()) {
-            return; // Pas de slots quantum_storage dans ce menu
-        }
-        
-        // Récupérer les slots disponibles
-        List<Integer> availableSlots = new ArrayList<>();
-        for (MenuItem item : storageSlotItems) {
-            availableSlots.addAll(item.getSlots());
-        }
-        
-        // Remplir les slots avec les items du storage
-        int slotIndex = 0;
-        for (Map.Entry<String, StorageItem> entry : storageItems.entrySet()) {
-            if (slotIndex >= availableSlots.size()) {
-                break; // Plus de slots disponibles
-            }
-            
-            StorageItem storageItem = entry.getValue();
-            int slot = availableSlots.get(slotIndex);
-            
-            // Créer l'ItemStack à afficher
-            ItemStack displayItem = createStorageDisplayItem(storageItem, loreAppendConfig);
-            if (displayItem != null) {
-                inventory.setItem(slot, displayItem);
-                slotIndex++;
-            }
-        }
-    }
-
-    /**
-     * Crée un ItemStack pour afficher un item du storage avec le lore appendé
-     * @param storageItem L'item du storage
-     * @param loreAppendConfig Configuration du lore à ajouter
-     * @return L'ItemStack à afficher
-     */
-    private ItemStack createStorageDisplayItem(StorageItem storageItem, LoreAppendConfig loreAppendConfig) {
-        ItemStack itemStack;
-        
-        // Créer l'item (Nexo ou Minecraft)
-        if (storageItem.isNexoItem()) {
-            try {
-                itemStack = com.nexomc.nexo.api.NexoItems.itemFromId(storageItem.getItemId()).build();
-            } catch (Exception e) {
-                plugin.getQuantumLogger().warning("Item Nexo introuvable: " + storageItem.getItemId());
-                return null;
-            }
-        } else {
-            try {
-                org.bukkit.Material material = org.bukkit.Material.valueOf(storageItem.getItemId().toUpperCase());
-                itemStack = new ItemStack(material);
-            } catch (IllegalArgumentException e) {
-                plugin.getQuantumLogger().warning("Matériau Minecraft invalide: " + storageItem.getItemId());
-                return null;
-            }
-        }
-        
-        // Ajouter le lore avec quantité et prix
-        if (loreAppendConfig != null) {
-            appendStorageLore(itemStack, storageItem, loreAppendConfig);
-        }
-        
-        return itemStack;
-    }
-
-    /**
-     * Ajoute le lore de quantité et prix à l'item
-     * @param itemStack L'ItemStack
-     * @param storageItem L'item du storage
-     * @param config Configuration du lore
-     */
-    private void appendStorageLore(ItemStack itemStack, StorageItem storageItem, LoreAppendConfig config) {
-        ItemMeta meta = itemStack.getItemMeta();
-        if (meta == null) return;
-        
-        List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
-        
-        // Ajouter une ligne vide pour séparer
-        if (!lore.isEmpty()) {
-            lore.add("");
-        }
-        
-        // Remplacer les placeholders dans chaque ligne de lore
-        for (String loreLine : config.getLoreLines()) {
-            String processedLine = processLorePlaceholders(loreLine, storageItem);
-            lore.add(ChatColor.translateAlternateColorCodes('&', processedLine));
-        }
-        
-        meta.setLore(lore);
-        itemStack.setItemMeta(meta);
-    }
-
-    /**
-     * Remplace les placeholders dans une ligne de lore
-     * @param line La ligne de lore
-     * @param storageItem L'item du storage
-     * @return La ligne avec placeholders remplacés
-     */
-    private String processLorePlaceholders(String line, StorageItem storageItem) {
-        String processed = line;
-        
-        // %quantity% - Quantité d'items stockés
-        processed = processed.replace("%quantity%", formatQuantity(storageItem.getAmount()));
-        
-        // %price% - Prix unitaire de l'item
-        String itemId = storageItem.isNexoItem() ? storageItem.getItemId() : storageItem.getItemId().toUpperCase();
-        double price = priceManager.getPrice(itemId);
-        processed = processed.replace("%price%", priceManager.formatPrice(price));
-        
-        // %total_price% - Prix total (quantité * prix unitaire)
-        double totalPrice = storageItem.getAmount() * price;
-        processed = processed.replace("%total_price%", priceManager.formatPrice(totalPrice));
-        
-        return processed;
-    }
-
-    /**
-     * Formate la quantité d'items (avec séparateurs de milliers)
-     * @param quantity La quantité
-     * @return Chaîne formatée
-     */
-    private String formatQuantity(long quantity) {
-        if (quantity >= 1_000_000_000) {
-            return String.format("§a%.2fB", quantity / 1_000_000_000.0);
-        } else if (quantity >= 1_000_000) {
-            return String.format("§a%.2fM", quantity / 1_000_000.0);
-        } else if (quantity >= 1_000) {
-            return String.format("§a%.2fK", quantity / 1_000.0);
-        } else {
-            return "§a" + quantity;
-        }
-    }
-
-    /**
-     * Configuration du lore à ajouter aux items du storage
+     * Configuration pour lore_append
      */
     public static class LoreAppendConfig {
-        private final List<String> loreLines;
+        private final List<String> loreTemplate;
         
-        public LoreAppendConfig(List<String> loreLines) {
-            this.loreLines = loreLines != null ? loreLines : new ArrayList<>();
+        public LoreAppendConfig(List<String> loreTemplate) {
+            this.loreTemplate = loreTemplate;
         }
         
-        public List<String> getLoreLines() {
-            return loreLines;
+        public List<String> getLoreTemplate() {
+            return loreTemplate;
+        }
+    }
+    
+    /**
+     * Remplit les slots quantum_storage avec les items du joueur
+     */
+    public void renderStorageSlots(Player player, Inventory inventory, Menu menu, LoreAppendConfig loreConfig) {
+        // Récupérer le storage du joueur
+        PlayerStorage storage = plugin.getStorageManager().getStorage(player.getUniqueId());
+        if (storage == null) {
+            return;
+        }
+        
+        // Collecter tous les items du storage
+        List<StorageItemDisplay> items = new ArrayList<>();
+        
+        // Items vanilla
+        for (Map.Entry<Material, Integer> entry : storage.getVanillaItems().entrySet()) {
+            items.add(new StorageItemDisplay(
+                entry.getKey(),
+                null,
+                entry.getValue()
+            ));
+        }
+        
+        // Items Nexo
+        for (Map.Entry<String, Integer> entry : storage.getNexoItems().entrySet()) {
+            items.add(new StorageItemDisplay(
+                null,
+                entry.getKey(),
+                entry.getValue()
+            ));
+        }
+        
+        // Trouver les slots quantum_storage
+        List<Integer> quantumSlots = new ArrayList<>();
+        for (MenuItem menuItem : menu.getItems().values()) {
+            if (menuItem.isQuantumStorage()) {
+                quantumSlots.addAll(menuItem.getSlots());
+            }
+        }
+        
+        // Remplir les slots avec les items
+        int index = 0;
+        for (int slot : quantumSlots) {
+            if (index >= items.size()) {
+                break; // Plus d'items à afficher
+            }
+            
+            StorageItemDisplay item = items.get(index);
+            ItemStack displayStack = createDisplayItem(item, loreConfig);
+            
+            if (displayStack != null) {
+                inventory.setItem(slot, displayStack);
+            }
+            
+            index++;
+        }
+    }
+    
+    /**
+     * Crée l'ItemStack d'affichage avec le lore personnalisé
+     */
+    private ItemStack createDisplayItem(StorageItemDisplay item, LoreAppendConfig loreConfig) {
+        ItemStack stack;
+        
+        // Créer l'item (Nexo ou vanilla)
+        if (item.nexoId != null) {
+            stack = NexoUtils.createNexoItem(item.nexoId);
+            if (stack == null) {
+                plugin.getQuantumLogger().warning("Failed to create Nexo item: " + item.nexoId);
+                return null;
+            }
+        } else if (item.material != null) {
+            stack = new ItemStack(item.material);
+        } else {
+            return null;
+        }
+        
+        // Ajouter le lore personnalisé
+        if (loreConfig != null && loreConfig.getLoreTemplate() != null) {
+            ItemMeta meta = stack.getItemMeta();
+            if (meta != null) {
+                List<String> currentLore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
+                
+                // Ajouter une ligne vide avant le nouveau lore
+                if (!currentLore.isEmpty()) {
+                    currentLore.add("");
+                }
+                
+                // Ajouter le lore avec les placeholders remplacés
+                for (String loreLine : loreConfig.getLoreTemplate()) {
+                    String processedLine = replacePlaceholders(loreLine, item);
+                    currentLore.add(ChatColor.translateAlternateColorCodes('&', processedLine));
+                }
+                
+                meta.setLore(currentLore);
+                stack.setItemMeta(meta);
+            }
+        }
+        
+        return stack;
+    }
+    
+    /**
+     * Remplace les placeholders dans le lore
+     */
+    private String replacePlaceholders(String text, StorageItemDisplay item) {
+        String result = text;
+        
+        // %quantity% - Quantité formatée
+        result = result.replace("%quantity%", formatNumber(item.quantity));
+        
+        // %price% - Prix unitaire
+        String itemId = item.nexoId != null ? "nexo:" + item.nexoId : "minecraft:" + item.material.name().toLowerCase();
+        double price = priceManager.getPrice(itemId);
+        result = result.replace("%price%", priceManager.formatPrice(price));
+        
+        // %total_price% - Prix total
+        double totalPrice = price * item.quantity;
+        result = result.replace("%total_price%", priceManager.formatPrice(totalPrice));
+        
+        return result;
+    }
+    
+    /**
+     * Formate un nombre avec K, M, B pour les grands nombres
+     */
+    private String formatNumber(long number) {
+        if (number < 1000) {
+            return String.valueOf(number);
+        } else if (number < 1_000_000) {
+            return String.format("%.1fK", number / 1000.0);
+        } else if (number < 1_000_000_000) {
+            return String.format("%.1fM", number / 1_000_000.0);
+        } else {
+            return String.format("%.1fB", number / 1_000_000_000.0);
+        }
+    }
+    
+    /**
+     * Classe interne pour représenter un item du storage à afficher
+     */
+    private static class StorageItemDisplay {
+        private final Material material;
+        private final String nexoId;
+        private final int quantity;
+        
+        public StorageItemDisplay(Material material, String nexoId, int quantity) {
+            this.material = material;
+            this.nexoId = nexoId;
+            this.quantity = quantity;
         }
     }
 }

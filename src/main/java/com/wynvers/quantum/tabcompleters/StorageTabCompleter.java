@@ -46,8 +46,7 @@ public class StorageTabCompleter implements TabCompleter {
                     completions.add(subcmd);
                 }
             }
-        } else if (args.length == 2 && (args[0].equalsIgnoreCase("view") || args[0].equalsIgnoreCase("clear")) || args[0].equalsIgnoreCase("transfert") || args[0].equalsIgnoreCase("remove"))) {
-            // Auto-complétion des noms de joueurs pour view et clear
+        } else if (args.length == 2 && (args[0].equalsIgnoreCase("view") || args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("transfert") || args[0].equalsIgnoreCase("remove"))) {            // Auto-complétion des noms de joueurs pour view et clear
             if (sender.hasPermission("quantum.storage.admin")) {
                 String input = args[1].toLowerCase();
                 completions = Bukkit.getOnlinePlayers().stream()

@@ -1,6 +1,8 @@
 package com.wynvers.quantum.storage;
 
+import com.wynvers.quantum.Quantum;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +14,8 @@ import java.util.UUID;
 public class StorageMode {
     
     public enum Mode {
-        STORAGE("&aStorage"),
-        SELL("&eVente");
+        STORAGE("§aMode: Stockage"),
+        SELL("§eMode: Vente");
         
         private final String displayName;
         
@@ -52,11 +54,26 @@ public class StorageMode {
     
     /**
      * Basculer entre les modes
+     * Rafraîchit automatiquement le menu si ouvert
      */
     public static void toggleMode(Player player) {
         Mode currentMode = getMode(player);
         Mode newMode = (currentMode == Mode.STORAGE) ? Mode.SELL : Mode.STORAGE;
         setMode(player, newMode);
+        
+        // Message de confirmation
+        player.sendMessage(newMode.getDisplayName());
+        
+        // Vérifier si le joueur a le menu storage ouvert
+        if (player.getOpenInventory().getType() != InventoryType.CRAFTING) {
+            Quantum plugin = Quantum.getInstance();
+            com.wynvers.quantum.menu.Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
+            
+            // Si le menu storage est ouvert, le rafraîchir
+            if (activeMenu != null && activeMenu.getId().equals("storage")) {
+                activeMenu.refresh(player, plugin);
+            }
+        }
     }
     
     /**

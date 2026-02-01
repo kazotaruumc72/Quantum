@@ -27,9 +27,6 @@ items:
     display_name: ' '
     slots: [1, 2, 3, 4, 5, 6, 7, 45, 46, 47, 48, 50, 51, 52]
 
-  # ──────────────────────────────────────
-  # BOUTON: MODE STORAGE (Coin haut gauche)
-  # ──────────────────────────────────────
   mode_storage:
     slots: [0]
     material: LIME_WOOL
@@ -67,9 +64,6 @@ items:
     button_type: QUANTUM_CHANGE_MODE
     target_mode: SELL
 
-  # ──────────────────────────────────────
-  # ZONE DE STOCKAGE (36 slots)
-  # ──────────────────────────────────────
   storage_slots:
     slots: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44]
     type: quantum_storage
@@ -83,26 +77,6 @@ items:
       - ' '
       - '&7▸ Clic droit: &eVendre (mode Vente)'
 
-  # ──────────────────────────────────────
-  # BOUTON: INFORMATIONS (Centre bas)
-  # ──────────────────────────────────────
-  info:
-    slots: [49]
-    material: BOOK
-    display_name: '&b&l⌘ Informations'
-    lore:
-      - '&7Stockage virtuel Quantum'
-      - ' '
-      - '&fMode actuel: &e%mode%'
-      - '&fCapacité: &e∞ Illimité'
-      - ' '
-      - '&7Utilisez les commandes:'
-      - '&a/qstorage transfer <item> <qté>'
-      - '&a/qstorage remove <item> <qté>'
-
-  # ──────────────────────────────────────
-  # BOUTON: FERMER (Coin bas droit)
-  # ──────────────────────────────────────
   close:
     slots: [53]
     material: BARRIER

@@ -6,6 +6,7 @@ import com.wynvers.quantum.listeners.StorageListener;
 import com.wynvers.quantum.placeholder.QuantumPlaceholderExpansion;
 import com.wynvers.quantum.placeholders.QuantumExpansion;
 import com.wynvers.quantum.statistics.StatisticsManager;
+import com.wynvers.quantum.statistics.StorageStatsManager;
 import com.wynvers.quantum.tabcompleters.*;
 import com.wynvers.quantum.managers.*;
 import com.wynvers.quantum.orders.OrderButtonHandler;
@@ -37,7 +38,7 @@ import java.nio.file.StandardCopyOption;
  * - Vault economy integration
  * - Selling system
  * - Orders system (buy/sell orders)
- * - Statistics tracking (items stored, trades)
+ * - Statistics tracking (items stored, trades, storage stats)
  */
 public final class Quantum extends JavaPlugin {
 
@@ -58,6 +59,7 @@ public final class Quantum extends JavaPlugin {
     private OrderCreationManager orderCreationManager;
     private OrderButtonHandler orderButtonHandler;
     private StatisticsManager statisticsManager;
+    private StorageStatsManager storageStatsManager;
     
     // Utils
     private ActionExecutor actionExecutor;
@@ -225,6 +227,10 @@ public final class Quantum extends JavaPlugin {
         // Statistics Manager
         this.statisticsManager = new StatisticsManager(this);
         logger.success("✓ Statistics Manager");
+        
+        // Storage Stats Manager
+        this.storageStatsManager = new StorageStatsManager(this);
+        logger.success("✓ Storage Stats Manager");
         
         // Animation
         this.animationManager = new AnimationManager(this);
@@ -429,6 +435,10 @@ public final class Quantum extends JavaPlugin {
     
     public StatisticsManager getStatisticsManager() {
         return statisticsManager;
+    }
+    
+    public StorageStatsManager getStorageStatsManager() {
+        return storageStatsManager;
     }
     
     public ActionExecutor getActionExecutor() {

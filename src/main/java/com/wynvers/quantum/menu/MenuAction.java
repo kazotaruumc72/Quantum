@@ -9,14 +9,15 @@ public class MenuAction {
     
     private final ActionType type;
     private final String value;
-        private final java.util.Map<String, String> settings;
+    private final java.util.Map<String, String> settings;
     
-    public MenuAction(ActionType type, String value, java.util.Map<String, String> settings) {        this.type = type;
+    public MenuAction(ActionType type, String value, java.util.Map<String, String> settings) {
+        this.type = type;
         this.value = value;
-                                                                                                      this.settings = settings != null ? settings : new java.util.HashMap<>();
+        this.settings = settings != null ? settings : new java.util.HashMap<>();
     }
 
-        // Constructeur de compatibilité pour les actions sans settings
+    // Constructeur de compatibilité pour les actions sans settings
     public MenuAction(ActionType type, String value) {
         this(type, value, null);
     }
@@ -29,7 +30,7 @@ public class MenuAction {
         return value;
     }
 
-        public java.util.Map<String, String> getSettings() {
+    public java.util.Map<String, String> getSettings() {
         return settings;
     }
     
@@ -87,11 +88,32 @@ public class MenuAction {
                 // TODO: Implement potion effects
                 break;
                 
+            case REFRESH:
+                // Rafraîchi le menu sans le fermer (regénère tous les items)
+                Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
+                if (activeMenu != null) {
+                    activeMenu.refresh(player, plugin);
+                }
+                break;
+                
+            // Actions de vente
             case SELL_INCREASE:
             case SELL_DECREASE:
             case SELL_SET_MAX:
             case SELL_CONFIRM:
                 // Ces actions sont gérées dans ActionExecutor pour accéder aux managers
+                plugin.getActionExecutor().executeAction(player, this);
+                break;
+                
+            // Actions de création d'offres
+            case QUANTUM_ADJUST_QUANTITY:
+            case QUANTUM_SET_QUANTITY_MAX:
+            case QUANTUM_VALIDATE_QUANTITY:
+            case QUANTUM_ADJUST_PRICE:
+            case QUANTUM_SET_PRICE_MAX:
+            case QUANTUM_FINALIZE_ORDER:
+            case QUANTUM_CANCEL_ORDER:
+                // Ces actions sont gérées dans ActionExecutor
                 plugin.getActionExecutor().executeAction(player, this);
                 break;
         }
@@ -140,6 +162,8 @@ public class MenuAction {
      * - [message] Hello!
      * - [console] give %player% diamond 1
      * - [close]
+     * - [quantum_adjust_quantity] +5
+     * - [quantum_adjust_price] -20
      */
     public static MenuAction parse(String input) {
         if (input == null || input.isEmpty()) {
@@ -178,12 +202,21 @@ public class MenuAction {
         ACTIONBAR,       // Send action bar message
         TITLE,           // Send title
         EFFECT,          // Give potion effect
+        REFRESH,         // Refresh current menu (regenerate items)
         
         // Actions de vente
         SELL_INCREASE,   // Augmenter la quantité à vendre
         SELL_DECREASE,   // Diminuer la quantité à vendre
         SELL_SET_MAX,    // Définir quantité max
-        SELL_CONFIRM     // Confirmer la vente
+        SELL_CONFIRM,    // Confirmer la vente
+        
+        // Actions de création d'offres
+        QUANTUM_ADJUST_QUANTITY,   // Ajuster la quantité (+5, +50, -5, -50)
+        QUANTUM_SET_QUANTITY_MAX,  // Définir quantité au maximum
+        QUANTUM_VALIDATE_QUANTITY, // Valider la quantité et passer au prix
+        QUANTUM_ADJUST_PRICE,      // Ajuster le prix (+5%, +20%, -5%, -20%)
+        QUANTUM_SET_PRICE_MAX,     // Définir prix au maximum
+        QUANTUM_FINALIZE_ORDER,    // Finaliser et créer l'offre
+        QUANTUM_CANCEL_ORDER       // Annuler la création d'offre
     }
 }
-

@@ -15,8 +15,8 @@ items:
   
   item_to_sell:
     slots: [4]
-    material: '%item%'
-    amount: '%amount%'
+    material: PAPER
+    amount: 1
     type: quantum_sell_item
     display_name: '&e%item_name%'
     lore:
@@ -103,7 +103,7 @@ items:
       - '&7Confirmer la vente'
       - ' '
       - '&fVous vendez: &e%quantity%x'
-      - '&fVous recevez: &6%total_price%'
+      - '&fVous reçevez: &6%total_price%'
     button_type: QUANTUM_SELL
 
 # ========================================
@@ -111,10 +111,9 @@ items:
 # ========================================
 # • Les placeholders sont remplacés dynamiquement
 # • %item_name% = Nom de l'item
-# • %item% = Material de l'item (placeholder dynamique)
-# • %amount% = Quantité affichée (max 64 si >64)
 # • %quantity% = Quantité actuelle à vendre
 # • %max_quantity% = Quantité maximale disponible
 # • %price_per_unit% = Prix unitaire
 # • %total_price% = Prix total (quantité * prix unitaire)
 # • %max_total_price% = Prix si vente maximale
+# • item_to_sell utilise quantum_sell_item: l'item réel provient de la SellSession

@@ -42,34 +42,19 @@ public class MenuListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         UUID playerUUID = player.getUniqueId();
         
-        // DEBUG EXTRÊME: Vérifier tous les menus actifs enregistrés
-        player.sendMessage("§9[DEBUG LISTENER] UUID du joueur: " + playerUUID);
-        player.sendMessage("§9[DEBUG LISTENER] getActiveMenu(player): " + plugin.getMenuManager().getActiveMenu(player));
-        
         // TOUJOURS utiliser getActiveMenu() EN PREMIER
         // Car il fonctionne avec les titres animés et dynamiques !
         Menu menu = plugin.getMenuManager().getActiveMenu(player);
         
         // Si un menu est détecté : CANCEL IMMÉDIATEMENT
         if (menu != null) {
-            // DEBUG: Envoyer un message au joueur pour confirmer détection
-            player.sendMessage("§a[DEBUG] Menu détecté via activeMenu: " + menu.getId() + " - Click cancelled!");
             event.setCancelled(true);
         } else {
-            player.sendMessage("§9[DEBUG LISTENER] ActiveMenu est NULL - essai fallback getMenuByTitle()");
-            
-            // Fallback sur getMenuByTitle seulement si getActiveMenu() échoue
-            String title = event.getView().getTitle();
-            player.sendMessage("§9[DEBUG LISTENER] Titre de l'inventaire: " + title);
-            
             menu = plugin.getMenuManager().getMenuByTitle(title);
             
             if (menu != null) {
-                player.sendMessage("§6[DEBUG] Menu détecté via titre: " + menu.getId() + " - Click cancelled!");
                 event.setCancelled(true);
             } else {
-                // DEBUG: Pas de menu détecté
-                player.sendMessage("§e[DEBUG] Pas de menu détecté. Title: " + title);
             }
         }
     }
@@ -182,7 +167,6 @@ public class MenuListener implements Listener {
         Menu menu = plugin.getMenuManager().getActiveMenu(player);
         
         if (menu != null) {
-            player.sendMessage("§a[DEBUG] Menu détecté via activeMenu: " + menu.getId() + " - Drag cancelled!");
             event.setCancelled(true);
         } else {
             // Fallback
@@ -190,7 +174,6 @@ public class MenuListener implements Listener {
             menu = plugin.getMenuManager().getMenuByTitle(title);
             
             if (menu != null) {
-                player.sendMessage("§6[DEBUG] Menu détecté via titre: " + menu.getId() + " - Drag cancelled!");
                 event.setCancelled(true);
             }
         }
@@ -228,7 +211,6 @@ public class MenuListener implements Listener {
 
         if (menu != null) {
             // DEBUG: Log avant la suppression
-            player.sendMessage("§e[DEBUG] InventoryCloseEvent détecté pour menu: " + menu.getId());
             
             plugin.getAnimationManager().stopAnimation(player);
             
@@ -236,14 +218,10 @@ public class MenuListener implements Listener {
             // Car InventoryCloseEvent se déclenche AVANT l'ouverture du prochain inventaire
             org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 // Vérifier si le joueur a toujours un inventaire ouvert
-                if (player.getOpenInventory().getType() == InventoryType.CRAFTING) {
+                (player.getOpenInventory().getType() == InventoryType.CRAFTING) {
                     // Le joueur n'a vraiment aucun menu ouvert maintenant
                     plugin.getMenuManager().clearActiveMenu(player);
-                    player.sendMessage("§a[DEBUG] Menu supprimé du cache après vérification");
-                } else {
-                    // Le joueur a déjà un autre inventaire ouvert, on ne supprime PAS
-                    player.sendMessage("§6[DEBUG] Inventaire encore ouvert, menu gardé en cache");
-                }
+                    }
             }, 1L);
         }
 }

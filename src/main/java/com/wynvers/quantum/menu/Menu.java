@@ -135,12 +135,20 @@ public class Menu {
      * Open this menu for a player
      */
     public void open(Player player, Quantum plugin) {
-        Inventory inventory = Bukkit.createInventory(null, size, title);
+        // Parser les placeholders dans le titre
+        String parsedTitle = plugin.getPlaceholderManager().parse(player, title);
+        
+        Inventory inventory = Bukkit.createInventory(null, size, parsedTitle);
  
         // Populate inventory with items from config
         populateInventory(inventory, player);
         
         player.openInventory(inventory);
+        
+        // Si le titre est animé, démarrer l'animation
+        if (animatedTitle && titleFrames != null && !titleFrames.isEmpty()) {
+            plugin.getAnimationManager().startAnimation(player, titleFrames, titleSpeed);
+        }
     }
     
     // Additional methods needed by MenuManager

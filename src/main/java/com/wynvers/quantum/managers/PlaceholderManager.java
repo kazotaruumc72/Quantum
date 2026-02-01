@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class PlaceholderManager {
 
@@ -40,6 +41,36 @@ public class PlaceholderManager {
         
         return text;
     }
+    
+    /**
+     * Parse placeholders in string avec contexte personnalisé
+     * Utile pour les menus dynamiques (vente, etc.)
+     */
+    public String parse(Player player, String text, Map<String, String> customPlaceholders) {
+        if (text == null) {
+            return text;
+        }
+        
+        // D'abord remplacer les placeholders personnalisés
+        if (customPlaceholders != null) {
+            for (Map.Entry<String, String> entry : customPlaceholders.entrySet()) {
+                text = text.replace("%" + entry.getKey() + "%", entry.getValue() != null ? entry.getValue() : "");
+            }
+        }
+        
+        // Ensuite remplacer le placeholder %mode%
+        if (text.contains("%mode%")) {
+            String modeDisplay = StorageMode.getModeDisplay(player);
+            text = text.replace("%mode%", ChatColor.translateAlternateColorCodes('&', modeDisplay));
+        }
+        
+        // Ensuite utiliser PlaceholderAPI si disponible
+        if (enabled) {
+            text = PlaceholderAPI.setPlaceholders(player, text);
+        }
+        
+        return text;
+    }
 
     /**
      * Parse placeholders in list
@@ -52,6 +83,21 @@ public class PlaceholderManager {
         List<String> parsed = new ArrayList<>();
         for (String text : texts) {
             parsed.add(parse(player, text));
+        }
+        return parsed;
+    }
+    
+    /**
+     * Parse placeholders in list avec contexte personnalisé
+     */
+    public List<String> parse(Player player, List<String> texts, Map<String, String> customPlaceholders) {
+        if (texts == null) {
+            return texts;
+        }
+
+        List<String> parsed = new ArrayList<>();
+        for (String text : texts) {
+            parsed.add(parse(player, text, customPlaceholders));
         }
         return parsed;
     }

@@ -5,10 +5,12 @@ import com.wynvers.quantum.managers.PriceManager;
 import com.wynvers.quantum.storage.PlayerStorage;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
 
@@ -19,10 +21,19 @@ public class StorageRenderer {
     
     private final Quantum plugin;
     private final PriceManager priceManager;
+    private final NamespacedKey itemIdKey;
     
     public StorageRenderer(Quantum plugin) {
         this.plugin = plugin;
         this.priceManager = plugin.getPriceManager();
+        this.itemIdKey = new NamespacedKey(plugin, "quantum_item_id");
+    }
+    
+    /**
+     * Clé pour accéder au itemId depuis un ItemStack
+     */
+    public NamespacedKey getItemIdKey() {
+        return itemIdKey;
     }
     
     /**
@@ -112,6 +123,7 @@ public class StorageRenderer {
      */
     private ItemStack createDisplayItem(StorageItemDisplay item, LoreAppendConfig loreConfig) {
         ItemStack stack;
+        String itemId;
         
         // Créer l'item (Nexo ou vanilla)
         if (item.nexoId != null) {
@@ -122,20 +134,26 @@ public class StorageRenderer {
                     plugin.getQuantumLogger().warning("Failed to create Nexo item: " + item.nexoId);
                     return null;
                 }
+                itemId = "nexo:" + item.nexoId;
             } catch (Exception e) {
                 plugin.getQuantumLogger().warning("Failed to create Nexo item: " + item.nexoId + " - " + e.getMessage());
                 return null;
             }
         } else if (item.material != null) {
             stack = new ItemStack(item.material);
+            itemId = "minecraft:" + item.material.name().toLowerCase();
         } else {
             return null;
         }
         
-        // Ajouter le lore personnalisé
-        if (loreConfig != null && loreConfig.getLoreTemplate() != null) {
-            ItemMeta meta = stack.getItemMeta();
-            if (meta != null) {
+        // Ajouter le lore personnalisé ET stocker l'itemId dans PersistentDataContainer
+        ItemMeta meta = stack.getItemMeta();
+        if (meta != null) {
+            // STOCKER L'ITEM ID DANS LE PDC
+            meta.getPersistentDataContainer().set(itemIdKey, PersistentDataType.STRING, itemId);
+            
+            // Ajouter le lore avec les placeholders remplacés
+            if (loreConfig != null && loreConfig.getLoreTemplate() != null) {
                 List<String> currentLore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
                 
                 // Ajouter une ligne vide avant le nouveau lore
@@ -143,15 +161,15 @@ public class StorageRenderer {
                     currentLore.add("");
                 }
                 
-                // Ajouter le lore avec les placeholders remplacés
                 for (String loreLine : loreConfig.getLoreTemplate()) {
                     String processedLine = replacePlaceholders(loreLine, item);
                     currentLore.add(ChatColor.translateAlternateColorCodes('&', processedLine));
                 }
                 
                 meta.setLore(currentLore);
-                stack.setItemMeta(meta);
             }
+            
+            stack.setItemMeta(meta);
         }
         
         return stack;

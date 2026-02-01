@@ -399,10 +399,12 @@ public class MenuManager {
      * Ouvre un menu avec une session de création d'ordre
      * Utilisé pour les menus order_quantity et order_price
      * 
+     * PATCH: Applique les placeholders de la session
+     * 
      * @param player Le joueur
      * @param menuId L'ID du menu à ouvrir
      * @param session La session de création d'ordre
-     * @param displayItem L'item à afficher dans le menu
+     * @param displayItem L'item à afficher dans le menu (utilisé par QUANTUM_ORDER_DISPLAY_ITEM)
      */
     public void openMenuWithSession(Player player, String menuId, OrderCreationSession session, ItemStack displayItem) {
         Menu menu = getMenu(menuId);
@@ -411,10 +413,8 @@ public class MenuManager {
             return;
         }
         
-        // Ouvrir le menu avec le plugin
-        // Les placeholders de la session seront automatiquement appliqués
-        // via PlaceholderManager.applyPlaceholders() dans Menu.open()
-        menu.open(player, plugin);
+        // PATCH: Ouvrir le menu en passant les placeholders de la session
+        menu.open(player, plugin, session.getPlaceholders());
     }
     
     public Collection<Menu> getAllMenus() {

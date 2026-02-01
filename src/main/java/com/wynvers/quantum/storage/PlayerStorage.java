@@ -73,6 +73,36 @@ public class PlayerStorage {
         return nexoItems;
     }
     
+    // === STATISTICS ===
+    
+    /**
+     * Obtenir le nombre d'items uniques (types différents)
+     * @return Nombre de types d'items différents en stock
+     */
+    public int getUniqueItemCount() {
+        return vanillaItems.size() + nexoItems.size();
+    }
+    
+    /**
+     * Obtenir le nombre total d'items (toutes quantités)
+     * @return Somme de toutes les quantités
+     */
+    public int getTotalItemCount() {
+        int total = 0;
+        
+        // Somme des items vanilla
+        for (int amount : vanillaItems.values()) {
+            total += amount;
+        }
+        
+        // Somme des items Nexo
+        for (int amount : nexoItems.values()) {
+            total += amount;
+        }
+        
+        return total;
+    }
+    
     // === UNIFIED ITEM ID ===
     
     /**

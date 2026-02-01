@@ -11,6 +11,7 @@ import com.wynvers.quantum.tabcompleters.MenuTabCompleter;
 import com.wynvers.quantum.tabcompleters.QuantumTabCompleter;
 import com.wynvers.quantum.tabcompleters.StorageTabCompleter;
 import com.wynvers.quantum.managers.*;
+import com.wynvers.quantum.sell.SellManager;
 import com.wynvers.quantum.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -33,6 +34,8 @@ import java.nio.file.StandardCopyOption;
  * - Requirements system
  * - Action system (click handlers)
  * - Database storage (MySQL/SQLite)
+ * - Vault economy integration
+ * - Selling system
  */
 public final class Quantum extends JavaPlugin {
 
@@ -47,6 +50,8 @@ public final class Quantum extends JavaPlugin {
     private AnimationManager animationManager;
     private MessagesManager messagesManager;
     private PriceManager priceManager;
+    private VaultManager vaultManager;
+    private SellManager sellManager;
     
     // PlaceholderAPI expansion
     private QuantumPlaceholderExpansion placeholderExpansion;
@@ -86,6 +91,9 @@ public final class Quantum extends JavaPlugin {
         logger.success("✓ Quantum enabled successfully!");
         logger.info("Dynamic GUI system loaded!");
         logger.info("Storage system ready!");
+        if (vaultManager.isEnabled()) {
+            logger.success("✓ Economy system ready!");
+        }
     }
     
     /**
@@ -102,6 +110,7 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/example.yml");
         extractResource("menus/example_advanced.yml");
         extractResource("menus/storage.yml");
+        extractResource("menus/sell.yml");
         
         // Extract message files
         extractResource("messages/messages_en.yml");
@@ -168,6 +177,14 @@ public final class Quantum extends JavaPlugin {
         // Price Manager
         this.priceManager = new PriceManager(this);
         logger.success("✓ Price Manager");
+        
+        // Vault Manager
+        this.vaultManager = new VaultManager(this);
+        logger.success("✓ Vault Manager");
+        
+        // Sell Manager
+        this.sellManager = new SellManager(this);
+        logger.success("✓ Sell Manager");
         
         // Animation
         this.animationManager = new AnimationManager(this);
@@ -242,6 +259,11 @@ public final class Quantum extends JavaPlugin {
             animationManager.stopAll();
         }
         
+        // Clear sell sessions
+        if (sellManager != null) {
+            sellManager.clearAllSessions();
+        }
+        
         // Save all storage data
         if (storageManager != null) {
             storageManager.saveAll();
@@ -308,5 +330,13 @@ public final class Quantum extends JavaPlugin {
 
     public PriceManager getPriceManager() {
         return priceManager;
+    }
+    
+    public VaultManager getVaultManager() {
+        return vaultManager;
+    }
+    
+    public SellManager getSellManager() {
+        return sellManager;
     }
 }

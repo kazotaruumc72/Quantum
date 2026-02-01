@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <name>Quantum</name>
-    <description>Advanced virtual storage with dynamic GUI builder</description>
+    <description>Advanced virtual storage with dynamic GUI builder and orders system</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -69,6 +69,14 @@
             <scope>provided</scope>
         </dependency>
         
+        <!-- LuckPerms API -->
+        <dependency>
+            <groupId>net.luckperms</groupId>
+            <artifactId>api</artifactId>
+            <version>5.4</version>
+            <scope>provided</scope>
+        </dependency>
+        
         <!-- Nexo -->
         <dependency>
             <groupId>com.nexomc</groupId>
@@ -115,4 +123,3 @@
         </plugins>
     </build>
 </project>
-

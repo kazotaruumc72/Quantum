@@ -2,7 +2,7 @@
 # QUANTUM STORAGE MENU
 # ========================================
 # Menu de gestion du stockage virtuel Quantum
-# Supporte les modes: STORAGE (stockage) et SELL (vente)
+# Supporte les modes: STORAGE (stockage), SELL (vente), ORDER (offres d'achat)
 # Syntaxe compatible DeluxeMenus avec actions Quantum
 
 # Titre du menu avec placeholder dynamique
@@ -25,8 +25,11 @@ items:
   border:
     material: GRAY_STAINED_GLASS_PANE
     display_name: ' '
-    slots: [1, 2, 3, 4, 5, 6, 7, 45, 46, 47, 48, 50, 51, 52]
+    slots: [1, 2, 3, 5, 6, 7, 45, 46, 47, 48, 50, 51, 52]
 
+  # ──────────────────────────────────────
+  # BOUTON: MODE STOCKAGE (Coin haut gauche)
+  # ──────────────────────────────────────
   mode_storage:
     slots: [0]
     material: LIME_WOOL
@@ -43,6 +46,28 @@ items:
       - '&e► Cliquez pour activer'
     button_type: QUANTUM_CHANGE_MODE
     target_mode: STORAGE
+
+  # ──────────────────────────────────────
+  # BOUTON: MODE ORDRE (Milieu haut)
+  # ──────────────────────────────────────
+  mode_order:
+    slots: [4]
+    material: DIAMOND
+    display_name: '&b&l⚡ Mode: Ordre'
+    lore:
+      - '&7Activez le mode ordre d''achat'
+      - '&7Mode actuel: &e%mode_simple%'
+      - ' '
+      - '&b&l✓ En mode Ordre:'
+      - '&7  • Créez des offres d''achat'
+      - '&7  • Choisissez quantité et prix'
+      - '&7  • Les joueurs vous vendent'
+      - ' '
+      - '&c⚠ Requis: Minimum 1 item en stock'
+      - ' '
+      - '&e► Cliquez pour activer'
+    button_type: QUANTUM_CHANGE_MODE
+    target_mode: ORDER
 
   # ──────────────────────────────────────
   # BOUTON: MODE VENTE (Coin haut droit)
@@ -64,6 +89,9 @@ items:
     button_type: QUANTUM_CHANGE_MODE
     target_mode: SELL
 
+  # ──────────────────────────────────────
+  # SLOTS DE STOCKAGE DYNAMIQUES
+  # ──────────────────────────────────────
   storage_slots:
     slots: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44]
     type: quantum_storage
@@ -75,8 +103,12 @@ items:
       - '&fPrix total: &e%total_price%'
       - '&8─────────────────────'
       - ' '
+      - '&7▸ Clic gauche: &eCréer offre (mode Ordre)'
       - '&7▸ Clic droit: &eVendre (mode Vente)'
 
+  # ──────────────────────────────────────
+  # BOUTON: FERMER
+  # ──────────────────────────────────────
   close:
     slots: [53]
     material: BARRIER
@@ -91,9 +123,15 @@ items:
 # ========================================
 # NOTES IMPORTANTES
 # ========================================
-# • Le placeholder %mode_simple% affiche: "Vente" ou "Stockage"
+# • Le placeholder %mode_simple% affiche: "Vente", "Stockage" ou "Ordre"
 # • Les boutons QUANTUM_CHANGE_MODE changent le mode ET ferment le menu
 # • Le menu se réouvre automatiquement avec le nouveau mode
-# • Interface EN LECTURE SEULE pour les joueurs normaux
-# • Les admins avec 'quantum.admin' peuvent interagir directement
-# • Commandes console: /qstorage transfer/remove <item> <qté> <joueur>
+# 
+# MODES:
+#   - STORAGE: Déposer/retirer des items
+#   - SELL: Vendre des items stockés instantanément
+#   - ORDER: Créer des offres d'achat pour items stockés
+# 
+# COMMANDE /offre:
+#   - Pour les items NON stockables (armures, épées, potions)
+#   - Le joueur tient l'item en main et fait /offre <quantité> <prix>

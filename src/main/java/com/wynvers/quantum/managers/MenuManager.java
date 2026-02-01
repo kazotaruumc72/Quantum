@@ -204,6 +204,10 @@ public class MenuManager {
             }
         }
         
+        // Support pour les actions:
+        // 1. click_actions: [] (ancienne syntaxe simple)
+        // 2. left_click_actions: [] (DeluxeMenus)
+        // 3. left_click.actions: [] (Quantum original)
         if (section.contains("click_actions")) {
             List<String> actionStrings = section.getStringList("click_actions");
             for (String actionStr : actionStrings) {
@@ -212,8 +216,33 @@ public class MenuManager {
                     item.addLeftClickAction(action);
                 }
             }
+        }
+        
+        // Supporter left_click_actions (style DeluxeMenus)
+        if (section.contains("left_click_actions")) {
+            List<String> actionStrings = section.getStringList("left_click_actions");
+            for (String actionStr : actionStrings) {
+                MenuAction action = MenuAction.parse(actionStr);
+                if (action != null) {
+                    item.addLeftClickAction(action);
+                }
+            }
         } else {
+            // Supporter left_click.actions (style original)
             loadActions(section, "left_click", item, true);
+        }
+        
+        // Supporter right_click_actions (style DeluxeMenus)
+        if (section.contains("right_click_actions")) {
+            List<String> actionStrings = section.getStringList("right_click_actions");
+            for (String actionStr : actionStrings) {
+                MenuAction action = MenuAction.parse(actionStr);
+                if (action != null) {
+                    item.addRightClickAction(action);
+                }
+            }
+        } else {
+            // Supporter right_click.actions (style original)
             loadActions(section, "right_click", item, false);
         }
         

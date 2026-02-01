@@ -88,6 +88,33 @@ public class DatabaseManager {
                 "PRIMARY KEY (player_uuid, material, nexo_id))"
             );
             
+            // Statistics table (trades par catégorie)
+            stmt.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS statistics (" +
+                "category TEXT PRIMARY KEY, " +
+                "items_stored BIGINT DEFAULT 0, " +
+                "trades_created BIGINT DEFAULT 0, " +
+                "trades_completed BIGINT DEFAULT 0, " +
+                "volume_traded BIGINT DEFAULT 0)"
+            );
+            
+            // Storage statistics table (tracking global du storage)
+            stmt.executeUpdate(
+                "CREATE TABLE IF NOT EXISTS storage_stats (" +
+                "stat_key TEXT PRIMARY KEY, " +
+                "stat_value BIGINT DEFAULT 0)"
+            );
+            
+            // Initialiser les stats de storage si elles n'existent pas
+            stmt.executeUpdate(
+                "INSERT OR IGNORE INTO storage_stats (stat_key, stat_value) " +
+                "VALUES ('total_items_stored', 0)"
+            );
+            stmt.executeUpdate(
+                "INSERT OR IGNORE INTO storage_stats (stat_key, stat_value) " +
+                "VALUES ('total_items_sold', 0)"
+            );
+            
             plugin.getQuantumLogger().success("✓ Database tables verified");
             
         } catch (SQLException e) {

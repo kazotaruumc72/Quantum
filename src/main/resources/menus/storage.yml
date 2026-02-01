@@ -6,7 +6,7 @@
 # Syntaxe compatible DeluxeMenus avec actions Quantum
 
 # Titre du menu avec placeholder dynamique
-menu_title: '&fQuantum Storage &8| &eMode: %mode%'
+menu_title: '&fQuantum Storage &8| &eMode: %mode_simple%'
 
 # Taille de l'inventaire (9, 18, 27, 36, 45, 54)
 size: 54
@@ -33,7 +33,7 @@ items:
     display_name: '&a&l⚡ Mode: Storage'
     lore:
       - '&7Activez le mode stockage'
-      - '&7Mode actuel: &e%mode%'
+      - '&7Mode actuel: &e%mode_simple%'
       - ' '
       - '&a&l✓ En mode Storage:'
       - '&7  • Déposez vos items'
@@ -53,7 +53,7 @@ items:
     display_name: '&6&l⚡ Mode: Vente'
     lore:
       - '&7Activez le mode vente'
-      - '&7Mode actuel: &e%mode%'
+      - '&7Mode actuel: &e%mode_simple%'
       - ' '
       - '&6&l✓ En mode Vente:'
       - '&7  • Vendez vos items stockés'
@@ -91,7 +91,7 @@ items:
 # ========================================
 # NOTES IMPORTANTES
 # ========================================
-# • Le placeholder %mode% affiche: "Storage" ou "Vente"
+# • Le placeholder %mode_simple% affiche: "Vente" ou "Stockage"
 # • Les boutons QUANTUM_CHANGE_MODE changent le mode ET ferment le menu
 # • Le menu se réouvre automatiquement avec le nouveau mode
 # • Interface EN LECTURE SEULE pour les joueurs normaux

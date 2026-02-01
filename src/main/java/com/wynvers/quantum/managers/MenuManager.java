@@ -2,12 +2,14 @@ package com.wynvers.quantum.managers;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.menu.*;
+import com.wynvers.quantum.orders.OrderCreationSession;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.*;
@@ -391,6 +393,28 @@ public class MenuManager {
     
     public void clearActiveMenu(Player player) {
         activeMenus.remove(player.getUniqueId());
+    }
+    
+    /**
+     * Ouvre un menu avec une session de création d'ordre
+     * Utilisé pour les menus order_quantity et order_price
+     * 
+     * @param player Le joueur
+     * @param menuId L'ID du menu à ouvrir
+     * @param session La session de création d'ordre
+     * @param displayItem L'item à afficher dans le menu
+     */
+    public void openMenuWithSession(Player player, String menuId, OrderCreationSession session, ItemStack displayItem) {
+        Menu menu = getMenu(menuId);
+        if (menu == null) {
+            plugin.getQuantumLogger().warning("Menu introuvable: " + menuId);
+            return;
+        }
+        
+        // Ouvrir le menu normalement
+        // Les placeholders de la session seront automatiquement appliqués
+        // via PlaceholderManager.applyPlaceholders() dans Menu.open()
+        menu.open(player);
     }
     
     public Collection<Menu> getAllMenus() {

@@ -29,7 +29,24 @@ public class StorageMode {
         /**
          * Mode recherche - items ramassés complètent les ordres de recherche
          */
-        RECHERCHE
+        RECHERCHE;
+        
+        /**
+         * Obtenir l'affichage formaté du mode
+         * @return Nom formaté avec couleur
+         */
+        public String getDisplayName() {
+            switch (this) {
+                case STORAGE:
+                    return "§aSTOCKAGE";
+                case SELL:
+                    return "§6VENTE";
+                case RECHERCHE:
+                    return "§bRECHERCHE";
+                default:
+                    return this.name();
+            }
+        }
     }
     
     /**
@@ -129,16 +146,7 @@ public class StorageMode {
      * @return Nom formaté avec couleur
      */
     public static String getDisplayName(Mode mode) {
-        switch (mode) {
-            case STORAGE:
-                return "§aSTOCKAGE";
-            case SELL:
-                return "§6VENTE";
-            case RECHERCHE:
-                return "§bRECHERCHE";
-            default:
-                return mode.name();
-        }
+        return mode.getDisplayName();
     }
     
     /**
@@ -147,6 +155,26 @@ public class StorageMode {
      * @return Nom formaté avec couleur
      */
     public static String getDisplayName(Player player) {
-        return getDisplayName(getMode(player));
+        return getMode(player).getDisplayName();
+    }
+    
+    /**
+     * Obtenir un affichage détaillé du mode (avec description)
+     * Format: "§aMODE: §fSTOCKAGE"
+     * @param player Le joueur
+     * @return Affichage détaillé
+     */
+    public static String getModeDisplay(Player player) {
+        Mode mode = getMode(player);
+        return "§7Mode: " + mode.getDisplayName();
+    }
+    
+    /**
+     * Obtenir un affichage simple du mode (juste le nom)
+     * @param player Le joueur
+     * @return Nom du mode seulement
+     */
+    public static String getSimpleModeDisplay(Player player) {
+        return getMode(player).getDisplayName();
     }
 }

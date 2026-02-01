@@ -2,6 +2,7 @@ package com.wynvers.quantum;
 
 import com.wynvers.quantum.commands.*;
 import com.wynvers.quantum.listeners.MenuListener;
+import com.wynvers.quantum.listeners.StorageListener;
 import com.wynvers.quantum.placeholder.QuantumPlaceholderExpansion;
 import com.wynvers.quantum.tabcompleters.*;
 import com.wynvers.quantum.managers.*;
@@ -248,6 +249,9 @@ public final class Quantum extends JavaPlugin {
         
         Bukkit.getPluginManager().registerEvents(new MenuListener(this), this);
         logger.success("✓ Menu Listener");
+        
+        Bukkit.getPluginManager().registerEvents(new StorageListener(this), this);
+        logger.success("✓ Storage Listener");
     }
     
     private void registerCommands() {

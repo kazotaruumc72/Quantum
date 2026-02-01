@@ -1,163 +1,88 @@
-# order_price.yml - Menu pour sélectionner le prix unitaire de l'offre
-# Système de pourcentage: -20%, -5%, [ITEM], +5%, +20%
-# Le prix est calculé entre min et max selon orders_template.yml
-# Taille: 3 lignes (27 slots)
-
-title: '&8┃ &6Prix unitaire &8┃'
+# Menu de sélection de prix pour création d'ordre
+title: '&8Prix de recherche'
 size: 27
-open_command: order_price
 
 items:
-  # ===== LIGNE 1: CONTRÔLES =====
-  
-  # Slot 0: -20% du prix
   decrease_20:
-    slot: 0
-    material: RED_CONCRETE
-    amount: 1
+    slots: [10]
+    material: RED_STAINED_GLASS_PANE
     display_name: '&c-20%'
     lore:
-      - '&7Retire &c20%'
-      - '&7au prix actuel'
-      - ''
-      - '&c▸ &7Cliquez pour retirer'
-    left_click_actions:
-      - '[quantum_adjust_price] -20'
-      - '[refresh]'
+      - '&7Diminuer de 20%'
+    button_type: QUANTUM_ADJUST_PRICE
+    parameters:
+      percentage: -20
 
-  # Slot 1: -5% du prix
   decrease_5:
-    slot: 1
-    material: RED_DYE
-    amount: 1
-    display_name: '&c-5%'
+    slots: [11]
+    material: ORANGE_STAINED_GLASS_PANE
+    display_name: '&6-5%'
     lore:
-      - '&7Retire &c5%'
-      - '&7au prix actuel'
-      - ''
-      - '&c▸ &7Cliquez pour retirer'
-    left_click_actions:
-      - '[quantum_adjust_price] -5'
-      - '[refresh]'
+      - '&7Diminuer de 5%'
+    button_type: QUANTUM_ADJUST_PRICE
+    parameters:
+      percentage: -5
 
-  # Slot 2: Item central (affiche l'item de l'offre)
-  center_item:
-    slot: 2
-    material: PAPER  # Sera remplacé dynamiquement
-    amount: 1
-    display_name: '&e%quantum_order_item_name%'
+  price_display:
+    slots: [13]
+    material: GOLD_INGOT
+    display_name: '&6Prix unitaire: &e%quantum_order_price%€'
     lore:
-      - '&7Quantité: &a%quantum_order_current_quantity%'
-      - '&7Prix unitaire: &6%quantum_order_current_price%$'
-      - '&7Prix total: &e%quantum_order_current_total%$'
       - ''
-      - '&8┃ &7Fourchette autorisée:'
-      - '&8┃ &bMin: &f%quantum_order_price_min%$'
-      - '&8┃ &6Max: &f%quantum_order_price_max%$'
+      - '&7Prix total: &e%quantum_order_total_price%€'
+      - '&7Quantité: &a%quantum_order_quantity%'
+      - ''
+      - '&7Fourchette: &c%quantum_order_min_price%€ &7- &a%quantum_order_max_price%€'
+      - '&7Pourcentage: &b%quantum_order_price_percentage%'
+      - ''
+      - '&eAjustez le prix unitaire'
 
-  # Slot 3: +5% du prix
   increase_5:
-    slot: 3
-    material: LIME_DYE
-    amount: 1
+    slots: [15]
+    material: LIME_STAINED_GLASS_PANE
     display_name: '&a+5%'
     lore:
-      - '&7Ajoute &a5%'
-      - '&7au prix actuel'
-      - ''
-      - '&a▸ &7Cliquez pour ajouter'
-    left_click_actions:
-      - '[quantum_adjust_price] +5'
-      - '[refresh]'
+      - '&7Augmenter de 5%'
+    button_type: QUANTUM_ADJUST_PRICE
+    parameters:
+      percentage: 5
 
-  # Slot 4: +20% du prix
   increase_20:
-    slot: 4
-    material: LIME_CONCRETE
-    amount: 1
-    display_name: '&a+20%'
+    slots: [16]
+    material: GREEN_STAINED_GLASS_PANE
+    display_name: '&2+20%'
     lore:
-      - '&7Ajoute &a20%'
-      - '&7au prix actuel'
-      - ''
-      - '&a▸ &7Cliquez pour ajouter'
-    left_click_actions:
-      - '[quantum_adjust_price] +20'
-      - '[refresh]'
+      - '&7Augmenter de 20%'
+    button_type: QUANTUM_ADJUST_PRICE
+    parameters:
+      percentage: 20
 
-  # Slot 7: Prix maximum (bouton rapide)
   set_max:
-    slot: 7
-    material: GOLD_BLOCK
-    amount: 1
-    display_name: '&6⚡ Prix maximum'
+    slots: [19]
+    material: EMERALD
+    display_name: '&a&lPRIX MAXIMUM'
     lore:
-      - '&7Définit le prix au'
-      - '&7maximum autorisé:'
-      - '&f%quantum_order_price_max%$'
-      - ''
-      - '&7Total: &e%quantum_order_total_max%$'
-      - ''
-      - '&e▸ &7Cliquez pour max'
-    left_click_actions:
-      - '[quantum_set_price_max]'
-      - '[refresh]'
+      - '&7Définir au prix maximum du marché'
+      - '&8(&e%quantum_order_max_price%€&8)'
+    button_type: QUANTUM_SET_PRICE_MAX
 
-  # Slot 8: Annuler/Refuser
   cancel:
-    slot: 8
+    slots: [22]
     material: BARRIER
-    amount: 1
-    display_name: '&c✖ Annuler'
+    display_name: '&c&lANNULER'
     lore:
-      - '&7Annule la création'
-      - '&7de l\'offre'
-      - ''
-      - '&c▸ &7Cliquez pour annuler'
-    left_click_actions:
-      - '[quantum_cancel_order]'
-      - '[close]'
+      - '&7Annuler la création d''offre'
+    button_type: QUANTUM_CANCEL_ORDER
 
-  # ===== LIGNE 2: INFO =====
-  
-  # Slot 13: Info bulle centrale
-  info:
-    slot: 13
-    material: GOLD_INGOT
-    amount: 1
-    display_name: '&e&lℹ Récapitulatif'
+  finalize:
+    slots: [25]
+    material: DIAMOND
+    display_name: '&b&lCRÉER L''OFFRE'
     lore:
+      - '&7Finaliser et créer l''offre'
+      - ''
       - '&7Item: &f%quantum_order_item_name%'
-      - '&7Quantité: &a%quantum_order_current_quantity%'
-      - ''
-      - '&8┃ &6Prix:'
-      - '&8┃ &7Unitaire: &f%quantum_order_current_price%$'
-      - '&8┃ &7Total: &e%quantum_order_current_total%$'
-      - ''
-      - '&8┃ &7Fourchette:'
-      - '&8┃ &bMin: &f%quantum_order_price_min%$'
-      - '&8┃ &6Max: &f%quantum_order_price_max%$'
-      - ''
-      - '&7Ajustez le prix puis'
-      - '&7cliquez sur &a✔ Créer l\'offre'
-
-  # ===== LIGNE 3: VALIDATION =====
-  
-  # Slot 22: Accepter et créer l'offre
-  accept:
-    slot: 22
-    material: EMERALD_BLOCK
-    amount: 1
-    display_name: '&a✔ Créer l\'offre'
-    lore:
-      - '&7Quantité: &a%quantum_order_current_quantity%'
-      - '&7Prix unitaire: &6%quantum_order_current_price%$'
-      - '&7Prix total: &e%quantum_order_current_total%$'
-      - ''
-      - '&7Finalise la création'
-      - '&7de l\'offre d\'achat'
-      - ''
-      - '&a▸ &7Cliquez pour créer'
-    left_click_actions:
-      - '[quantum_finalize_order]'
-      - '[close]'
+      - '&7Quantité: &a%quantum_order_quantity%'
+      - '&7Prix unitaire: &e%quantum_order_price%€'
+      - '&7Prix total: &6%quantum_order_total_price%€'
+    button_type: QUANTUM_FINALIZE_ORDER

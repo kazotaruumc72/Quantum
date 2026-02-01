@@ -48,7 +48,7 @@ public class MenuCommand implements CommandExecutor {
             return true;
         }
         
-        menu.open(player);
+        menu.open(player, plugin);
         
         return true;
     }

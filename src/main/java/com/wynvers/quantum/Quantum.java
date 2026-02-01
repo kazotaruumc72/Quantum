@@ -250,6 +250,7 @@ public final class Quantum extends JavaPlugin {
         getCommand("qstorage").setExecutor(new QuantumStorageCommand(this));
         
         // Orders system commands
+        getCommand("rechercher").setExecutor(new RechercherCommand(this));
         getCommand("recherche").setExecutor(new RechercheCommand(this));
         getCommand("offre").setExecutor(new OffreCommand(this));
 
@@ -258,6 +259,7 @@ public final class Quantum extends JavaPlugin {
         getCommand("storage").setTabCompleter(new StorageTabCompleter());
         getCommand("menu").setTabCompleter(new MenuTabCompleter(this));
         getCommand("qstorage").setTabCompleter(new QuantumStorageTabCompleter(this));
+        getCommand("rechercher").setTabCompleter(new RechercherTabCompleter());
         getCommand("recherche").setTabCompleter(new RechercheTabCompleter(this));
         getCommand("offre").setTabCompleter(new OffreTabCompleter(this));
         

@@ -193,13 +193,13 @@ public class PlayerStorage {
                 Material material = Material.valueOf(materialName);
                 addItem(material, amount);
                 
-                // Track statistics par catégorie (cast int to long)
+                // Track statistics par catégorie (utilise updateItemsStored avec delta positif)
                 Quantum plugin = Quantum.getInstance();
                 if (plugin != null && plugin.getStatisticsManager() != null) {
-                    plugin.getStatisticsManager().incrementItemsStored(category, (long) amount);
+                    plugin.getStatisticsManager().updateItemsStored(category, (long) amount);
                 }
                 
-                // Track statistiques globales du storage (cast int to long)
+                // Track statistiques globales du storage
                 if (plugin != null && plugin.getStorageStatsManager() != null) {
                     plugin.getStorageStatsManager().incrementItemsStored((long) amount);
                 }
@@ -210,13 +210,13 @@ public class PlayerStorage {
             String nexoId = itemId.substring(5);
             addNexoItem(nexoId, amount);
             
-            // Track statistics par catégorie (cast int to long)
+            // Track statistics par catégorie (utilise updateItemsStored avec delta positif)
             Quantum plugin = Quantum.getInstance();
             if (plugin != null && plugin.getStatisticsManager() != null) {
-                plugin.getStatisticsManager().incrementItemsStored(category, (long) amount);
+                plugin.getStatisticsManager().updateItemsStored(category, (long) amount);
             }
             
-            // Track statistiques globales du storage (cast int to long)
+            // Track statistiques globales du storage
             if (plugin != null && plugin.getStorageStatsManager() != null) {
                 plugin.getStorageStatsManager().incrementItemsStored((long) amount);
             }

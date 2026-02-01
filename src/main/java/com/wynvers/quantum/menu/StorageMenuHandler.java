@@ -261,7 +261,7 @@ public class StorageMenuHandler {
      * Ouvre le menu de création d'offre d'achat
      */
     private void handleCreateOrder(Player player, PlayerStorage storage, ItemStack clickedItem) {
-        // NOUVEAU: Récupérer l'itemId depuis le PersistentDataContainer si disponible
+        // Récupérer l'itemId depuis le PersistentDataContainer si disponible
         String itemId = null;
         
         if (clickedItem.hasItemMeta() && clickedItem.getItemMeta() != null) {
@@ -281,13 +281,9 @@ public class StorageMenuHandler {
         
         // Récupérer la quantité en stock (SANS LA RETIRER)
         int stockQuantity = storage.getAmountByItemId(itemId);
-        if (stockQuantity <= 0) {
-            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
-            player.sendMessage("§c⚠ Vous devez avoir au moins 1 item en stock pour créer une offre!");
-            return;
-        }
         
         // Démarrer la création d'offre via OrderCreationManager
+        // La vérification de quantité > 0 est faite dans OrderCreationManager
         OrderCreationManager orderManager = plugin.getOrderCreationManager();
         if (orderManager == null) {
             player.sendMessage("§c⚠ OrderCreationManager non initialisé!");
@@ -296,6 +292,7 @@ public class StorageMenuHandler {
         
         boolean started = orderManager.startOrderCreation(player, itemId, stockQuantity);
         if (!started) {
+            // Le message d'erreur est géré par OrderCreationManager si nécessaire
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return;
         }

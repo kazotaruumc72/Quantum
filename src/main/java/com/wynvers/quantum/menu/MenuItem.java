@@ -277,25 +277,25 @@ public class MenuItem {
         // === QUANTUM_CHANGE_MODE ===
         if (buttonType == ButtonType.QUANTUM_CHANGE_MODE) {
             if (targetMode != null) {
-                // D\u00e9finir le mode sp\u00e9cifique
+                // Définir le mode spécifique
                 try {
                     StorageMode.Mode mode = StorageMode.Mode.valueOf(targetMode.toUpperCase());
                     StorageMode.setMode(player, mode);
                     
                     // Feedback au joueur
-                    player.sendMessage("\u00a7aMode chang\u00e9 en: \u00a7e" + mode.getDisplayName());
+                    player.sendMessage("§aMode changé en: §e" + mode.getDisplayName());
                 } catch (IllegalArgumentException e) {
                     // Mode invalide, fallback sur toggle
                     StorageMode.toggleMode(player);
-                    player.sendMessage("\u00a7aMode chang\u00e9 en: \u00a7e" + StorageMode.getModeDisplay(player));
+                    player.sendMessage("§aMode changé en: §e" + StorageMode.getModeDisplay(player));
                 }
             } else {
-                // Pas de mode sp\u00e9cifi\u00e9, toggle par d\u00e9faut
+                // Pas de mode spécifié, toggle par défaut
                 StorageMode.toggleMode(player);
-                player.sendMessage("\u00a7aMode chang\u00e9 en: \u00a7e" + StorageMode.getModeDisplay(player));
+                player.sendMessage("§aMode changé en: §e" + StorageMode.getModeDisplay(player));
             }
             
-            // Rafra\u00eechir le menu SANS le fermer
+            // Rafraîchir le menu SANS le fermer
             Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
             if (activeMenu != null) {
                 org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -310,23 +310,23 @@ public class MenuItem {
         if (buttonType == ButtonType.QUANTUM_CHANGE_AMOUNT) {
             SellSession session = plugin.getSellManager().getSession(player);
             if (session == null) {
-                player.sendMessage("\u00a7cErreur: Aucune session de vente active.");
+                player.sendMessage("§cErreur: Aucune session de vente active.");
                 return;
             }
             
-            // Modifier la quantit\u00e9
-            if (changeAmount == 999999) {
-                // Vendre tout
+            // Modifier la quantité
+            // -1 signifie "vendre tout"
+            if (changeAmount == -1) {
                 session.setQuantity(session.getMaxQuantity());
             } else {
                 session.changeQuantity(changeAmount);
             }
             
-            // Rafra\u00eechir le menu
+            // Rafraîchir le menu avec les nouveaux placeholders
             Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
             if (activeMenu != null) {
                 org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    activeMenu.refresh(player, plugin);
+                    activeMenu.refresh(player, plugin, session.getPlaceholders());
                 }, 1L);
             }
             
@@ -336,10 +336,10 @@ public class MenuItem {
         // === QUANTUM_SELL ===
         if (buttonType == ButtonType.QUANTUM_SELL) {
             if (plugin.getSellManager().executeSell(player)) {
-                // Vente r\u00e9ussie, fermer le menu et retourner au storage
+                // Vente réussie, fermer le menu et retourner au storage
                 player.closeInventory();
                 
-                // Ouvrir le storage apr\u00e8s 2 ticks
+                // Ouvrir le storage après 2 ticks
                 org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     Menu storageMenu = plugin.getMenuManager().getMenu("storage");
                     if (storageMenu != null) {
@@ -354,7 +354,7 @@ public class MenuItem {
         // === ACTIONS STANDARD ===
         List<MenuAction> actionsToExecute = new ArrayList<>();
         
-        // D\u00e9terminer quelles actions ex\u00e9cuter selon le type de clic
+        // Déterminer quelles actions exécuter selon le type de clic
         switch (clickType) {
             case RIGHT:
             case SHIFT_RIGHT:
@@ -381,7 +381,7 @@ public class MenuItem {
                 break;
         }
         
-        // Ex\u00e9cuter toutes les actions
+        // Exécuter toutes les actions
         for (MenuAction action : actionsToExecute) {
             action.execute(player, plugin);
         }
@@ -398,7 +398,7 @@ public class MenuItem {
      * Convert this MenuItem to a Bukkit ItemStack
      */
     public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin) {
-        // Si c'est un slot quantum_storage, ne pas cr\u00e9er d'item ici
+        // Si c'est un slot quantum_storage, ne pas créer d'item ici
         // Le StorageRenderer s'en occupera
         if (isQuantumStorage()) {
             return null;

@@ -5,6 +5,7 @@ import com.wynvers.quantum.listeners.MenuListener;
 import com.wynvers.quantum.listeners.StorageListener;
 import com.wynvers.quantum.placeholder.QuantumPlaceholderExpansion;
 import com.wynvers.quantum.placeholders.QuantumExpansion;
+import com.wynvers.quantum.statistics.StatisticsManager;
 import com.wynvers.quantum.tabcompleters.*;
 import com.wynvers.quantum.managers.*;
 import com.wynvers.quantum.orders.OrderButtonHandler;
@@ -36,6 +37,7 @@ import java.nio.file.StandardCopyOption;
  * - Vault economy integration
  * - Selling system
  * - Orders system (buy/sell orders)
+ * - Statistics tracking (items stored, trades)
  */
 public final class Quantum extends JavaPlugin {
 
@@ -55,6 +57,7 @@ public final class Quantum extends JavaPlugin {
     private OrderManager orderManager;
     private OrderCreationManager orderCreationManager;
     private OrderButtonHandler orderButtonHandler;
+    private StatisticsManager statisticsManager;
     
     // Utils
     private ActionExecutor actionExecutor;
@@ -71,7 +74,7 @@ public final class Quantum extends JavaPlugin {
         this.logger = new Logger("Quantum");
         logger.info("┌───────────────────────────────────┐");
         logger.info("│  §6§lQUANTUM §f- Advanced Storage │");
-        logger.info("│       §7v1.0.0 by Kazotaruu_      │");
+        logger.info(│       §7v1.0.0 by Kazotaruu_      │");
         logger.info("└───────────────────────────────────┘");
         
         // Extract default resources
@@ -102,6 +105,7 @@ public final class Quantum extends JavaPlugin {
             logger.success("✓ Economy system ready!");
         }
         logger.success("✓ Orders system ready!");
+        logger.success("✓ Statistics tracking enabled!");
     }
     
     /**
@@ -217,6 +221,10 @@ public final class Quantum extends JavaPlugin {
         this.orderButtonHandler = new OrderButtonHandler(this);
         logger.success("✓ Order Button Handler");
         
+        // Statistics Manager
+        this.statisticsManager = new StatisticsManager(this);
+        logger.success("✓ Statistics Manager");
+        
         // Animation
         this.animationManager = new AnimationManager(this);
         logger.success("✓ Animation Manager");
@@ -322,6 +330,12 @@ public final class Quantum extends JavaPlugin {
             sellManager.clearAllSessions();
         }
         
+        // Save statistics
+        if (statisticsManager != null) {
+            statisticsManager.saveStatistics();
+            logger.success("✓ Statistics saved");
+        }
+        
         // Save all storage data
         if (storageManager != null) {
             storageManager.saveAll();
@@ -349,6 +363,7 @@ public final class Quantum extends JavaPlugin {
         if (messagesManager != null) messagesManager.reload();
         if (priceManager != null) priceManager.reload();
         if (orderManager != null) orderManager.loadItems();
+        if (statisticsManager != null) statisticsManager.loadStatistics();
         
         logger.success("Quantum reloaded successfully!");
     }
@@ -409,6 +424,10 @@ public final class Quantum extends JavaPlugin {
     
     public OrderButtonHandler getOrderButtonHandler() {
         return orderButtonHandler;
+    }
+    
+    public StatisticsManager getStatisticsManager() {
+        return statisticsManager;
     }
     
     public ActionExecutor getActionExecutor() {

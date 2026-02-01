@@ -121,6 +121,9 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/orders_armures.yml");
         extractResource("menus/orders_outils.yml");
         
+        // Extract orders template
+        extractResource("orders_template.yml");
+        
         logger.success("✓ Default resources extracted");
     }
     
@@ -256,7 +259,7 @@ public final class Quantum extends JavaPlugin {
         getCommand("offre").setExecutor(new OffreCommand(this));
 
         // Register TabCompleters
-        getCommand("quantum").setTabCompleter(new QuantumTabCompleter());
+        getCommand("quantum").setTabCompleter(new QuantumTabCompleter(this));
         getCommand("storage").setTabCompleter(new StorageTabCompleter());
         getCommand("menu").setTabCompleter(new MenuTabCompleter(this));
         getCommand("qstorage").setTabCompleter(new QuantumStorageTabCompleter(this));

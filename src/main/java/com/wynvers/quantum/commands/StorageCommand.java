@@ -39,7 +39,7 @@ public class StorageCommand implements CommandExecutor {
         // Open storage menu from storage.yml
         Menu storageMenu = plugin.getMenuManager().getMenu("storage");
         if (storageMenu != null) {
-            storageMenu.open(player;
+            storageMenu.open(player, plugin);
         } else {
             player.sendMessage("§cErreur: Menu storage non trouvé!");
         }

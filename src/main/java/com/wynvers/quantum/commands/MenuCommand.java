@@ -37,10 +37,8 @@ public class MenuCommand implements CommandExecutor {
         
         String menuName = args[0].toLowerCase();
         
-        // Try to find menu by ID
         Menu menu = plugin.getMenuManager().getMenu(menuName);
         
-        // Try to find by command
         if (menu == null) {
             menu = plugin.getMenuManager().getMenuByCommand(menuName);
         }
@@ -50,9 +48,7 @@ public class MenuCommand implements CommandExecutor {
             return true;
         }
         
-        // TODO: Open menu GUI
-        player.sendMessage("§a§l✓ §aOpening menu: §e" + menu.getTitle());
-        plugin.getQuantumLogger().debug("Opening menu '" + menu.getId() + "' for: " + player.getName());
+        menu.open(player);
         
         return true;
     }

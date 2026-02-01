@@ -2,7 +2,7 @@
 # QUANTUM STORAGE MENU
 # ========================================
 # Menu de gestion du stockage virtuel Quantum
-# Supporte les modes: STORAGE (stockage), SELL (vente), ORDER (offres d'achat)
+# Supporte les modes: STORAGE (stockage), SELL (vente), RECHERCHE (offres d'achat)
 # Syntaxe compatible DeluxeMenus avec actions Quantum
 
 # Titre du menu avec placeholder dynamique
@@ -48,17 +48,17 @@ items:
     mode: STORAGE
 
   # ──────────────────────────────────────
-  # BOUTON: MODE ORDRE (Milieu haut)
+  # BOUTON: MODE RECHERCHE (Milieu haut)
   # ──────────────────────────────────────
-  mode_order:
+  mode_recherche:
     slots: [4]
     material: DIAMOND
-    display_name: '&b&l⚡ Mode: Ordre'
+    display_name: '&b&l⚡ Mode: Recherche'
     lore:
-      - '&7Activez le mode ordre d''achat'
+      - '&7Activez le mode recherche d''items'
       - '&7Mode actuel: &e%mode_simple%'
       - ' '
-      - '&b&l✓ En mode Ordre:'
+      - '&b&l✓ En mode Recherche:'
       - '&7  • Créez des offres d''achat'
       - '&7  • Choisissez quantité et prix'
       - '&7  • Les joueurs vous vendent'
@@ -67,7 +67,7 @@ items:
       - ' '
       - '&e► Cliquez pour activer'
     button_type: QUANTUM_CHANGE_MODE
-    mode: ORDER
+    mode: RECHERCHE
 
   # ──────────────────────────────────────
   # BOUTON: MODE VENTE (Coin haut droit)
@@ -103,7 +103,7 @@ items:
       - '&fPrix total: &e%total_price%'
       - '&8─────────────────────'
       - ' '
-      - '&7▸ Clic gauche: &eCréer offre (mode Ordre)'
+      - '&7▸ Clic gauche: &eCréer offre (mode Recherche)'
       - '&7▸ Clic droit: &eVendre (mode Vente)'
 
   # ──────────────────────────────────────
@@ -123,14 +123,14 @@ items:
 # ========================================
 # NOTES IMPORTANTES
 # ========================================
-# • Le placeholder %mode_simple% affiche: "Vente", "Stockage" ou "Ordre"
-# • Les boutons QUANTUM_CHANGE_MODE changent le mode ET ferment le menu
-# • Le menu se réouvre automatiquement avec le nouveau mode
+# • Le placeholder %mode_simple% affiche: "Vente", "Stockage" ou "Recherche"
+# • Les boutons QUANTUM_CHANGE_MODE changent le mode ET rafraichissent le menu
+# • Le menu se rafraîchit automatiquement avec le nouveau mode
 # 
 # MODES:
 #   - STORAGE: Déposer/retirer des items
 #   - SELL: Vendre des items stockés instantanément
-#   - ORDER: Créer des offres d'achat pour items stockés
+#   - RECHERCHE: Créer des offres d'achat pour items stockés
 # 
 # COMMANDE /offre:
 #   - Pour les items NON stockables (armures, épées, potions)

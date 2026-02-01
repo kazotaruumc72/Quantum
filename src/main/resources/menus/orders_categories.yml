@@ -52,6 +52,21 @@ items:
     left_click_actions:
       - "[menu] orders_items"
     
+  # Catégorie Potions
+  potions:
+    slot: 13
+    material: POTION
+    custom_model_data: 1
+    display_name: "<gradient:#32b8c6:#1d6880>🧪 Potions</gradient>"
+    lore:
+      - ""
+      - "<gray>Potions, élixirs et"
+      - "<gray>breuvages magiques"
+      - ""
+      - "<#32b8c6>➥ Cliquez pour ouvrir"
+    left_click_actions:
+      - "[menu] orders_potions"
+    
   # Catégorie Armures
   armures:
     slot: 14
@@ -70,7 +85,7 @@ items:
   outils:
     slot: 15
     material: DIAMOND_PICKAXE
-    display_name: "<gradient:#32b8c6:#1d6880>⛏️ Outils</gradient>"
+    display_name: "<gradient:#32b8c6:#1d6880>⚒️ Outils</gradient>"
     lore:
       - ""
       - "<gray>Outils et équipements"

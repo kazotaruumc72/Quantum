@@ -1,6 +1,7 @@
 package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.menu.Menu;
 import com.wynvers.quantum.orders.Order;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
@@ -35,7 +36,12 @@ public class RechercheCommand implements CommandExecutor {
 
         if (args.length == 0) {
             // Ouvrir le menu des catégories
-            plugin.getMenuManager().openMenu(player, "orders_categories");
+            Menu menu = plugin.getMenuManager().getMenu("orders_categories");
+            if (menu != null) {
+                menu.open(player);
+            } else {
+                player.sendMessage(mm.deserialize("<red>Menu introuvable!"));
+            }
             return true;
         }
 

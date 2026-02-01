@@ -22,7 +22,7 @@ items:
       - ""
       - "<#32b8c6>➥ Cliquez pour ouvrir"
     left_click_actions:
-      - "[open-menu] orders_cultures"
+      - "[menu] orders_cultures"
     
   # Catégorie Loots
   loots:
@@ -36,7 +36,7 @@ items:
       - ""
       - "<#32b8c6>➥ Cliquez pour ouvrir"
     left_click_actions:
-      - "[open-menu] orders_loots"
+      - "[menu] orders_loots"
     
   # Catégorie Items
   items:
@@ -50,7 +50,7 @@ items:
       - ""
       - "<#32b8c6>➥ Cliquez pour ouvrir"
     left_click_actions:
-      - "[open-menu] orders_items"
+      - "[menu] orders_items"
     
   # Catégorie Armures
   armures:
@@ -64,7 +64,7 @@ items:
       - ""
       - "<#32b8c6>➥ Cliquez pour ouvrir"
     left_click_actions:
-      - "[open-menu] orders_armures"
+      - "[menu] orders_armures"
     
   # Catégorie Outils
   outils:
@@ -78,7 +78,7 @@ items:
       - ""
       - "<#32b8c6>➥ Cliquez pour ouvrir"
     left_click_actions:
-      - "[open-menu] orders_outils"
+      - "[menu] orders_outils"
     
   # Bouton de fermeture
   close:

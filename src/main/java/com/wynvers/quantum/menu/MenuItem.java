@@ -4,6 +4,7 @@ import com.wynvers.quantum.Quantum;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemFlag;
 
 import java.util.ArrayList;
@@ -233,13 +234,49 @@ public class MenuItem {
     }
     
     /**
-     * Execute all actions for this item
+     * Execute all actions for this item based on click type
      */
-    public void executeActions(Player player, Quantum plugin) {
-        // Execute all left click actions (default)
-        for (MenuAction action : leftClickActions) {
+    public void executeActions(Player player, Quantum plugin, ClickType clickType) {
+        List<MenuAction> actionsToExecute = new ArrayList<>();
+        
+        // Déterminer quelles actions exécuter selon le type de clic
+        switch (clickType) {
+            case RIGHT:
+            case SHIFT_RIGHT:
+                if (!rightClickActions.isEmpty()) {
+                    actionsToExecute.addAll(rightClickActions);
+                } else {
+                    // Fallback sur left click si pas de right click
+                    actionsToExecute.addAll(leftClickActions);
+                }
+                break;
+                
+            case MIDDLE:
+                if (!middleClickActions.isEmpty()) {
+                    actionsToExecute.addAll(middleClickActions);
+                } else {
+                    // Fallback sur left click si pas de middle click
+                    actionsToExecute.addAll(leftClickActions);
+                }
+                break;
+                
+            default:
+                // LEFT, SHIFT_LEFT, et tous les autres types
+                actionsToExecute.addAll(leftClickActions);
+                break;
+        }
+        
+        // Exécuter toutes les actions
+        for (MenuAction action : actionsToExecute) {
             action.execute(player, plugin);
         }
+    }
+    
+    /**
+     * Execute all actions for this item (default = left click)
+     */
+    public void executeActions(Player player, Quantum plugin) {
+        executeActions(player, plugin, ClickType.LEFT);
     }
 
     /**
@@ -325,4 +362,3 @@ public class MenuItem {
         return itemStack;
     }
 }
-

@@ -9,10 +9,12 @@ public class QuantumCommand implements CommandExecutor {
     
     private final Quantum plugin;
     private final OrdersAdminCommand ordersAdminCommand;
+    private final StatsCommand statsCommand;
     
     public QuantumCommand(Quantum plugin) {
         this.plugin = plugin;
         this.ordersAdminCommand = new OrdersAdminCommand(plugin);
+        this.statsCommand = new StatsCommand(plugin);
     }
     
     @Override
@@ -28,6 +30,14 @@ public class QuantumCommand implements CommandExecutor {
         // Déléguer les commandes orders au OrdersAdminCommand
         if (subCommand.equals("orders")) {
             return ordersAdminCommand.onCommand(sender, command, label, args);
+        }
+        
+        // Déléguer les commandes stats au StatsCommand
+        if (subCommand.equals("stats") || subCommand.equals("statistics")) {
+            // Créer un nouveau tableau d'arguments sans le "stats"
+            String[] newArgs = new String[args.length - 1];
+            System.arraycopy(args, 1, newArgs, 0, args.length - 1);
+            return statsCommand.onCommand(sender, command, label, newArgs);
         }
         
         switch (subCommand) {
@@ -116,6 +126,8 @@ public class QuantumCommand implements CommandExecutor {
         sender.sendMessage("");
         sender.sendMessage("§e/quantum reload [type] §7- Recharger la configuration");
         sender.sendMessage("  §7Types: §eall, price, config, menus, messages");
+        sender.sendMessage("§e/quantum stats [category] §7- Afficher les statistiques");
+        sender.sendMessage("  §7Utilisez 'list' pour voir toutes les catégories");
         sender.sendMessage("§e/quantum version §7- Afficher les infos de version");
         sender.sendMessage("§e/quantum help §7- Afficher cette aide");
         sender.sendMessage("§e/storage §7- Ouvrir le stockage virtuel");

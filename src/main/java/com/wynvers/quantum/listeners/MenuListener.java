@@ -11,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 
@@ -136,7 +137,6 @@ public class MenuListener implements Listener {
             }
             // Tout le reste est déjà cancel par le event.setCancelled(true) au début
         }
-        // Tout le reste (clickedInv == null, etc.) est déjà cancel
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -161,6 +161,41 @@ public class MenuListener implements Listener {
             if (menu.getId().equals("storage")) {
                 if (!player.hasPermission("quantum.admin")) {
                     player.sendMessage("§cStorage is view-only. Use /qstorage commands or contact an admin.");
+                }
+            }
+        }
+    }
+    
+    /**
+     * Additional protection: InventoryMoveItemEvent
+     * This catches item movements even in edge cases
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInventoryMoveItem(InventoryMoveItemEvent event) {
+        // Check if any player has this inventory open
+        Inventory sourceInv = event.getSource();
+        Inventory targetInv = event.getDestination();
+        
+        // Get all online players and check if they have a menu open
+        for (Player player : org.bukkit.Bukkit.getOnlinePlayers()) {
+            Menu menu = plugin.getMenuManager().getActiveMenu(player);
+            if (menu == null) {
+                String title = player.getOpenInventory().getTitle();
+                menu = plugin.getMenuManager().getMenuByTitle(title);
+            }
+            
+            if (menu != null) {
+                InventoryView view = player.getOpenInventory();
+                if (view != null) {
+                    // Cancel if it's attempting to move items involving the menu
+                    if (sourceInv.equals(view.getTopInventory()) || targetInv.equals(view.getTopInventory())) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                    if (sourceInv.equals(view.getBottomInventory()) || targetInv.equals(view.getBottomInventory())) {
+                        event.setCancelled(true);
+                        return;
+                    }
                 }
             }
         }

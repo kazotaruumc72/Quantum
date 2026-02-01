@@ -122,6 +122,7 @@ public class MenuManager {
             }
         }
         
+        // Gérer d'abord le champ 'type' (ancienne syntaxe)
         if (section.contains("type")) {
             String type = section.getString("type");
             item.setType(type);
@@ -129,19 +130,28 @@ public class MenuManager {
             if ("quantum_change_mode".equalsIgnoreCase(type)) {
                 item.setButtonType(ButtonType.QUANTUM_CHANGE_MODE);
                 
-                if (section.contains("mode")) {
+                // Accepter 'mode' OU 'target_mode'
+                if (section.contains("target_mode")) {
+                    item.setTargetMode(section.getString("target_mode"));
+                } else if (section.contains("mode")) {
                     item.setTargetMode(section.getString("mode"));
                 }
             }
         }
         
+        // Gérer le champ 'button_type' (nouvelle syntaxe)
         if (section.contains("button_type")) {
             try {
                 ButtonType buttonType = ButtonType.valueOf(section.getString("button_type").toUpperCase());
                 item.setButtonType(buttonType);
                 
-                if (buttonType == ButtonType.QUANTUM_CHANGE_MODE && section.contains("mode")) {
-                    item.setTargetMode(section.getString("mode"));
+                // Pour QUANTUM_CHANGE_MODE, accepter 'target_mode' OU 'mode'
+                if (buttonType == ButtonType.QUANTUM_CHANGE_MODE) {
+                    if (section.contains("target_mode")) {
+                        item.setTargetMode(section.getString("target_mode"));
+                    } else if (section.contains("mode")) {
+                        item.setTargetMode(section.getString("mode"));
+                    }
                 }
             } catch (IllegalArgumentException e) {
                 plugin.getQuantumLogger().warning("Invalid button_type: " + section.getString("button_type"));

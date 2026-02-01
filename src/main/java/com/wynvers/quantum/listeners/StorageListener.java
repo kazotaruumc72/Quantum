@@ -1,7 +1,10 @@
 package com.wynvers.quantum.listeners;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.menus.MenuManager;
+import com.wynvers.quantum.orders.OrderButtonHandler;
 import com.wynvers.quantum.orders.OrderCreationManager;
+import com.wynvers.quantum.orders.OrderCreationSession;
 import com.wynvers.quantum.storage.PlayerStorage;
 import com.wynvers.quantum.storage.StorageMode;
 import org.bukkit.Bukkit;
@@ -141,6 +144,7 @@ public class StorageListener implements Listener {
     /**
      * Gère la création d'offre d'achat en mode RECHERCHE
      * IMPORTANT: NE RETIRE PAS LES ITEMS DU STORAGE !
+     * Crée la session et ouvre le menu avec placeholders appliqués
      */
     private void handleCreateOrder(Player player, ItemStack displayItem) {
         PlayerStorage storage = plugin.getStorageManager().getStorage(player);
@@ -169,13 +173,24 @@ public class StorageListener implements Listener {
             return;
         }
         
-        // Fermer l'inventaire et ouvrir le menu de quantité
+        // Récupérer la session pour récupérer l'item d'origine
+        OrderCreationSession session = orderManager.getSession(player);
+        if (session == null) {
+            player.sendMessage("§c⚠ Erreur lors de la création de la session!");
+            return;
+        }
+        
+        // Fermer l'inventaire
         player.closeInventory();
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
         
-        // Ouvrir le menu order_quantity via MenuManager
+        // Ouvrir le menu order_quantity avec l'item et les placeholders
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            player.performCommand("menu order_quantity");
+            MenuManager menuManager = plugin.getMenuManager();
+            if (menuManager != null) {
+                // Ouvrir le menu avec la session et l'item
+                menuManager.openMenuWithSession(player, "order_quantity", session, displayItem);
+            }
         }, 2L);
     }
     

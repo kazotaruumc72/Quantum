@@ -218,10 +218,9 @@ public class MenuListener implements Listener {
             // Car InventoryCloseEvent se déclenche AVANT l'ouverture du prochain inventaire
             org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 // Vérifier si le joueur a toujours un inventaire ouvert
-                (player.getOpenInventory().getType() == InventoryType.CRAFTING) {
+                (player.getOpenInventory().getType() == InventoryType.CRAFTING);
                     // Le joueur n'a vraiment aucun menu ouvert maintenant
                     plugin.getMenuManager().clearActiveMenu(player);
-                    }
             }, 1L);
         }
 }

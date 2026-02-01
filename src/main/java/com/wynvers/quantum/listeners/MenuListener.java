@@ -223,4 +223,5 @@ public class MenuListener implements Listener {
                 plugin.getMenuManager().clearActiveMenu(player);
             }
         }, 1L);
+    }
 }

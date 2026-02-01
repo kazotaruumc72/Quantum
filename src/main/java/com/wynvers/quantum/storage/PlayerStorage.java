@@ -193,10 +193,15 @@ public class PlayerStorage {
                 Material material = Material.valueOf(materialName);
                 addItem(material, amount);
                 
-                // Track statistics
+                // Track statistics par catégorie
                 Quantum plugin = Quantum.getInstance();
                 if (plugin != null && plugin.getStatisticsManager() != null) {
                     plugin.getStatisticsManager().incrementItemsStored(category, amount);
+                }
+                
+                // Track statistiques globales du storage
+                if (plugin != null && plugin.getStorageStatsManager() != null) {
+                    plugin.getStorageStatsManager().incrementItemsStored(amount);
                 }
             } catch (IllegalArgumentException e) {
                 // Material invalide, ignorer
@@ -205,10 +210,15 @@ public class PlayerStorage {
             String nexoId = itemId.substring(5);
             addNexoItem(nexoId, amount);
             
-            // Track statistics
+            // Track statistics par catégorie
             Quantum plugin = Quantum.getInstance();
             if (plugin != null && plugin.getStatisticsManager() != null) {
                 plugin.getStatisticsManager().incrementItemsStored(category, amount);
+            }
+            
+            // Track statistiques globales du storage
+            if (plugin != null && plugin.getStorageStatsManager() != null) {
+                plugin.getStorageStatsManager().incrementItemsStored(amount);
             }
         }
     }
@@ -218,11 +228,11 @@ public class PlayerStorage {
      * Utilise les mêmes catégories que le système d'ordres
      * 
      * @param itemId L'ID de l'item
-     * @return La catégorie (cultures, loots, items, potions, armures, outils, etc.)
+     * @return La catégorie (cultures, loots, items, potions, armures, outils, autre)
      */
     private String determineCategoryFromItemId(String itemId) {
         if (itemId == null || itemId.isEmpty()) {
-            return "items";
+            return "autre";
         }
         
         // Pour les items Nexo, essayer de deviner depuis le nom
@@ -287,7 +297,7 @@ public class PlayerStorage {
             return "items";
         }
         
-        return "items";
+        return "autre";
     }
     
     // === DATABASE ===

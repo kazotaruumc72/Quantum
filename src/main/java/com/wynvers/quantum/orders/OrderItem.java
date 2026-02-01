@@ -43,10 +43,8 @@ public class OrderItem {
         this.material = mat;
         
         // Lore (optionnel)
-        this.lore = section.getStringList("lore");
-        if (this.lore == null) {
-            this.lore = new ArrayList<>();
-        }
+        List<String> tempLore = section.getStringList("lore");
+        this.lore = (tempLore != null && !tempLore.isEmpty()) ? new ArrayList<>(tempLore) : new ArrayList<>();
     }
 
     public String getItemId() {

@@ -3,6 +3,19 @@ title: '&8Quantité à rechercher'
 size: 27
 
 items:
+  # L'ITEM SUR LEQUEL L'UTILISATEUR A CLIQUÉ (slot 9)
+  item_display:
+    slots: [9]
+    # Material sera remplacé dynamiquement par l'item du storage
+    material: PAPER
+    display_name: '&e%quantum_order_item_name%'
+    lore:
+      - ''
+      - '&7Quantité recherchée: &a%quantum_order_quantity%'
+      - '&7Stock disponible: &b%quantum_order_max_quantity%'
+      - ''
+      - '&eAjustez la quantité recherchée'
+
   decrease_50:
     slots: [10]
     material: RED_STAINED_GLASS_PANE
@@ -22,16 +35,6 @@ items:
     button_type: QUANTUM_ADJUST_QUANTITY
     parameters:
       amount: -5
-
-  item_display:
-    slots: [13]
-    material: PAPER
-    display_name: '&e%quantum_order_item_name%'
-    lore:
-      - ''
-      - '&7Quantité recherchée: &a%quantum_order_quantity%'
-      - ''
-      - '&eAjustez la quantité recherchée'
 
   increase_5:
     slots: [15]
@@ -55,7 +58,7 @@ items:
 
   cancel:
     slots: [22]
-    material: BARRIER
+    material: PAPER
     display_name: '&c&lANNULER'
     lore:
       - '&7Annuler la création d''offre'

@@ -137,33 +137,16 @@ public class Menu {
      * Open this menu for a player
      */
     public void open(Player player, Quantum plugin) {
-        // DEBUG: Log avant setActiveMenu
-        player.sendMessage("§b[DEBUG] Menu.open() appelé pour menu: " + id + " joueur: " + player.getName());
-        
-        // Enregistrer ce menu comme menu actif pour le joueur
         plugin.getMenuManager().setActiveMenu(player, this);
         
-        // DEBUG: Vérifier si le menu a bien été enregistré
-        Menu activeCheck = plugin.getMenuManager().getActiveMenu(player);
-        if (activeCheck != null) {
-            player.sendMessage("§a[DEBUG] Menu actif enregistré: " + activeCheck.getId());
-        } else {
-            player.sendMessage("§c[DEBUG] ERREUR: Menu actif est NULL après setActiveMenu()!");
-        }
-        
-        // Parser les placeholders dans le titre
         String parsedTitle = plugin.getPlaceholderManager().parse(player, title);
-        player.sendMessage("§e[DEBUG] Titre parsé: " + parsedTitle);
         
         Inventory inventory = Bukkit.createInventory(null, size, parsedTitle);
  
-        // Populate inventory with items from config
         populateInventory(inventory, player);
         
         player.openInventory(inventory);
-        player.sendMessage("§a[DEBUG] Inventaire ouvert avec succès!");
         
-        // Si le titre est animé, démarrer l'animation
         if (animatedTitle && titleFrames != null && !titleFrames.isEmpty()) {
             plugin.getAnimationManager().startAnimation(player, titleFrames, titleSpeed);
         }

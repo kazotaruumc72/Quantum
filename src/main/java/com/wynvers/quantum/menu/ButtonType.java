@@ -10,6 +10,7 @@ public enum ButtonType {
     QUANTUM_CHANGE_AMOUNT,          // Bouton pour changer la quantité
     QUANTUM_SELL,                   // Bouton de vente (ancien alias)
     QUANTUM_SELL_ITEM,              // Bouton pour vendre un item
+    QUANTUM_ORDER_DISPLAY_ITEM,     // Bouton pour afficher l'item sélectionné dans la création d'ordre
     QUANTUM_ORDERS_ITEM,            // Bouton dynamique pour afficher les ordres d'une catégorie
     
     // === ORDER CREATION BUTTONS ===

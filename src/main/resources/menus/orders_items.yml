@@ -1,128 +1,39 @@
-# orders_items.yml - Configuration des items avec prix min/max
+# orders_items.yml - Configuration des items
 
-menu:
-  title: "<gradient:#32b8c6:#1d6880>Ordres - Items</gradient>"
-  size: 54
-
-# Configuration des prix pour chaque item
-# Format: min: prix minimal, max: prix maximal par unité
-prices:
-  # Items Nexo personnalisés
-  "nexo:afelia_bark":
-    min: 5.0
-    max: 15.0
-    display_name: "Écorce d'Afelia"
-    
-  "nexo:quantum_crystal":
-    min: 50.0
-    max: 150.0
-    display_name: "Cristal Quantique"
-    
-  "nexo:mystic_dust":
-    min: 10.0
-    max: 30.0
-    display_name: "Poussière Mystique"
-    
-  # Items Minecraft standards
-  "minecraft:stone":
-    min: 0.1
-    max: 1.0
-    display_name: "Pierre"
-    
-  "minecraft:iron_ingot":
-    min: 5.0
-    max: 15.0
-    display_name: "Lingot de Fer"
-    
-  "minecraft:gold_ingot":
-    min: 10.0
-    max: 30.0
-    display_name: "Lingot d'Or"
-    
-  "minecraft:diamond":
-    min: 50.0
-    max: 150.0
-    display_name: "Diamant"
-    
-  "minecraft:emerald":
-    min: 30.0
-    max: 90.0
-    display_name: "Émeraude"
-    
-  "minecraft:netherite_ingot":
-    min: 200.0
-    max: 500.0
-    display_name: "Lingot de Netherite"
+title: "<gradient:#32b8c6:#1d6880>Ordres - Items</gradient>"
+size: 54
 
 items:
-  # Décoration
   filler:
-    slot: [0,1,2,3,4,5,6,7,8,45,46,47,48,50,51,52,53]
+    slots: [0,1,2,3,4,5,6,7,8,45,46,47,48,50,51,52,53]
     material: BLACK_STAINED_GLASS_PANE
-    name: " "
+    display_name: " "
     
-  # Bouton retour
   back:
     slot: 49
-    material: ARROW
-    name: "<yellow>← Retour</yellow>"
+    material: PAPER
+    custom_model_data: 1000
+    display_name: "<yellow>← Retour</yellow>"
     lore:
       - ""
       - "<gray>Retour au menu des catégories"
-    action: "OPEN_MENU:orders_categories"
+    left_click_actions:
+      - "[menu] orders_categories"
     
-  # Items affichés (exemples)
-  item_1:
-    slot: 10
-    material: IRON_INGOT
-    name: "<#32b8c6>Lingot de Fer</#32b8c6>"
-    lore:
-      - ""
-      - "<gray>Prix: <green>5.0$ - 15.0$</green> par unité"
-      - ""
-      - "<#32b8c6>➥ /recherche minecraft:iron_ingot"
-      - "<#32b8c6>➥ /offre minecraft:iron_ingot <quantité> <prix>"
-    
-  item_2:
-    slot: 11
-    material: GOLD_INGOT
-    name: "<#32b8c6>Lingot d'Or</#32b8c6>"
-    lore:
-      - ""
-      - "<gray>Prix: <green>10.0$ - 30.0$</green> par unité"
-      - ""
-      - "<#32b8c6>➥ /recherche minecraft:gold_ingot"
-      - "<#32b8c6>➥ /offre minecraft:gold_ingot <quantité> <prix>"
-    
-  item_3:
-    slot: 12
-    material: DIAMOND
-    name: "<#32b8c6>Diamant</#32b8c6>"
-    lore:
-      - ""
-      - "<gray>Prix: <green>50.0$ - 150.0$</green> par unité"
-      - ""
-      - "<#32b8c6>➥ /recherche minecraft:diamond"
-      - "<#32b8c6>➥ /offre minecraft:diamond <quantité> <prix>"
-    
-  item_4:
-    slot: 13
-    material: EMERALD
-    name: "<#32b8c6>Émeraude</#32b8c6>"
-    lore:
-      - ""
-      - "<gray>Prix: <green>30.0$ - 90.0$</green> par unité"
-      - ""
-      - "<#32b8c6>➥ /recherche minecraft:emerald"
-      - "<#32b8c6>➥ /offre minecraft:emerald <quantité> <prix>"
-    
-  item_5:
-    slot: 14
-    material: NETHERITE_INGOT
-    name: "<#32b8c6>Lingot de Netherite</#32b8c6>"
-    lore:
-      - ""
-      - "<gray>Prix: <green>200.0$ - 500.0$</green> par unité"
-      - ""
-      - "<#32b8c6>➥ /recherche minecraft:netherite_ingot"
-      - "<#32b8c6>➥ /offre minecraft:netherite_ingot <quantité> <prix>"
+  # Affichage des items
+  orders_items:
+    slots: [9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44]
+    material: BARRIER
+    display_name: "%item_display_name%"
+    button_type: QUANTUM_ORDERS_ITEM
+    type: items
+    lore_append:
+      - ' '
+      - '&8─────────────────────'
+      - '&fChercheur: &b%orderer%'
+      - '&fQuantité: &a%quantity%'
+      - '&fPrix unitaire: &6%price%'
+      - '&fPrix total: &e%total_price%'
+      - '&8─────────────────────'
+      - ' '
+      - '&7▸ Clic droit: &eVendre'

@@ -1,153 +1,39 @@
 # orders_loots.yml - Configuration des loots
 
-menu:
-  title: "<gradient:#32b8c6:#1d6880>Ordres - Loots</gradient>"
-  size: 54
-
-prices:
-  # Loots de mobs communs
-  "minecraft:rotten_flesh":
-    min: 0.1
-    max: 0.5
-    display_name: "Chair Putréfiée"
-    
-  "minecraft:bone":
-    min: 0.3
-    max: 1.5
-    display_name: "Os"
-    
-  "minecraft:string":
-    min: 0.5
-    max: 2.0
-    display_name: "Ficelle"
-    
-  "minecraft:spider_eye":
-    min: 1.0
-    max: 4.0
-    display_name: "Œil d'Araignée"
-    
-  "minecraft:gunpowder":
-    min: 2.0
-    max: 8.0
-    display_name: "Poudre à Canon"
-    
-  "minecraft:ender_pearl":
-    min: 15.0
-    max: 50.0
-    display_name: "Perle de l'Ender"
-    
-  "minecraft:blaze_rod":
-    min: 20.0
-    max: 60.0
-    display_name: "Bâton de Blaze"
-    
-  "minecraft:ghast_tear":
-    min: 30.0
-    max: 100.0
-    display_name: "Larme de Ghast"
-    
-  "minecraft:magma_cream":
-    min: 10.0
-    max: 35.0
-    display_name: "Crème de Magma"
-    
-  "minecraft:slime_ball":
-    min: 5.0
-    max: 20.0
-    display_name: "Boule de Slime"
-    
-  "minecraft:phantom_membrane":
-    min: 15.0
-    max: 50.0
-    display_name: "Membrane de Phantom"
-    
-  "minecraft:shulker_shell":
-    min: 50.0
-    max: 150.0
-    display_name: "Carapace de Shulker"
-    
-  "minecraft:dragon_breath":
-    min: 100.0
-    max: 300.0
-    display_name: "Souffle du Dragon"
-    
-  "minecraft:nether_star":
-    min: 500.0
-    max: 1500.0
-    display_name: "Étoile du Nether"
-    
-  # Loots personnalisés Nexo
-  "nexo:mystic_dust":
-    min: 10.0
-    max: 30.0
-    display_name: "Poussière Mystique"
-    
-  "nexo:ancient_fragment":
-    min: 50.0
-    max: 150.0
-    display_name: "Fragment Ancien"
-    
-  "nexo:boss_essence":
-    min: 200.0
-    max: 600.0
-    display_name: "Essence de Boss"
+title: "<gradient:#32b8c6:#1d6880>Ordres - Loots</gradient>"
+size: 54
 
 items:
   filler:
-    slot: [0,1,2,3,4,5,6,7,8,45,46,47,48,50,51,52,53]
+    slots: [0,1,2,3,4,5,6,7,8,45,46,47,48,50,51,52,53]
     material: BLACK_STAINED_GLASS_PANE
-    name: " "
+    display_name: " "
     
   back:
     slot: 49
-    material: ARROW
-    name: "<yellow>← Retour</yellow>"
+    material: PAPER
+    custom_model_data: 1000
+    display_name: "<yellow>← Retour</yellow>"
     lore:
       - ""
       - "<gray>Retour au menu des catégories"
-    action: "OPEN_MENU:orders_categories"
+    left_click_actions:
+      - "[menu] orders_categories"
     
   # Affichage des loots
-  gunpowder:
-    slot: 10
-    material: GUNPOWDER
-    name: "<#32b8c6>Poudre à Canon</#32b8c6>"
-    lore:
-      - ""
-      - "<gray>Prix: <green>2.0$ - 8.0$</green> par unité"
-      - ""
-      - "<#32b8c6>➥ /recherche minecraft:gunpowder"
-      - "<#32b8c6>➥ /offre minecraft:gunpowder <quantité> <prix>"
-    
-  ender_pearl:
-    slot: 11
-    material: ENDER_PEARL
-    name: "<#32b8c6>Perle de l'Ender</#32b8c6>"
-    lore:
-      - ""
-      - "<gray>Prix: <green>15.0$ - 50.0$</green> par unité"
-      - ""
-      - "<#32b8c6>➥ /recherche minecraft:ender_pearl"
-      - "<#32b8c6>➥ /offre minecraft:ender_pearl <quantité> <prix>"
-    
-  blaze_rod:
-    slot: 12
-    material: BLAZE_ROD
-    name: "<#32b8c6>Bâton de Blaze</#32b8c6>"
-    lore:
-      - ""
-      - "<gray>Prix: <green>20.0$ - 60.0$</green> par unité"
-      - ""
-      - "<#32b8c6>➥ /recherche minecraft:blaze_rod"
-      - "<#32b8c6>➥ /offre minecraft:blaze_rod <quantité> <prix>"
-    
-  nether_star:
-    slot: 13
-    material: NETHER_STAR
-    name: "<#32b8c6>Étoile du Nether</#32b8c6>"
-    lore:
-      - ""
-      - "<gray>Prix: <green>500.0$ - 1500.0$</green> par unité"
-      - ""
-      - "<#32b8c6>➥ /recherche minecraft:nether_star"
-      - "<#32b8c6>➥ /offre minecraft:nether_star <quantité> <prix>"
+  orders_loots:
+    slots: [9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44]
+    material: BARRIER
+    display_name: "%item_display_name%"
+    button_type: QUANTUM_ORDERS_ITEM
+    type: loots
+    lore_append:
+      - ' '
+      - '&8─────────────────────'
+      - '&fChercheur: &b%orderer%'
+      - '&fQuantité: &a%quantity%'
+      - '&fPrix unitaire: &6%price%'
+      - '&fPrix total: &e%total_price%'
+      - '&8─────────────────────'
+      - ' '
+      - '&7▸ Clic droit: &eVendre'

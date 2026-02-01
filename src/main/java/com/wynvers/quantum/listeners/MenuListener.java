@@ -142,8 +142,9 @@ public class MenuListener implements Listener {
      * Vérifie si un MenuItem est un bouton spécial (pas un item de storage normal)
      */
     private boolean isSpecialButton(MenuItem menuItem) {
-        // Si le MenuItem a un buttonType spécial, c'est un bouton
-        if (menuItem.getButtonType() != null && menuItem.getButtonType() != ButtonType.NONE) {
+        // Si le MenuItem a un buttonType spécial (pas null et pas STANDARD), c'est un bouton
+        ButtonType buttonType = menuItem.getButtonType();
+        if (buttonType != null && buttonType != ButtonType.STANDARD) {
             return true;
         }
         

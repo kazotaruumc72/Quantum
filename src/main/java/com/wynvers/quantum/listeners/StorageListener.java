@@ -2,8 +2,10 @@ package com.wynvers.quantum.listeners;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.storage.PlayerStorage;
+import com.wynvers.quantum.storage.StorageMode;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,7 +29,7 @@ public class StorageListener implements Listener {
     public void onStorageClick(InventoryClickEvent event) {
         // Check if it's storage GUI using view title
         String title = event.getView().getTitle();
-        if (title == null || !title.equals("§6§lVirtual Storage")) {
+        if (title == null || !title.contains("Quantum Storage")) {
             return;
         }
         
@@ -43,7 +45,25 @@ public class StorageListener implements Listener {
             ItemStack clicked = event.getCurrentItem();
             if (clicked == null || clicked.getType() == Material.AIR) return;
             
-            handleWithdraw(player, clicked, event.isShiftClick(), event.isRightClick());
+            // Vérifier le mode du joueur
+            StorageMode.Mode mode = StorageMode.getMode(player);
+            
+            switch (mode) {
+                case STORAGE:
+                    // Mode normal: retirer les items
+                    handleWithdraw(player, clicked, event.isShiftClick(), event.isRightClick());
+                    break;
+                    
+                case SELL:
+                    // Mode vente: vendre les items
+                    handleSell(player, clicked, event.isShiftClick(), event.isRightClick());
+                    break;
+                    
+                case ORDER:
+                    // Mode ordre: ouvrir le menu de création d'offre
+                    handleCreateOrder(player, clicked);
+                    break;
+            }
         }
         // If clicking in player inventory while storage open, prevent shift-click
         else if (event.getClick().isShiftClick()) {
@@ -54,11 +74,14 @@ public class StorageListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onStorageDrag(InventoryDragEvent event) {
         String title = event.getView().getTitle();
-        if (title != null && title.equals("§6§lVirtual Storage")) {
+        if (title != null && title.contains("Quantum Storage")) {
             event.setCancelled(true);
         }
     }
     
+    /**
+     * Gère le retrait d'items en mode STORAGE
+     */
     private void handleWithdraw(Player player, ItemStack displayItem, boolean shiftClick, boolean rightClick) {
         PlayerStorage storage = plugin.getStorageManager().getStorage(player);
         Material material = displayItem.getType();
@@ -101,6 +124,44 @@ public class StorageListener implements Listener {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             player.performCommand("storage");
         }, 1L);
+    }
+    
+    /**
+     * Gère la vente d'items en mode SELL
+     * TODO: Implémenter la logique de vente avec prix
+     */
+    private void handleSell(Player player, ItemStack displayItem, boolean shiftClick, boolean rightClick) {
+        Material material = displayItem.getType();
+        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+        player.sendMessage("§e⚠ Système de vente en développement pour " + material.name());
+        // TODO: Intégrer le système de prix et vente
+    }
+    
+    /**
+     * Gère la création d'offre d'achat en mode ORDER
+     * TODO: Ouvrir un menu pour définir quantité et prix
+     */
+    private void handleCreateOrder(Player player, ItemStack displayItem) {
+        Material material = displayItem.getType();
+        PlayerStorage storage = plugin.getStorageManager().getStorage(player);
+        
+        int stockQuantity = storage.getAmount(material);
+        if (stockQuantity <= 0) {
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage("§c⚠ Vous devez avoir au moins 1 item en stock pour créer une offre!");
+            return;
+        }
+        
+        player.closeInventory();
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
+        player.sendMessage("§b§l✓ Création d'offre pour: §f" + material.name());
+        player.sendMessage("§7Stock disponible: §e" + stockQuantity);
+        player.sendMessage("§e⚠ Menu de configuration d'offre en développement");
+        
+        // TODO: Ouvrir un menu anvil ou chat pour saisir:
+        // - Quantité souhaitée
+        // - Prix unitaire
+        // Puis créer l'offre dans le système
     }
     
     private void giveItems(Player player, Material material, int amount) {

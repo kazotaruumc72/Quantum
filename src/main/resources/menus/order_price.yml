@@ -1,0 +1,155 @@
+# ========================================
+# QUANTUM ORDER - SÉLECTION PRIX
+# ========================================
+# Menu pour choisir le prix unitaire de l'offre d'achat
+
+menu_title: '&b&lOffre d''achat &8| &fPrix unitaire'
+size: 27
+
+# ========================================
+# ITEMS DU MENU
+# ========================================
+items:
+
+  # ──────────────────────────────────────
+  # BORDURES
+  # ──────────────────────────────────────
+  border:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: ' '
+    slots: [0, 1, 2, 3, 5, 6, 7, 8, 9, 17, 18, 19, 20, 21, 23, 24, 25, 26]
+
+  # ──────────────────────────────────────
+  # ITEM & INFO (Centre)
+  # ──────────────────────────────────────
+  target_item:
+    slots: [4]
+    material: BARRIER  # Remplacé dynamiquement
+    display_name: '&b&l➥ Item: &f%item_name%'
+    lore:
+      - '&7Quantité: &e%selected_quantity%'
+      - ' '
+      - '&7Choisissez le prix unitaire'
+      - '&7que vous payerez par item'
+
+  # ──────────────────────────────────────
+  # BOUTONS DE SÉLECTION
+  # ──────────────────────────────────────
+  
+  # -0.1$
+  minus_01:
+    slots: [10]
+    material: RED_WOOL
+    display_name: '&c&l- 0.1$'
+    lore:
+      - '&7Retirer 0.1$ au prix'
+      - ' '
+      - '&fPrix actuel: &6%current_price%$'
+      - ' '
+      - '&e► Clic gauche: -0.1$'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: -0.1
+
+  # -1$
+  minus_1:
+    slots: [11]
+    material: RED_CONCRETE
+    display_name: '&c&l- 1$'
+    lore:
+      - '&7Retirer 1$ au prix'
+      - ' '
+      - '&fPrix actuel: &6%current_price%$'
+      - ' '
+      - '&e► Clic gauche: -1$'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: -1
+
+  # -10$
+  minus_10:
+    slots: [12]
+    material: RED_TERRACOTTA
+    display_name: '&c&l- 10$'
+    lore:
+      - '&7Retirer 10$ au prix'
+      - ' '
+      - '&fPrix actuel: &6%current_price%$'
+      - ' '
+      - '&e► Clic gauche: -10$'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: -10
+
+  # Affichage prix actuel
+  current_display:
+    slots: [13]
+    material: GOLD_INGOT
+    display_name: '&6&l➤ Prix: &f%current_price%$'
+    lore:
+      - '&7Prix unitaire sélectionné'
+      - ' '
+      - '&fQuantité: &e%selected_quantity%'
+      - '&fCoût total: &6%total_cost%$'
+      - ' '
+      - '&8Minimum: &70.1$'
+
+  # +0.1$
+  plus_01:
+    slots: [14]
+    material: LIME_WOOL
+    display_name: '&a&l+ 0.1$'
+    lore:
+      - '&7Ajouter 0.1$ au prix'
+      - ' '
+      - '&fPrix actuel: &6%current_price%$'
+      - ' '
+      - '&e► Clic gauche: +0.1$'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: 0.1
+
+  # +1$
+  plus_1:
+    slots: [15]
+    material: LIME_CONCRETE
+    display_name: '&a&l+ 1$'
+    lore:
+      - '&7Ajouter 1$ au prix'
+      - ' '
+      - '&fPrix actuel: &6%current_price%$'
+      - ' '
+      - '&e► Clic gauche: +1$'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: 1
+
+  # +10$
+  plus_10:
+    slots: [16]
+    material: LIME_TERRACOTTA
+    display_name: '&a&l+ 10$'
+    lore:
+      - '&7Ajouter 10$ au prix'
+      - ' '
+      - '&fPrix actuel: &6%current_price%$'
+      - ' '
+      - '&e► Clic gauche: +10$'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: 10
+
+  # ──────────────────────────────────────
+  # VALIDATION FINALE
+  # ──────────────────────────────────────
+  confirm:
+    slots: [22]
+    material: EMERALD
+    display_name: '&a&l✓ Créer l''offre'
+    lore:
+      - '&7Créer votre offre d''achat'
+      - ' '
+      - '&fItem: &e%item_name%'
+      - '&fQuantité: &e%selected_quantity%'
+      - '&fPrix unitaire: &6%current_price%$'
+      - '&fCoût total: &6%total_cost%$'
+      - ' '
+      - '&a⚠ L''argent sera déduit maintenant'
+      - ' '
+      - '&e► Cliquez pour confirmer'
+    left_click_actions:
+      - '[quantum_order_create]'

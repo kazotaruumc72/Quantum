@@ -1,0 +1,148 @@
+# ========================================
+# QUANTUM ORDER - SÉLECTION QUANTITÉ
+# ========================================
+# Menu pour choisir la quantité d'items à acheter via ordre
+
+menu_title: '&b&lOffre d''achat &8| &fQuantité'
+size: 27
+
+# ========================================
+# ITEMS DU MENU
+# ========================================
+items:
+
+  # ──────────────────────────────────────
+  # BORDURES
+  # ──────────────────────────────────────
+  border:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: ' '
+    slots: [0, 1, 2, 3, 5, 6, 7, 8, 9, 17, 18, 19, 20, 21, 23, 24, 25, 26]
+
+  # ──────────────────────────────────────
+  # ITEM VISÉ (Centre)
+  # ──────────────────────────────────────
+  target_item:
+    slots: [4]
+    material: BARRIER  # Remplacé dynamiquement
+    display_name: '&b&l➥ Item: &f%item_name%'
+    lore:
+      - '&7Disponible en stock: &a%storage_quantity%'
+      - ' '
+      - '&7Choisissez la quantité à proposer'
+      - '&7à l''achat dans votre offre'
+
+  # ──────────────────────────────────────
+  # BOUTONS DE SÉLECTION
+  # ──────────────────────────────────────
+  
+  # -1
+  minus_1:
+    slots: [10]
+    material: RED_WOOL
+    display_name: '&c&l- 1'
+    lore:
+      - '&7Retirer 1 à la quantité'
+      - ' '
+      - '&fQuantité actuelle: &e%current_quantity%'
+      - ' '
+      - '&e► Clic gauche: -1'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: -1
+
+  # -10
+  minus_10:
+    slots: [11]
+    material: RED_CONCRETE
+    display_name: '&c&l- 10'
+    lore:
+      - '&7Retirer 10 à la quantité'
+      - ' '
+      - '&fQuantité actuelle: &e%current_quantity%'
+      - ' '
+      - '&e► Clic gauche: -10'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: -10
+
+  # -64
+  minus_64:
+    slots: [12]
+    material: RED_TERRACOTTA
+    display_name: '&c&l- 64'
+    lore:
+      - '&7Retirer 64 à la quantité'
+      - ' '
+      - '&fQuantité actuelle: &e%current_quantity%'
+      - ' '
+      - '&e► Clic gauche: -64'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: -64
+
+  # Affichage quantité actuelle
+  current_display:
+    slots: [13]
+    material: PAPER
+    display_name: '&e&l➤ Quantité: &f%current_quantity%'
+    lore:
+      - '&7Quantité sélectionnée'
+      - ' '
+      - '&8Minimum: &71'
+      - '&8Maximum: &a%storage_quantity%'
+
+  # +1
+  plus_1:
+    slots: [14]
+    material: LIME_WOOL
+    display_name: '&a&l+ 1'
+    lore:
+      - '&7Ajouter 1 à la quantité'
+      - ' '
+      - '&fQuantité actuelle: &e%current_quantity%'
+      - ' '
+      - '&e► Clic gauche: +1'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: 1
+
+  # +10
+  plus_10:
+    slots: [15]
+    material: LIME_CONCRETE
+    display_name: '&a&l+ 10'
+    lore:
+      - '&7Ajouter 10 à la quantité'
+      - ' '
+      - '&fQuantité actuelle: &e%current_quantity%'
+      - ' '
+      - '&e► Clic gauche: +10'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: 10
+
+  # +64
+  plus_64:
+    slots: [16]
+    material: LIME_TERRACOTTA
+    display_name: '&a&l+ 64'
+    lore:
+      - '&7Ajouter 64 à la quantité'
+      - ' '
+      - '&fQuantité actuelle: &e%current_quantity%'
+      - ' '
+      - '&e► Clic gauche: +64'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: 64
+
+  # ──────────────────────────────────────
+  # VALIDATION
+  # ──────────────────────────────────────
+  confirm:
+    slots: [22]
+    material: EMERALD
+    display_name: '&a&l✓ Valider'
+    lore:
+      - '&7Passez à la sélection du prix'
+      - ' '
+      - '&fQuantité choisie: &e%current_quantity%'
+      - ' '
+      - '&e► Cliquez pour continuer'
+    left_click_actions:
+      - '[quantum_order_next_step]'

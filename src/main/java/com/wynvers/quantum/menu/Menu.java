@@ -9,6 +9,8 @@ import com.wynvers.quantum.Quantum;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -200,13 +202,36 @@ public class Menu {
             }
  
             // Créer l'ItemStack depuis le MenuItem
-            org.bukkit.inventory.ItemStack itemStack = item.toItemStack(plugin);
+            ItemStack itemStack = item.toItemStack(plugin);
             if (itemStack == null) continue;
+            
+            // Parser les placeholders dans le display name et la lore si un joueur est fourni
+            if (player != null) {
+                ItemMeta meta = itemStack.getItemMeta();
+                if (meta != null) {
+                    // Parser le display name
+                    if (meta.hasDisplayName()) {
+                        String parsedName = plugin.getPlaceholderManager().parse(player, meta.getDisplayName());
+                        meta.setDisplayName(parsedName);
+                    }
+                    
+                    // Parser la lore
+                    if (meta.hasLore()) {
+                        List<String> parsedLore = new ArrayList<>();
+                        for (String loreLine : meta.getLore()) {
+                            parsedLore.add(plugin.getPlaceholderManager().parse(player, loreLine));
+                        }
+                        meta.setLore(parsedLore);
+                    }
+                    
+                    itemStack.setItemMeta(meta);
+                }
+            }
  
             // Placer l'item dans tous les slots configurés
             for (int slot : item.getSlots()) {
                 if (slot >= 0 && slot < size) {
-                    inventory.setItem(slot, itemStack);
+                    inventory.setItem(slot, itemStack.clone()); // Clone pour éviter les problèmes de référence
                 }
             }
         }

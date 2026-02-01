@@ -10,7 +10,9 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemFlag;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MenuItem {
     
@@ -33,6 +35,9 @@ public class MenuItem {
     
     // Button type (QUANTUM_CHANGE_MODE, QUANTUM_CHANGE_AMOUNT, etc.)
     private ButtonType buttonType;
+    
+    // Parameters pour le button type (ex: amount: 5, percentage: 10)
+    private Map<String, Object> parameters;
     
     // Mode target pour QUANTUM_CHANGE_MODE (SELL ou STORAGE)
     private String targetMode;
@@ -69,6 +74,7 @@ public class MenuItem {
         this.customModelData = -1;
         this.glow = false;
         this.buttonType = ButtonType.STANDARD;
+        this.parameters = new HashMap<>();
     }
     
     // === GETTERS ===
@@ -127,6 +133,10 @@ public class MenuItem {
     
     public ButtonType getButtonType() {
         return buttonType;
+    }
+    
+    public Map<String, Object> getParameters() {
+        return parameters;
     }
     
     public String getTargetMode() {
@@ -217,6 +227,14 @@ public class MenuItem {
     
     public void setButtonType(ButtonType buttonType) {
         this.buttonType = buttonType;
+    }
+    
+    public void setParameters(Map<String, Object> parameters) {
+        this.parameters = parameters;
+    }
+    
+    public void setParameter(String key, Object value) {
+        this.parameters.put(key, value);
     }
     
     public void setTargetMode(String targetMode) {
@@ -351,6 +369,12 @@ public class MenuItem {
             return;
         }
         
+        // === ORDER BUTTONS - Déléguer à OrderButtonHandler ===
+        if (isOrderButton()) {
+            plugin.getOrderButtonHandler().handle(player, this);
+            return;
+        }
+        
         // === ACTIONS STANDARD ===
         List<MenuAction> actionsToExecute = new ArrayList<>();
         
@@ -385,6 +409,19 @@ public class MenuItem {
         for (MenuAction action : actionsToExecute) {
             action.execute(player, plugin);
         }
+    }
+    
+    /**
+     * Vérifie si c'est un bouton d'ordre
+     */
+    private boolean isOrderButton() {
+        return buttonType == ButtonType.QUANTUM_ADJUST_QUANTITY ||
+               buttonType == ButtonType.QUANTUM_SET_QUANTITY_MAX ||
+               buttonType == ButtonType.QUANTUM_VALIDATE_QUANTITY ||
+               buttonType == ButtonType.QUANTUM_ADJUST_PRICE ||
+               buttonType == ButtonType.QUANTUM_SET_PRICE_MAX ||
+               buttonType == ButtonType.QUANTUM_FINALIZE_ORDER ||
+               buttonType == ButtonType.QUANTUM_CANCEL_ORDER;
     }
     
     /**

@@ -14,9 +14,9 @@ import java.util.UUID;
 public class StorageMode {
     
     public enum Mode {
-        STORAGE("§aMode: Stockage", "Stockage"),
-        SELL("§eMode: Vente", "Vente"),
-        ORDER("§bMode: Ordre", "Ordre");
+        STORAGE("§aStockage", "Stockage"),
+        SELL("§eVente", "Vente"),
+        ORDER("§bOrdre", "Ordre");
         
         private final String displayName;
         private final String simpleName;

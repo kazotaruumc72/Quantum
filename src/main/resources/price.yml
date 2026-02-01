@@ -2,21 +2,23 @@
 # Quantum - Configuration des Prix
 # ====================================
 # Format: itemId: prix
-# - Pour les items Nexo: utiliser l'ID Nexo (ex: nexo:afzelia_bark)
-# - Pour les items Minecraft: utiliser MATERIAL (ex: DIAMOND)
+# - Pour les items Nexo: utiliser l'ID Nexo SANS préfixe (ex: afzelia_bark)
+# - Pour les items Minecraft: utiliser MATERIAL en MAJUSCULES (ex: DIAMOND)
 #
-# Les prix seront affichés dans le lore avec %price%
+# Les prix seront affichés dans le menu de vente
 # ====================================
 
 # Items Nexo (exemples)
-nexo:afzelia_bark: 1500.0
-nexo:afzelia_log: 2500.0
-nexo:afzelia_planks: 500.0
-nexo:oak_bark: 1000.0
-nexo:birch_bark: 1000.0
-nexo:spruce_bark: 1000.0
+# IMPORTANT: Ne PAS mettre "nexo:" devant l'ID !
+afzelia_bark: 1500.0
+afzelia_log: 2500.0
+afzelia_planks: 500.0
+oak_bark: 1000.0
+birch_bark: 1000.0
+spruce_bark: 1000.0
 
 # Items Minecraft vanilla (exemples)
+# IMPORTANT: Utiliser les noms MATERIAL en MAJUSCULES
 DIAMOND: 5000.0
 EMERALD: 3000.0
 GOLD_INGOT: 1000.0
@@ -28,3 +30,7 @@ STONE: 10.0
 # Ajoutez vos propres prix ici
 # Format:
 # item_id: prix
+#
+# Exemples:
+# custom_sword: 10000.0
+# NETHERITE_INGOT: 15000.0

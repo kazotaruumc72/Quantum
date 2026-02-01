@@ -14,17 +14,23 @@ import java.util.UUID;
 public class StorageMode {
     
     public enum Mode {
-        STORAGE("§aMode: Stockage"),
-        SELL("§eMode: Vente");
+        STORAGE("§aMode: Stockage", "Stockage"),
+        SELL("§eMode: Vente", "Vente");
         
         private final String displayName;
+        private final String simpleName;
         
-        Mode(String displayName) {
+        Mode(String displayName, String simpleName) {
             this.displayName = displayName;
+            this.simpleName = simpleName;
         }
         
         public String getDisplayName() {
             return displayName;
+        }
+        
+        public String getSimpleName() {
+            return simpleName;
         }
     }
     
@@ -46,10 +52,18 @@ public class StorageMode {
     }
     
     /**
-     * Récupérer le mode sous forme de texte formaté
+     * Récupérer le mode sous forme de texte formaté (avec préfixe et couleur)
      */
     public static String getModeDisplay(Player player) {
         return getMode(player).getDisplayName();
+    }
+    
+    /**
+     * Récupérer le nom simple du mode (juste "Stockage" ou "Vente")
+     * Utile pour les titres de menu
+     */
+    public static String getSimpleModeDisplay(Player player) {
+        return getMode(player).getSimpleName();
     }
     
     /**

@@ -315,8 +315,8 @@ public class MenuItem {
             }
             
             // Modifier la quantité
-            // -1 signifie "vendre tout"
-            if (changeAmount == -1) {
+            // 999999 ou plus = vendre tout
+            if (changeAmount >= 999999) {
                 session.setQuantity(session.getMaxQuantity());
             } else {
                 session.changeQuantity(changeAmount);

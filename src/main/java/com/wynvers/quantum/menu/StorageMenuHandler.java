@@ -2,9 +2,11 @@ package com.wynvers.quantum.menu;
 
 import com.nexomc.nexo.api.NexoItems;
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.orders.OrderCreationManager;
 import com.wynvers.quantum.sell.SellSession;
 import com.wynvers.quantum.storage.PlayerStorage;
 import com.wynvers.quantum.storage.StorageMode;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -50,12 +52,21 @@ public class StorageMenuHandler {
         // Vérifier le mode du joueur
         StorageMode.Mode mode = StorageMode.getMode(player);
         
-        if (mode == StorageMode.Mode.SELL) {
-            // Mode VENTE : ouvrir le menu de vente
-            handleSell(player, storage, clickedItem);
-        } else {
-            // Mode STORAGE : retirer l'item
-            handleWithdraw(player, storage, clickedItem, clickType);
+        switch (mode) {
+            case STORAGE:
+                // Mode STORAGE : retirer l'item
+                handleWithdraw(player, storage, clickedItem, clickType);
+                break;
+                
+            case SELL:
+                // Mode VENTE : ouvrir le menu de vente
+                handleSell(player, storage, clickedItem);
+                break;
+                
+            case RECHERCHE:
+                // Mode RECHERCHE : créer une offre d'achat (NE PAS RETIRER)
+                handleCreateOrder(player, storage, clickedItem);
+                break;
         }
     }
 
@@ -238,6 +249,51 @@ public class StorageMenuHandler {
             player.sendMessage("§cErreur: Menu de vente introuvable.");
             plugin.getSellManager().removeSession(player);
         }
+    }
+    
+    /**
+     * Handle creating a purchase order from storage
+     * IMPORTANT: NE RETIRE PAS LES ITEMS DU STORAGE !
+     * Ouvre le menu de création d'offre d'achat
+     */
+    private void handleCreateOrder(Player player, PlayerStorage storage, ItemStack clickedItem) {
+        // Convertir l'ItemStack en itemId (minecraft:xxx ou nexo:xxx)
+        String itemId = OrderCreationManager.getItemId(clickedItem);
+        if (itemId == null) {
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage("§c⚠ Item invalide!");
+            return;
+        }
+        
+        // Récupérer la quantité en stock (SANS LA RETIRER)
+        int stockQuantity = storage.getAmountByItemId(itemId);
+        if (stockQuantity <= 0) {
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage("§c⚠ Vous devez avoir au moins 1 item en stock pour créer une offre!");
+            return;
+        }
+        
+        // Démarrer la création d'offre via OrderCreationManager
+        OrderCreationManager orderManager = plugin.getOrderCreationManager();
+        if (orderManager == null) {
+            player.sendMessage("§c⚠ OrderCreationManager non initialisé!");
+            return;
+        }
+        
+        boolean started = orderManager.startOrderCreation(player, itemId, stockQuantity);
+        if (!started) {
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            return;
+        }
+        
+        // Fermer l'inventaire et ouvrir le menu de quantité
+        player.closeInventory();
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
+        
+        // Ouvrir le menu order_quantity via MenuManager
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            player.performCommand("menu order_quantity");
+        }, 2L);
     }
 
     /**

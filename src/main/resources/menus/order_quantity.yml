@@ -1,154 +1,71 @@
-# order_quantity.yml - Menu pour sélectionner la quantité de l'offre
-# Système d'incrémentation: -50, -5, [ITEM], +5, +50
-# Taille: 3 lignes (27 slots)
-
-title: '&8┃ &6Quantité de l\'offre &8┃'
+# Menu de sélection de quantité pour création d'ordre
+title: '&8Quantité à rechercher'
 size: 27
-open_command: order_quantity
 
 items:
-  # ===== LIGNE 1: CONTRÔLES =====
-  
-  # Slot 0: -50 items
   decrease_50:
-    slot: 0
-    material: RED_CONCRETE
-    amount: 1
+    slots: [10]
+    material: RED_STAINED_GLASS_PANE
     display_name: '&c-50'
     lore:
-      - '&7Retire &c50 items'
-      - '&7à la quantité'
-      - ''
-      - '&c▸ &7Cliquez pour retirer'
-    left_click_actions:
-      - '[quantum_adjust_quantity] -50'
-      - '[refresh]'
+      - '&7Diminuer de 50'
+    button_type: QUANTUM_ADJUST_QUANTITY
+    parameters:
+      amount: -50
 
-  # Slot 1: -5 items
   decrease_5:
-    slot: 1
-    material: RED_DYE
-    amount: 1
-    display_name: '&c-5'
+    slots: [11]
+    material: ORANGE_STAINED_GLASS_PANE
+    display_name: '&6-5'
     lore:
-      - '&7Retire &c5 items'
-      - '&7à la quantité'
-      - ''
-      - '&c▸ &7Cliquez pour retirer'
-    left_click_actions:
-      - '[quantum_adjust_quantity] -5'
-      - '[refresh]'
+      - '&7Diminuer de 5'
+    button_type: QUANTUM_ADJUST_QUANTITY
+    parameters:
+      amount: -5
 
-  # Slot 2: Item central (affiche l'item de l'offre)
-  center_item:
-    slot: 2
-    material: PAPER  # Sera remplacé dynamiquement
-    amount: 1
+  item_display:
+    slots: [13]
+    material: PAPER
     display_name: '&e%quantum_order_item_name%'
     lore:
-      - '&7Quantité actuelle: &f%quantum_order_current_quantity%'
-      - '&7Stock disponible: &a%quantum_order_max_quantity%'
       - ''
-      - '&8┃ &7Prix estimé:'
-      - '&8┃ &6Min: &f%quantum_order_price_min%$ &8(&e%quantum_order_total_min%$&8)'
-      - '&8┃ &6Max: &f%quantum_order_price_max%$ &8(&e%quantum_order_total_max%$&8)'
+      - '&7Quantité recherchée: &a%quantum_order_quantity%'
+      - ''
+      - '&eAjustez la quantité recherchée'
 
-  # Slot 3: +5 items
   increase_5:
-    slot: 3
-    material: LIME_DYE
-    amount: 1
+    slots: [15]
+    material: LIME_STAINED_GLASS_PANE
     display_name: '&a+5'
     lore:
-      - '&7Ajoute &a5 items'
-      - '&7à la quantité'
-      - ''
-      - '&a▸ &7Cliquez pour ajouter'
-    left_click_actions:
-      - '[quantum_adjust_quantity] +5'
-      - '[refresh]'
+      - '&7Augmenter de 5'
+    button_type: QUANTUM_ADJUST_QUANTITY
+    parameters:
+      amount: 5
 
-  # Slot 4: +50 items
   increase_50:
-    slot: 4
-    material: LIME_CONCRETE
-    amount: 1
-    display_name: '&a+50'
+    slots: [16]
+    material: GREEN_STAINED_GLASS_PANE
+    display_name: '&2+50'
     lore:
-      - '&7Ajoute &a50 items'
-      - '&7à la quantité'
-      - ''
-      - '&a▸ &7Cliquez pour ajouter'
-    left_click_actions:
-      - '[quantum_adjust_quantity] +50'
-      - '[refresh]'
+      - '&7Augmenter de 50'
+    button_type: QUANTUM_ADJUST_QUANTITY
+    parameters:
+      amount: 50
 
-  # Slot 7: Quantité maximale (bouton rapide)
-  set_max:
-    slot: 7
-    material: GOLD_BLOCK
-    amount: 1
-    display_name: '&6⚡ Quantité max'
-    lore:
-      - '&7Définit la quantité à'
-      - '&7la valeur maximale:'
-      - '&f%quantum_order_max_quantity% items'
-      - ''
-      - '&e▸ &7Cliquez pour max'
-    left_click_actions:
-      - '[quantum_set_quantity_max]'
-      - '[refresh]'
-
-  # Slot 8: Annuler/Refuser
   cancel:
-    slot: 8
+    slots: [22]
     material: BARRIER
-    amount: 1
-    display_name: '&c✖ Annuler'
+    display_name: '&c&lANNULER'
     lore:
-      - '&7Annule la création'
-      - '&7de l\'offre'
-      - ''
-      - '&c▸ &7Cliquez pour annuler'
-    left_click_actions:
-      - '[quantum_cancel_order]'
-      - '[close]'
+      - '&7Annuler la création d''offre'
+    button_type: QUANTUM_CANCEL_ORDER
 
-  # ===== LIGNE 2: INFO =====
-  
-  # Slot 13: Info bulle centrale
-  info:
-    slot: 13
-    material: BOOK
-    amount: 1
-    display_name: '&e&lℹ Informations'
+  validate:
+    slots: [25]
+    material: LIME_DYE
+    display_name: '&a&lVALIDER'
     lore:
-      - '&7Item: &f%quantum_order_item_name%'
-      - '&7Quantité: &a%quantum_order_current_quantity% &7/ &f%quantum_order_max_quantity%'
-      - ''
-      - '&8┃ &7Fourchette de prix:'
-      - '&8┃ &bMinimum: &f%quantum_order_price_min%$'
-      - '&8┃ &6Maximum: &f%quantum_order_price_max%$'
-      - ''
-      - '&7Ajustez la quantité puis'
-      - '&7cliquez sur &a✔ Continuer'
-
-  # ===== LIGNE 3: VALIDATION =====
-  
-  # Slot 22: Accepter et passer au prix
-  accept:
-    slot: 22
-    material: EMERALD_BLOCK
-    amount: 1
-    display_name: '&a✔ Continuer'
-    lore:
-      - '&7Quantité: &a%quantum_order_current_quantity%'
-      - ''
-      - '&7Passe à la sélection'
-      - '&7du prix unitaire'
-      - ''
-      - '&a▸ &7Cliquez pour continuer'
-    left_click_actions:
-      - '[quantum_validate_quantity]'
-      - '[close]'
-      - '[menu] order_price'
+      - '&7Passer à l''étape suivante'
+      - '&8(Définir le prix)'
+    button_type: QUANTUM_VALIDATE_QUANTITY

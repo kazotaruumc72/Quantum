@@ -6,6 +6,7 @@ import com.wynvers.quantum.listeners.StorageListener;
 import com.wynvers.quantum.placeholder.QuantumPlaceholderExpansion;
 import com.wynvers.quantum.tabcompleters.*;
 import com.wynvers.quantum.managers.*;
+import com.wynvers.quantum.orders.OrderButtonHandler;
 import com.wynvers.quantum.orders.OrderCreationManager;
 import com.wynvers.quantum.sell.SellManager;
 import com.wynvers.quantum.utils.ActionExecutor;
@@ -52,6 +53,7 @@ public final class Quantum extends JavaPlugin {
     private SellManager sellManager;
     private OrderManager orderManager;
     private OrderCreationManager orderCreationManager;
+    private OrderButtonHandler orderButtonHandler;
     
     // Utils
     private ActionExecutor actionExecutor;
@@ -208,6 +210,10 @@ public final class Quantum extends JavaPlugin {
         // Order Creation Manager
         this.orderCreationManager = new OrderCreationManager(this);
         logger.success("✓ Order Creation Manager");
+        
+        // Order Button Handler
+        this.orderButtonHandler = new OrderButtonHandler(this);
+        logger.success("✓ Order Button Handler");
         
         // Animation
         this.animationManager = new AnimationManager(this);
@@ -386,6 +392,10 @@ public final class Quantum extends JavaPlugin {
     
     public OrderCreationManager getOrderCreationManager() {
         return orderCreationManager;
+    }
+    
+    public OrderButtonHandler getOrderButtonHandler() {
+        return orderButtonHandler;
     }
     
     public ActionExecutor getActionExecutor() {

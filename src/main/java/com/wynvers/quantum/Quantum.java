@@ -12,6 +12,7 @@ import com.wynvers.quantum.tabcompleters.QuantumTabCompleter;
 import com.wynvers.quantum.tabcompleters.StorageTabCompleter;
 import com.wynvers.quantum.managers.*;
 import com.wynvers.quantum.sell.SellManager;
+import com.wynvers.quantum.utils.ActionExecutor;
 import com.wynvers.quantum.utils.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -52,6 +53,9 @@ public final class Quantum extends JavaPlugin {
     private PriceManager priceManager;
     private VaultManager vaultManager;
     private SellManager sellManager;
+    
+    // Utils
+    private ActionExecutor actionExecutor;
     
     // PlaceholderAPI expansion
     private QuantumPlaceholderExpansion placeholderExpansion;
@@ -198,6 +202,10 @@ public final class Quantum extends JavaPlugin {
             logger.warning("⚠ PlaceholderAPI not found - placeholder features disabled");
         }
         
+        // Action Executor
+        this.actionExecutor = new ActionExecutor(this);
+        logger.success("✓ Action Executor");
+        
         // Menu (must be last - depends on other managers)
         this.menuManager = new MenuManager(this);
         logger.success("✓ Menu Manager (" + menuManager.getMenuCount() + " menus loaded)");
@@ -338,5 +346,9 @@ public final class Quantum extends JavaPlugin {
     
     public SellManager getSellManager() {
         return sellManager;
+    }
+    
+    public ActionExecutor getActionExecutor() {
+        return actionExecutor;
     }
 }

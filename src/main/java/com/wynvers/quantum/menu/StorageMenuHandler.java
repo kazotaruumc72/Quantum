@@ -8,10 +8,12 @@ import com.wynvers.quantum.storage.PlayerStorage;
 import com.wynvers.quantum.storage.StorageMode;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,9 +24,11 @@ import java.util.Map;
 public class StorageMenuHandler {
 
     private final Quantum plugin;
+    private final NamespacedKey itemIdKey;
 
     public StorageMenuHandler(Quantum plugin) {
         this.plugin = plugin;
+        this.itemIdKey = new NamespacedKey(plugin, "quantum_item_id");
     }
 
     /**
@@ -257,8 +261,18 @@ public class StorageMenuHandler {
      * Ouvre le menu de création d'offre d'achat
      */
     private void handleCreateOrder(Player player, PlayerStorage storage, ItemStack clickedItem) {
-        // Convertir l'ItemStack en itemId (minecraft:xxx ou nexo:xxx)
-        String itemId = OrderCreationManager.getItemId(clickedItem);
+        // NOUVEAU: Récupérer l'itemId depuis le PersistentDataContainer si disponible
+        String itemId = null;
+        
+        if (clickedItem.hasItemMeta() && clickedItem.getItemMeta() != null) {
+            itemId = clickedItem.getItemMeta().getPersistentDataContainer().get(itemIdKey, PersistentDataType.STRING);
+        }
+        
+        // Fallback: Utiliser OrderCreationManager.getItemId() si pas de PDC
+        if (itemId == null) {
+            itemId = OrderCreationManager.getItemId(clickedItem);
+        }
+        
         if (itemId == null) {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             player.sendMessage("§c⚠ Item invalide!");

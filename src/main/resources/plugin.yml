@@ -10,6 +10,7 @@ softdepend:
   - PlaceholderAPI
   - Nexo
   - Vault
+  - LuckPerms
 
 commands:
   quantum:
@@ -57,8 +58,7 @@ permissions:
       quantum.storage.remove: true
       quantum.menu.open: true
       quantum.menu.admin: true
-      quantum.orders.search: true
-      quantum.orders.create: true
+      quantum.orders.*: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -98,3 +98,25 @@ permissions:
   quantum.orders.create:
     description: Allows creating buy orders
     default: true
+  
+  # Permissions pour les durées d'ordres (LuckPerms)
+  # Définies dans config.yml sous orders.durations
+  quantum.orders.vip:
+    description: VIP order duration (7 days)
+    default: false
+  
+  quantum.orders.vip+:
+    description: VIP+ order duration (14 days)
+    default: false
+  
+  quantum.orders.mvp:
+    description: MVP order duration (30 days)
+    default: false
+  
+  quantum.orders.mvp+:
+    description: MVP+ order duration (60 days)
+    default: false
+  
+  quantum.orders.elite:
+    description: Elite order duration (90 days)
+    default: false

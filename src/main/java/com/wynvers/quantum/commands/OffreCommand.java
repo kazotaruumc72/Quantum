@@ -1,187 +1,169 @@
 package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.managers.OrderManager;
-import com.wynvers.quantum.managers.OrderManager.Order;
-import com.wynvers.quantum.managers.OrderManager.PriceValidation;
-import com.wynvers.quantum.managers.OrderManager.PriceStatus;
-import com.wynvers.quantum.managers.OrderManager.ItemPrice;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.milkbowl.vault.economy.Economy;
+import com.wynvers.quantum.orders.Order;
+import com.wynvers.quantum.orders.OrderItem;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Commande /offre - Crée une offre d'achat
+ * Avec gestion des durées via LuckPerms et limites d'ordres actifs
+ */
 public class OffreCommand implements CommandExecutor {
     private final Quantum plugin;
-    private final OrderManager orderManager;
-    private final Economy economy;
-    
+    private final MiniMessage mm = MiniMessage.miniMessage();
+
     public OffreCommand(Quantum plugin) {
         this.plugin = plugin;
-        this.orderManager = plugin.getOrderManager();
-        this.economy = plugin.getVaultManager().getEconomy();
     }
-    
+
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, 
-                            @NotNull String label, @NotNull String[] args) {
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage(Component.text("Cette commande ne peut être exécutée que par un joueur.", 
-                NamedTextColor.RED));
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(mm.deserialize("<red>Cette commande est réservée aux joueurs."));
             return true;
         }
-        
+
+        Player player = (Player) sender;
+
         if (args.length < 3) {
-            sendUsage(player);
+            player.sendMessage(mm.deserialize("<red>Usage: /offre <item> <quantité> <prix>"));
+            player.sendMessage(mm.deserialize("<gray>Exemple: <white>/offre minecraft:diamond 10 100"));
             return true;
         }
-        
-        String itemKey = args[0].toLowerCase();
-        int amount;
-        double pricePerUnit;
-        
-        // Parser la quantité
+
+        String itemId = args[0].toLowerCase();
+        int quantity;
+        double price;
+
         try {
-            amount = Integer.parseInt(args[1]);
-            if (amount <= 0) {
-                player.sendMessage(Component.text("❌ ", NamedTextColor.RED)
-                    .append(Component.text("La quantité doit être supérieure à 0.", NamedTextColor.GRAY)));
-                return true;
-            }
+            quantity = Integer.parseInt(args[1]);
+            price = Double.parseDouble(args[2]);
         } catch (NumberFormatException e) {
-            player.sendMessage(Component.text("❌ ", NamedTextColor.RED)
-                .append(Component.text("Quantité invalide. Entrez un nombre entier.", NamedTextColor.GRAY)));
+            player.sendMessage(mm.deserialize("<red>Quantité et prix doivent être des nombres valides."));
             return true;
         }
-        
-        // Parser le prix
-        try {
-            pricePerUnit = Double.parseDouble(args[2]);
-            if (pricePerUnit <= 0) {
-                player.sendMessage(Component.text("❌ ", NamedTextColor.RED)
-                    .append(Component.text("Le prix doit être supérieur à 0.", NamedTextColor.GRAY)));
-                return true;
-            }
-        } catch (NumberFormatException e) {
-            player.sendMessage(Component.text("❌ ", NamedTextColor.RED)
-                .append(Component.text("Prix invalide. Entrez un nombre décimal.", NamedTextColor.GRAY)));
+
+        // Vérifications
+        if (quantity <= 0) {
+            player.sendMessage(mm.deserialize("<red>La quantité doit être positive."));
             return true;
         }
-        
+
+        if (price <= 0) {
+            player.sendMessage(mm.deserialize("<red>Le prix doit être positif."));
+            return true;
+        }
+
         // Vérifier si l'item existe
-        if (!orderManager.hasItemPrice(itemKey)) {
-            player.sendMessage(Component.text("❌ ", NamedTextColor.RED)
-                .append(Component.text("Cet item n'est pas disponible pour les ordres.", NamedTextColor.GRAY))
-                .append(Component.text("\nUtilisez la complétion automatique pour voir les items disponibles.", 
-                    NamedTextColor.DARK_GRAY)));
+        if (!plugin.getOrderManager().hasItem(itemId)) {
+            player.sendMessage(mm.deserialize("<red>Item inconnu: " + itemId));
+            player.sendMessage(mm.deserialize("<gray>Utilisez <white>/menu orders_categories</white> pour voir les items disponibles."));
             return true;
         }
-        
-        ItemPrice itemPrice = orderManager.getItemPrice(itemKey);
-        
+
+        OrderItem item = plugin.getOrderManager().getItem(itemId);
+
         // Valider le prix
-        PriceValidation validation = orderManager.validatePrice(itemKey, pricePerUnit);
-        
-        if (!validation.valid) {
-            player.sendMessage(Component.empty());
-            player.sendMessage(Component.text("═══════════════════════════", NamedTextColor.DARK_GRAY));
+        if (!item.isValidPrice(price)) {
+            player.sendMessage(mm.deserialize(
+                "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"
+            ));
+            player.sendMessage(mm.deserialize(
+                "<red>❌ Prix invalide pour " + item.getDisplayName()
+            ));
+            player.sendMessage("");
             
-            if (validation.status == PriceStatus.TOO_LOW) {
-                player.sendMessage(Component.text("❌ ", NamedTextColor.RED)
-                    .append(Component.text("Prix trop bas!", NamedTextColor.GRAY, TextDecoration.BOLD)));
-                player.sendMessage(Component.empty());
-                player.sendMessage(Component.text("Votre prix: ", NamedTextColor.GRAY)
-                    .append(Component.text(String.format("%.2f$", pricePerUnit), NamedTextColor.RED)));
-                player.sendMessage(Component.text("Prix minimal attendu: ", NamedTextColor.GRAY)
-                    .append(Component.text(String.format("%.2f$", validation.minPrice), NamedTextColor.GREEN)));
-            } else if (validation.status == PriceStatus.TOO_HIGH) {
-                player.sendMessage(Component.text("❌ ", NamedTextColor.RED)
-                    .append(Component.text("Prix trop élevé!", NamedTextColor.GRAY, TextDecoration.BOLD)));
-                player.sendMessage(Component.empty());
-                player.sendMessage(Component.text("Votre prix: ", NamedTextColor.GRAY)
-                    .append(Component.text(String.format("%.2f$", pricePerUnit), NamedTextColor.RED)));
-                player.sendMessage(Component.text("Prix maximal attendu: ", NamedTextColor.GRAY)
-                    .append(Component.text(String.format("%.2f$", validation.maxPrice), NamedTextColor.GREEN)));
+            if (price < item.getMinPrice()) {
+                player.sendMessage(mm.deserialize(
+                    "<yellow>Prix trop bas! Prix minimal attendu: <green>" + 
+                    String.format("%.2f$", item.getMinPrice())
+                ));
+            } else {
+                player.sendMessage(mm.deserialize(
+                    "<yellow>Prix trop élevé! Prix maximal attendu: <green>" + 
+                    String.format("%.2f$", item.getMaxPrice())
+                ));
             }
             
-            player.sendMessage(Component.empty());
-            player.sendMessage(Component.text("💡 ", NamedTextColor.AQUA)
-                .append(Component.text("Prix acceptés: ", NamedTextColor.GRAY))
-                .append(Component.text(String.format("%.2f$ - %.2f$", 
-                    validation.minPrice, validation.maxPrice), NamedTextColor.GREEN))
-                .append(Component.text(" par unité", NamedTextColor.GRAY)));
-            player.sendMessage(Component.text("═══════════════════════════", NamedTextColor.DARK_GRAY));
-            player.sendMessage(Component.empty());
+            player.sendMessage("");
+            player.sendMessage(mm.deserialize(
+                "<gray>Fourchette de prix acceptée: <green>" + 
+                String.format("%.2f$ - %.2f$", item.getMinPrice(), item.getMaxPrice())
+            ));
+            player.sendMessage(mm.deserialize(
+                "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"
+            ));
             return true;
         }
+
+        // Vérifier la limite d'ordres actifs
+        int currentOrders = plugin.getOrderManager().countActiveOrdersForPlayer(player.getUniqueId());
+        int maxOrders = plugin.getOrderManager().getMaxActiveOrdersForPlayer(player);
         
-        // Calculer le coût total
-        double totalCost = amount * pricePerUnit;
-        
-        // Vérifier le solde du joueur
-        if (economy != null && !economy.has(player, totalCost)) {
-            player.sendMessage(Component.text("❌ ", NamedTextColor.RED)
-                .append(Component.text("Fonds insuffisants!", NamedTextColor.GRAY)));
-            player.sendMessage(Component.empty());
-            player.sendMessage(Component.text("Coût total: ", NamedTextColor.GRAY)
-                .append(Component.text(String.format("%.2f$", totalCost), NamedTextColor.RED)));
-            player.sendMessage(Component.text("Votre solde: ", NamedTextColor.GRAY)
-                .append(Component.text(String.format("%.2f$", economy.getBalance(player)), 
-                    NamedTextColor.GOLD)));
-            player.sendMessage(Component.text("Manque: ", NamedTextColor.GRAY)
-                .append(Component.text(String.format("%.2f$", totalCost - economy.getBalance(player)), 
-                    NamedTextColor.RED)));
+        if (currentOrders >= maxOrders) {
+            player.sendMessage(mm.deserialize(
+                "<red>Vous avez atteint votre limite d'ordres actifs (" + maxOrders + ")."
+            ));
+            player.sendMessage(mm.deserialize(
+                "<gray>Annulez un ordre existant ou attendez qu'il expire."
+            ));
             return true;
         }
-        
-        // Débiter le joueur
-        if (economy != null) {
-            economy.withdrawPlayer(player, totalCost);
+
+        // Vérifier l'économie (Vault)
+        double totalCost = quantity * price;
+        if (!plugin.getVaultManager().has(player, totalCost)) {
+            player.sendMessage(mm.deserialize(
+                "<red>Vous n'avez pas assez d'argent! Coût total: <yellow>" + 
+                String.format("%.2f$", totalCost)
+            ));
+            return true;
         }
-        
+
+        // Déduire l'argent
+        plugin.getVaultManager().withdraw(player, totalCost);
+
         // Créer l'ordre
-        Order order = orderManager.createOrder(player, itemKey, amount, pricePerUnit);
-        
-        // Message de confirmation
-        player.sendMessage(Component.empty());
-        player.sendMessage(Component.text("═════════════════════════════════════", NamedTextColor.DARK_GRAY));
-        player.sendMessage(Component.text("  ✓ ", NamedTextColor.GREEN, TextDecoration.BOLD)
-            .append(Component.text("Offre créée avec succès!", NamedTextColor.GRAY, TextDecoration.BOLD)));
-        player.sendMessage(Component.text("═════════════════════════════════════", NamedTextColor.DARK_GRAY));
-        player.sendMessage(Component.empty());
-        player.sendMessage(Component.text("📦 Item: ", NamedTextColor.AQUA)
-            .append(Component.text(itemPrice.displayName, NamedTextColor.WHITE)));
-        player.sendMessage(Component.text("🔢 Quantité: ", NamedTextColor.AQUA)
-            .append(Component.text(amount + "x", NamedTextColor.WHITE)));
-        player.sendMessage(Component.text("💰 Prix unitaire: ", NamedTextColor.AQUA)
-            .append(Component.text(String.format("%.2f$", pricePerUnit), NamedTextColor.GREEN)));
-        player.sendMessage(Component.text("💵 Coût total: ", NamedTextColor.AQUA)
-            .append(Component.text(String.format("%.2f$", totalCost), NamedTextColor.GOLD, TextDecoration.BOLD)));
-        player.sendMessage(Component.empty());
-        player.sendMessage(Component.text("💡 ", NamedTextColor.YELLOW)
-            .append(Component.text("L'argent sera restitué lorsque l'offre sera complétée.", 
-                NamedTextColor.GRAY)));
-        player.sendMessage(Component.text("═════════════════════════════════════", NamedTextColor.DARK_GRAY));
-        player.sendMessage(Component.empty());
-        
+        Order order = plugin.getOrderManager().createOrder(player, itemId, quantity, price);
+        long duration = plugin.getOrderManager().getOrderDurationForPlayer(player);
+
+        // Confirmation
+        player.sendMessage(mm.deserialize(
+            "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"
+        ));
+        player.sendMessage(mm.deserialize(
+            "<green>✓ Offre créée avec succès!"
+        ));
+        player.sendMessage("");
+        player.sendMessage(mm.deserialize(
+            "<#32b8c6>Item : <white>" + item.getDisplayName()
+        ));
+        player.sendMessage(mm.deserialize(
+            "<#32b8c6>Quantité : <white>" + quantity
+        ));
+        player.sendMessage(mm.deserialize(
+            "<#32b8c6>Prix unitaire : <green>" + String.format("%.2f$", price)
+        ));
+        player.sendMessage(mm.deserialize(
+            "<#32b8c6>Coût total : <yellow>" + String.format("%.2f$", totalCost)
+        ));
+        player.sendMessage(mm.deserialize(
+            "<#32b8c6>Durée : <white>" + duration + " jours"
+        ));
+        player.sendMessage("");
+        player.sendMessage(mm.deserialize(
+            "<gray>Votre offre est maintenant visible pour tous les joueurs."
+        ));
+        player.sendMessage(mm.deserialize(
+            "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"
+        ));
+
         return true;
-    }
-    
-    private void sendUsage(Player player) {
-        player.sendMessage(Component.empty());
-        player.sendMessage(Component.text("❌ ", NamedTextColor.RED)
-            .append(Component.text("Usage incorrect!", NamedTextColor.GRAY)));
-        player.sendMessage(Component.empty());
-        player.sendMessage(Component.text("  /offre <item> <quantité> <prix>", NamedTextColor.AQUA));
-        player.sendMessage(Component.empty());
-        player.sendMessage(Component.text("Exemples:", NamedTextColor.GRAY));
-        player.sendMessage(Component.text("  /offre nexo:afelia_bark 10 50", NamedTextColor.DARK_AQUA));
-        player.sendMessage(Component.text("  /offre minecraft:stone 64 0.5", NamedTextColor.DARK_AQUA));
-        player.sendMessage(Component.empty());
     }
 }

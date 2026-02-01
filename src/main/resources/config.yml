@@ -1,28 +1,53 @@
-# ====================================
-#         QUANTUM CONFIGURATION
-# ====================================
-# Advanced virtual storage with dynamic GUI builder
-# Version: 1.0.0
+# ═══════════════════════════════════════════════════════════════
+#  QUANTUM CONFIGURATION
+# ═══════════════════════════════════════════════════════════════
 
-# Database Configuration
+# Database configuration
 database:
-  type: sqlite  # sqlite or mysql
-  
-  # MySQL Settings (only if type: mysql)
+  type: sqlite # sqlite or mysql
   mysql:
     host: localhost
     port: 3306
     database: quantum
     username: root
     password: password
-    
-  # SQLite Settings (only if type: sqlite)
-  sqlite:
-    file: quantum.db
+    useSSL: false
 
-# PlaceholderAPI Settings
-placeholders:
-  enabled: true
+# Storage configuration
+storage:
+  auto-save-interval: 300 # seconds (5 minutes)
+  max-capacity: -1 # -1 for unlimited
 
-# Debug mode
-debug: false
+# Orders system configuration
+orders:
+  # Durées des ordres par permission LuckPerms
+  # Format: permission: durée_en_jours
+  durations:
+    "quantum.orders.vip": 7      # VIP: 7 jours
+    "quantum.orders.vip+": 14    # VIP+: 14 jours
+    "quantum.orders.mvp": 30     # MVP: 30 jours
+    "quantum.orders.mvp+": 60    # MVP+: 60 jours
+    "quantum.orders.elite": 90   # Elite: 90 jours
+    default: 3                   # Par défaut: 3 jours
+  
+  # Chronomètre et placeholders
+  timer:
+    enabled: true
+    format: "<#32b8c6>%days%j %hours%h %minutes%m %seconds%s"
+    format-expired: "<red>Expiré"
+  
+  # Limite d'offres actives par joueur (par permission)
+  max-active-orders:
+    "quantum.orders.vip": 5
+    "quantum.orders.vip+": 10
+    "quantum.orders.mvp": 20
+    "quantum.orders.mvp+": 40
+    "quantum.orders.elite": 100
+    default: 3
+
+# Messages configuration
+messages:
+  prefix: "<gradient:#32b8c6:#1d6880>[Quantum]</gradient> "
+  no-permission: "<red>Vous n'avez pas la permission d'utiliser cette commande."
+  player-only: "<red>Cette commande ne peut être exécutée que par un joueur."
+  reload-success: "<green>✓ Quantum rechargé avec succès!"

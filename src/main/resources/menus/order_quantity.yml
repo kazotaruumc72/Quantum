@@ -1,148 +1,136 @@
 # ========================================
-# QUANTUM ORDER - SÉLECTION QUANTITÉ
+# ORDER QUANTITY SELECTION MENU
 # ========================================
-# Menu pour choisir la quantité d'items à acheter via ordre
+# Menu pour sélectionner la quantité d'items recherchés
 
-menu_title: '&b&lOffre d''achat &8| &fQuantité'
+menu_title: '&b&lQuantité recherchée'
 size: 27
 
-# ========================================
-# ITEMS DU MENU
-# ========================================
 items:
-
-  # ──────────────────────────────────────
-  # BORDURES
-  # ──────────────────────────────────────
+  # Bordures
   border:
-    material: GRAY_STAINED_GLASS_PANE
+    material: BLACK_STAINED_GLASS_PANE
     display_name: ' '
     slots: [0, 1, 2, 3, 5, 6, 7, 8, 9, 17, 18, 19, 20, 21, 23, 24, 25, 26]
 
-  # ──────────────────────────────────────
-  # ITEM VISÉ (Centre)
-  # ──────────────────────────────────────
-  target_item:
-    slots: [4]
-    material: BARRIER  # Remplacé dynamiquement
-    display_name: '&b&l➥ Item: &f%item_name%'
+  # Item de référence (centre haut)
+  reference_item:
+    slot: 4
+    material: '%item_material%'
+    display_name: '&f%item_display_name%'
     lore:
-      - '&7Disponible en stock: &a%storage_quantity%'
       - ' '
-      - '&7Choisissez la quantité à proposer'
-      - '&7à l''achat dans votre offre'
+      - '&7Stock disponible: &e%stock_quantity%'
+      - ' '
+      - '&bChoisissez la quantité recherchée'
 
-  # ──────────────────────────────────────
-  # BOUTONS DE SÉLECTION
-  # ──────────────────────────────────────
-  
-  # -1
-  minus_1:
-    slots: [10]
-    material: RED_WOOL
-    display_name: '&c&l- 1'
-    lore:
-      - '&7Retirer 1 à la quantité'
-      - ' '
-      - '&fQuantité actuelle: &e%current_quantity%'
-      - ' '
-      - '&e► Clic gauche: -1'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: -1
-
-  # -10
-  minus_10:
-    slots: [11]
-    material: RED_CONCRETE
-    display_name: '&c&l- 10'
-    lore:
-      - '&7Retirer 10 à la quantité'
-      - ' '
-      - '&fQuantité actuelle: &e%current_quantity%'
-      - ' '
-      - '&e► Clic gauche: -10'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: -10
-
-  # -64
-  minus_64:
-    slots: [12]
-    material: RED_TERRACOTTA
-    display_name: '&c&l- 64'
-    lore:
-      - '&7Retirer 64 à la quantité'
-      - ' '
-      - '&fQuantité actuelle: &e%current_quantity%'
-      - ' '
-      - '&e► Clic gauche: -64'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: -64
-
-  # Affichage quantité actuelle
-  current_display:
-    slots: [13]
+  # Bouton: 1 item
+  qty_1:
+    slot: 10
     material: PAPER
-    display_name: '&e&l➤ Quantité: &f%current_quantity%'
+    display_name: '&a&l1'
     lore:
-      - '&7Quantité sélectionnée'
       - ' '
-      - '&8Minimum: &71'
-      - '&8Maximum: &a%storage_quantity%'
+      - '&7Quantité: &a1'
+      - ' '
+      - '&e► Cliquez pour sélectionner'
+    button_type: QUANTUM_ORDER_QUANTITY
+    quantity: 1
 
-  # +1
-  plus_1:
-    slots: [14]
-    material: LIME_WOOL
-    display_name: '&a&l+ 1'
+  # Bouton: 8 items
+  qty_8:
+    slot: 11
+    material: PAPER
+    display_name: '&a&l8'
     lore:
-      - '&7Ajouter 1 à la quantité'
       - ' '
-      - '&fQuantité actuelle: &e%current_quantity%'
+      - '&7Quantité: &a8'
       - ' '
-      - '&e► Clic gauche: +1'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: 1
+      - '&e► Cliquez pour sélectionner'
+    button_type: QUANTUM_ORDER_QUANTITY
+    quantity: 8
 
-  # +10
-  plus_10:
-    slots: [15]
-    material: LIME_CONCRETE
-    display_name: '&a&l+ 10'
+  # Bouton: 16 items
+  qty_16:
+    slot: 12
+    material: PAPER
+    display_name: '&a&l16'
     lore:
-      - '&7Ajouter 10 à la quantité'
       - ' '
-      - '&fQuantité actuelle: &e%current_quantity%'
+      - '&7Quantité: &a16'
       - ' '
-      - '&e► Clic gauche: +10'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: 10
+      - '&e► Cliquez pour sélectionner'
+    button_type: QUANTUM_ORDER_QUANTITY
+    quantity: 16
 
-  # +64
-  plus_64:
-    slots: [16]
-    material: LIME_TERRACOTTA
-    display_name: '&a&l+ 64'
+  # Bouton: 32 items
+  qty_32:
+    slot: 13
+    material: PAPER
+    display_name: '&a&l32'
     lore:
-      - '&7Ajouter 64 à la quantité'
       - ' '
-      - '&fQuantité actuelle: &e%current_quantity%'
+      - '&7Quantité: &a32'
       - ' '
-      - '&e► Clic gauche: +64'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: 64
+      - '&e► Cliquez pour sélectionner'
+    button_type: QUANTUM_ORDER_QUANTITY
+    quantity: 32
 
-  # ──────────────────────────────────────
-  # VALIDATION
-  # ──────────────────────────────────────
-  confirm:
-    slots: [22]
-    material: EMERALD
-    display_name: '&a&l✓ Valider'
+  # Bouton: 64 items
+  qty_64:
+    slot: 14
+    material: PAPER
+    display_name: '&a&l64'
     lore:
-      - '&7Passez à la sélection du prix'
       - ' '
-      - '&fQuantité choisie: &e%current_quantity%'
+      - '&7Quantité: &a64'
       - ' '
-      - '&e► Cliquez pour continuer'
-    left_click_actions:
-      - '[quantum_order_next_step]'
+      - '&e► Cliquez pour sélectionner'
+    button_type: QUANTUM_ORDER_QUANTITY
+    quantity: 64
+
+  # Bouton: 128 items
+  qty_128:
+    slot: 15
+    material: PAPER
+    display_name: '&a&l128'
+    lore:
+      - ' '
+      - '&7Quantité: &a128'
+      - ' '
+      - '&e► Cliquez pour sélectionner'
+    button_type: QUANTUM_ORDER_QUANTITY
+    quantity: 128
+
+  # Bouton: 256 items
+  qty_256:
+    slot: 16
+    material: PAPER
+    display_name: '&a&l256'
+    lore:
+      - ' '
+      - '&7Quantité: &a256'
+      - ' '
+      - '&e► Cliquez pour sélectionner'
+    button_type: QUANTUM_ORDER_QUANTITY
+    quantity: 256
+
+  # Bouton: Custom (anvil input)
+  qty_custom:
+    slot: 22
+    material: ANVIL
+    display_name: '&6&lQuantité personnalisée'
+    lore:
+      - ' '
+      - '&7Saisissez une quantité exacte'
+      - '&7dans le chat'
+      - ' '
+      - '&e► Cliquez pour saisir'
+    button_type: QUANTUM_ORDER_QUANTITY_CUSTOM
+
+# ========================================
+# NOTES
+# ========================================
+# - Les placeholders %item_material%, %item_display_name%, %stock_quantity% sont remplacés dynamiquement
+# - QUANTUM_ORDER_QUANTITY: Sélectionne la quantité et ouvre le menu de prix
+# - QUANTUM_ORDER_QUANTITY_CUSTOM: Attend input chat du joueur

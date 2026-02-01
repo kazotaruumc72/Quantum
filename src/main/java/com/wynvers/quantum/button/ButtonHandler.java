@@ -1,6 +1,8 @@
 package com.wynvers.quantum.button;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.storage.StorageMode;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
@@ -78,8 +80,31 @@ public class ButtonHandler {
      * Gère le clic sur un bouton de changement de mode
      */
     private void handleChangeModeButton(Player player, Map<String, String> parameters) {
-        // Change le mode (paramètre: mode:<mode>)
-        String mode = parameters.getOrDefault("mode", "STORAGE");
-        // TODO: Implémenter le changement de mode
+        // Récupérer le mode cible depuis les paramètres
+        String targetMode = parameters.getOrDefault("mode", "STORAGE").toUpperCase();
+        
+        try {
+            // Convertir en enum
+            StorageMode.Mode newMode = StorageMode.Mode.valueOf(targetMode);
+            
+            // Définir le nouveau mode
+            StorageMode.setMode(player, newMode);
+            
+            // Feedback sonore
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
+            
+            // Message de confirmation
+            String modeDisplay = newMode.getDisplayName();
+            player.sendMessage("§8[§6Quantum§8] §7Mode changé en " + modeDisplay);
+            
+            // Rafraîchir le menu storage pour afficher le nouveau mode
+            if (plugin.getMenuManager().getMenu("storage") != null) {
+                plugin.getMenuManager().getMenu("storage").open(player, plugin);
+            }
+            
+        } catch (IllegalArgumentException e) {
+            plugin.getQuantumLogger().warning("Mode invalide: " + targetMode);
+            player.sendMessage("§cMode invalide!");
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.menu.Menu;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -35,9 +36,11 @@ public class RechercherCommand implements CommandExecutor {
             return true;
         }
 
-        // Ouvrir le menu des catégories
-        if (plugin.getMenuManager().hasMenu("orders_categories")) {
-            plugin.getMenuManager().openMenu(player, "orders_categories");
+        // Récupérer et ouvrir le menu des catégories
+        Menu menu = plugin.getMenuManager().getMenu("orders_categories");
+        
+        if (menu != null) {
+            menu.open(player);
         } else {
             player.sendMessage(mm.deserialize(
                 "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"

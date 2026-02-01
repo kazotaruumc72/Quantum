@@ -2,7 +2,7 @@ package com.wynvers.quantum.menu;
 
 public enum ButtonType {
     /**
-     * Bouton standard sans comportement sp\u00e9cial
+     * Bouton standard sans comportement spécial
      */
     STANDARD,
     
@@ -12,17 +12,22 @@ public enum ButtonType {
     QUANTUM_CHANGE_MODE,
     
     /**
-     * Slots de storage quantum (items stock\u00e9s)
+     * Slots de storage quantum (items stockés)
      */
     QUANTUM_STORAGE,
     
     /**
-     * Bouton pour modifier la quantit\u00e9 d'items \u00e0 vendre (+10, -10, etc.)
+     * Bouton pour modifier la quantité d'items à vendre (+10, -10, etc.)
      */
     QUANTUM_CHANGE_AMOUNT,
     
     /**
      * Bouton pour confirmer la vente
      */
-    QUANTUM_SELL
+    QUANTUM_SELL,
+    
+    /**
+     * Item à vendre (affiché dynamiquement depuis la SellSession)
+     */
+    QUANTUM_SELL_ITEM
 }

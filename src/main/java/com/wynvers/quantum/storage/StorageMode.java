@@ -9,13 +9,14 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Gère les modes du storage (STORAGE / SELL)
+ * Gère les modes du storage (STORAGE / SELL / ORDER)
  */
 public class StorageMode {
     
     public enum Mode {
         STORAGE("§aMode: Stockage", "Stockage"),
-        SELL("§eMode: Vente", "Vente");
+        SELL("§eMode: Vente", "Vente"),
+        ORDER("§bMode: Ordre", "Ordre");
         
         private final String displayName;
         private final String simpleName;
@@ -59,7 +60,7 @@ public class StorageMode {
     }
     
     /**
-     * Récupérer le nom simple du mode (juste "Stockage" ou "Vente")
+     * Récupérer le nom simple du mode (juste "Stockage", "Vente" ou "Ordre")
      * Utile pour les titres de menu
      */
     public static String getSimpleModeDisplay(Player player) {
@@ -72,7 +73,22 @@ public class StorageMode {
      */
     public static void toggleMode(Player player) {
         Mode currentMode = getMode(player);
-        Mode newMode = (currentMode == Mode.STORAGE) ? Mode.SELL : Mode.STORAGE;
+        Mode newMode;
+        
+        // Cycle: STORAGE -> SELL -> ORDER -> STORAGE
+        switch (currentMode) {
+            case STORAGE:
+                newMode = Mode.SELL;
+                break;
+            case SELL:
+                newMode = Mode.ORDER;
+                break;
+            case ORDER:
+            default:
+                newMode = Mode.STORAGE;
+                break;
+        }
+        
         setMode(player, newMode);
         
         // Message de confirmation
@@ -102,6 +118,13 @@ public class StorageMode {
      */
     public static boolean isStorageMode(Player player) {
         return getMode(player) == Mode.STORAGE;
+    }
+    
+    /**
+     * Vérifier si le joueur est en mode ORDER
+     */
+    public static boolean isOrderMode(Player player) {
+        return getMode(player) == Mode.ORDER;
     }
     
     /**

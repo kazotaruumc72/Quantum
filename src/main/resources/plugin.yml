@@ -4,7 +4,7 @@ main: com.wynvers.quantum.Quantum
 api-version: '1.21'
 load: POSTWORLD
 author: Robie
-description: Advanced virtual storage with dynamic GUI builder
+description: Advanced virtual storage with dynamic GUI builder and orders system
 
 softdepend:
   - PlaceholderAPI
@@ -33,6 +33,18 @@ commands:
     aliases: [quantumstorage, qs]
     permission: quantum.admin
     permission-message: "\u00a7cYou don't have permission to manage storage. Only admins can use /qstorage commands."
+  
+  recherche:
+    description: Search for active orders for an item
+    usage: /recherche <item>
+    aliases: [search, chercher]
+    permission: quantum.orders.search
+  
+  offre:
+    description: Create a buy order for an item
+    usage: /offre <item> <quantity> <price>
+    aliases: [order, createorder]
+    permission: quantum.orders.create
 
 permissions:
   quantum.*:
@@ -45,6 +57,8 @@ permissions:
       quantum.storage.remove: true
       quantum.menu.open: true
       quantum.menu.admin: true
+      quantum.orders.search: true
+      quantum.orders.create: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -69,3 +83,18 @@ permissions:
   quantum.menu.admin:
     description: Open menus for other players
     default: op
+  
+  quantum.orders.*:
+    description: All orders permissions
+    default: true
+    children:
+      quantum.orders.search: true
+      quantum.orders.create: true
+  
+  quantum.orders.search:
+    description: Allows searching for orders
+    default: true
+  
+  quantum.orders.create:
+    description: Allows creating buy orders
+    default: true

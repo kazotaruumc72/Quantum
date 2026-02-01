@@ -309,7 +309,7 @@ public final class Quantum extends JavaPlugin {
         if (animationManager != null) animationManager.reload();
         if (messagesManager != null) messagesManager.reload();
         if (priceManager != null) priceManager.reload();
-        if (orderManager != null) orderManager.loadPrices();
+        if (orderManager != null) orderManager.loadItems();
         
         logger.success("Quantum reloaded successfully!");
     }

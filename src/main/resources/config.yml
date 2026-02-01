@@ -1,10 +1,16 @@
 # ═══════════════════════════════════════════════════════════════
 #  QUANTUM CONFIGURATION
+#  Plugin de stockage virtuel et système d'ordres avancé
 # ═══════════════════════════════════════════════════════════════
 
-# Database configuration
+# ───────────────────────────────────────────────────────────────
+# DATABASE
+# ───────────────────────────────────────────────────────────────
 database:
-  type: sqlite # sqlite or mysql
+  # Type de base de données: sqlite ou mysql
+  type: sqlite
+  
+  # Configuration MySQL (si type = mysql)
   mysql:
     host: localhost
     port: 3306
@@ -13,41 +19,131 @@ database:
     password: password
     useSSL: false
 
-# Storage configuration
+# ───────────────────────────────────────────────────────────────
+# STORAGE
+# ───────────────────────────────────────────────────────────────
 storage:
-  auto-save-interval: 300 # seconds (5 minutes)
-  max-capacity: -1 # -1 for unlimited
-
-# Orders system configuration
-orders:
-  # Durées des ordres par permission LuckPerms
-  # Format: permission: durée_en_jours
-  durations:
-    "quantum.orders.vip": 7      # VIP: 7 jours
-    "quantum.orders.vip+": 14    # VIP+: 14 jours
-    "quantum.orders.mvp": 30     # MVP: 30 jours
-    "quantum.orders.mvp+": 60    # MVP+: 60 jours
-    "quantum.orders.elite": 90   # Elite: 90 jours
-    default: 3                   # Par défaut: 3 jours
+  # Intervalle de sauvegarde automatique (en secondes)
+  auto-save-interval: 300 # 5 minutes
   
-  # Chronomètre et placeholders
+  # Capacité maximale par joueur (-1 = illimité)
+  max-capacity: -1
+
+# ───────────────────────────────────────────────────────────────
+# ORDERS SYSTEM
+# ───────────────────────────────────────────────────────────────
+orders:
+  # ╭──────────────────────────────────────────────────────╮
+  # │  DURÉES DES ORDRES (via LuckPerms)                  │
+  # ╰──────────────────────────────────────────────────────╯
+  # 
+  # Durée de vie des ordres en fonction des permissions
+  # Le système vérifie les permissions dans l'ordre (du plus haut au plus bas)
+  # et applique la première permission trouvée
+  # 
+  # Format: "permission": durée_en_jours
+  # 
+  # Exemple de permissions LuckPerms:
+  #   /lp group vip permission set quantum.orders.vip true
+  #   /lp group mvp permission set quantum.orders.mvp true
+  # 
+  durations:
+    "quantum.orders.elite": 90   # ⭐ Elite: 90 jours (3 mois)
+    "quantum.orders.mvp+": 60    # 💎 MVP+: 60 jours (2 mois)
+    "quantum.orders.mvp": 30     # 💎 MVP: 30 jours (1 mois)
+    "quantum.orders.vip+": 14    # ⭐ VIP+: 14 jours (2 semaines)
+    "quantum.orders.vip": 7      # ⭐ VIP: 7 jours (1 semaine)
+    default: 3                   # 👤 Par défaut: 3 jours
+  
+  # ╭──────────────────────────────────────────────────────╮
+  # │  LIMITE D'ORDRES ACTIFS (via LuckPerms)             │
+  # ╰──────────────────────────────────────────────────────╯
+  # 
+  # Nombre maximum d'ordres actifs simultanés par joueur
+  # Permet de limiter le spam et de récompenser les rangs supérieurs
+  # 
+  # Format: "permission": nombre_d_ordres
+  # 
+  max-active-orders:
+    "quantum.orders.elite": 100  # ⭐ Elite: 100 ordres simultanés
+    "quantum.orders.mvp+": 40    # 💎 MVP+: 40 ordres simultanés
+    "quantum.orders.mvp": 20     # 💎 MVP: 20 ordres simultanés
+    "quantum.orders.vip+": 10    # ⭐ VIP+: 10 ordres simultanés
+    "quantum.orders.vip": 5      # ⭐ VIP: 5 ordres simultanés
+    default: 3                   # 👤 Par défaut: 3 ordres simultanés
+  
+  # ╭──────────────────────────────────────────────────────╮
+  # │  CHRONOMÈTRE & AFFICHAGE                           │
+  # ╰──────────────────────────────────────────────────────╯
+  # 
+  # Configuration du temps restant sur les ordres
+  # 
   timer:
     enabled: true
+    
+    # Format du temps restant
+    # Placeholders disponibles:
+    #   %days%    - Jours restants
+    #   %hours%   - Heures restantes
+    #   %minutes% - Minutes restantes
+    #   %seconds% - Secondes restantes
+    # 
+    # Supports MiniMessage pour les couleurs:
+    #   <red>, <green>, <blue>, <yellow>, etc.
+    #   <gradient:#color1:#color2>texte</gradient>
+    #   <#HEX>texte</#HEX>
+    # 
     format: "<#32b8c6>%days%j %hours%h %minutes%m %seconds%s"
-    format-expired: "<red>Expiré"
+    
+    # Message affiché quand l'ordre est expiré
+    format-expired: "<red>❌ Expiré"
   
-  # Limite d'offres actives par joueur (par permission)
-  max-active-orders:
-    "quantum.orders.vip": 5
-    "quantum.orders.vip+": 10
-    "quantum.orders.mvp": 20
-    "quantum.orders.mvp+": 40
-    "quantum.orders.elite": 100
-    default: 3
+  # ╭──────────────────────────────────────────────────────╮
+  # │  NETTOYAGE AUTOMATIQUE                              │
+  # ╰──────────────────────────────────────────────────────╯
+  # 
+  # Intervalle de nettoyage des ordres expirés (en secondes)
+  cleanup-interval: 600 # 10 minutes
 
-# Messages configuration
+# ───────────────────────────────────────────────────────────────
+# MESSAGES
+# ───────────────────────────────────────────────────────────────
 messages:
   prefix: "<gradient:#32b8c6:#1d6880>[Quantum]</gradient> "
   no-permission: "<red>Vous n'avez pas la permission d'utiliser cette commande."
   player-only: "<red>Cette commande ne peut être exécutée que par un joueur."
   reload-success: "<green>✓ Quantum rechargé avec succès!"
+
+# ───────────────────────────────────────────────────────────────
+# NOTES
+# ───────────────────────────────────────────────────────────────
+# 
+# 🔑 PERMISSIONS LUCKPERMS:
+# 
+# Pour donner les permissions à un groupe:
+#   /lp group <groupe> permission set quantum.orders.vip true
+# 
+# Pour donner les permissions à un joueur:
+#   /lp user <joueur> permission set quantum.orders.vip true
+# 
+# Ordre de priorité (le plus haut est vérifié en premier):
+#   1. elite   - 90 jours & 100 ordres
+#   2. mvp+    - 60 jours & 40 ordres
+#   3. mvp     - 30 jours & 20 ordres
+#   4. vip+    - 14 jours & 10 ordres
+#   5. vip     - 7 jours & 5 ordres
+#   6. default - 3 jours & 3 ordres
+# 
+# 📝 COMMANDES:
+# 
+# Joueurs:
+#   /offre <item> <quantité> <prix>  - Créer une offre d'achat
+#   /rechercher                        - Ouvrir le menu des catégories
+#   /recherche <catégorie>             - Voir les offres d'une catégorie
+# 
+# Admin:
+#   /quantum reload                              - Recharger la config
+#   /quantum orders button createcategorie <nom> - Créer une catégorie
+#   /quantum orders button deletecategorie <nom> - Supprimer une catégorie
+# 
+# ───────────────────────────────────────────────────────────────

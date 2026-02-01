@@ -6,6 +6,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 
 import java.io.File;
@@ -359,26 +360,49 @@ public class MenuManager {
     /**
      * Get active menu for player (more reliable than title matching)
      */
-    public Menu getActiveMenu(org.bukkit.entity.Player player) {
-        return activeMenus.get(player.getUniqueId());
+    public Menu getActiveMenu(Player player) {
+        UUID uuid = player.getUniqueId();
+        Menu menu = activeMenus.get(uuid);
+        
+        // DEBUG: Log chaque appel à getActiveMenu
+        System.out.println("[MENUMANAGER] getActiveMenu(" + player.getName() + ", " + uuid + ") => " + (menu != null ? menu.getId() : "NULL"));
+        System.out.println("[MENUMANAGER] activeMenus HashMap taille: " + activeMenus.size());
+        if (!activeMenus.isEmpty()) {
+            System.out.println("[MENUMANAGER] activeMenus contenu:");
+            activeMenus.forEach((key, value) -> System.out.println("  - " + key + " => " + value.getId()));
+        }
+        
+        return menu;
     }
     
     /**
      * Set active menu for player
      */
-    public void setActiveMenu(org.bukkit.entity.Player player, Menu menu) {
+    public void setActiveMenu(Player player, Menu menu) {
+        UUID uuid = player.getUniqueId();
+        
+        // DEBUG: Log chaque appel à setActiveMenu
+        System.out.println("[MENUMANAGER] setActiveMenu(" + player.getName() + ", " + uuid + ", " + (menu != null ? menu.getId() : "NULL") + ")");
+        
         if (menu == null) {
-            activeMenus.remove(player.getUniqueId());
+            activeMenus.remove(uuid);
+            System.out.println("[MENUMANAGER] Menu remové. activeMenus taille: " + activeMenus.size());
         } else {
-            activeMenus.put(player.getUniqueId(), menu);
+            activeMenus.put(uuid, menu);
+            System.out.println("[MENUMANAGER] Menu mis en cache. activeMenus taille: " + activeMenus.size());
+            
+            // Vérifier que le menu a bien été inséré
+            Menu verify = activeMenus.get(uuid);
+            System.out.println("[MENUMANAGER] Vérification: activeMenus.get(" + uuid + ") = " + (verify != null ? verify.getId() : "NULL"));
         }
     }
     
     /**
      * Clear active menu for player
      */
-    public void clearActiveMenu(org.bukkit.entity.Player player) {
-        activeMenus.remove(player.getUniqueId());
+    public void clearActiveMenu(Player player) {
+        UUID uuid = player.getUniqueId();
+        activeMenus.remove(uuid);
     }
     
     public Collection<Menu> getAllMenus() {

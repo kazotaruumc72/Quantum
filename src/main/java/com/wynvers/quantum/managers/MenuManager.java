@@ -411,10 +411,10 @@ public class MenuManager {
             return;
         }
         
-        // Ouvrir le menu normalement
+        // Ouvrir le menu avec le plugin
         // Les placeholders de la session seront automatiquement appliqués
         // via PlaceholderManager.applyPlaceholders() dans Menu.open()
-        menu.open(player);
+        menu.open(player, plugin);
     }
     
     public Collection<Menu> getAllMenus() {

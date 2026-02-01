@@ -27,8 +27,8 @@ public class OrderCreationManager {
     
     private final Quantum plugin;
     
-    // Stockage temporaire des offres en cours de création
-    private final Map<UUID, PendingOrder> pendingOrders = new HashMap<>();
+    // Stockage des sessions de création d'ordres
+    private final Map<UUID, OrderCreationSession> sessions = new HashMap<>();
     
     public OrderCreationManager(Quantum plugin) {
         this.plugin = plugin;
@@ -39,78 +39,52 @@ public class OrderCreationManager {
      * Vérifie que l'item est stockable et qu'au moins 1 est en stock
      */
     public boolean startOrderCreation(Player player, String itemId, int stockQuantity) {
-        // Ne PAS envoyer de message ici - le StorageMenuHandler s'en charge
-        if (stockQuantity <= 0) {
+        // Récupérer la fourchette de prix depuis orders_template.yml
+        PriceRange priceRange = getPriceRange(itemId);
+        if (priceRange == null) {
+            player.sendMessage("§c⚠ Cet item n'a pas de fourchette de prix définie!");
             return false;
         }
         
-        // Créer l'offre en attente avec quantité initiale à 1
-        PendingOrder order = new PendingOrder(player.getUniqueId(), itemId, stockQuantity);
-        order.setQuantity(1); // Initialiser à 1 par défaut
-        pendingOrders.put(player.getUniqueId(), order);
+        // Formater le nom de l'item
+        String itemName = formatItemName(itemId);
+        
+        // Créer la session
+        OrderCreationSession session = new OrderCreationSession(
+            itemId,
+            itemName,
+            stockQuantity,
+            priceRange.getMinPrice(),
+            priceRange.getMaxPrice()
+        );
+        
+        sessions.put(player.getUniqueId(), session);
         
         return true;
     }
     
     /**
-     * Étape 2: Définit la quantité de l'offre
+     * Récupère la session de création d'ordre d'un joueur
      */
-    public boolean setOrderQuantity(Player player, int quantity) {
-        PendingOrder order = pendingOrders.get(player.getUniqueId());
-        if (order == null) {
-            player.sendMessage("§cErreur: Aucune offre en cours de création!");
-            return false;
-        }
-        
-        // Vérifier que la quantité est valide (> 0)
-        if (quantity <= 0) {
-            player.sendMessage("§cLa quantité doit être supérieure à 0!");
-            return false;
-        }
-        
-        order.setQuantity(quantity);
-        return true;
+    public OrderCreationSession getSession(Player player) {
+        return sessions.get(player.getUniqueId());
     }
     
     /**
-     * Étape 3: Définit le prix unitaire et finalise l'offre
+     * Finalise l'ordre avec la session actuelle
      */
-    public boolean setOrderPriceAndFinalize(Player player, double pricePerUnit) {
-        PendingOrder order = pendingOrders.get(player.getUniqueId());
-        if (order == null) {
-            player.sendMessage("§cErreur: Aucune offre en cours de création!");
+    public boolean finalizeOrder(Player player) {
+        OrderCreationSession session = sessions.get(player.getUniqueId());
+        if (session == null) {
+            player.sendMessage("§c⚠ Aucune session de création d'ordre active!");
             return false;
         }
         
-        if (order.getQuantity() <= 0) {
-            player.sendMessage("§cErreur: Quantité non définie!");
-            return false;
-        }
-        
-        // Vérifier la fourchette de prix
-        PriceRange range = getPriceRange(order.getItemId());
-        if (range != null) {
-            if (pricePerUnit < range.getMinPrice() || pricePerUnit > range.getMaxPrice()) {
-                player.sendMessage("§cLe prix doit être entre " + range.getMinPrice() + "$ et " + range.getMaxPrice() + "$!");
-                return false;
-            }
-        }
-        
-        order.setPricePerUnit(pricePerUnit);
-        
-        // Finaliser et sauvegarder l'offre
-        return finalizeOrder(player, order);
-    }
-    
-    /**
-     * Finalise l'offre: la sauvegarde dans orders.yml et la place dans la bonne catégorie
-     */
-    private boolean finalizeOrder(Player player, PendingOrder order) {
         // Trouver la catégorie de l'item
-        String category = findItemCategory(order.getItemId());
+        String category = findItemCategory(session.getItemId());
         if (category == null) {
             player.sendMessage("§c⚠ Cet item n'appartient à aucune catégorie d'offres!");
-            player.sendMessage("§77Contact un administrateur pour l'ajouter.");
+            player.sendMessage("§7Contact un administrateur pour l'ajouter.");
             cancelOrder(player);
             return false;
         }
@@ -131,27 +105,17 @@ public class OrderCreationManager {
         
         ordersConfig.set(path + ".orderer", player.getName());
         ordersConfig.set(path + ".orderer_uuid", player.getUniqueId().toString());
-        ordersConfig.set(path + ".item", order.getItemId()); // Format: minecraft:stone ou nexo:custom_item
-        ordersConfig.set(path + ".quantity", order.getQuantity());
-        ordersConfig.set(path + ".price_per_unit", order.getPricePerUnit());
-        ordersConfig.set(path + ".total_price", order.getQuantity() * order.getPricePerUnit());
+        ordersConfig.set(path + ".item", session.getItemId()); // Format: minecraft:stone ou nexo:custom_item
+        ordersConfig.set(path + ".quantity", session.getQuantity());
+        ordersConfig.set(path + ".price_per_unit", session.getPrice());
+        ordersConfig.set(path + ".total_price", session.getTotalPrice());
         ordersConfig.set(path + ".created_at", System.currentTimeMillis());
         
         try {
             ordersConfig.save(ordersFile);
             
-            // Message de succès
-            player.sendMessage("§a§l✓ Offre créée avec succès!");
-            player.sendMessage("§7Item: §f" + formatItemName(order.getItemId()));
-            player.sendMessage("§7Quantité: §a" + order.getQuantity());
-            player.sendMessage("§7Prix unitaire: §6" + order.getPricePerUnit() + "$");
-            player.sendMessage("§7Prix total: §e" + (order.getQuantity() * order.getPricePerUnit()) + "$");
-            player.sendMessage("§7Catégorie: §b" + category);
-            player.sendMessage("");
-            player.sendMessage("§eLes joueurs peuvent maintenant vous vendre cet item!");
-            
-            // Nettoyer l'offre en attente
-            pendingOrders.remove(player.getUniqueId());
+            // Nettoyer la session
+            sessions.remove(player.getUniqueId());
             
             return true;
             
@@ -241,43 +205,10 @@ public class OrderCreationManager {
     }
     
     /**
-     * Récupère l'offre en cours de création d'un joueur
-     */
-    public PendingOrder getPendingOrder(Player player) {
-        return pendingOrders.get(player.getUniqueId());
-    }
-    
-    /**
      * Annule l'offre en cours de création
      */
     public void cancelOrder(Player player) {
-        pendingOrders.remove(player.getUniqueId());
-        player.sendMessage("§eOffre annulée.");
-    }
-    
-    /**
-     * Classe interne: Offre en cours de création
-     */
-    public static class PendingOrder {
-        private final UUID playerUUID;
-        private final String itemId; // Format: minecraft:stone ou nexo:custom_item
-        private final int maxQuantity;
-        private int quantity = 0;
-        private double pricePerUnit = 0.0;
-        
-        public PendingOrder(UUID playerUUID, String itemId, int maxQuantity) {
-            this.playerUUID = playerUUID;
-            this.itemId = itemId;
-            this.maxQuantity = maxQuantity;
-        }
-        
-        public UUID getPlayerUUID() { return playerUUID; }
-        public String getItemId() { return itemId; }
-        public int getMaxQuantity() { return maxQuantity; }
-        public int getQuantity() { return quantity; }
-        public void setQuantity(int quantity) { this.quantity = quantity; }
-        public double getPricePerUnit() { return pricePerUnit; }
-        public void setPricePerUnit(double pricePerUnit) { this.pricePerUnit = pricePerUnit; }
+        sessions.remove(player.getUniqueId());
     }
     
     /**

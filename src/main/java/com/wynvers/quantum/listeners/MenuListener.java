@@ -47,7 +47,12 @@ public class MenuListener implements Listener {
         
         // Si un menu est détecté : CANCEL IMMÉDIATEMENT
         if (menu != null) {
+            // DEBUG: Envoyer un message au joueur pour confirmer détection
+            player.sendMessage("§c[DEBUG] Menu détecté: " + menu.getId() + " - Click cancelled!");
             event.setCancelled(true);
+        } else {
+            // DEBUG: Pas de menu détecté
+            player.sendMessage("§e[DEBUG] Pas de menu détecté. Title: " + event.getView().getTitle());
         }
     }
     
@@ -160,6 +165,7 @@ public class MenuListener implements Listener {
         }
         
         if (menu != null) {
+            player.sendMessage("§c[DEBUG] Menu détecté: " + menu.getId() + " - Drag cancelled!");
             event.setCancelled(true);
         }
     }

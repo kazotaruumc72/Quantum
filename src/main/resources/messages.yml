@@ -100,14 +100,15 @@ command:
   help-menu: "&e/menu <nom> &7- Ouvrir un menu"
 
 # Messages de Vente (Sell System)
+# NOTE: Ces messages incluent déjà le prefix automatiquement
 sell:
   # Session de vente
   no-session: "&cAucune session de vente active."
   economy-disabled: "&cLe système économique n'est pas disponible."
   not-enough-stock: "&cVous n'avez pas assez d'items en stock."
   
-  # Confirmation de vente
-  success-title: "&8[&6Quantum&8] &aVente réussie !"
+  # Confirmation de vente (sans prefix car il sera ajouté automatiquement)
+  success-title: "&aVente réussie !"
   success-sold: "&7Vous avez vendu &e{amount}x {item}"
   success-received: "&7Vous avez reçu &a{total_price}"
   

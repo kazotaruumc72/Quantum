@@ -34,6 +34,12 @@ public class PlaceholderManager {
             text = text.replace("%mode%", ChatColor.translateAlternateColorCodes('&', modeDisplay));
         }
         
+        // Remplacer le placeholder %mode_simple% (nom court sans préfixe)
+        if (text.contains("%mode_simple%")) {
+            String simpleModeDisplay = StorageMode.getSimpleModeDisplay(player);
+            text = text.replace("%mode_simple%", simpleModeDisplay);
+        }
+        
         // Ensuite utiliser PlaceholderAPI si disponible
         if (enabled) {
             text = PlaceholderAPI.setPlaceholders(player, text);
@@ -62,6 +68,12 @@ public class PlaceholderManager {
         if (text.contains("%mode%")) {
             String modeDisplay = StorageMode.getModeDisplay(player);
             text = text.replace("%mode%", ChatColor.translateAlternateColorCodes('&', modeDisplay));
+        }
+        
+        // Remplacer le placeholder %mode_simple%
+        if (text.contains("%mode_simple%")) {
+            String simpleModeDisplay = StorageMode.getSimpleModeDisplay(player);
+            text = text.replace("%mode_simple%", simpleModeDisplay);
         }
         
         // Ensuite utiliser PlaceholderAPI si disponible

@@ -189,12 +189,11 @@ public class StorageListener implements Listener {
         player.closeInventory();
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
         
-        // Ouvrir le menu order_quantity avec l'item et les placeholders
+        // PATCH: Utiliser la méthode standard openMenu avec session
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             MenuManager menuManager = plugin.getMenuManager();
             if (menuManager != null) {
-                // Ouvrir le menu avec la session et l'item
-                menuManager.openMenuWithSession(player, "order_quantity", session, displayItem);
+                menuManager.openMenu(player, "order_quantity", session.getPlaceholders());
             }
         }, 2L);
     }

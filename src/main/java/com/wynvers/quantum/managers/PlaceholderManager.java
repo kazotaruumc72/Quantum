@@ -1,9 +1,11 @@
 package com.wynvers.quantum.managers;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.storage.StorageMode;
 import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-// import com.wynvers.quantum.storage.StorageModeManager;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,24 +23,29 @@ public class PlaceholderManager {
      * Parse placeholders in string
      */
     public String parse(Player player, String text) {
-        if (!enabled || text == null) {
+        if (text == null) {
             return text;
         }
 
-        // Remplacer le placeholder %mode%
+        // Remplacer le placeholder %mode% (AVANT PlaceholderAPI)
         if (text.contains("%mode%")) {
-            // StorageModeManager functionality temporarily disabled 
-            return PlaceholderAPI.setPlaceholders(player, text);
+            String modeDisplay = StorageMode.getModeDisplay(player);
+            text = text.replace("%mode%", ChatColor.translateAlternateColorCodes('&', modeDisplay));
         }
         
-        return PlaceholderAPI.setPlaceholders(player, text);
+        // Ensuite utiliser PlaceholderAPI si disponible
+        if (enabled) {
+            text = PlaceholderAPI.setPlaceholders(player, text);
+        }
+        
+        return text;
     }
 
     /**
      * Parse placeholders in list
      */
     public List<String> parse(Player player, List<String> texts) {
-        if (!enabled || texts == null) {
+        if (texts == null) {
             return texts;
         }
 

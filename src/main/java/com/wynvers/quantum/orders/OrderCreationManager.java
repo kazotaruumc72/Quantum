@@ -39,8 +39,8 @@ public class OrderCreationManager {
      * Vérifie que l'item est stockable et qu'au moins 1 est en stock
      */
     public boolean startOrderCreation(Player player, String itemId, int stockQuantity) {
+        // Ne PAS envoyer de message ici - le StorageMenuHandler s'en charge
         if (stockQuantity <= 0) {
-            player.sendMessage("§c⚠ Vous devez avoir au moins 1 item en stock!");
             return false;
         }
         

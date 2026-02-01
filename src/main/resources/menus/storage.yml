@@ -19,9 +19,9 @@ open_command: storage
 # ========================================
 items:
 
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # ──────────────────────────────────────
   # BORDURES DÉCORATIVES
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # ──────────────────────────────────────
   border:
     material: GRAY_STAINED_GLASS_PANE
     display_name: ' '
@@ -33,14 +33,6 @@ items:
       - 5
       - 6
       - 7
-      - 9
-      - 17
-      - 18
-      - 26
-      - 27
-      - 35
-      - 36
-      - 44
       - 45
       - 46
       - 47
@@ -49,9 +41,9 @@ items:
       - 51
       - 52
 
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # ──────────────────────────────────────
   # BOUTON: MODE STORAGE (Coin haut gauche)
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # ──────────────────────────────────────
   mode_storage:
     slots: [0]
     material: LIME_WOOL
@@ -71,9 +63,9 @@ items:
     left_click_actions:
       - '[close]'
 
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # ──────────────────────────────────────
   # BOUTON: MODE VENTE (Coin haut droit)
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # ──────────────────────────────────────
   mode_sell:
     slots: [8]
     material: GOLD_BLOCK
@@ -93,12 +85,14 @@ items:
     left_click_actions:
       - '[close]'
 
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # ──────────────────────────────────────
   # ZONE DE STOCKAGE (Centre du menu)
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # 4 lignes complètes de 9 items = 36 slots
+  # ──────────────────────────────────────
   storage_slots:
-    # Zone centrale: 4 lignes de 7 items = 28 slots
     slots: 
+      # Ligne 1 (slots 9-17)
+      - 9
       - 10
       - 11
       - 12
@@ -106,6 +100,9 @@ items:
       - 14
       - 15
       - 16
+      - 17
+      # Ligne 2 (slots 18-26)
+      - 18
       - 19
       - 20
       - 21
@@ -113,6 +110,9 @@ items:
       - 23
       - 24
       - 25
+      - 26
+      # Ligne 3 (slots 27-35)
+      - 27
       - 28
       - 29
       - 30
@@ -120,6 +120,9 @@ items:
       - 32
       - 33
       - 34
+      - 35
+      # Ligne 4 (slots 36-44)
+      - 36
       - 37
       - 38
       - 39
@@ -127,6 +130,7 @@ items:
       - 41
       - 42
       - 43
+      - 44
     
     # Type spécial Quantum
     type: quantum_storage
@@ -134,23 +138,23 @@ items:
     # Lore ajoutée dynamiquement aux items stockés
     lore_append:
       - ' '
-      - '&8━━━━━━━━━━━━━━━━━━━━━'
+      - '&8─────────────────────'
       - '&fQuantité: &a%quantity%'
       - '&fPrix unitaire: &6%price%'
       - '&fPrix total: &e%total_price%'
-      - '&8━━━━━━━━━━━━━━━━━━━━━'
+      - '&8─────────────────────'
       - ' '
       - '&7▸ Clic gauche: &aRetirer 1'
       - '&7▸ Shift + Clic gauche: &aRetirer tout'
       - '&7▸ Clic droit: &eVendre (mode Vente)'
 
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # ──────────────────────────────────────
   # BOUTON: INFORMATIONS (Centre bas)
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # ──────────────────────────────────────
   info:
     slots: [49]
     material: BOOK
-    display_name: '&b&lℹ Informations'
+    display_name: '&b&l⌘ Informations'
     lore:
       - '&7Stockage virtuel Quantum'
       - ' '
@@ -163,9 +167,9 @@ items:
       - '&a/qstorage remove <item> <qté>'
       - '&a/qstorage list'
 
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # ──────────────────────────────────────
   # BOUTON: FERMER (Coin bas droit)
-  # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # ──────────────────────────────────────
   close:
     slots: [53]
     material: BARRIER

@@ -30,15 +30,15 @@ public class QuantumTabCompleter implements TabCompleter {
         
         if (args.length == 1) {
             // Sous-commandes principales
-            List<String> subcommands = Arrays.asList(
+            List<String> subcommands = new ArrayList<>(Arrays.asList(
                 "reload",
+                "stats",
                 "help",
                 "version"
-            );
+            ));
             
             // Ajouter orders si admin
             if (sender.hasPermission("quantum.admin.orders")) {
-                subcommands = new ArrayList<>(subcommands);
                 subcommands.add("orders");
             }
             
@@ -64,6 +64,40 @@ public class QuantumTabCompleter implements TabCompleter {
             for (String type : reloadTypes) {
                 if (type.toLowerCase().startsWith(input)) {
                     completions.add(type);
+                }
+            }
+        }
+        else if (args.length == 2 && (args[0].equalsIgnoreCase("stats") || args[0].equalsIgnoreCase("statistics"))) {
+            // Sous-commandes pour /quantum stats
+            List<String> statsOptions = new ArrayList<>(Arrays.asList(
+                "all",
+                "list",
+                "reload",
+                "recalculate",
+                // Catégories par défaut
+                "cultures",
+                "loots",
+                "items",
+                "potions",
+                "armures",
+                "outils"
+            ));
+            
+            // Ajouter les catégories du fichier orders_template.yml
+            File templateFile = new File(plugin.getDataFolder(), "orders_template.yml");
+            if (templateFile.exists()) {
+                YamlConfiguration template = YamlConfiguration.loadConfiguration(templateFile);
+                for (String key : template.getKeys(false)) {
+                    if (!statsOptions.contains(key.toLowerCase())) {
+                        statsOptions.add(key.toLowerCase());
+                    }
+                }
+            }
+            
+            String input = args[1].toLowerCase();
+            for (String option : statsOptions) {
+                if (option.toLowerCase().startsWith(input)) {
+                    completions.add(option);
                 }
             }
         }

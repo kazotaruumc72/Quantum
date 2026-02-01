@@ -1,7 +1,7 @@
 package com.wynvers.quantum.listeners;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.menus.MenuManager;
+import com.wynvers.quantum.managers.MenuManager;
 import com.wynvers.quantum.orders.OrderButtonHandler;
 import com.wynvers.quantum.orders.OrderCreationManager;
 import com.wynvers.quantum.orders.OrderCreationSession;

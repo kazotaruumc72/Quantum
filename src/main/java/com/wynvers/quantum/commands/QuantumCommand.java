@@ -8,9 +8,11 @@ import org.bukkit.command.CommandSender;
 public class QuantumCommand implements CommandExecutor {
     
     private final Quantum plugin;
+    private final OrdersAdminCommand ordersAdminCommand;
     
     public QuantumCommand(Quantum plugin) {
         this.plugin = plugin;
+        this.ordersAdminCommand = new OrdersAdminCommand(plugin);
     }
     
     @Override
@@ -22,6 +24,11 @@ public class QuantumCommand implements CommandExecutor {
         }
         
         String subCommand = args[0].toLowerCase();
+        
+        // Déléguer les commandes orders au OrdersAdminCommand
+        if (subCommand.equals("orders")) {
+            return ordersAdminCommand.onCommand(sender, command, label, args);
+        }
         
         switch (subCommand) {
             case "reload":
@@ -113,6 +120,16 @@ public class QuantumCommand implements CommandExecutor {
         sender.sendMessage("§e/quantum help §7- Afficher cette aide");
         sender.sendMessage("§e/storage §7- Ouvrir le stockage virtuel");
         sender.sendMessage("§e/menu <nom> §7- Ouvrir un menu personnalisé");
+        
+        if (sender.hasPermission("quantum.admin.orders")) {
+            sender.sendMessage("");
+            sender.sendMessage("§6§lCOMMANDES ADMIN ORDRES");
+            sender.sendMessage("§e/quantum orders button createcategorie <nom>");
+            sender.sendMessage("  §7- Créer une nouvelle catégorie d'ordres");
+            sender.sendMessage("§e/quantum orders button deletecategorie <nom>");
+            sender.sendMessage("  §7- Supprimer une catégorie d'ordres");
+        }
+        
         sender.sendMessage("§8────────────────────────────────");
     }
 }

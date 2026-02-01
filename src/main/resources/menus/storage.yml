@@ -3,6 +3,9 @@
 # Les admins avec 'quantum.admin' peuvent interagir directement avec l'interface
 # Support des items custom Nexo et PlaceholderAPI
 
+# Titre de base (sera remplacé par l'animation si activée)
+title: '&6&lStorage - Mode: %mode%'
+
 animated_title:
   enabled: true
   frames:

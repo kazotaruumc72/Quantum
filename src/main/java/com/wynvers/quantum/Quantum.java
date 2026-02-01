@@ -115,6 +115,10 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/storage.yml");
         extractResource("menus/sell.yml");
         
+        // Extract order creation menus
+        extractResource("menus/order_quantity.yml");
+        extractResource("menus/order_price.yml");
+        
         // Extract orders menu files
         extractResource("menus/orders_categories.yml");
         extractResource("menus/orders_cultures.yml");

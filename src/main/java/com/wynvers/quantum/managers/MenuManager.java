@@ -132,16 +132,32 @@ public class MenuManager {
             }
         }
         
-        // Type de slot (quantum_storage, etc.)
+        // Type de slot (quantum_storage, quantum_change_mode, etc.)
         if (section.contains("type")) {
-            item.setType(section.getString("type"));
+            String type = section.getString("type");
+            item.setType(type);
+            
+            // Si c'est quantum_change_mode, définir aussi le buttonType
+            if ("quantum_change_mode".equalsIgnoreCase(type)) {
+                item.setButtonType(ButtonType.QUANTUM_CHANGE_MODE);
+                
+                // Charger le mode cible si spécifié
+                if (section.contains("mode")) {
+                    item.setTargetMode(section.getString("mode"));
+                }
+            }
         }
         
-        // Button type (quantum_change_mode, etc.)
+        // Button type (backward compatibility)
         if (section.contains("button_type")) {
             try {
                 ButtonType buttonType = ButtonType.valueOf(section.getString("button_type").toUpperCase());
                 item.setButtonType(buttonType);
+                
+                // Si c'est QUANTUM_CHANGE_MODE, charger aussi le mode cible
+                if (buttonType == ButtonType.QUANTUM_CHANGE_MODE && section.contains("mode")) {
+                    item.setTargetMode(section.getString("mode"));
+                }
             } catch (IllegalArgumentException e) {
                 plugin.getQuantumLogger().warning("Invalid button_type: " + section.getString("button_type"));
             }

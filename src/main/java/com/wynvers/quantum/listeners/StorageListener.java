@@ -1,6 +1,7 @@
 package com.wynvers.quantum.listeners;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.orders.OrderCreationManager;
 import com.wynvers.quantum.storage.PlayerStorage;
 import com.wynvers.quantum.storage.StorageMode;
 import org.bukkit.Bukkit;
@@ -15,16 +16,11 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class StorageListener implements Listener {
     
     private final Quantum plugin;
-    
-    // Stockage temporaire des offres en cours de création
-    private final Map<UUID, PendingOrder> pendingOrders = new HashMap<>();
     
     public StorageListener(Quantum plugin) {
         this.plugin = plugin;
@@ -65,7 +61,7 @@ public class StorageListener implements Listener {
                     break;
                     
                 case RECHERCHE:
-                    // Mode recherche: créer une offre d'achat
+                    // Mode recherche: créer une offre d'achat (NE PAS RETIRER LES ITEMS)
                     handleCreateOrder(player, clicked);
                     break;
             }
@@ -144,44 +140,50 @@ public class StorageListener implements Listener {
     
     /**
      * Gère la création d'offre d'achat en mode RECHERCHE
+     * IMPORTANT: NE RETIRE PAS LES ITEMS DU STORAGE !
      * Étape 1: Vérifier qu'au moins 1 item est stocké
-     * Étape 2: Ouvrir le menu de sélection de quantité
+     * Étape 2: Démarrer le workflow de création d'offre via OrderCreationManager
      */
     private void handleCreateOrder(Player player, ItemStack displayItem) {
-        Material material = displayItem.getType();
         PlayerStorage storage = plugin.getStorageManager().getStorage(player);
         
-        int stockQuantity = storage.getAmount(material);
+        // Convertir l'ItemStack en itemId (minecraft:xxx ou nexo:xxx)
+        String itemId = OrderCreationManager.getItemId(displayItem);
+        if (itemId == null) {
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage("§c⚠ Item invalide!");
+            return;
+        }
+        
+        // Récupérer la quantité en stock (SANS LA RETIRER)
+        int stockQuantity = storage.getAmountByItemId(itemId);
         if (stockQuantity <= 0) {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             player.sendMessage("§c⚠ Vous devez avoir au moins 1 item en stock pour créer une offre!");
             return;
         }
         
-        // Créer l'offre en attente
-        PendingOrder order = new PendingOrder(player.getUniqueId(), material, stockQuantity);
-        pendingOrders.put(player.getUniqueId(), order);
+        // Démarrer la création d'offre via OrderCreationManager
+        OrderCreationManager orderManager = plugin.getOrderCreationManager();
+        if (orderManager == null) {
+            player.sendMessage("§c⚠ OrderCreationManager non initialisé!");
+            return;
+        }
         
-        // Ouvrir le menu de sélection de quantité
+        boolean started = orderManager.startOrderCreation(player, itemId, stockQuantity);
+        if (!started) {
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            return;
+        }
+        
+        // Fermer l'inventaire et ouvrir le menu de quantité
         player.closeInventory();
-        openQuantitySelectionMenu(player, material, stockQuantity);
-    }
-    
-    /**
-     * Ouvre le menu de sélection de quantité
-     */
-    private void openQuantitySelectionMenu(Player player, Material material, int stockQuantity) {
-        Inventory inv = Bukkit.createInventory(null, 27, "§b§lQuantité recherchée");
-        
-        // TODO: Créer les boutons de sélection (1, 8, 16, 32, 64, etc.)
-        // Pour l'instant, message temporaire
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
-        player.sendMessage("§b§l✓ Création d'offre pour: §f" + material.name());
-        player.sendMessage("§7Stock disponible: §e" + stockQuantity);
-        player.sendMessage("§e⚠ Menu de sélection de quantité en développement");
-        player.sendMessage("§7Tapez la quantité dans le chat (ou 'cancel' pour annuler)");
         
-        // TODO: Ouvrir le menu graphique au lieu du chat
+        // Ouvrir le menu order_quantity via MenuManager
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            player.performCommand("menu order_quantity");
+        }, 2L);
     }
     
     private void giveItems(Player player, Material material, int amount) {
@@ -211,30 +213,5 @@ public class StorageListener implements Listener {
             }
         }
         return emptySlots * 64 >= amount;
-    }
-    
-    /**
-     * Classe interne pour stocker les offres en cours de création
-     */
-    private static class PendingOrder {
-        private final UUID playerUUID;
-        private final Material material;
-        private final int maxQuantity;
-        private int quantity = 0;
-        private double pricePerUnit = 0.0;
-        
-        public PendingOrder(UUID playerUUID, Material material, int maxQuantity) {
-            this.playerUUID = playerUUID;
-            this.material = material;
-            this.maxQuantity = maxQuantity;
-        }
-        
-        public UUID getPlayerUUID() { return playerUUID; }
-        public Material getMaterial() { return material; }
-        public int getMaxQuantity() { return maxQuantity; }
-        public int getQuantity() { return quantity; }
-        public void setQuantity(int quantity) { this.quantity = quantity; }
-        public double getPricePerUnit() { return pricePerUnit; }
-        public void setPricePerUnit(double pricePerUnit) { this.pricePerUnit = pricePerUnit; }
     }
 }

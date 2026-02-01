@@ -1,136 +1,90 @@
-# ========================================
-# ORDER QUANTITY SELECTION MENU
-# ========================================
-# Menu pour sélectionner la quantité d'items recherchés
+# order_quantity.yml - Menu hopper pour sélectionner la quantité de l'offre
+# Taille: 5 slots (hopper)
 
-menu_title: '&b&lQuantité recherchée'
-size: 27
+title: '&8┃ &6Quantité &8┃'
+size: 5
+open_command: order_quantity
 
 items:
-  # Bordures
-  border:
-    material: BLACK_STAINED_GLASS_PANE
-    display_name: ' '
-    slots: [0, 1, 2, 3, 5, 6, 7, 8, 9, 17, 18, 19, 20, 21, 23, 24, 25, 26]
+  # Slot 0: 25% de la quantité max
+  quantity_25:
+    slot: 0
+    material: ORANGE_STAINED_GLASS_PANE
+    amount: 1
+    display_name: '&e25%'
+    lore:
+      - '&7Quantité: &f%quantum_order_quantity_25%'
+      - ''
+      - '&e▸ &7Cliquez pour sélectionner'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: 25
+    left_click_actions:
+      - '[quantum_set_order_quantity] %quantum_order_quantity_25%'
+      - '[close]'
+      - '[menu] order_price'
 
-  # Item de référence (centre haut)
-  reference_item:
+  # Slot 1: 50% de la quantité max
+  quantity_50:
+    slot: 1
+    material: YELLOW_STAINED_GLASS_PANE
+    amount: 1
+    display_name: '&650%'
+    lore:
+      - '&7Quantité: &f%quantum_order_quantity_50%'
+      - ''
+      - '&e▸ &7Cliquez pour sélectionner'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: 50
+    left_click_actions:
+      - '[quantum_set_order_quantity] %quantum_order_quantity_50%'
+      - '[close]'
+      - '[menu] order_price'
+
+  # Slot 2: 75% de la quantité max
+  quantity_75:
+    slot: 2
+    material: LIME_STAINED_GLASS_PANE
+    amount: 1
+    display_name: '&a75%'
+    lore:
+      - '&7Quantité: &f%quantum_order_quantity_75%'
+      - ''
+      - '&e▸ &7Cliquez pour sélectionner'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: 75
+    left_click_actions:
+      - '[quantum_set_order_quantity] %quantum_order_quantity_75%'
+      - '[close]'
+      - '[menu] order_price'
+
+  # Slot 3: 100% de la quantité max
+  quantity_100:
+    slot: 3
+    material: GREEN_STAINED_GLASS_PANE
+    amount: 1
+    display_name: '&2100%'
+    lore:
+      - '&7Quantité: &f%quantum_order_quantity_100%'
+      - ''
+      - '&e▸ &7Cliquez pour sélectionner'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: 100
+    left_click_actions:
+      - '[quantum_set_order_quantity] %quantum_order_quantity_100%'
+      - '[close]'
+      - '[menu] order_price'
+
+  # Slot 4: Annuler
+  cancel:
     slot: 4
-    material: '%item_material%'
-    display_name: '&f%item_display_name%'
+    material: RED_STAINED_GLASS_PANE
+    amount: 1
+    display_name: '&c✖ Annuler'
     lore:
-      - ' '
-      - '&7Stock disponible: &e%stock_quantity%'
-      - ' '
-      - '&bChoisissez la quantité recherchée'
-
-  # Bouton: 1 item
-  qty_1:
-    slot: 10
-    material: PAPER
-    display_name: '&a&l1'
-    lore:
-      - ' '
-      - '&7Quantité: &a1'
-      - ' '
-      - '&e► Cliquez pour sélectionner'
-    button_type: QUANTUM_ORDER_QUANTITY
-    quantity: 1
-
-  # Bouton: 8 items
-  qty_8:
-    slot: 11
-    material: PAPER
-    display_name: '&a&l8'
-    lore:
-      - ' '
-      - '&7Quantité: &a8'
-      - ' '
-      - '&e► Cliquez pour sélectionner'
-    button_type: QUANTUM_ORDER_QUANTITY
-    quantity: 8
-
-  # Bouton: 16 items
-  qty_16:
-    slot: 12
-    material: PAPER
-    display_name: '&a&l16'
-    lore:
-      - ' '
-      - '&7Quantité: &a16'
-      - ' '
-      - '&e► Cliquez pour sélectionner'
-    button_type: QUANTUM_ORDER_QUANTITY
-    quantity: 16
-
-  # Bouton: 32 items
-  qty_32:
-    slot: 13
-    material: PAPER
-    display_name: '&a&l32'
-    lore:
-      - ' '
-      - '&7Quantité: &a32'
-      - ' '
-      - '&e► Cliquez pour sélectionner'
-    button_type: QUANTUM_ORDER_QUANTITY
-    quantity: 32
-
-  # Bouton: 64 items
-  qty_64:
-    slot: 14
-    material: PAPER
-    display_name: '&a&l64'
-    lore:
-      - ' '
-      - '&7Quantité: &a64'
-      - ' '
-      - '&e► Cliquez pour sélectionner'
-    button_type: QUANTUM_ORDER_QUANTITY
-    quantity: 64
-
-  # Bouton: 128 items
-  qty_128:
-    slot: 15
-    material: PAPER
-    display_name: '&a&l128'
-    lore:
-      - ' '
-      - '&7Quantité: &a128'
-      - ' '
-      - '&e► Cliquez pour sélectionner'
-    button_type: QUANTUM_ORDER_QUANTITY
-    quantity: 128
-
-  # Bouton: 256 items
-  qty_256:
-    slot: 16
-    material: PAPER
-    display_name: '&a&l256'
-    lore:
-      - ' '
-      - '&7Quantité: &a256'
-      - ' '
-      - '&e► Cliquez pour sélectionner'
-    button_type: QUANTUM_ORDER_QUANTITY
-    quantity: 256
-
-  # Bouton: Custom (anvil input)
-  qty_custom:
-    slot: 22
-    material: ANVIL
-    display_name: '&6&lQuantité personnalisée'
-    lore:
-      - ' '
-      - '&7Saisissez une quantité exacte'
-      - '&7dans le chat'
-      - ' '
-      - '&e► Cliquez pour saisir'
-    button_type: QUANTUM_ORDER_QUANTITY_CUSTOM
-
-# ========================================
-# NOTES
-# ========================================
-# - Les placeholders %item_material%, %item_display_name%, %stock_quantity% sont remplacés dynamiquement
-# - QUANTUM_ORDER_QUANTITY: Sélectionne la quantité et ouvre le menu de prix
-# - QUANTUM_ORDER_QUANTITY_CUSTOM: Attend input chat du joueur
+      - '&7Annule la création'
+      - '&7de l\'offre'
+      - ''
+      - '&c▸ &7Cliquez pour annuler'
+    left_click_actions:
+      - '[quantum_cancel_order]'
+      - '[close]'

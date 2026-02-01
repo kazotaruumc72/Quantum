@@ -49,7 +49,7 @@ public class MenuListener implements Listener {
             return;
         }
         
-        // Cancel all clicks in menu inventory
+        // Pour les menus standards (non-storage), TOUT cancel
         Inventory clickedInv = event.getClickedInventory();
         Inventory topInv = event.getView().getTopInventory();
         
@@ -74,8 +74,10 @@ public class MenuListener implements Listener {
                 menuItem.executeActions(player, plugin, event.getClick());
             }
         }
-        // If clicking in player inventory while menu is open, prevent shift-click to menu
-        else if (event.getClick().isShiftClick()) {
+        // Si le joueur clique dans SON inventaire pendant qu'un menu est ouvert
+        // On DOIT cancel pour éviter le déplacement d'items
+        else if (clickedInv != null && clickedInv.equals(player.getInventory())) {
+            // Annuler TOUS les clics (pas seulement shift-click)
             event.setCancelled(true);
         }
     }
@@ -125,10 +127,11 @@ public class MenuListener implements Listener {
         }
         // If clicking in player inventory while storage is open
         else if (clickedInv != null && clickedInv.equals(player.getInventory())) {
-            // Allow shift-click to deposit items to storage (admin only)
+            // Pour le menu storage : on cancel aussi TOUT (même chose que les autres menus)
+            event.setCancelled(true);
+            
+            // Shift-click spécial pour les admins (dépôt)
             if (event.getClick().isShiftClick()) {
-                event.setCancelled(true);
-                
                 if (isAdmin) {
                     // Admin: allow shift-click deposit
                     if (event.getCurrentItem() != null) {

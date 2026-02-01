@@ -106,19 +106,14 @@ public final class Quantum extends JavaPlugin {
     private void extractDefaultResources() {
         logger.info("Extracting default resources...");
         
-        // Create directories
+        // Create menus directory
         createDirectory("menus");
-        createDirectory("messages");
         
         // Extract menu files
         extractResource("menus/example.yml");
         extractResource("menus/example_advanced.yml");
         extractResource("menus/storage.yml");
         extractResource("menus/sell.yml");
-        
-        // Extract message files
-        extractResource("messages/messages_en.yml");
-        extractResource("messages/messages_fr.yml");
         
         logger.success("✓ Default resources extracted");
     }

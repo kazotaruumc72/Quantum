@@ -16,11 +16,13 @@ public class MenuManager {
     private final Quantum plugin;
     private final Map<String, Menu> menus;
     private final Map<String, Menu> commandMenus;  // Command -> Menu mapping
+    private final Map<UUID, Menu> activeMenus;     // Player UUID -> Currently open menu
     
     public MenuManager(Quantum plugin) {
         this.plugin = plugin;
         this.menus = new HashMap<>();
         this.commandMenus = new HashMap<>();
+        this.activeMenus = new HashMap<>();
         
         loadMenus();
     }
@@ -354,6 +356,31 @@ public class MenuManager {
         return null;
     }
     
+    /**
+     * Get active menu for player (more reliable than title matching)
+     */
+    public Menu getActiveMenu(org.bukkit.entity.Player player) {
+        return activeMenus.get(player.getUniqueId());
+    }
+    
+    /**
+     * Set active menu for player
+     */
+    public void setActiveMenu(org.bukkit.entity.Player player, Menu menu) {
+        if (menu == null) {
+            activeMenus.remove(player.getUniqueId());
+        } else {
+            activeMenus.put(player.getUniqueId(), menu);
+        }
+    }
+    
+    /**
+     * Clear active menu for player
+     */
+    public void clearActiveMenu(org.bukkit.entity.Player player) {
+        activeMenus.remove(player.getUniqueId());
+    }
+    
     public Collection<Menu> getAllMenus() {
         return menus.values();
     }
@@ -365,6 +392,7 @@ public class MenuManager {
     public void reload() {
         menus.clear();
         commandMenus.clear();
+        activeMenus.clear();
         loadMenus();
     }
 }

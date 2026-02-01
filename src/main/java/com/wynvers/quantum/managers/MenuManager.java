@@ -167,6 +167,19 @@ public class MenuManager {
                         item.setChangeAmount(section.getInt("amount"));
                     }
                 }
+                
+                // === CHARGER LES PARAMETERS (NOUVELLE SYNTAXE) ===
+                if (section.contains("parameters")) {
+                    ConfigurationSection paramsSection = section.getConfigurationSection("parameters");
+                    if (paramsSection != null) {
+                        Map<String, Object> parameters = new HashMap<>();
+                        for (String key : paramsSection.getKeys(false)) {
+                            parameters.put(key, paramsSection.get(key));
+                        }
+                        item.setParameters(parameters);
+                    }
+                }
+                
             } catch (IllegalArgumentException e) {
                 plugin.getQuantumLogger().warning("Invalid button_type: " + section.getString("button_type"));
             }

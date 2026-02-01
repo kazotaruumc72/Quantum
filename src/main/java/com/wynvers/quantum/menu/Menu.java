@@ -6,7 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.orders.OrderCreationSession;
 import com.wynvers.quantum.sell.SellSession;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -34,6 +37,9 @@ public class Menu {
     
     // Storage renderer pour slots quantum_storage
     private StorageRenderer storageRenderer;
+    
+    // MiniMessage parser pour les titres modernes
+    private static final MiniMessage miniMessage = MiniMessage.miniMessage();
  
     public Menu(Quantum plugin, String id) {
         this.plugin = plugin;
@@ -135,6 +141,31 @@ public class Menu {
     }
     
     /**
+     * Parse title avec support MiniMessage + Legacy
+     * Si le titre contient '<', c'est du MiniMessage
+     * Sinon, c'est du legacy avec '&'
+     */
+    private String parseTitle(String rawTitle) {
+        if (rawTitle == null) return "Menu";
+        
+        // Détecter MiniMessage (présence de '<')
+        if (rawTitle.contains("<")) {
+            try {
+                Component component = miniMessage.deserialize(rawTitle);
+                return net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
+                    .legacySection()
+                    .serialize(component);
+            } catch (Exception e) {
+                // Fallback sur legacy si erreur
+                return ChatColor.translateAlternateColorCodes('&', rawTitle);
+            }
+        } else {
+            // Legacy color codes
+            return ChatColor.translateAlternateColorCodes('&', rawTitle);
+        }
+    }
+    
+    /**
      * Open this menu for a player
      */
     public void open(Player player, Quantum plugin) {
@@ -150,6 +181,9 @@ public class Menu {
         String parsedTitle = customPlaceholders != null 
             ? plugin.getPlaceholderManager().parse(player, title, customPlaceholders)
             : plugin.getPlaceholderManager().parse(player, title);
+        
+        // PATCH: Appliquer MiniMessage + Legacy
+        parsedTitle = parseTitle(parsedTitle);
         
         Inventory inventory = Bukkit.createInventory(null, size, parsedTitle);
  
@@ -235,6 +269,9 @@ public class Menu {
         // Récupérer la session sell si elle existe
         SellSession sellSession = player != null ? plugin.getSellManager().getSession(player) : null;
         
+        // Récupérer la session order si elle existe
+        OrderCreationSession orderSession = player != null ? plugin.getOrderCreationManager().getSession(player) : null;
+        
         // Premièrement, remplir les items standards (non-quantum_storage)
         for (MenuItem item : items.values()) {
             if (item.getSlots().isEmpty()) continue;
@@ -281,6 +318,47 @@ public class Menu {
                 }
                 
                 continue;
+            }
+            
+            // === PATCH: QUANTUM_ORDER_DISPLAY_ITEM ===
+            // Si c'est un quantum_order_display_item ET qu'il y a une session, utiliser l'item de la session
+            if (item.getButtonType() == ButtonType.QUANTUM_ORDER_DISPLAY_ITEM && orderSession != null) {
+                ItemStack orderItem = orderSession.getDisplayItem();
+                
+                if (orderItem != null) {
+                    orderItem = orderItem.clone();
+                    orderItem.setAmount(1); // Toujours 1 pour l'affichage
+                    
+                    // Parser les placeholders dans le display name et lore si présents dans le MenuItem
+                    ItemMeta meta = orderItem.getItemMeta();
+                    if (meta != null) {
+                        // Utiliser le display name et lore du MenuItem s'ils existent
+                        if (item.getDisplayName() != null) {
+                            String parsedName = customPlaceholders != null
+                                ? plugin.getPlaceholderManager().parse(player, item.getDisplayName(), customPlaceholders)
+                                : plugin.getPlaceholderManager().parse(player, item.getDisplayName());
+                            meta.setDisplayName(parsedName);
+                        }
+                        
+                        if (item.getLore() != null && !item.getLore().isEmpty()) {
+                            List<String> parsedLore = customPlaceholders != null
+                                ? plugin.getPlaceholderManager().parse(player, item.getLore(), customPlaceholders)
+                                : plugin.getPlaceholderManager().parse(player, item.getLore());
+                            meta.setLore(parsedLore);
+                        }
+                        
+                        orderItem.setItemMeta(meta);
+                    }
+                    
+                    // Placer l'item dans tous les slots configurés
+                    for (int slot : item.getSlots()) {
+                        if (slot >= 0 && slot < size) {
+                            inventory.setItem(slot, orderItem.clone());
+                        }
+                    }
+                    
+                    continue;
+                }
             }
  
             // Créer l'ItemStack depuis le MenuItem

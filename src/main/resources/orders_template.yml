@@ -1,0 +1,125 @@
+# ═══════════════════════════════════════════════════════════════
+#  QUANTUM ORDERS - TEMPLATE DE CONFIGURATION
+# ═══════════════════════════════════════════════════════════════
+#
+# Ce fichier sert de template pour configurer vos propres items
+# dans le système d'ordres.
+#
+# Structure :
+#   item_id:
+#     type: <quantum_orders_cultures|quantum_orders_loots|quantum_orders_items|quantum_orders_armures|quantum_orders_outils>
+#     min: <prix minimum>
+#     max: <prix maximum>
+#     display_name: "<nom affiché>"
+#     material: <MATERIAL> (optionnel - pour l'affichage dans les menus)
+#     lore: (optionnel)
+#       - "<ligne 1>"
+#       - "<ligne 2>"
+#
+# ═══════════════════════════════════════════════════════════════
+
+# ┌─────────────────────────────────────────────────────────────┐
+# │                    CULTURES (quantum_orders_cultures)        │
+# └─────────────────────────────────────────────────────────────┘
+# Items liés à l'agriculture, graines, récoltes
+
+"nexo:afelia_bark":
+  type: quantum_orders_cultures
+  min: 5.0
+  max: 15.0
+  display_name: "Écorce d'Afelia"
+  material: OAK_BARK
+  lore:
+    - "<gray>Écorce rare d'Afelia"
+    - "<gray>Utilisée en alchimie"
+
+"minecraft:wheat":
+  type: quantum_orders_cultures
+  min: 0.5
+  max: 2.0
+  display_name: "Blé"
+  material: WHEAT
+
+# ┌─────────────────────────────────────────────────────────────┐
+# │                    LOOTS (quantum_orders_loots)              │
+# └─────────────────────────────────────────────────────────────┘
+# Drops de mobs, items de donjon
+
+"minecraft:ender_pearl":
+  type: quantum_orders_loots
+  min: 15.0
+  max: 50.0
+  display_name: "Perle de l'Ender"
+  material: ENDER_PEARL
+
+"nexo:mystic_dust":
+  type: quantum_orders_loots
+  min: 10.0
+  max: 30.0
+  display_name: "Poussière Mystique"
+  material: GLOWSTONE_DUST
+  lore:
+    - "<#32b8c6>Drop rare de boss mystique"
+
+# ┌─────────────────────────────────────────────────────────────┐
+# │                    ITEMS (quantum_orders_items)              │
+# └─────────────────────────────────────────────────────────────┘
+# Ressources, matériaux, blocs
+
+"minecraft:diamond":
+  type: quantum_orders_items
+  min: 50.0
+  max: 150.0
+  display_name: "Diamant"
+  material: DIAMOND
+
+"minecraft:iron_ingot":
+  type: quantum_orders_items
+  min: 5.0
+  max: 15.0
+  display_name: "Lingot de Fer"
+  material: IRON_INGOT
+
+# ┌─────────────────────────────────────────────────────────────┐
+# │                    ARMURES (quantum_orders_armures)          │
+# └─────────────────────────────────────────────────────────────┘
+# Équipements d'armure
+
+"minecraft:diamond_chestplate":
+  type: quantum_orders_armures
+  min: 400.0
+  max: 1200.0
+  display_name: "Plastron en Diamant"
+  material: DIAMOND_CHESTPLATE
+
+"nexo:quantum_helmet":
+  type: quantum_orders_armures
+  min: 2000.0
+  max: 6000.0
+  display_name: "Casque Quantique"
+  material: NETHERITE_HELMET
+  lore:
+    - "<gradient:#32b8c6:#1d6880>Armure légendaire"
+    - "<gray>Protection maximale"
+
+# ┌─────────────────────────────────────────────────────────────┐
+# │                    OUTILS (quantum_orders_outils)            │
+# └─────────────────────────────────────────────────────────────┘
+# Outils, armes, équipements
+
+"minecraft:diamond_pickaxe":
+  type: quantum_orders_outils
+  min: 150.0
+  max: 450.0
+  display_name: "Pioche en Diamant"
+  material: DIAMOND_PICKAXE
+
+"nexo:quantum_sword":
+  type: quantum_orders_outils
+  min: 1200.0
+  max: 3600.0
+  display_name: "Épée Quantique"
+  material: NETHERITE_SWORD
+  lore:
+    - "<gradient:#32b8c6:#1d6880>Arme ultime"
+    - "<gray>Dégâts dévastateurs"

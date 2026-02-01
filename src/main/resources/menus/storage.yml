@@ -4,15 +4,12 @@
 # Support des items custom Nexo et PlaceholderAPI
 
 animated_title:
-  enabled: false
+  enabled: true
   frames:
     - '&6&lStorage - Mode: %mode%'
     - '&b&lStorage - Mode: %mode%'
     - '&a&lStorage - Mode: %mode%'
-  speed: 10 # en ticks (pas secondes)
-
-# Titre statique (utilisé si animated_title est désactivé)
-title: '&6&lStorage - Mode: %mode%'
+  speed: 10 # en secondes
 
 size: 54
 
@@ -33,19 +30,34 @@ items:
       - ' &fPrix unitaire: %price%'
       - ' &fPrix total: %total_price%'
 
-  # Bouton: Basculer Mode
-  toggle_mode:
-    slots: [49]
-    material: EMERALD
-    display_name: '&e&lMode: %mode%'
+  # Bouton: Mode Vente
+  storage_change_mode_sell:
+    slots: [45]
+    material: GOLD_INGOT
+    display_name: '&e&lMode Vente'
     lore:
-      - '&7Cliquez pour changer de mode'
+      - '&7Cliquez pour passer en mode vente'
       - '&7Mode actuel: &a%mode%'
       - ' '
-      - '&7STORAGE: Déposer/Retirer'
-      - '&7SELL: Vendre directement'
-    button_type: quantum_change_mode
-
+      - '&7En mode vente, vous pouvez vendre'
+      - '&7vos items directement depuis le storage'
+    type: quantum_change_mode
+    mode: SELL
+  
+  # Bouton: Mode Storage
+  storage_change_mode_storage:
+    slots: [46]
+    material: CHEST
+    display_name: '&e&lMode Storage'
+    lore:
+      - '&7Cliquez pour passer en mode storage'
+      - '&7Mode actuel: &a%mode%'
+      - ' '
+      - '&7En mode storage, vous pouvez déposer'
+      - '&7et retirer vos items'
+    type: quantum_change_mode
+    mode: STORAGE
+                              
   # Bouton: Fermer
   close:
     material: BARRIER

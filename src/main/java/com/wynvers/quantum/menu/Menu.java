@@ -137,6 +137,9 @@ public class Menu {
      * Open this menu for a player
      */
     public void open(Player player, Quantum plugin) {
+        // Enregistrer ce menu comme menu actif pour le joueur
+        plugin.getMenuManager().setActiveMenu(player, this);
+        
         // Parser les placeholders dans le titre
         String parsedTitle = plugin.getPlaceholderManager().parse(player, title);
         

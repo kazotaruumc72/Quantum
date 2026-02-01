@@ -266,7 +266,7 @@ public class MenuItem {
             if (targetMode != null) {
                 // Définir le mode spécifique
                 try {
-                    StorageMode mode = StorageMode.valueOf(targetMode.toUpperCase());
+                    StorageMode.Mode mode = StorageMode.Mode.valueOf(targetMode.toUpperCase());
                     StorageMode.setMode(player, mode);
                 } catch (IllegalArgumentException e) {
                     // Mode invalide, fallback sur toggle

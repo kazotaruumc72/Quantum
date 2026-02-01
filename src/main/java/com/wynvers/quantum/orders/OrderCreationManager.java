@@ -44,8 +44,9 @@ public class OrderCreationManager {
             return false;
         }
         
-        // Créer l'offre en attente
+        // Créer l'offre en attente avec quantité initiale à 1
         PendingOrder order = new PendingOrder(player.getUniqueId(), itemId, stockQuantity);
+        order.setQuantity(1); // Initialiser à 1 par défaut
         pendingOrders.put(player.getUniqueId(), order);
         
         return true;

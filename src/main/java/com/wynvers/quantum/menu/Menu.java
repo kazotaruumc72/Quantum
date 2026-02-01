@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.sell.SellSession;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -137,13 +138,22 @@ public class Menu {
      * Open this menu for a player
      */
     public void open(Player player, Quantum plugin) {
+        open(player, plugin, null);
+    }
+    
+    /**
+     * Open this menu for a player avec placeholders personnalisés
+     */
+    public void open(Player player, Quantum plugin, Map<String, String> customPlaceholders) {
         plugin.getMenuManager().setActiveMenu(player, this);
         
-        String parsedTitle = plugin.getPlaceholderManager().parse(player, title);
+        String parsedTitle = customPlaceholders != null 
+            ? plugin.getPlaceholderManager().parse(player, title, customPlaceholders)
+            : plugin.getPlaceholderManager().parse(player, title);
         
         Inventory inventory = Bukkit.createInventory(null, size, parsedTitle);
  
-        populateInventory(inventory, player);
+        populateInventory(inventory, player, customPlaceholders);
         
         player.openInventory(inventory);
         
@@ -157,6 +167,13 @@ public class Menu {
      * Utile pour mettre à jour le contenu dynamique (mode de stockage, items, etc.)
      */
     public void refresh(Player player, Quantum plugin) {
+        refresh(player, plugin, null);
+    }
+    
+    /**
+     * Rafraîchit le menu avec placeholders personnalisés
+     */
+    public void refresh(Player player, Quantum plugin, Map<String, String> customPlaceholders) {
         // Récupérer l'inventaire actuellement ouvert
         Inventory currentInventory = player.getOpenInventory().getTopInventory();
         
@@ -166,7 +183,7 @@ public class Menu {
         }
         
         // Repeupler l'inventaire avec les données à jour
-        populateInventory(currentInventory, player);
+        populateInventory(currentInventory, player, customPlaceholders);
     }
     
     // Additional methods needed by MenuManager
@@ -206,6 +223,13 @@ public class Menu {
      * Remplit l'inventaire avec les items du menu pour un joueur spécifique
      */
     public void populateInventory(Inventory inventory, Player player) {
+        populateInventory(inventory, player, null);
+    }
+    
+    /**
+     * Remplit l'inventaire avec les items du menu pour un joueur spécifique avec placeholders
+     */
+    public void populateInventory(Inventory inventory, Player player, Map<String, String> customPlaceholders) {
         inventory.clear();
         
         // Premièrement, remplir les items standards (non-quantum_storage)
@@ -227,16 +251,17 @@ public class Menu {
                 if (meta != null) {
                     // Parser le display name
                     if (meta.hasDisplayName()) {
-                        String parsedName = plugin.getPlaceholderManager().parse(player, meta.getDisplayName());
+                        String parsedName = customPlaceholders != null
+                            ? plugin.getPlaceholderManager().parse(player, meta.getDisplayName(), customPlaceholders)
+                            : plugin.getPlaceholderManager().parse(player, meta.getDisplayName());
                         meta.setDisplayName(parsedName);
                     }
                     
                     // Parser la lore
                     if (meta.hasLore()) {
-                        List<String> parsedLore = new ArrayList<>();
-                        for (String loreLine : meta.getLore()) {
-                            parsedLore.add(plugin.getPlaceholderManager().parse(player, loreLine));
-                        }
+                        List<String> parsedLore = customPlaceholders != null
+                            ? plugin.getPlaceholderManager().parse(player, meta.getLore(), customPlaceholders)
+                            : plugin.getPlaceholderManager().parse(player, meta.getLore());
                         meta.setLore(parsedLore);
                     }
                     

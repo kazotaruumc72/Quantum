@@ -48,7 +48,10 @@ public class AnimationManager {
                     return;
                 }
                 
+                // Traiter les placeholders dans le titre
                 String title = frames.get(currentFrame);
+                title = plugin.getPlaceholderManager().parse(player, title);
+                
                 updateTitle(player, title);
                 
                 currentFrame = (currentFrame + 1) % frames.size();

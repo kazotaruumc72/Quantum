@@ -31,28 +31,35 @@ public class MenuListener implements Listener {
     /**
      * NUCLEAR OPTION: Cancel ABSOLUTELY EVERYTHING when menu is open
      * Priority LOWEST means we run FIRST before any other plugin
+     * USES getActiveMenu() as primary detection - works with animated titles!
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onInventoryClickNuclear(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
         
         Player player = (Player) event.getWhoClicked();
-        Menu menu = plugin.getMenuManager().getActiveMenu(player);
         
-        // Si pas de menu actif, vérifier par titre comme fallback
-        if (menu == null) {
-            String title = event.getView().getTitle();
-            menu = plugin.getMenuManager().getMenuByTitle(title);
-        }
+        // TOUJOURS utiliser getActiveMenu() EN PREMIER
+        // Car il fonctionne avec les titres animés et dynamiques !
+        Menu menu = plugin.getMenuManager().getActiveMenu(player);
         
         // Si un menu est détecté : CANCEL IMMÉDIATEMENT
         if (menu != null) {
             // DEBUG: Envoyer un message au joueur pour confirmer détection
-            player.sendMessage("§c[DEBUG] Menu détecté: " + menu.getId() + " - Click cancelled!");
+            player.sendMessage("§a[DEBUG] Menu détecté via activeMenu: " + menu.getId() + " - Click cancelled!");
             event.setCancelled(true);
         } else {
-            // DEBUG: Pas de menu détecté
-            player.sendMessage("§e[DEBUG] Pas de menu détecté. Title: " + event.getView().getTitle());
+            // Fallback sur getMenuByTitle seulement si getActiveMenu() échoue
+            String title = event.getView().getTitle();
+            menu = plugin.getMenuManager().getMenuByTitle(title);
+            
+            if (menu != null) {
+                player.sendMessage("§6[DEBUG] Menu détecté via titre: " + menu.getId() + " - Click cancelled!");
+                event.setCancelled(true);
+            } else {
+                // DEBUG: Pas de menu détecté
+                player.sendMessage("§e[DEBUG] Pas de menu détecté. Title: " + title);
+            }
         }
     }
     
@@ -66,10 +73,11 @@ public class MenuListener implements Listener {
         
         Player player = (Player) event.getWhoClicked();
         
-        // Utiliser le menu actif pour une détection fiable
+        // TOUJOURS utiliser le menu actif comme source primaire
         Menu menu = plugin.getMenuManager().getActiveMenu(player);
+        
         if (menu == null) {
-            // Fallback sur getMenuByTitle si pas de menu actif
+            // Fallback sur getMenuByTitle si vraiment nécessaire
             String title = event.getView().getTitle();
             menu = plugin.getMenuManager().getMenuByTitle(title);
         }
@@ -151,22 +159,29 @@ public class MenuListener implements Listener {
     
     /**
      * Nuclear drag protection - priority LOWEST
+     * USES getActiveMenu() as primary detection
      */
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = false)
     public void onInventoryDragNuclear(InventoryDragEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
         
         Player player = (Player) event.getWhoClicked();
+        
+        // TOUJOURS utiliser getActiveMenu() EN PREMIER
         Menu menu = plugin.getMenuManager().getActiveMenu(player);
         
-        if (menu == null) {
+        if (menu != null) {
+            player.sendMessage("§a[DEBUG] Menu détecté via activeMenu: " + menu.getId() + " - Drag cancelled!");
+            event.setCancelled(true);
+        } else {
+            // Fallback
             String title = event.getView().getTitle();
             menu = plugin.getMenuManager().getMenuByTitle(title);
-        }
-        
-        if (menu != null) {
-            player.sendMessage("§c[DEBUG] Menu détecté: " + menu.getId() + " - Drag cancelled!");
-            event.setCancelled(true);
+            
+            if (menu != null) {
+                player.sendMessage("§6[DEBUG] Menu détecté via titre: " + menu.getId() + " - Drag cancelled!");
+                event.setCancelled(true);
+            }
         }
     }
     
@@ -175,6 +190,8 @@ public class MenuListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player)) return;
         
         Player player = (Player) event.getWhoClicked();
+        
+        // TOUJOURS utiliser le menu actif comme source primaire
         Menu menu = plugin.getMenuManager().getActiveMenu(player);
         
         if (menu == null) {

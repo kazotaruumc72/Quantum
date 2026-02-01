@@ -1,7 +1,7 @@
 package com.wynvers.quantum.sell;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.storage.StorageManager;
+import com.wynvers.quantum.managers.StorageManager;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

@@ -146,7 +146,7 @@ public class StorageListener implements Listener {
      * IMPORTANT: NE RETIRE PAS LES ITEMS DU STORAGE !
      * Crée la session et ouvre le menu avec placeholders appliqués
      * 
-     * PATCH: Ne ferme PLUS le menu, place l'item au slot 9
+     * PATCH: Stocke l'ItemStack dans la session pour affichage
      */
     private void handleCreateOrder(Player player, ItemStack displayItem) {
         PlayerStorage storage = plugin.getStorageManager().getStorage(player);
@@ -175,36 +175,24 @@ public class StorageListener implements Listener {
             return;
         }
         
-        // Récupérer la session pour récupérer l'item d'origine
+        // Récupérer la session pour stocker l'ItemStack
         OrderCreationSession session = orderManager.getSession(player);
         if (session == null) {
             player.sendMessage("§c⚠ Erreur lors de la création de la session!");
             return;
         }
         
-        // === PATCH 1: NE PLUS FERMER LE MENU ===
-        // On garde le menu ouvert et on place l'item au slot 9
+        // === PATCH: STOCKER L'ITEMSTACK DANS LA SESSION ===
+        session.setDisplayItem(displayItem.clone());
         
-        // === PATCH 2: PLACER L'ITEM AU SLOT 9 DU MENU ===
-        // Récupérer l'inventaire du menu ouvert
-        Inventory topInv = player.getOpenInventory().getTopInventory();
-        if (topInv != null && topInv.getSize() > 9) {
-            // Cloner l'item cliqué et le placer au slot 9 (centre du menu)
-            ItemStack displayItemClone = displayItem.clone();
-            displayItemClone.setAmount(1);
-            topInv.setItem(9, displayItemClone);
-            
-            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.5f);
-            player.sendMessage("§a§l✓ §aItem sélectionné: §e" + itemId);
-        }
+        // Fermer l'inventaire et ouvrir le menu order_quantity
+        player.closeInventory();
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
         
-        // Ouvrir le menu order_quantity après 2 ticks
+        // Ouvrir le menu order_quantity avec l'item et les placeholders
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             MenuManager menuManager = plugin.getMenuManager();
             if (menuManager != null) {
-                // Fermer l'ancien menu
-                player.closeInventory();
-                
                 // Ouvrir le menu avec la session et l'item
                 menuManager.openMenuWithSession(player, "order_quantity", session, displayItem);
             }

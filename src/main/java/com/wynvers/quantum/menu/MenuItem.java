@@ -1,6 +1,7 @@
 package com.wynvers.quantum.menu;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.sell.SellSession;
 import com.wynvers.quantum.storage.StorageMode;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -19,7 +20,7 @@ public class MenuItem {
     // Item properties
     private Material material;
     private String nexoId;
-    private int amount;
+    private int itemAmount;
     private String displayName;
     private List<String> lore;
     private String skullOwner;
@@ -30,11 +31,14 @@ public class MenuItem {
     // Type de slot (quantum_storage, etc.)
     private String type;
     
-    // Button type (QUANTUM_CHANGE_MODE, etc.)
+    // Button type (QUANTUM_CHANGE_MODE, QUANTUM_CHANGE_AMOUNT, etc.)
     private ButtonType buttonType;
     
     // Mode target pour QUANTUM_CHANGE_MODE (SELL ou STORAGE)
     private String targetMode;
+    
+    // Amount pour QUANTUM_CHANGE_AMOUNT (+10, -10, etc.)
+    private int changeAmount;
     
     // Lore append pour quantum_storage
     private List<String> loreAppend;
@@ -52,7 +56,8 @@ public class MenuItem {
     public MenuItem(String id) {
         this.id = id;
         this.slots = new ArrayList<>();
-        this.amount = 1;
+        this.itemAmount = 1;
+        this.changeAmount = 0;
         this.lore = new ArrayList<>();
         this.loreAppend = new ArrayList<>();
         this.leftClickActions = new ArrayList<>();
@@ -85,7 +90,11 @@ public class MenuItem {
     }
     
     public int getAmount() {
-        return amount;
+        return itemAmount;
+    }
+    
+    public int getChangeAmount() {
+        return changeAmount;
     }
     
     public String getDisplayName() {
@@ -175,7 +184,11 @@ public class MenuItem {
     }
     
     public void setAmount(int amount) {
-        this.amount = Math.max(1, Math.min(64, amount));
+        this.itemAmount = Math.max(1, Math.min(64, amount));
+    }
+    
+    public void setChangeAmount(int amount) {
+        this.changeAmount = amount;
     }
     
     public void setDisplayName(String displayName) {
@@ -261,32 +274,30 @@ public class MenuItem {
      * Execute all actions for this item based on click type
      */
     public void executeActions(Player player, Quantum plugin, ClickType clickType) {
-        // Si c'est un bouton QUANTUM_CHANGE_MODE, changer vers le mode spécifié
+        // === QUANTUM_CHANGE_MODE ===
         if (buttonType == ButtonType.QUANTUM_CHANGE_MODE) {
             if (targetMode != null) {
-                // Définir le mode spécifique
+                // D\u00e9finir le mode sp\u00e9cifique
                 try {
                     StorageMode.Mode mode = StorageMode.Mode.valueOf(targetMode.toUpperCase());
                     StorageMode.setMode(player, mode);
                     
                     // Feedback au joueur
-                    player.sendMessage("§aMode changé en: §e" + mode.getDisplayName());
+                    player.sendMessage("\u00a7aMode chang\u00e9 en: \u00a7e" + mode.getDisplayName());
                 } catch (IllegalArgumentException e) {
                     // Mode invalide, fallback sur toggle
                     StorageMode.toggleMode(player);
-                    player.sendMessage("§aMode changé en: §e" + StorageMode.getModeDisplay(player));
+                    player.sendMessage("\u00a7aMode chang\u00e9 en: \u00a7e" + StorageMode.getModeDisplay(player));
                 }
             } else {
-                // Pas de mode spécifié, toggle par défaut
+                // Pas de mode sp\u00e9cifi\u00e9, toggle par d\u00e9faut
                 StorageMode.toggleMode(player);
-                player.sendMessage("§aMode changé en: §e" + StorageMode.getModeDisplay(player));
+                player.sendMessage("\u00a7aMode chang\u00e9 en: \u00a7e" + StorageMode.getModeDisplay(player));
             }
             
-            // Rafraîchir le menu SANS le fermer
-            // On récupère le menu actif et on le refresh
+            // Rafra\u00eechir le menu SANS le fermer
             Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
             if (activeMenu != null) {
-                // Attendre 1 tick pour que le changement de mode soit pris en compte
                 org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     activeMenu.refresh(player, plugin);
                 }, 1L);
@@ -295,9 +306,55 @@ public class MenuItem {
             return;
         }
         
+        // === QUANTUM_CHANGE_AMOUNT ===
+        if (buttonType == ButtonType.QUANTUM_CHANGE_AMOUNT) {
+            SellSession session = plugin.getSellManager().getSession(player);
+            if (session == null) {
+                player.sendMessage("\u00a7cErreur: Aucune session de vente active.");
+                return;
+            }
+            
+            // Modifier la quantit\u00e9
+            if (changeAmount == 999999) {
+                // Vendre tout
+                session.setQuantity(session.getMaxQuantity());
+            } else {
+                session.changeQuantity(changeAmount);
+            }
+            
+            // Rafra\u00eechir le menu
+            Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
+            if (activeMenu != null) {
+                org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    activeMenu.refresh(player, plugin);
+                }, 1L);
+            }
+            
+            return;
+        }
+        
+        // === QUANTUM_SELL ===
+        if (buttonType == ButtonType.QUANTUM_SELL) {
+            if (plugin.getSellManager().executeSell(player)) {
+                // Vente r\u00e9ussie, fermer le menu et retourner au storage
+                player.closeInventory();
+                
+                // Ouvrir le storage apr\u00e8s 2 ticks
+                org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    Menu storageMenu = plugin.getMenuManager().getMenu("storage");
+                    if (storageMenu != null) {
+                        storageMenu.open(player, plugin);
+                    }
+                }, 2L);
+            }
+            
+            return;
+        }
+        
+        // === ACTIONS STANDARD ===
         List<MenuAction> actionsToExecute = new ArrayList<>();
         
-        // Déterminer quelles actions exécuter selon le type de clic
+        // D\u00e9terminer quelles actions ex\u00e9cuter selon le type de clic
         switch (clickType) {
             case RIGHT:
             case SHIFT_RIGHT:
@@ -324,7 +381,7 @@ public class MenuItem {
                 break;
         }
         
-        // Exécuter toutes les actions
+        // Ex\u00e9cuter toutes les actions
         for (MenuAction action : actionsToExecute) {
             action.execute(player, plugin);
         }
@@ -341,7 +398,7 @@ public class MenuItem {
      * Convert this MenuItem to a Bukkit ItemStack
      */
     public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin) {
-        // Si c'est un slot quantum_storage, ne pas créer d'item ici
+        // Si c'est un slot quantum_storage, ne pas cr\u00e9er d'item ici
         // Le StorageRenderer s'en occupera
         if (isQuantumStorage()) {
             return null;
@@ -354,11 +411,11 @@ public class MenuItem {
             // Try to create Nexo item
             try {
                 itemStack = com.nexomc.nexo.api.NexoItems.itemFromId(nexoId).build();
-                itemStack.setAmount(amount);
+                itemStack.setAmount(itemAmount);
             } catch (Exception e) {
                 // Nexo not available or item not found, fallback to material
                 if (material != null) {
-                    itemStack = new org.bukkit.inventory.ItemStack(material, amount);
+                    itemStack = new org.bukkit.inventory.ItemStack(material, itemAmount);
                 } else {
                     return null;
                 }
@@ -366,7 +423,7 @@ public class MenuItem {
         } else {
             // Create vanilla Minecraft item
             if (material == null) return null;
-            itemStack = new org.bukkit.inventory.ItemStack(material, amount);
+            itemStack = new org.bukkit.inventory.ItemStack(material, itemAmount);
         }
         
         // Apply metadata (only if not Nexo item or Nexo failed)

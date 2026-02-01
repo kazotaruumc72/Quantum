@@ -1,7 +1,9 @@
 package com.wynvers.quantum.sell;
 
+import com.nexomc.nexo.api.NexoItems;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.managers.StorageManager;
+import com.wynvers.quantum.storage.PlayerStorage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -72,22 +74,37 @@ public class SellManager {
             return false;
         }
         
-        // V\u00e9rifier que le joueur a toujours les items
-        StorageManager storageManager = plugin.getStorageManager();
+        // R\u00e9cup\u00e9rer le storage du joueur
+        PlayerStorage storage = plugin.getStorageManager().getStorage(player);
         ItemStack itemToSell = session.getItemToSell();
         int quantity = session.getQuantity();
         
-        if (!storageManager.hasItem(player, itemToSell, quantity)) {
+        // D\u00e9terminer si c'est un item Nexo ou vanilla
+        String nexoId = NexoItems.idFromItem(itemToSell);
+        
+        // V\u00e9rifier que le joueur a toujours les items
+        boolean hasEnough;
+        if (nexoId != null) {
+            hasEnough = storage.hasNexoItem(nexoId, quantity);
+        } else {
+            hasEnough = storage.hasItem(itemToSell.getType(), quantity);
+        }
+        
+        if (!hasEnough) {
             player.sendMessage("\u00a7cErreur: Vous n'avez plus assez de cet item en stock.");
             removeSession(player);
             return false;
         }
         
         // Retirer les items du storage
-        if (!storageManager.removeItem(player, itemToSell, quantity)) {
-            player.sendMessage("\u00a7cErreur: Impossible de retirer les items du storage.");
-            return false;
+        if (nexoId != null) {
+            storage.removeNexoItem(nexoId, quantity);
+        } else {
+            storage.removeItem(itemToSell.getType(), quantity);
         }
+        
+        // Sauvegarder le storage
+        storage.save(plugin);
         
         // Ajouter l'argent au joueur
         double totalPrice = session.getTotalPrice();

@@ -66,8 +66,8 @@ public class MenuListener implements Listener {
                     return;
                 }
                 
-                // Execute actions
-                menuItem.executeActions(player, plugin);
+                // Execute actions avec le ClickType
+                menuItem.executeActions(player, plugin, event.getClick());
             }
         }
         // If clicking in player inventory while menu is open, prevent shift-click to menu
@@ -107,8 +107,8 @@ public class MenuListener implements Listener {
                     return;
                 }
                 
-                // Execute actions
-                menuItem.executeActions(player, plugin);
+                // Execute actions avec le ClickType
+                menuItem.executeActions(player, plugin, event.getClick());
             }
             // If clicking on an empty slot or storage item slot
             else if (isAdmin) {

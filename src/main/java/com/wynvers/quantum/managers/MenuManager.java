@@ -46,6 +46,7 @@ public class MenuManager {
         int loaded = 0;
         for (File file : files) {
             try {
+                String menuId = file.getName().replace(".yml", "");
                 Menu menu = loadMenu(file);
                 if (menu != null) {
                     menus.put(menu.getId(), menu);
@@ -54,6 +55,8 @@ public class MenuManager {
                         commandMenus.put(menu.getOpenCommand().toLowerCase(), menu);
                     }
                     
+                    // Log pour chaque menu chargé
+                    plugin.getQuantumLogger().success("✓ Loaded menu: " + menuId + " (" + menu.getItems().size() + " items)");
                     loaded++;
                 }
             } catch (Exception e) {
@@ -62,7 +65,7 @@ public class MenuManager {
             }
         }
         
-        plugin.getQuantumLogger().success("Loaded " + loaded + " menus");
+        plugin.getQuantumLogger().success("Total: " + loaded + " menus loaded");
     }
     
     private Menu loadMenu(File file) {

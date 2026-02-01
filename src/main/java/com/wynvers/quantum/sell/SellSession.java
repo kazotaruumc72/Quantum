@@ -67,12 +67,12 @@ public class SellSession {
     }
     
     /**
-     * Génére les placeholders pour le menu de vente
+     * Génère les placeholders pour le menu de vente
      */
     public Map<String, String> getPlaceholders() {
         Map<String, String> placeholders = new HashMap<>();
         
-        // Nom de l'item
+        // Nom de l'item (avec couleurs)
         String itemName;
         if (itemToSell.hasItemMeta() && itemToSell.getItemMeta().hasDisplayName()) {
             itemName = itemToSell.getItemMeta().getDisplayName();
@@ -80,12 +80,30 @@ public class SellSession {
             // Vérifier si c'est un item Nexo
             String nexoId = NexoItems.idFromItem(itemToSell);
             if (nexoId != null) {
-                itemName = nexoId;
+                // Essayer de récupérer le display name depuis Nexo
+                try {
+                    ItemStack nexoItem = NexoItems.itemFromId(nexoId).build();
+                    if (nexoItem.hasItemMeta() && nexoItem.getItemMeta().hasDisplayName()) {
+                        itemName = nexoItem.getItemMeta().getDisplayName();
+                    } else {
+                        itemName = nexoId;
+                    }
+                } catch (Exception e) {
+                    itemName = nexoId;
+                }
             } else {
                 itemName = itemToSell.getType().name().toLowerCase().replace('_', ' ');
             }
         }
         placeholders.put("item_name", itemName);
+        
+        // Material de l'item (pour l'affichage dans le menu)
+        // Si c'est un item Nexo, on garde le type vanilla
+        placeholders.put("item", itemToSell.getType().name());
+        
+        // Amount à afficher (max 64 si quantité > 64)
+        int displayAmount = Math.min(quantity, 64);
+        placeholders.put("amount", String.valueOf(displayAmount));
         
         // Quantités
         placeholders.put("quantity", String.valueOf(quantity));

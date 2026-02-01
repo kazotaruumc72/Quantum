@@ -216,12 +216,11 @@ public class MenuListener implements Listener {
             
             // CRITICAL FIX: Attendre 1 tick avant de supprimer le menu
             // Car InventoryCloseEvent se déclenche AVANT l'ouverture du prochain inventaire
-            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                // Vérifier si le joueur a toujours un inventaire ouvert
-                (player.getOpenInventory().getType() == InventoryType.CRAFTING);
-                    // Le joueur n'a vraiment aucun menu ouvert maintenant
-                    plugin.getMenuManager().clearActiveMenu(player);
-            }, 1L);
-        }
+        org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            // Vérifier si le joueur a vraiment fermé tous les menus
+            if (player.getOpenInventory().getType() == InventoryType.CRAFTING) {
+                // Le joueur n'a vraiment aucun menu ouvert maintenant
+                plugin.getMenuManager().clearActiveMenu(player);
+            }
+        }, 1L);
 }
-    }

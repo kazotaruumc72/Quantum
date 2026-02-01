@@ -282,16 +282,15 @@ public class MenuItem {
                 player.sendMessage("§aMode changé en: §e" + StorageMode.getModeDisplay(player));
             }
             
-            // Fermer l'inventaire actuel pour forcer le rafraîchissement
-            player.closeInventory();
-            
-            // Réouvrir le menu après un court délai pour permettre la fermeture
-            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                Menu storageMenu = plugin.getMenuManager().getMenu("storage");
-                if (storageMenu != null) {
-                    storageMenu.open(player, plugin);
-                }
-            }, 2L); // 2 ticks de délai
+            // Rafraîchir le menu SANS le fermer
+            // On récupère le menu actif et on le refresh
+            Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
+            if (activeMenu != null) {
+                // Attendre 1 tick pour que le changement de mode soit pris en compte
+                org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    activeMenu.refresh(player, plugin);
+                }, 1L);
+            }
             
             return;
         }

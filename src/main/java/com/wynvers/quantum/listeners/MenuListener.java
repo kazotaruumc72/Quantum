@@ -1,6 +1,7 @@
 package com.wynvers.quantum.listeners;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.menu.ButtonType;
 import com.wynvers.quantum.menu.Menu;
 import com.wynvers.quantum.menu.MenuItem;
 import com.wynvers.quantum.menu.StorageMenuHandler;
@@ -108,7 +109,8 @@ public class MenuListener implements Listener {
             int slot = event.getSlot();
             MenuItem menuItem = menu.getItemAt(slot);
             
-            if (menuItem != null) {
+            // Vérifier si c'est un bouton spécial (avec buttonType ou actions)
+            if (menuItem != null && isSpecialButton(menuItem)) {
                 if (!menuItem.meetsRequirements(player, plugin)) {
                     if (menuItem.getDenyMessage() != null && !menuItem.getDenyMessage().isEmpty()) {
                         player.sendMessage(menuItem.getDenyMessage());
@@ -118,10 +120,9 @@ public class MenuListener implements Listener {
                 
                 menuItem.executeActions(player, plugin, event.getClick());
             }
-            else if (isAdmin) {
+            // Sinon, c'est un item de storage normal
+            else {
                 storageHandler.handleClick(player, slot, event.getClick(), event.getCursor());
-            } else {
-                player.sendMessage("§cStorage is view-only. Use /qstorage commands or contact an admin.");
             }
         }
         else if (clickedInv != null && clickedInv.equals(player.getInventory())) {
@@ -135,6 +136,24 @@ public class MenuListener implements Listener {
                 }
             }
         }
+    }
+    
+    /**
+     * Vérifie si un MenuItem est un bouton spécial (pas un item de storage normal)
+     */
+    private boolean isSpecialButton(MenuItem menuItem) {
+        // Si le MenuItem a un buttonType spécial, c'est un bouton
+        if (menuItem.getButtonType() != null && menuItem.getButtonType() != ButtonType.NONE) {
+            return true;
+        }
+        
+        // Si le MenuItem a des actions (clic gauche ou droit), c'est un bouton
+        if (!menuItem.getLeftClickActions().isEmpty() || !menuItem.getRightClickActions().isEmpty()) {
+            return true;
+        }
+        
+        // Sinon, c'est un item de storage normal
+        return false;
     }
     
     /**

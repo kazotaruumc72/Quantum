@@ -6,6 +6,8 @@ items:
   # L'ITEM SUR LEQUEL L'UTILISATEUR A CLIQUÉ (slot 9)
   item_display:
     slots: [9]
+    # PATCH: Utiliser QUANTUM_ORDER_DISPLAY_ITEM pour afficher l'item réel
+    button_type: QUANTUM_ORDER_DISPLAY_ITEM
     # Material sera remplacé dynamiquement par l'item du storage
     material: PAPER
     display_name: '&e%quantum_order_item_name%'

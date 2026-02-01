@@ -2,7 +2,7 @@
 # QUANTUM - Configuration des Messages (FR)
 # ===============================================
 # Support des codes couleur avec & (&c = rouge, &a = vert, etc.)
-# Placeholders disponibles: {player}, {amount}, {item}, {menu}
+# Placeholders disponibles: {player}, {amount}, {item}, {menu}, {price}, {total_price}
 
 prefix: "&8[&6Quantum&8]&r "
 
@@ -98,6 +98,18 @@ command:
   help-storage: "&e/storage &7- Ouvrir votre storage"
   help-storage-admin: "&e/storage <player> &7- Ouvrir le storage d'un joueur"
   help-menu: "&e/menu <nom> &7- Ouvrir un menu"
+
+# Messages de Vente (Sell System)
+sell:
+  # Session de vente
+  no-session: "&cAucune session de vente active."
+  economy-disabled: "&cLe système économique n'est pas disponible."
+  not-enough-stock: "&cVous n'avez pas assez d'items en stock."
+  
+  # Confirmation de vente
+  success-title: "&8[&6Quantum&8] &aVente réussie !"
+  success-sold: "&7Vous avez vendu &e{amount}x {item}"
+  success-received: "&7Vous avez reçu &a{total_price}"
   
 # Messages d'Erreur
 error:

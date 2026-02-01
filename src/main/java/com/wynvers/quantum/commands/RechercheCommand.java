@@ -38,7 +38,7 @@ public class RechercheCommand implements CommandExecutor {
             // Ouvrir le menu des catégories
             Menu menu = plugin.getMenuManager().getMenu("orders_categories");
             if (menu != null) {
-                menu.open(player);
+                menu.open(player, plugin);
             } else {
                 player.sendMessage(mm.deserialize("<red>Menu introuvable!"));
             }

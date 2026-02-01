@@ -137,6 +137,16 @@ public class MenuManager {
             item.setType(section.getString("type"));
         }
         
+        // Button type (quantum_change_mode, etc.)
+        if (section.contains("button_type")) {
+            try {
+                ButtonType buttonType = ButtonType.valueOf(section.getString("button_type").toUpperCase());
+                item.setButtonType(buttonType);
+            } catch (IllegalArgumentException e) {
+                plugin.getQuantumLogger().warning("Invalid button_type: " + section.getString("button_type"));
+            }
+        }
+        
         // Lore append pour quantum_storage
         if (section.contains("lore_append")) {
             item.setLoreAppend(colorList(section.getStringList("lore_append")));

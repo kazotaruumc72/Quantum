@@ -2,14 +2,17 @@ package com.wynvers.quantum.managers;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.orders.*;
+import com.wynvers.quantum.utils.ItemUtils;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.*;
@@ -24,14 +27,16 @@ import java.util.stream.Collectors;
  */
 public class OrderManager {
     private final Quantum plugin;
-    private final Map<String, OrderItem> items;
+    private final Map<String, String> itemToCategory; // itemId -> category
+    private final Map<String, List<String>> categoryItems; // category -> list of items
     private final Map<UUID, Order> activeOrders;
     private LuckPerms luckPerms;
     private boolean luckPermsAvailable;
 
     public OrderManager(Quantum plugin) {
         this.plugin = plugin;
-        this.items = new HashMap<>();
+        this.itemToCategory = new HashMap<>();
+        this.categoryItems = new HashMap<>();
         this.activeOrders = new HashMap<>();
         
         // Initialiser LuckPerms si disponible
@@ -40,7 +45,7 @@ public class OrderManager {
         // Charger les items
         loadItems();
         
-        plugin.getQuantumLogger().success("✓ OrderManager initialized with " + items.size() + " items");
+        plugin.getQuantumLogger().success("✓ OrderManager initialized with " + itemToCategory.size() + " items");
     }
 
     /**
@@ -66,76 +71,130 @@ public class OrderManager {
      * Charge tous les items depuis orders_template.yml
      */
     public void loadItems() {
-        items.clear();
+        itemToCategory.clear();
+        categoryItems.clear();
         
         File file = new File(plugin.getDataFolder(), "orders_template.yml");
         if (!file.exists()) {
-            plugin.getQuantumLogger().warning("⚠ orders_template.yml not found! Creating default...");
-            plugin.saveResource("orders_template.yml", false);
+            plugin.getQuantumLogger().warning("⚠ orders_template.yml not found!");
+            return;
         }
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(file);
         
-        for (String key : config.getKeys(false)) {
-            if (config.isConfigurationSection(key)) {
-                try {
-                    ConfigurationSection section = config.getConfigurationSection(key);
-                    OrderItem item = new OrderItem(key, section);
-                    items.put(key.toLowerCase(), item);
-                    
-                    plugin.getQuantumLogger().info("  ✓ Loaded: " + key + " (" + item.getType().getDisplayName() + ")");
-                } catch (Exception e) {
-                    plugin.getQuantumLogger().error("✗ Failed to load item: " + key);
-                    e.printStackTrace();
-                }
+        // Parcourir chaque catégorie
+        for (String category : config.getKeys(false)) {
+            if (!config.isConfigurationSection(category)) continue;
+            
+            ConfigurationSection categorySection = config.getConfigurationSection(category);
+            List<String> items = categorySection.getStringList("items");
+            
+            categoryItems.put(category.toLowerCase(), new ArrayList<>(items));
+            
+            // Mapper chaque item à sa catégorie
+            for (String item : items) {
+                itemToCategory.put(item.toLowerCase(), category.toLowerCase());
             }
+            
+            plugin.getQuantumLogger().info("  ✓ Loaded category " + category + " with " + items.size() + " items");
         }
         
-        plugin.getQuantumLogger().success("✓ Loaded " + items.size() + " items from orders_template.yml");
+        plugin.getQuantumLogger().success("✓ Loaded " + itemToCategory.size() + " items from " + categoryItems.size() + " categories");
     }
 
     /**
-     * Récupère un item par son ID
+     * Détecte automatiquement la catégorie d'un item
      */
-    public OrderItem getItem(String itemId) {
-        return items.get(itemId.toLowerCase());
+    public String getCategoryForItem(String itemId) {
+        return itemToCategory.get(itemId.toLowerCase());
+    }
+
+    /**
+     * Vérifie si un item est autorisé
+     */
+    public boolean isItemAllowed(String itemId) {
+        return itemToCategory.containsKey(itemId.toLowerCase());
     }
 
     /**
      * Récupère tous les items d'une catégorie
      */
-    public List<OrderItem> getItemsByType(OrderType type) {
-        return items.values().stream()
-            .filter(item -> item.getType() == type)
-            .collect(Collectors.toList());
+    public List<String> getItemsForCategory(String category) {
+        return categoryItems.getOrDefault(category.toLowerCase(), new ArrayList<>());
+    }
+
+    /**
+     * Récupère toutes les catégories
+     */
+    public Set<String> getAllCategories() {
+        return new HashSet<>(categoryItems.keySet());
     }
 
     /**
      * Récupère tous les IDs d'items
      */
     public Set<String> getAllItemIds() {
-        return new HashSet<>(items.keySet());
+        return new HashSet<>(itemToCategory.keySet());
     }
 
     /**
-     * Vérifie si un item existe
+     * Récupère tous les items avec leur display name pour tab completion
      */
-    public boolean hasItem(String itemId) {
-        return items.containsKey(itemId.toLowerCase());
+    public Map<String, String> getAllItemsWithDisplayNames() {
+        Map<String, String> result = new HashMap<>();
+        
+        for (String itemId : itemToCategory.keySet()) {
+            // Générer le display name
+            String displayName = getDisplayNameForItem(itemId);
+            result.put(itemId, displayName);
+        }
+        
+        return result;
     }
 
     /**
-     * Valide un prix pour un item
+     * Génère le display name pour un item
      */
-    public boolean validatePrice(String itemId, double price) {
-        OrderItem item = getItem(itemId);
-        if (item == null) return false;
-        return item.isValidPrice(price);
+    private String getDisplayNameForItem(String itemId) {
+        // Si c'est un item Nexo
+        if (itemId.startsWith("nexo:")) {
+            String nexoId = itemId.substring(5);
+            ItemStack nexoItem = ItemUtils.getNexoItem(nexoId);
+            if (nexoItem != null && nexoItem.hasItemMeta() && nexoItem.getItemMeta().hasDisplayName()) {
+                return nexoItem.getItemMeta().getDisplayName();
+            }
+            return nexoId.replace("_", " ");
+        }
+        
+        // Si c'est un item Minecraft
+        if (itemId.startsWith("minecraft:")) {
+            String minecraftId = itemId.substring(10);
+            try {
+                Material material = Material.valueOf(minecraftId.toUpperCase());
+                return formatMaterialName(material);
+            } catch (IllegalArgumentException e) {
+                return minecraftId.replace("_", " ");
+            }
+        }
+        
+        return itemId.replace("_", " ");
+    }
+
+    /**
+     * Formate le nom d'un material Minecraft
+     */
+    private String formatMaterialName(Material material) {
+        String[] words = material.name().toLowerCase().split("_");
+        StringBuilder result = new StringBuilder();
+        for (String word : words) {
+            if (result.length() > 0) result.append(" ");
+            result.append(word.substring(0, 1).toUpperCase()).append(word.substring(1));
+        }
+        return result.toString();
     }
 
     /**
      * Récupère la durée d'ordre pour un joueur (en jours)
-     * Basé sur les permissions LuckPerms
      */
     public long getOrderDurationForPlayer(Player player) {
         if (!luckPermsAvailable) {
@@ -148,20 +207,17 @@ public class OrderManager {
                 return plugin.getConfig().getLong("orders.durations.default", 3);
             }
 
-            // Vérifie chaque permission dans l'ordre (du plus élevé au plus bas)
             ConfigurationSection durationsSection = plugin.getConfig().getConfigurationSection("orders.durations");
             if (durationsSection == null) {
-                return 3; // Fallback
+                return 3;
             }
 
-            // Trier les permissions par durée (desc)
             List<Map.Entry<String, Long>> sortedPerms = durationsSection.getKeys(false).stream()
                 .filter(key -> !key.equals("default"))
                 .map(key -> new AbstractMap.SimpleEntry<>(key, durationsSection.getLong(key)))
                 .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                 .collect(Collectors.toList());
 
-            // Vérifie quelle permission le joueur a
             for (Map.Entry<String, Long> entry : sortedPerms) {
                 if (user.getCachedData().getPermissionData().checkPermission(entry.getKey()).asBoolean()) {
                     return entry.getValue();
@@ -171,8 +227,6 @@ public class OrderManager {
             return durationsSection.getLong("default", 3);
             
         } catch (Exception e) {
-            plugin.getQuantumLogger().error("Error getting order duration for " + player.getName());
-            e.printStackTrace();
             return plugin.getConfig().getLong("orders.durations.default", 3);
         }
     }
@@ -196,7 +250,6 @@ public class OrderManager {
                 return 3;
             }
 
-            // Trier par limite (desc)
             List<Map.Entry<String, Integer>> sortedPerms = maxSection.getKeys(false).stream()
                 .filter(key -> !key.equals("default"))
                 .map(key -> new AbstractMap.SimpleEntry<>(key, maxSection.getInt(key)))
@@ -212,8 +265,6 @@ public class OrderManager {
             return maxSection.getInt("default", 3);
             
         } catch (Exception e) {
-            plugin.getQuantumLogger().error("Error getting max orders for " + player.getName());
-            e.printStackTrace();
             return plugin.getConfig().getInt("orders.max-active-orders.default", 3);
         }
     }
@@ -223,10 +274,13 @@ public class OrderManager {
      */
     public Order createOrder(Player player, String itemId, int quantity, double pricePerUnit) {
         long duration = getOrderDurationForPlayer(player);
+        String category = getCategoryForItem(itemId);
+        
         Order order = new Order(
             player.getUniqueId(),
             player.getName(),
             itemId,
+            category,
             quantity,
             pricePerUnit,
             duration
@@ -234,6 +288,18 @@ public class OrderManager {
         
         activeOrders.put(order.getOrderId(), order);
         return order;
+    }
+
+    /**
+     * Récupère tous les ordres actifs pour une catégorie
+     */
+    public List<Order> getActiveOrdersForCategory(String category) {
+        return activeOrders.values().stream()
+            .filter(order -> category.equalsIgnoreCase(order.getCategory()))
+            .filter(order -> order.getStatus() == OrderStatus.ACTIVE)
+            .filter(order -> !order.isExpired())
+            .sorted(Comparator.comparingDouble(Order::getPricePerUnit).reversed())
+            .collect(Collectors.toList());
     }
 
     /**
@@ -267,6 +333,13 @@ public class OrderManager {
     }
 
     /**
+     * Récupère un ordre par son ID
+     */
+    public Order getOrder(UUID orderId) {
+        return activeOrders.get(orderId);
+    }
+
+    /**
      * Annule un ordre
      */
     public boolean cancelOrder(UUID orderId) {
@@ -290,19 +363,5 @@ public class OrderManager {
             }
             return false;
         });
-    }
-
-    /**
-     * Formate le temps restant d'un ordre
-     */
-    public String formatTimeRemaining(Order order) {
-        String format = plugin.getConfig().getString("orders.timer.format", "<#32b8c6>%days%j %hours%h %minutes%m %seconds%s");
-        String expiredFormat = plugin.getConfig().getString("orders.timer.format-expired", "<red>Expiré");
-        
-        if (order.isExpired()) {
-            return expiredFormat;
-        }
-        
-        return order.getFormattedTimeRemaining(format);
     }
 }

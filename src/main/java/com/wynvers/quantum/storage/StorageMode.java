@@ -1,136 +1,152 @@
 package com.wynvers.quantum.storage;
 
-import com.wynvers.quantum.Quantum;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 /**
- * Gère les modes du storage (STORAGE / SELL / RECHERCHE)
+ * Gestion des modes de stockage par joueur
+ * 3 modes possibles: STORAGE, SELL, RECHERCHE
  */
 public class StorageMode {
     
+    /**
+     * Modes disponibles
+     */
     public enum Mode {
-        STORAGE("§aStockage", "Stockage"),
-        SELL("§eVente", "Vente"),
-        RECHERCHE("§bRecherche", "Recherche");
+        /**
+         * Mode stockage normal (par défaut)
+         */
+        STORAGE,
         
-        private final String displayName;
-        private final String simpleName;
+        /**
+         * Mode vente - items ajoutés au storage sont vendus
+         */
+        SELL,
         
-        Mode(String displayName, String simpleName) {
-            this.displayName = displayName;
-            this.simpleName = simpleName;
-        }
-        
-        public String getDisplayName() {
-            return displayName;
-        }
-        
-        public String getSimpleName() {
-            return simpleName;
-        }
+        /**
+         * Mode recherche - items ramassés complètent les ordres de recherche
+         */
+        RECHERCHE
     }
     
-    // Stockage des modes par joueur (UUID -> Mode)
+    /**
+     * Stockage des modes par joueur
+     * Key: UUID du joueur
+     * Value: Mode actuel
+     */
     private static final Map<UUID, Mode> playerModes = new HashMap<>();
     
     /**
-     * Définir le mode d'un joueur
-     */
-    public static void setMode(Player player, Mode mode) {
-        playerModes.put(player.getUniqueId(), mode);
-    }
-    
-    /**
-     * Récupérer le mode d'un joueur (STORAGE par défaut)
+     * Obtenir le mode actuel d'un joueur
+     * @param player Le joueur
+     * @return Le mode actuel (STORAGE par défaut)
      */
     public static Mode getMode(Player player) {
         return playerModes.getOrDefault(player.getUniqueId(), Mode.STORAGE);
     }
     
     /**
-     * Récupérer le mode sous forme de texte formaté (avec préfixe et couleur)
+     * Définir le mode d'un joueur
+     * @param player Le joueur
+     * @param mode Le nouveau mode
      */
-    public static String getModeDisplay(Player player) {
-        return getMode(player).getDisplayName();
-    }
-    
-    /**
-     * Récupérer le nom simple du mode (juste "Stockage", "Vente" ou "Recherche")
-     * Utile pour les titres de menu
-     */
-    public static String getSimpleModeDisplay(Player player) {
-        return getMode(player).getSimpleName();
-    }
-    
-    /**
-     * Basculer entre les modes
-     * Rafraîchit automatiquement le menu si ouvert
-     */
-    public static void toggleMode(Player player) {
-        Mode currentMode = getMode(player);
-        Mode newMode;
-        
-        // Cycle: STORAGE -> SELL -> RECHERCHE -> STORAGE
-        switch (currentMode) {
-            case STORAGE:
-                newMode = Mode.SELL;
-                break;
-            case SELL:
-                newMode = Mode.RECHERCHE;
-                break;
-            case RECHERCHE:
-            default:
-                newMode = Mode.STORAGE;
-                break;
-        }
-        
-        setMode(player, newMode);
-        
-        // Message de confirmation
-        player.sendMessage(newMode.getDisplayName());
-        
-        // Vérifier si le joueur a le menu storage ouvert
-        if (player.getOpenInventory().getType() != InventoryType.CRAFTING) {
-            Quantum plugin = Quantum.getInstance();
-            com.wynvers.quantum.menu.Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
-            
-            // Si le menu storage est ouvert, le rafraîchir
-            if (activeMenu != null && activeMenu.getId().equals("storage")) {
-                activeMenu.refresh(player, plugin);
-            }
+    public static void setMode(Player player, Mode mode) {
+        if (mode == Mode.STORAGE) {
+            // Si on passe en mode STORAGE, on retire de la map (comportement par défaut)
+            playerModes.remove(player.getUniqueId());
+        } else {
+            playerModes.put(player.getUniqueId(), mode);
         }
     }
     
     /**
-     * Vérifier si le joueur est en mode SELL
+     * Vérifier si un joueur est en mode vente
+     * @param player Le joueur
+     * @return true si le joueur est en mode SELL
      */
     public static boolean isSellMode(Player player) {
         return getMode(player) == Mode.SELL;
     }
     
     /**
-     * Vérifier si le joueur est en mode STORAGE
-     */
-    public static boolean isStorageMode(Player player) {
-        return getMode(player) == Mode.STORAGE;
-    }
-    
-    /**
-     * Vérifier si le joueur est en mode RECHERCHE
+     * Vérifier si un joueur est en mode recherche
+     * @param player Le joueur
+     * @return true si le joueur est en mode RECHERCHE
      */
     public static boolean isRechercheMode(Player player) {
         return getMode(player) == Mode.RECHERCHE;
     }
     
     /**
-     * Nettoyer le mode d'un joueur (quand il se déconnecte)
+     * Vérifier si un joueur est en mode stockage normal
+     * @param player Le joueur
+     * @return true si le joueur est en mode STORAGE
      */
-    public static void clearMode(Player player) {
-        playerModes.remove(player.getUniqueId());
+    public static boolean isStorageMode(Player player) {
+        return getMode(player) == Mode.STORAGE;
+    }
+    
+    /**
+     * Toggle entre les modes (cycle: STORAGE -> SELL -> RECHERCHE -> STORAGE)
+     * @param player Le joueur
+     * @return Le nouveau mode
+     */
+    public static Mode toggleMode(Player player) {
+        Mode current = getMode(player);
+        Mode next;
+        
+        switch (current) {
+            case STORAGE:
+                next = Mode.SELL;
+                break;
+            case SELL:
+                next = Mode.RECHERCHE;
+                break;
+            case RECHERCHE:
+                next = Mode.STORAGE;
+                break;
+            default:
+                next = Mode.STORAGE;
+        }
+        
+        setMode(player, next);
+        return next;
+    }
+    
+    /**
+     * Réinitialiser tous les modes (cleanup au déchargement du plugin)
+     */
+    public static void resetAll() {
+        playerModes.clear();
+    }
+    
+    /**
+     * Obtenir un affichage formaté du mode
+     * @param mode Le mode
+     * @return Nom formaté avec couleur
+     */
+    public static String getDisplayName(Mode mode) {
+        switch (mode) {
+            case STORAGE:
+                return "§aSTOCKAGE";
+            case SELL:
+                return "§6VENTE";
+            case RECHERCHE:
+                return "§bRECHERCHE";
+            default:
+                return mode.name();
+        }
+    }
+    
+    /**
+     * Obtenir un affichage formaté du mode actuel d'un joueur
+     * @param player Le joueur
+     * @return Nom formaté avec couleur
+     */
+    public static String getDisplayName(Player player) {
+        return getDisplayName(getMode(player));
     }
 }

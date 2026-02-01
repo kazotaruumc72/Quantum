@@ -1,90 +1,90 @@
-# order_quantity.yml - Menu hopper pour sélectionner la quantité de l'offre
-# Taille: 5 slots (hopper)
+# order_quantity.yml - Menu hopper pour ajuster la quantité de l'offre
+# Layout: [-50] [-5] [ITEM] [+5] [+50]
 
-title: '&8┃ &6Quantité &8┃'
+title: '&8⃒ &6Quantité &8⃒'
 size: 5
 open_command: order_quantity
 
 items:
-  # Slot 0: 25% de la quantité max
-  quantity_25:
+  # Slot 0: -50 items
+  decrease_50:
     slot: 0
-    material: ORANGE_STAINED_GLASS_PANE
+    material: RED_CONCRETE
     amount: 1
-    display_name: '&e25%'
+    display_name: '&c-50'
     lore:
-      - '&7Quantité: &f%quantum_order_quantity_25%'
+      - '&7Retire &c50 &7items'
       - ''
-      - '&e▸ &7Cliquez pour sélectionner'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: 25
+      - '&7Quantité actuelle: &f%quantum_order_current_quantity%'
+      - '&7Maximum: &e%quantum_order_max_quantity%'
+      - ''
+      - '&c▸ &7Cliquez pour retirer'
     left_click_actions:
-      - '[quantum_set_order_quantity] %quantum_order_quantity_25%'
-      - '[close]'
-      - '[menu] order_price'
+      - '[quantum_adjust_quantity] -50'
 
-  # Slot 1: 50% de la quantité max
-  quantity_50:
+  # Slot 1: -5 items
+  decrease_5:
     slot: 1
-    material: YELLOW_STAINED_GLASS_PANE
+    material: RED_DYE
     amount: 1
-    display_name: '&650%'
+    display_name: '&c-5'
     lore:
-      - '&7Quantité: &f%quantum_order_quantity_50%'
+      - '&7Retire &c5 &7items'
       - ''
-      - '&e▸ &7Cliquez pour sélectionner'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: 50
+      - '&7Quantité actuelle: &f%quantum_order_current_quantity%'
+      - '&7Maximum: &e%quantum_order_max_quantity%'
+      - ''
+      - '&c▸ &7Cliquez pour retirer'
     left_click_actions:
-      - '[quantum_set_order_quantity] %quantum_order_quantity_50%'
-      - '[close]'
-      - '[menu] order_price'
+      - '[quantum_adjust_quantity] -5'
 
-  # Slot 2: 75% de la quantité max
-  quantity_75:
+  # Slot 2: Item central (l'item de l'offre)
+  item_display:
     slot: 2
-    material: LIME_STAINED_GLASS_PANE
+    # Material sera défini dynamiquement selon l'item de l'offre
+    material: BARRIER
     amount: 1
-    display_name: '&a75%'
+    display_name: '&e%quantum_order_item_name%'
     lore:
-      - '&7Quantité: &f%quantum_order_quantity_75%'
+      - '&7Quantité: &a%quantum_order_current_quantity% &7/ &e%quantum_order_max_quantity%'
       - ''
-      - '&e▸ &7Cliquez pour sélectionner'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: 75
+      - '&7Clic gauche: &aValider'
+      - '&7Clic droit: &cAnnuler'
     left_click_actions:
-      - '[quantum_set_order_quantity] %quantum_order_quantity_75%'
       - '[close]'
       - '[menu] order_price'
-
-  # Slot 3: 100% de la quantité max
-  quantity_100:
-    slot: 3
-    material: GREEN_STAINED_GLASS_PANE
-    amount: 1
-    display_name: '&2100%'
-    lore:
-      - '&7Quantité: &f%quantum_order_quantity_100%'
-      - ''
-      - '&e▸ &7Cliquez pour sélectionner'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: 100
-    left_click_actions:
-      - '[quantum_set_order_quantity] %quantum_order_quantity_100%'
-      - '[close]'
-      - '[menu] order_price'
-
-  # Slot 4: Annuler
-  cancel:
-    slot: 4
-    material: RED_STAINED_GLASS_PANE
-    amount: 1
-    display_name: '&c✖ Annuler'
-    lore:
-      - '&7Annule la création'
-      - '&7de l\'offre'
-      - ''
-      - '&c▸ &7Cliquez pour annuler'
-    left_click_actions:
+    right_click_actions:
       - '[quantum_cancel_order]'
       - '[close]'
+
+  # Slot 3: +5 items
+  increase_5:
+    slot: 3
+    material: LIME_DYE
+    amount: 1
+    display_name: '&a+5'
+    lore:
+      - '&7Ajoute &a5 &7items'
+      - ''
+      - '&7Quantité actuelle: &f%quantum_order_current_quantity%'
+      - '&7Maximum: &e%quantum_order_max_quantity%'
+      - ''
+      - '&a▸ &7Cliquez pour ajouter'
+    left_click_actions:
+      - '[quantum_adjust_quantity] +5'
+
+  # Slot 4: +50 items
+  increase_50:
+    slot: 4
+    material: LIME_CONCRETE
+    amount: 1
+    display_name: '&a+50'
+    lore:
+      - '&7Ajoute &a50 &7items'
+      - ''
+      - '&7Quantité actuelle: &f%quantum_order_current_quantity%'
+      - '&7Maximum: &e%quantum_order_max_quantity%'
+      - ''
+      - '&a▸ &7Cliquez pour ajouter'
+    left_click_actions:
+      - '[quantum_adjust_quantity] +50'

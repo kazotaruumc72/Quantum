@@ -1,0 +1,148 @@
+# ========================================
+# QUANTUM SELL MENU
+# ========================================
+# Menu de vente pour les items stock\u00e9s
+# Permet de choisir la quantit\u00e9 et de vendre
+
+# Titre du menu
+menu_title: '&6&lVente - %item_name%'
+
+# Taille de l'inventaire
+size: 27
+
+# ========================================
+# ITEMS DU MENU
+# ========================================
+items:
+
+  # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  # BORDURES D\u00c9CORATIVES
+  # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  border:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: ' '
+    slots: [0, 1, 2, 6, 7, 8, 18, 19, 20, 24, 25, 26]
+
+  # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  # LIGNE 1 : Item + Contr\u00f4les quantit\u00e9
+  # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  
+  # Item \u00e0 vendre (centre)
+  item_to_sell:
+    slots: [3]
+    material: BARRIER  # Sera remplac\u00e9 dynamiquement
+    type: quantum_sell_item
+    display_name: '&e%item_name%'
+    lore:
+      - ' '
+      - '&8\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500'
+      - '&fQuantit\u00e9 disponible: &a%max_quantity%'
+      - '&fQuantit\u00e9 \u00e0 vendre: &e%quantity%'
+      - '&fPrix unitaire: &6%price_per_unit%'
+      - '&fPrix total: &6%total_price%'
+      - '&8\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500'
+
+  # Retirer 10
+  remove_10:
+    slots: [4]
+    material: RED_DYE
+    display_name: '&c&l-10'
+    lore:
+      - '&7Cliquer pour retirer 10'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: -10
+
+  # Ajouter 10
+  add_10:
+    slots: [5]
+    material: LIME_DYE
+    display_name: '&a&l+10'
+    lore:
+      - '&7Cliquer pour ajouter 10'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: 10
+
+  # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  # LIGNE 2 : Contr\u00f4les suppl\u00e9mentaires
+  # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  
+  # Retirer 1
+  remove_1:
+    slots: [12]
+    material: RED_CONCRETE
+    display_name: '&c&l-1'
+    lore:
+      - '&7Cliquer pour retirer 1'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: -1
+
+  # Quantit\u00e9 actuelle (affichage)
+  current_quantity:
+    slots: [13]
+    material: PAPER
+    display_name: '&e&lQuantit\u00e9: %quantity%'
+    lore:
+      - ' '
+      - '&fPrix total: &6%total_price%'
+      - ' '
+      - '&7Utilisez les boutons pour ajuster'
+
+  # Ajouter 1
+  add_1:
+    slots: [14]
+    material: LIME_CONCRETE
+    display_name: '&a&l+1'
+    lore:
+      - '&7Cliquer pour ajouter 1'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: 1
+
+  # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  # LIGNE 3 : Actions finales
+  # \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+  
+  # Annuler
+  cancel:
+    slots: [21]
+    material: BARRIER
+    display_name: '&c&l\u2716 Annuler'
+    lore:
+      - '&7Retour au storage'
+    left_click_actions:
+      - '[close]'
+
+  # Vendre tout
+  sell_all:
+    slots: [22]
+    material: GOLD_BLOCK
+    display_name: '&6&l\u2605 Vendre tout'
+    lore:
+      - '&7Vendre la quantit\u00e9 maximale'
+      - ' '
+      - '&fQuantit\u00e9: &a%max_quantity%'
+      - '&fPrix total: &6%max_total_price%'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: 999999  # Valeur arbitraire pour mettre au max
+
+  # Confirmer la vente
+  confirm_sell:
+    slots: [23]
+    material: EMERALD
+    display_name: '&a&l\u2713 Vendre'
+    lore:
+      - '&7Confirmer la vente'
+      - ' '
+      - '&fVous vendez: &e%quantity%x'
+      - '&fVous recevez: &6%total_price%'
+    button_type: QUANTUM_SELL
+
+# ========================================
+# NOTES IMPORTANTES
+# ========================================
+# \u2022 Les placeholders sont remplac\u00e9s dynamiquement
+# \u2022 %item_name% = Nom de l'item
+# \u2022 %quantity% = Quantit\u00e9 actuelle \u00e0 vendre
+# \u2022 %max_quantity% = Quantit\u00e9 maximale disponible
+# \u2022 %price_per_unit% = Prix unitaire
+# \u2022 %total_price% = Prix total (quantit\u00e9 * prix unitaire)
+# \u2022 %max_total_price% = Prix si vente maximale

@@ -268,20 +268,31 @@ public class MenuItem {
                 try {
                     StorageMode.Mode mode = StorageMode.Mode.valueOf(targetMode.toUpperCase());
                     StorageMode.setMode(player, mode);
+                    
+                    // Feedback au joueur
+                    player.sendMessage("§aMode changé en: §e" + mode.getDisplayName());
                 } catch (IllegalArgumentException e) {
                     // Mode invalide, fallback sur toggle
                     StorageMode.toggleMode(player);
+                    player.sendMessage("§aMode changé en: §e" + StorageMode.getModeDisplay(player));
                 }
             } else {
                 // Pas de mode spécifié, toggle par défaut
                 StorageMode.toggleMode(player);
+                player.sendMessage("§aMode changé en: §e" + StorageMode.getModeDisplay(player));
             }
             
-            // Rouvrir le menu pour rafraîchir l'affichage
-            Menu storageMenu = plugin.getMenuManager().getMenu("storage");
-            if (storageMenu != null) {
-                storageMenu.open(player, plugin);
-            }
+            // Fermer l'inventaire actuel pour forcer le rafraîchissement
+            player.closeInventory();
+            
+            // Réouvrir le menu après un court délai pour permettre la fermeture
+            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                Menu storageMenu = plugin.getMenuManager().getMenu("storage");
+                if (storageMenu != null) {
+                    storageMenu.open(player, plugin);
+                }
+            }, 2L); // 2 ticks de délai
+            
             return;
         }
         

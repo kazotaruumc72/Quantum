@@ -198,7 +198,6 @@ public class ActionExecutor {
         PlayerStorage storage = plugin.getStorageManager().getStorage(player);
         
         // Déterminer si c'est un item Nexo ou vanilla
-        com.nexomc.nexo.api.NexoItems nexoApi = new com.nexomc.nexo.api.NexoItems();
         String nexoId = com.nexomc.nexo.api.NexoItems.idFromItem(session.getItemToSell());
         
         int availableInStorage;
@@ -228,9 +227,26 @@ public class ActionExecutor {
         double totalPrice = session.getTotalPrice();
         plugin.getVaultManager().deposit(player, totalPrice);
         
-        // Message de succès
-        player.sendMessage("§6[Quantum] §aVente réussie !");
-        player.sendMessage("§7Vous avez vendu §e" + session.getQuantity() + "x §7pour §a" + String.format("%.2f$", totalPrice));
+        // Obtenir le display name de l'item
+        String itemDisplayName;
+        if (session.getItemToSell().hasItemMeta() && session.getItemToSell().getItemMeta().hasDisplayName()) {
+            itemDisplayName = session.getItemToSell().getItemMeta().getDisplayName();
+        } else if (nexoId != null) {
+            // Récupérer le display name depuis Nexo
+            org.bukkit.inventory.ItemStack nexoItem = com.nexomc.nexo.api.NexoItems.itemFromId(nexoId).build();
+            if (nexoItem.hasItemMeta() && nexoItem.getItemMeta().hasDisplayName()) {
+                itemDisplayName = nexoItem.getItemMeta().getDisplayName();
+            } else {
+                itemDisplayName = nexoId;
+            }
+        } else {
+            itemDisplayName = session.getItemToSell().getType().name().toLowerCase().replace('_', ' ');
+        }
+        
+        // Message de succès avec le display name
+        player.sendMessage("§8[§6Quantum§8] §aVente réussie !");
+        player.sendMessage("§7Vous avez vendu §e" + session.getQuantity() + "x " + itemDisplayName);
+        player.sendMessage("§7Vous avez reçu §a" + String.format("%.2f$", totalPrice));
         
         // Son de succès
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);

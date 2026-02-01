@@ -1,6 +1,7 @@
 package com.wynvers.quantum.menu;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.storage.StorageMode;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -29,6 +30,9 @@ public class MenuItem {
     // Type de slot (quantum_storage, etc.)
     private String type;
     
+    // Button type (QUANTUM_CHANGE_MODE, etc.)
+    private ButtonType buttonType;
+    
     // Lore append pour quantum_storage
     private List<String> loreAppend;
     
@@ -56,6 +60,7 @@ public class MenuItem {
         this.hideFlags = new ArrayList<>();
         this.customModelData = -1;
         this.glow = false;
+        this.buttonType = ButtonType.STANDARD;
     }
     
     // === GETTERS ===
@@ -106,6 +111,10 @@ public class MenuItem {
     
     public String getType() {
         return type;
+    }
+    
+    public ButtonType getButtonType() {
+        return buttonType;
     }
     
     public List<String> getLoreAppend() {
@@ -186,6 +195,10 @@ public class MenuItem {
         this.type = type;
     }
     
+    public void setButtonType(ButtonType buttonType) {
+        this.buttonType = buttonType;
+    }
+    
     public void setLoreAppend(List<String> loreAppend) {
         this.loreAppend = loreAppend;
     }
@@ -237,6 +250,18 @@ public class MenuItem {
      * Execute all actions for this item based on click type
      */
     public void executeActions(Player player, Quantum plugin, ClickType clickType) {
+        // Si c'est un bouton QUANTUM_CHANGE_MODE, toggle le mode
+        if (buttonType == ButtonType.QUANTUM_CHANGE_MODE) {
+            StorageMode.toggleMode(player);
+            
+            // Rouvrir le menu pour rafraîchir l'affichage
+            Menu storageMenu = plugin.getMenuManager().getMenu("storage");
+            if (storageMenu != null) {
+                storageMenu.open(player, plugin);
+            }
+            return;
+        }
+        
         List<MenuAction> actionsToExecute = new ArrayList<>();
         
         // Déterminer quelles actions exécuter selon le type de clic

@@ -3,6 +3,7 @@ package com.wynvers.quantum.utils;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.menu.Menu;
 import com.wynvers.quantum.menu.MenuAction;
+import com.wynvers.quantum.orders.OrderMenuHandler;
 import com.wynvers.quantum.sell.SellSession;
 import com.wynvers.quantum.storage.PlayerStorage;
 import org.bukkit.Bukkit;
@@ -17,9 +18,11 @@ import java.util.Map;
 public class ActionExecutor {
     
     private final Quantum plugin;
+    private final OrderMenuHandler orderHandler;
     
     public ActionExecutor(Quantum plugin) {
         this.plugin = plugin;
+        this.orderHandler = new OrderMenuHandler(plugin);
     }
     
     /**
@@ -82,6 +85,14 @@ public class ActionExecutor {
                 applyEffect(player, value);
                 break;
                 
+            case REFRESH:
+                // Rafraîchir le menu actuel
+                Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
+                if (activeMenu != null) {
+                    activeMenu.refresh(player, plugin);
+                }
+                break;
+                
             // Actions de vente
             case SELL_INCREASE:
                 handleSellIncrease(player, value);
@@ -98,8 +109,115 @@ public class ActionExecutor {
             case SELL_CONFIRM:
                 handleSellConfirm(player);
                 break;
+                
+            // Actions de création d'offres
+            case QUANTUM_ADJUST_QUANTITY:
+                handleQuantityAdjust(player, value);
+                break;
+                
+            case QUANTUM_SET_QUANTITY_MAX:
+                handleQuantitySetMax(player);
+                break;
+                
+            case QUANTUM_VALIDATE_QUANTITY:
+                handleQuantityValidate(player);
+                break;
+                
+            case QUANTUM_ADJUST_PRICE:
+                handlePriceAdjust(player, value);
+                break;
+                
+            case QUANTUM_SET_PRICE_MAX:
+                handlePriceSetMax(player);
+                break;
+                
+            case QUANTUM_FINALIZE_ORDER:
+                handleOrderFinalize(player);
+                break;
+                
+            case QUANTUM_CANCEL_ORDER:
+                handleOrderCancel(player);
+                break;
         }
     }
+    
+    // ========== ACTIONS D'OFFRES ==========
+    
+    /**
+     * Ajuste la quantité de l'offre (+5, +50, -5, -50)
+     */
+    private void handleQuantityAdjust(Player player, String value) {
+        try {
+            int adjustment = Integer.parseInt(value.trim());
+            if (orderHandler.adjustQuantity(player, adjustment)) {
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, adjustment > 0 ? 1.2f : 0.8f);
+            }
+        } catch (NumberFormatException e) {
+            player.sendMessage("§cValeur invalide: " + value);
+        }
+    }
+    
+    /**
+     * Définit la quantité au maximum
+     */
+    private void handleQuantitySetMax(Player player) {
+        if (orderHandler.setQuantityMax(player)) {
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1.5f);
+        }
+    }
+    
+    /**
+     * Valide la quantité (passage au menu prix)
+     */
+    private void handleQuantityValidate(Player player) {
+        if (orderHandler.validateQuantity(player)) {
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.7f, 1.5f);
+        }
+    }
+    
+    /**
+     * Ajuste le prix (+5%, +20%, -5%, -20%)
+     */
+    private void handlePriceAdjust(Player player, String value) {
+        try {
+            int adjustment = Integer.parseInt(value.trim());
+            if (orderHandler.adjustPrice(player, adjustment)) {
+                player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, adjustment > 0 ? 1.2f : 0.8f);
+            }
+        } catch (NumberFormatException e) {
+            player.sendMessage("§cValeur invalide: " + value);
+        }
+    }
+    
+    /**
+     * Définit le prix au maximum
+     */
+    private void handlePriceSetMax(Player player) {
+        if (orderHandler.setPriceMax(player)) {
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1.5f);
+        }
+    }
+    
+    /**
+     * Finalise et crée l'offre
+     */
+    private void handleOrderFinalize(Player player) {
+        if (orderHandler.finalizeOrder(player)) {
+            player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+        } else {
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+        }
+    }
+    
+    /**
+     * Annule la création d'offre
+     */
+    private void handleOrderCancel(Player player) {
+        orderHandler.cancelOrder(player);
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 0.8f);
+    }
+    
+    // ========== ACTIONS DE VENTE ==========
     
     /**
      * Augmente la quantité à vendre
@@ -278,6 +396,8 @@ public class ActionExecutor {
         }
     }
     
+    // ========== UTILITAIRES ==========
+    
     /**
      * Parse placeholders in value
      */
@@ -347,5 +467,12 @@ public class ActionExecutor {
         } catch (Exception e) {
             plugin.getQuantumLogger().warning("Invalid effect: " + effectDef);
         }
+    }
+    
+    /**
+     * Récupère le OrderMenuHandler pour accès externe si nécessaire
+     */
+    public OrderMenuHandler getOrderHandler() {
+        return orderHandler;
     }
 }

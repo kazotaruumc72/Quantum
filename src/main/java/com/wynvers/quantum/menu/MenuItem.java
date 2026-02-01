@@ -33,6 +33,9 @@ public class MenuItem {
     // Button type (QUANTUM_CHANGE_MODE, etc.)
     private ButtonType buttonType;
     
+    // Mode target pour QUANTUM_CHANGE_MODE (SELL ou STORAGE)
+    private String targetMode;
+    
     // Lore append pour quantum_storage
     private List<String> loreAppend;
     
@@ -117,6 +120,10 @@ public class MenuItem {
         return buttonType;
     }
     
+    public String getTargetMode() {
+        return targetMode;
+    }
+    
     public List<String> getLoreAppend() {
         return loreAppend;
     }
@@ -199,6 +206,10 @@ public class MenuItem {
         this.buttonType = buttonType;
     }
     
+    public void setTargetMode(String targetMode) {
+        this.targetMode = targetMode;
+    }
+    
     public void setLoreAppend(List<String> loreAppend) {
         this.loreAppend = loreAppend;
     }
@@ -250,9 +261,21 @@ public class MenuItem {
      * Execute all actions for this item based on click type
      */
     public void executeActions(Player player, Quantum plugin, ClickType clickType) {
-        // Si c'est un bouton QUANTUM_CHANGE_MODE, toggle le mode
+        // Si c'est un bouton QUANTUM_CHANGE_MODE, changer vers le mode spécifié
         if (buttonType == ButtonType.QUANTUM_CHANGE_MODE) {
-            StorageMode.toggleMode(player);
+            if (targetMode != null) {
+                // Définir le mode spécifique
+                try {
+                    StorageMode mode = StorageMode.valueOf(targetMode.toUpperCase());
+                    StorageMode.setMode(player, mode);
+                } catch (IllegalArgumentException e) {
+                    // Mode invalide, fallback sur toggle
+                    StorageMode.toggleMode(player);
+                }
+            } else {
+                // Pas de mode spécifié, toggle par défaut
+                StorageMode.toggleMode(player);
+            }
             
             // Rouvrir le menu pour rafraîchir l'affichage
             Menu storageMenu = plugin.getMenuManager().getMenu("storage");

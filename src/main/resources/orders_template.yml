@@ -1,125 +1,107 @@
-# ═══════════════════════════════════════════════════════════════
-#  QUANTUM ORDERS - TEMPLATE DE CONFIGURATION
-# ═══════════════════════════════════════════════════════════════
-#
-# Ce fichier sert de template pour configurer vos propres items
-# dans le système d'ordres.
-#
-# Structure :
-#   item_id:
-#     type: <quantum_orders_cultures|quantum_orders_loots|quantum_orders_items|quantum_orders_armures|quantum_orders_outils>
-#     min: <prix minimum>
-#     max: <prix maximum>
-#     display_name: "<nom affiché>"
-#     material: <MATERIAL> (optionnel - pour l'affichage dans les menus)
-#     lore: (optionnel)
-#       - "<ligne 1>"
-#       - "<ligne 2>"
-#
-# ═══════════════════════════════════════════════════════════════
+# orders_template.yml - Template des items autorisés par catégorie
 
-# ┌─────────────────────────────────────────────────────────────┐
-# │                    CULTURES (quantum_orders_cultures)        │
-# └─────────────────────────────────────────────────────────────┘
-# Items liés à l'agriculture, graines, récoltes
+# Format:
+# categorie:
+#   items:
+#     - "minecraft:item_id"
+#     - "nexo:custom_item_id"
 
-"nexo:afelia_bark":
-  type: quantum_orders_cultures
-  min: 5.0
-  max: 15.0
-  display_name: "Écorce d'Afelia"
-  material: OAK_BARK
-  lore:
-    - "<gray>Écorce rare d'Afelia"
-    - "<gray>Utilisée en alchimie"
+cultures:
+  items:
+    - "minecraft:wheat"
+    - "minecraft:wheat_seeds"
+    - "minecraft:carrot"
+    - "minecraft:potato"
+    - "minecraft:beetroot"
+    - "minecraft:beetroot_seeds"
+    - "minecraft:sugar_cane"
+    - "minecraft:cactus"
+    - "minecraft:melon"
+    - "minecraft:pumpkin"
+    - "minecraft:cocoa_beans"
+    - "minecraft:nether_wart"
 
-"minecraft:wheat":
-  type: quantum_orders_cultures
-  min: 0.5
-  max: 2.0
-  display_name: "Blé"
-  material: WHEAT
+loots:
+  items:
+    - "minecraft:diamond"
+    - "minecraft:emerald"
+    - "minecraft:gold_ingot"
+    - "minecraft:iron_ingot"
+    - "minecraft:netherite_ingot"
+    - "minecraft:ancient_debris"
+    - "minecraft:nether_star"
+    - "minecraft:dragon_egg"
+    - "minecraft:elytra"
+    - "minecraft:totem_of_undying"
 
-# ┌─────────────────────────────────────────────────────────────┐
-# │                    LOOTS (quantum_orders_loots)              │
-# └─────────────────────────────────────────────────────────────┘
-# Drops de mobs, items de donjon
+items:
+  items:
+    - "minecraft:golden_apple"
+    - "minecraft:enchanted_golden_apple"
+    - "minecraft:ender_pearl"
+    - "minecraft:blaze_rod"
+    - "minecraft:ghast_tear"
+    - "minecraft:magma_cream"
+    - "minecraft:slime_ball"
+    - "minecraft:phantom_membrane"
 
-"minecraft:ender_pearl":
-  type: quantum_orders_loots
-  min: 15.0
-  max: 50.0
-  display_name: "Perle de l'Ender"
-  material: ENDER_PEARL
+potions:
+  items:
+    - "minecraft:potion"
+    - "minecraft:splash_potion"
+    - "minecraft:lingering_potion"
+    - "minecraft:glass_bottle"
+    - "minecraft:dragon_breath"
+    - "minecraft:fermented_spider_eye"
+    - "minecraft:blaze_powder"
+    - "minecraft:magma_cream"
+    - "minecraft:glistering_melon_slice"
+    - "minecraft:golden_carrot"
 
-"nexo:mystic_dust":
-  type: quantum_orders_loots
-  min: 10.0
-  max: 30.0
-  display_name: "Poussière Mystique"
-  material: GLOWSTONE_DUST
-  lore:
-    - "<#32b8c6>Drop rare de boss mystique"
+armures:
+  items:
+    - "minecraft:leather_helmet"
+    - "minecraft:leather_chestplate"
+    - "minecraft:leather_leggings"
+    - "minecraft:leather_boots"
+    - "minecraft:chainmail_helmet"
+    - "minecraft:chainmail_chestplate"
+    - "minecraft:chainmail_leggings"
+    - "minecraft:chainmail_boots"
+    - "minecraft:iron_helmet"
+    - "minecraft:iron_chestplate"
+    - "minecraft:iron_leggings"
+    - "minecraft:iron_boots"
+    - "minecraft:diamond_helmet"
+    - "minecraft:diamond_chestplate"
+    - "minecraft:diamond_leggings"
+    - "minecraft:diamond_boots"
+    - "minecraft:netherite_helmet"
+    - "minecraft:netherite_chestplate"
+    - "minecraft:netherite_leggings"
+    - "minecraft:netherite_boots"
 
-# ┌─────────────────────────────────────────────────────────────┐
-# │                    ITEMS (quantum_orders_items)              │
-# └─────────────────────────────────────────────────────────────┘
-# Ressources, matériaux, blocs
-
-"minecraft:diamond":
-  type: quantum_orders_items
-  min: 50.0
-  max: 150.0
-  display_name: "Diamant"
-  material: DIAMOND
-
-"minecraft:iron_ingot":
-  type: quantum_orders_items
-  min: 5.0
-  max: 15.0
-  display_name: "Lingot de Fer"
-  material: IRON_INGOT
-
-# ┌─────────────────────────────────────────────────────────────┐
-# │                    ARMURES (quantum_orders_armures)          │
-# └─────────────────────────────────────────────────────────────┘
-# Équipements d'armure
-
-"minecraft:diamond_chestplate":
-  type: quantum_orders_armures
-  min: 400.0
-  max: 1200.0
-  display_name: "Plastron en Diamant"
-  material: DIAMOND_CHESTPLATE
-
-"nexo:quantum_helmet":
-  type: quantum_orders_armures
-  min: 2000.0
-  max: 6000.0
-  display_name: "Casque Quantique"
-  material: NETHERITE_HELMET
-  lore:
-    - "<gradient:#32b8c6:#1d6880>Armure légendaire"
-    - "<gray>Protection maximale"
-
-# ┌─────────────────────────────────────────────────────────────┐
-# │                    OUTILS (quantum_orders_outils)            │
-# └─────────────────────────────────────────────────────────────┘
-# Outils, armes, équipements
-
-"minecraft:diamond_pickaxe":
-  type: quantum_orders_outils
-  min: 150.0
-  max: 450.0
-  display_name: "Pioche en Diamant"
-  material: DIAMOND_PICKAXE
-
-"nexo:quantum_sword":
-  type: quantum_orders_outils
-  min: 1200.0
-  max: 3600.0
-  display_name: "Épée Quantique"
-  material: NETHERITE_SWORD
-  lore:
-    - "<gradient:#32b8c6:#1d6880>Arme ultime"
-    - "<gray>Dégâts dévastateurs"
+outils:
+  items:
+    - "minecraft:wooden_pickaxe"
+    - "minecraft:stone_pickaxe"
+    - "minecraft:iron_pickaxe"
+    - "minecraft:diamond_pickaxe"
+    - "minecraft:netherite_pickaxe"
+    - "minecraft:wooden_axe"
+    - "minecraft:stone_axe"
+    - "minecraft:iron_axe"
+    - "minecraft:diamond_axe"
+    - "minecraft:netherite_axe"
+    - "minecraft:wooden_shovel"
+    - "minecraft:stone_shovel"
+    - "minecraft:iron_shovel"
+    - "minecraft:diamond_shovel"
+    - "minecraft:netherite_shovel"
+    - "minecraft:wooden_hoe"
+    - "minecraft:stone_hoe"
+    - "minecraft:iron_hoe"
+    - "minecraft:diamond_hoe"
+    - "minecraft:netherite_hoe"
+    - "minecraft:shears"
+    - "minecraft:fishing_rod"

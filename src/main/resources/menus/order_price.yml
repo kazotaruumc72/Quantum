@@ -3,6 +3,17 @@ title: '&8Prix de recherche'
 size: 27
 
 items:
+  # L'ITEM SUR LEQUEL L'UTILISATEUR A CLIQUÉ (slot 9)
+  item_display:
+    slots: [9]
+    material: PAPER
+    display_name: '&e%quantum_order_item_name%'
+    lore:
+      - ''
+      - '&7Quantité: &a%quantum_order_quantity%'
+      - ''
+      - '&eAjustez le prix unitaire ci-dessous'
+
   decrease_20:
     slots: [10]
     material: RED_STAINED_GLASS_PANE
@@ -68,7 +79,7 @@ items:
 
   cancel:
     slots: [22]
-    material: BARRIER
+    material: PAPER
     display_name: '&c&lANNULER'
     lore:
       - '&7Annuler la création d''offre'

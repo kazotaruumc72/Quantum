@@ -1,0 +1,88 @@
+# orders_potions.yml - Menu des potions
+
+title: "<gradient:#32b8c6:#1d6880>Potions & Élixirs</gradient>"
+size: 54
+
+items:
+  # Décoration
+  filler:
+    slots: [0,1,2,3,4,5,6,7,8,45,46,47,48,50,51,52,53]
+    material: BLACK_STAINED_GLASS_PANE
+    display_name: " "
+  
+  # Bouton retour
+  back:
+    slot: 49
+    material: ARROW
+    display_name: "<yellow>← Retour</yellow>"
+    lore:
+      - ""
+      - "<gray>Retour aux catégories"
+    left_click_actions:
+      - "[menu] orders_categories"
+  
+  # Exemples de potions avec custom model data
+  # Format: "minecraft:potion" ou "nexo:custom_potion"
+  
+  # Potion exemple 1 - Potion de vitesse
+  speed_potion:
+    slot: 10
+    material: POTION
+    custom_model_data: 1001
+    display_name: "<gradient:#32b8c6:#1d6880>Potion de Vitesse</gradient>"
+    lore:
+      - ""
+      - "<gray>Potion de vitesse améliorée"
+      - ""
+      - "<#32b8c6>Prix moyen: <green>150$</green>"
+      - ""
+      - "<yellow>➥ Cliquez pour rechercher"
+    left_click_actions:
+      - "[player] recherche minecraft:potion"
+  
+  # Potion exemple 2 - Potion de force
+  strength_potion:
+    slot: 11
+    material: POTION
+    custom_model_data: 1002
+    display_name: "<gradient:#32b8c6:#1d6880>Potion de Force</gradient>"
+    lore:
+      - ""
+      - "<gray>Potion de force concentrée"
+      - ""
+      - "<#32b8c6>Prix moyen: <green>200$</green>"
+      - ""
+      - "<yellow>➥ Cliquez pour rechercher"
+    left_click_actions:
+      - "[player] recherche minecraft:potion"
+  
+  # Potion exemple 3 - Potion de régénération
+  regen_potion:
+    slot: 12
+    material: POTION
+    custom_model_data: 1003
+    display_name: "<gradient:#32b8c6:#1d6880>Potion de Régénération</gradient>"
+    lore:
+      - ""
+      - "<gray>Potion de régénération"
+      - ""
+      - "<#32b8c6>Prix moyen: <green>180$</green>"
+      - ""
+      - "<yellow>➥ Cliquez pour rechercher"
+    left_click_actions:
+      - "[player] recherche minecraft:potion"
+  
+  # Potion custom Nexo exemple
+  custom_elixir:
+    slot: 19
+    nexo_item: elixir_magique
+    display_name: "<gradient:#32b8c6:#1d6880>Élixir Magique</gradient>"
+    lore:
+      - ""
+      - "<gray>Élixir spécial du serveur"
+      - ""
+      - "<#32b8c6>Prix moyen: <green>500$</green>"
+      - ""
+      - "<yellow>➥ Cliquez pour rechercher"
+    left_click_actions:
+      - "[player] recherche nexo:elixir_magique"

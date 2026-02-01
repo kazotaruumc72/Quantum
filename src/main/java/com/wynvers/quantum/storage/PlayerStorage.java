@@ -174,7 +174,7 @@ public class PlayerStorage {
     }
     
     /**
-     * Ajoute un item par son ID unifié
+     * Ajoute un item par son ID unifié avec tracking statistiques
      * 
      * @param itemId L'ID de l'item au format minecraft:xxx ou nexo:xxx
      * @param amount La quantité à ajouter
@@ -184,18 +184,110 @@ public class PlayerStorage {
             return;
         }
         
+        // Déterminer la catégorie depuis l'item ID
+        String category = determineCategoryFromItemId(itemId);
+        
         if (itemId.startsWith("minecraft:")) {
             String materialName = itemId.substring(10).toUpperCase();
             try {
                 Material material = Material.valueOf(materialName);
                 addItem(material, amount);
+                
+                // Track statistics
+                Quantum plugin = Quantum.getInstance();
+                if (plugin != null && plugin.getStatisticsManager() != null) {
+                    plugin.getStatisticsManager().incrementItemsStored(category, amount);
+                }
             } catch (IllegalArgumentException e) {
                 // Material invalide, ignorer
             }
         } else if (itemId.startsWith("nexo:")) {
             String nexoId = itemId.substring(5);
             addNexoItem(nexoId, amount);
+            
+            // Track statistics
+            Quantum plugin = Quantum.getInstance();
+            if (plugin != null && plugin.getStatisticsManager() != null) {
+                plugin.getStatisticsManager().incrementItemsStored(category, amount);
+            }
         }
+    }
+    
+    /**
+     * Détermine la catégorie d'un item depuis son ID
+     * Utilise les mêmes catégories que le système d'ordres
+     * 
+     * @param itemId L'ID de l'item
+     * @return La catégorie (cultures, loots, items, potions, armures, outils, etc.)
+     */
+    private String determineCategoryFromItemId(String itemId) {
+        if (itemId == null || itemId.isEmpty()) {
+            return "items";
+        }
+        
+        // Pour les items Nexo, essayer de deviner depuis le nom
+        if (itemId.startsWith("nexo:")) {
+            String nexoId = itemId.substring(5).toLowerCase();
+            
+            // Cultures
+            if (nexoId.contains("wheat") || nexoId.contains("carrot") || nexoId.contains("potato") ||
+                nexoId.contains("beetroot") || nexoId.contains("crop") || nexoId.contains("seed")) {
+                return "cultures";
+            }
+            
+            // Potions
+            if (nexoId.contains("potion") || nexoId.contains("elixir")) {
+                return "potions";
+            }
+            
+            // Armures
+            if (nexoId.contains("helmet") || nexoId.contains("chestplate") || nexoId.contains("leggings") ||
+                nexoId.contains("boots") || nexoId.contains("armor") || nexoId.contains("armure")) {
+                return "armures";
+            }
+            
+            // Outils
+            if (nexoId.contains("pickaxe") || nexoId.contains("axe") || nexoId.contains("shovel") ||
+                nexoId.contains("hoe") || nexoId.contains("sword") || nexoId.contains("tool")) {
+                return "outils";
+            }
+            
+            // Loots (default pour items spéciaux)
+            return "loots";
+        }
+        
+        // Pour les items Minecraft vanilla
+        if (itemId.startsWith("minecraft:")) {
+            String materialName = itemId.substring(10).toLowerCase();
+            
+            // Cultures
+            if (materialName.contains("wheat") || materialName.contains("carrot") || materialName.contains("potato") ||
+                materialName.contains("beetroot") || materialName.contains("seeds") || materialName.contains("melon")) {
+                return "cultures";
+            }
+            
+            // Potions
+            if (materialName.contains("potion")) {
+                return "potions";
+            }
+            
+            // Armures
+            if (materialName.contains("helmet") || materialName.contains("chestplate") || materialName.contains("leggings") ||
+                materialName.contains("boots")) {
+                return "armures";
+            }
+            
+            // Outils
+            if (materialName.contains("pickaxe") || materialName.contains("axe") || materialName.contains("shovel") ||
+                materialName.contains("hoe") || materialName.contains("sword")) {
+                return "outils";
+            }
+            
+            // Items généraux
+            return "items";
+        }
+        
+        return "items";
     }
     
     // === DATABASE ===

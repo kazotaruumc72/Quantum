@@ -13,6 +13,8 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Gestionnaire d'événements pour les menus Quantum
@@ -38,6 +40,11 @@ public class MenuListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player)) return;
         
         Player player = (Player) event.getWhoClicked();
+        UUID playerUUID = player.getUniqueId();
+        
+        // DEBUG EXTRÊME: Vérifier tous les menus actifs enregistrés
+        player.sendMessage("§9[DEBUG LISTENER] UUID du joueur: " + playerUUID);
+        player.sendMessage("§9[DEBUG LISTENER] getActiveMenu(player): " + plugin.getMenuManager().getActiveMenu(player));
         
         // TOUJOURS utiliser getActiveMenu() EN PREMIER
         // Car il fonctionne avec les titres animés et dynamiques !
@@ -49,8 +56,12 @@ public class MenuListener implements Listener {
             player.sendMessage("§a[DEBUG] Menu détecté via activeMenu: " + menu.getId() + " - Click cancelled!");
             event.setCancelled(true);
         } else {
+            player.sendMessage("§9[DEBUG LISTENER] ActiveMenu est NULL - essai fallback getMenuByTitle()");
+            
             // Fallback sur getMenuByTitle seulement si getActiveMenu() échoue
             String title = event.getView().getTitle();
+            player.sendMessage("§9[DEBUG LISTENER] Titre de l'inventaire: " + title);
+            
             menu = plugin.getMenuManager().getMenuByTitle(title);
             
             if (menu != null) {

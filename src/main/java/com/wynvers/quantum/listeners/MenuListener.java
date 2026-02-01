@@ -50,11 +50,11 @@ public class MenuListener implements Listener {
         if (menu != null) {
             event.setCancelled(true);
         } else {
+            String title = event.getView().getTitle();
             menu = plugin.getMenuManager().getMenuByTitle(title);
             
             if (menu != null) {
                 event.setCancelled(true);
-            } else {
             }
         }
     }
@@ -202,7 +202,8 @@ public class MenuListener implements Listener {
             }
         }
     }
-        @EventHandler(priority = EventPriority.HIGHEST)
+    
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryClose(InventoryCloseEvent event) {
         if (!(event.getPlayer() instanceof Player)) return;
 
@@ -216,12 +217,13 @@ public class MenuListener implements Listener {
             
             // CRITICAL FIX: Attendre 1 tick avant de supprimer le menu
             // Car InventoryCloseEvent se déclenche AVANT l'ouverture du prochain inventaire
-        org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            // Vérifier si le joueur a vraiment fermé tous les menus
-            if (player.getOpenInventory().getType() == InventoryType.CRAFTING) {
-                // Le joueur n'a vraiment aucun menu ouvert maintenant
-                plugin.getMenuManager().clearActiveMenu(player);
-            }
-        }, 1L);
+            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                // Vérifier si le joueur a vraiment fermé tous les menus
+                if (player.getOpenInventory().getType() == InventoryType.CRAFTING) {
+                    // Le joueur n'a vraiment aucun menu ouvert maintenant
+                    plugin.getMenuManager().clearActiveMenu(player);
+                }
+            }, 1L);
+        }
     }
 }

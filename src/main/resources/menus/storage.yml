@@ -3,16 +3,18 @@
 # Les admins avec 'quantum.admin' peuvent interagir directement avec l'interface
 # Support des items custom Nexo et PlaceholderAPI
 
-title: '&6&lStorage - Mode: %mode%'
-size: 54
-
-# Titre animé optionnel
 animated_title:
-  enabled: true
+  enabled: false
   frames:
+    - '&6&lStorage - Mode: %mode%'
     - '&b&lStorage - Mode: %mode%'
     - '&a&lStorage - Mode: %mode%'
-  speed: 10 # en secondes
+  speed: 10 # en ticks (pas secondes)
+
+# Titre statique (utilisé si animated_title est désactivé)
+title: '&6&lStorage - Mode: %mode%'
+
+size: 54
 
 items:
   # Bordure décorative
@@ -33,32 +35,18 @@ items:
 
   # Bouton: Mode Vente
   storage_change_mode_sell:
-    slots: [45]
+    slots: [49]
     material: GOLD_INGOT
-    display_name: '&e&lMode Vente'
+    display_name: '&e&lMode: %mode%'
     lore:
-      - '&7Cliquez pour passer en mode vente'
+      - '&7Cliquez pour basculer de mode'
       - '&7Mode actuel: &a%mode%'
       - ' '
-      - '&7En mode vente, vous pouvez vendre'
-      - '&7vos items directement depuis le storage'
-    type: QUANTUM_CHANGE_MODE
-    mode: SELL
-  
-  # Bouton: Mode Storage
-  storage_change_mode_storage:
-    slots: [46]
-    material: CHEST
-    display_name: '&e&lMode Storage'
-    lore:
-      - '&7Cliquez pour passer en mode storage'
-      - '&7Mode actuel: &a%mode%'
-      - ' '
-      - '&7En mode storage, vous pouvez déposer'
-      - '&7et retirer vos items'
-    type: QUANTUM_CHANGE_MODE
-    mode: STORAGE
-                              
+      - '&7STORAGE: Déposer/Retirer'
+      - '&7SELL: Vendre directement'
+    click_actions:
+      - '[QUANTUM_BUTTON] type:QUANTUM_CHANGE_MODE mode:SELL'
+
   # Bouton: Fermer
   close:
     material: BARRIER

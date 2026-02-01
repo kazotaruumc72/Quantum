@@ -1,8 +1,7 @@
 package com.wynvers.quantum.tabcompleters;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.managers.OrderManager;
-import com.wynvers.quantum.managers.OrderManager.ItemPrice;
+import com.wynvers.quantum.orders.OrderItem;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -12,56 +11,52 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * TabCompleter pour /offre
+ * Arg 1: Items
+ * Arg 2: Quantités communes
+ * Arg 3: Prix suggérés (min, moyen, max)
+ */
 public class OffreTabCompleter implements TabCompleter {
     private final Quantum plugin;
-    private final OrderManager orderManager;
-    
+
     public OffreTabCompleter(Quantum plugin) {
         this.plugin = plugin;
-        this.orderManager = plugin.getOrderManager();
     }
-    
+
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, 
-                                                @NotNull String label, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         List<String> completions = new ArrayList<>();
-        
+
         if (args.length == 1) {
-            // Suggérer tous les items disponibles
-            String partial = args[0].toLowerCase();
+            // Arg 1: Items
+            completions.addAll(plugin.getOrderManager().getAllItemIds());
             
-            completions = orderManager.getAllItemKeys().stream()
-                .filter(key -> key.toLowerCase().startsWith(partial))
-                .collect(Collectors.toList());
+            String input = args[0].toLowerCase();
+            completions.removeIf(item -> !item.toLowerCase().startsWith(input));
             
-            // Si aucune correspondance, montrer tous les items
-            if (completions.isEmpty() && partial.isEmpty()) {
-                completions = orderManager.getAllItemKeys();
-            }
         } else if (args.length == 2) {
-            // Suggérer des quantités communes
-            completions = Arrays.asList("1", "8", "16", "32", "64", "128");
-        } else if (args.length == 3) {
-            // Suggérer des prix basés sur l'item sélectionné
-            String itemKey = args[0].toLowerCase();
+            // Arg 2: Quantités communes
+            completions.addAll(Arrays.asList("1", "8", "16", "32", "64", "128"));
             
-            if (orderManager.hasItemPrice(itemKey)) {
-                ItemPrice itemPrice = orderManager.getItemPrice(itemKey);
+        } else if (args.length == 3) {
+            // Arg 3: Prix suggérés basés sur l'item
+            String itemId = args[0].toLowerCase();
+            if (plugin.getOrderManager().hasItem(itemId)) {
+                OrderItem item = plugin.getOrderManager().getItem(itemId);
+                double min = item.getMinPrice();
+                double max = item.getMaxPrice();
+                double avg = (min + max) / 2.0;
                 
-                double min = itemPrice.minPrice;
-                double max = itemPrice.maxPrice;
-                double mid = (min + max) / 2;
-                
-                completions = Arrays.asList(
-                    String.format("%.2f", min),
-                    String.format("%.2f", mid),
-                    String.format("%.2f", max)
-                );
+                completions.add(String.format("%.2f", min));
+                completions.add(String.format("%.2f", avg));
+                completions.add(String.format("%.2f", max));
+            } else {
+                completions.add("<prix>");
             }
         }
-        
+
         return completions;
     }
 }

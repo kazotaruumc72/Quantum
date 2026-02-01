@@ -117,6 +117,7 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/orders_cultures.yml");
         extractResource("menus/orders_loots.yml");
         extractResource("menus/orders_items.yml");
+        extractResource("menus/orders_potions.yml");
         extractResource("menus/orders_armures.yml");
         extractResource("menus/orders_outils.yml");
         

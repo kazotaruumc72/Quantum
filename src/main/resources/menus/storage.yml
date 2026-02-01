@@ -33,19 +33,20 @@ items:
       - ' &fPrix unitaire: %price%'
       - ' &fPrix total: %total_price%'
 
-  # Bouton: Mode Vente
-  storage_change_mode_sell:
+  # Bouton: Basculer Mode
+  toggle_mode:
     slots: [49]
-    material: GOLD_INGOT
+    material: EMERALD
     display_name: '&e&lMode: %mode%'
     lore:
-      - '&7Cliquez pour basculer de mode'
+      - '&7Cliquez pour changer de mode'
       - '&7Mode actuel: &a%mode%'
       - ' '
       - '&7STORAGE: Déposer/Retirer'
       - '&7SELL: Vendre directement'
     click_actions:
-      - '[QUANTUM_BUTTON] type:QUANTUM_CHANGE_MODE mode:SELL'
+      - '[PLAYER] qstorage togglemode'
+      - '[MENU] storage'
 
   # Bouton: Fermer
   close:

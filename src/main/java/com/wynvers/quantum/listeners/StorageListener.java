@@ -15,11 +15,16 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class StorageListener implements Listener {
     
     private final Quantum plugin;
+    
+    // Stockage temporaire des offres en cours de création
+    private final Map<UUID, PendingOrder> pendingOrders = new HashMap<>();
     
     public StorageListener(Quantum plugin) {
         this.plugin = plugin;
@@ -59,8 +64,8 @@ public class StorageListener implements Listener {
                     handleSell(player, clicked, event.isShiftClick(), event.isRightClick());
                     break;
                     
-                case ORDER:
-                    // Mode ordre: ouvrir le menu de création d'offre
+                case RECHERCHE:
+                    // Mode recherche: créer une offre d'achat
                     handleCreateOrder(player, clicked);
                     break;
             }
@@ -138,8 +143,9 @@ public class StorageListener implements Listener {
     }
     
     /**
-     * Gère la création d'offre d'achat en mode ORDER
-     * TODO: Ouvrir un menu pour définir quantité et prix
+     * Gère la création d'offre d'achat en mode RECHERCHE
+     * Étape 1: Vérifier qu'au moins 1 item est stocké
+     * Étape 2: Ouvrir le menu de sélection de quantité
      */
     private void handleCreateOrder(Player player, ItemStack displayItem) {
         Material material = displayItem.getType();
@@ -152,16 +158,30 @@ public class StorageListener implements Listener {
             return;
         }
         
+        // Créer l'offre en attente
+        PendingOrder order = new PendingOrder(player.getUniqueId(), material, stockQuantity);
+        pendingOrders.put(player.getUniqueId(), order);
+        
+        // Ouvrir le menu de sélection de quantité
         player.closeInventory();
+        openQuantitySelectionMenu(player, material, stockQuantity);
+    }
+    
+    /**
+     * Ouvre le menu de sélection de quantité
+     */
+    private void openQuantitySelectionMenu(Player player, Material material, int stockQuantity) {
+        Inventory inv = Bukkit.createInventory(null, 27, "§b§lQuantité recherchée");
+        
+        // TODO: Créer les boutons de sélection (1, 8, 16, 32, 64, etc.)
+        // Pour l'instant, message temporaire
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
         player.sendMessage("§b§l✓ Création d'offre pour: §f" + material.name());
         player.sendMessage("§7Stock disponible: §e" + stockQuantity);
-        player.sendMessage("§e⚠ Menu de configuration d'offre en développement");
+        player.sendMessage("§e⚠ Menu de sélection de quantité en développement");
+        player.sendMessage("§7Tapez la quantité dans le chat (ou 'cancel' pour annuler)");
         
-        // TODO: Ouvrir un menu anvil ou chat pour saisir:
-        // - Quantité souhaitée
-        // - Prix unitaire
-        // Puis créer l'offre dans le système
+        // TODO: Ouvrir le menu graphique au lieu du chat
     }
     
     private void giveItems(Player player, Material material, int amount) {
@@ -191,5 +211,30 @@ public class StorageListener implements Listener {
             }
         }
         return emptySlots * 64 >= amount;
+    }
+    
+    /**
+     * Classe interne pour stocker les offres en cours de création
+     */
+    private static class PendingOrder {
+        private final UUID playerUUID;
+        private final Material material;
+        private final int maxQuantity;
+        private int quantity = 0;
+        private double pricePerUnit = 0.0;
+        
+        public PendingOrder(UUID playerUUID, Material material, int maxQuantity) {
+            this.playerUUID = playerUUID;
+            this.material = material;
+            this.maxQuantity = maxQuantity;
+        }
+        
+        public UUID getPlayerUUID() { return playerUUID; }
+        public Material getMaterial() { return material; }
+        public int getMaxQuantity() { return maxQuantity; }
+        public int getQuantity() { return quantity; }
+        public void setQuantity(int quantity) { this.quantity = quantity; }
+        public double getPricePerUnit() { return pricePerUnit; }
+        public void setPricePerUnit(double pricePerUnit) { this.pricePerUnit = pricePerUnit; }
     }
 }

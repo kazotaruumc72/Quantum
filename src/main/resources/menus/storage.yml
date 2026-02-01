@@ -45,7 +45,7 @@ items:
       - ' '
       - '&e► Cliquez pour activer'
     button_type: QUANTUM_CHANGE_MODE
-    target_mode: STORAGE
+    mode: STORAGE
 
   # ──────────────────────────────────────
   # BOUTON: MODE ORDRE (Milieu haut)
@@ -67,7 +67,7 @@ items:
       - ' '
       - '&e► Cliquez pour activer'
     button_type: QUANTUM_CHANGE_MODE
-    target_mode: ORDER
+    mode: ORDER
 
   # ──────────────────────────────────────
   # BOUTON: MODE VENTE (Coin haut droit)
@@ -87,7 +87,7 @@ items:
       - ' '
       - '&e► Cliquez pour activer'
     button_type: QUANTUM_CHANGE_MODE
-    target_mode: SELL
+    mode: SELL
 
   # ──────────────────────────────────────
   # SLOTS DE STOCKAGE DYNAMIQUES

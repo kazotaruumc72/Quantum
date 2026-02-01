@@ -16,8 +16,8 @@ public class MenuManager {
     
     private final Quantum plugin;
     private final Map<String, Menu> menus;
-    private final Map<String, Menu> commandMenus;  // Command -> Menu mapping
-    private final Map<UUID, Menu> activeMenus;     // Player UUID -> Currently open menu
+    private final Map<String, Menu> commandMenus;
+    private final Map<UUID, Menu> activeMenus;
     
     public MenuManager(Quantum plugin) {
         this.plugin = plugin;
@@ -28,9 +28,6 @@ public class MenuManager {
         loadMenus();
     }
     
-    /**
-     * Load all menus from menus/ folder
-     */
     private void loadMenus() {
         File menusFolder = new File(plugin.getDataFolder(), "menus");
         
@@ -53,7 +50,6 @@ public class MenuManager {
                 if (menu != null) {
                     menus.put(menu.getId(), menu);
                     
-                    // Register command if specified
                     if (menu.getOpenCommand() != null) {
                         commandMenus.put(menu.getOpenCommand().toLowerCase(), menu);
                     }
@@ -69,15 +65,12 @@ public class MenuManager {
         plugin.getQuantumLogger().success("Loaded " + loaded + " menus");
     }
     
-    /**
-     * Load single menu from file
-     */
     private Menu loadMenu(File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         
         String menuId = file.getName().replace(".yml", "");
-        Menu menu = new Menu(plugin, menuId);        
-        // Basic properties - support both "title" and "menu_title"
+        Menu menu = new Menu(plugin, menuId);
+        
         String title = config.getString("title");
         if (title == null) {
             title = config.getString("menu_title", "Menu");
@@ -86,7 +79,6 @@ public class MenuManager {
         menu.setSize(config.getInt("size", 54));
         menu.setOpenCommand(config.getString("open_command"));
         
-        // Animated title
         if (config.contains("animated_title")) {
             ConfigurationSection animSection = config.getConfigurationSection("animated_title");
             if (animSection != null && animSection.getBoolean("enabled", false)) {
@@ -96,7 +88,6 @@ public class MenuManager {
             }
         }
         
-        // Load items
         ConfigurationSection itemsSection = config.getConfigurationSection("items");
         if (itemsSection != null) {
             for (String itemId : itemsSection.getKeys(false)) {
@@ -110,15 +101,11 @@ public class MenuManager {
         return menu;
     }
     
-    /**
-     * Load menu item from config section
-     */
     private MenuItem loadMenuItem(ConfigurationSection section, String itemId) {
         if (section == null) return null;
         
         MenuItem item = new MenuItem(itemId);
         
-        // Slots
         if (section.contains("slot")) {
             item.addSlot(section.getInt("slot"));
         }
@@ -135,29 +122,24 @@ public class MenuManager {
             }
         }
         
-        // Type de slot (quantum_storage, quantum_change_mode, etc.)
         if (section.contains("type")) {
             String type = section.getString("type");
             item.setType(type);
             
-            // Si c'est quantum_change_mode, définir aussi le buttonType
             if ("quantum_change_mode".equalsIgnoreCase(type)) {
                 item.setButtonType(ButtonType.QUANTUM_CHANGE_MODE);
                 
-                // Charger le mode cible si spécifié
                 if (section.contains("mode")) {
                     item.setTargetMode(section.getString("mode"));
                 }
             }
         }
         
-        // Button type (backward compatibility)
         if (section.contains("button_type")) {
             try {
                 ButtonType buttonType = ButtonType.valueOf(section.getString("button_type").toUpperCase());
                 item.setButtonType(buttonType);
                 
-                // Si c'est QUANTUM_CHANGE_MODE, charger aussi le mode cible
                 if (buttonType == ButtonType.QUANTUM_CHANGE_MODE && section.contains("mode")) {
                     item.setTargetMode(section.getString("mode"));
                 }
@@ -166,12 +148,10 @@ public class MenuManager {
             }
         }
         
-        // Lore append pour quantum_storage
         if (section.contains("lore_append")) {
             item.setLoreAppend(colorList(section.getStringList("lore_append")));
         }
         
-        // Material or Nexo item
         if (section.contains("nexo_item")) {
             item.setNexoId(section.getString("nexo_item"));
         } else if (section.contains("material")) {
@@ -184,7 +164,6 @@ public class MenuManager {
             }
         }
         
-        // Properties
         item.setAmount(section.getInt("amount", 1));
         if (section.contains("display_name")) {
             item.setDisplayName(color(section.getString("display_name")));
@@ -199,12 +178,10 @@ public class MenuManager {
             item.setCustomModelData(section.getInt("custom_model_data"));
         }
         
-        // Glow effect
         if (section.contains("glow")) {
             item.setGlow(section.getBoolean("glow"));
         }
         
-        // Hide flags for custom tooltips
         if (section.contains("hide_flags")) {
             List<String> flagStrings = section.getStringList("hide_flags");
             for (String flagStr : flagStrings) {
@@ -217,31 +194,25 @@ public class MenuManager {
             }
         }
         
-        // Actions - support both old format (left_click/right_click) and new format (click_actions)
         if (section.contains("click_actions")) {
             List<String> actionStrings = section.getStringList("click_actions");
             for (String actionStr : actionStrings) {
                 MenuAction action = MenuAction.parse(actionStr);
                 if (action != null) {
-                    item.addLeftClickAction(action);  // Par défaut, les click_actions sont pour le clic gauche
+                    item.addLeftClickAction(action);
                 }
             }
         } else {
-            // Ancien format
             loadActions(section, "left_click", item, true);
             loadActions(section, "right_click", item, false);
         }
         
-        // Requirements
         loadRequirements(section, "view_requirements", item, true);
         loadRequirements(section, "click_requirements", item, false);
         
         return item;
     }
     
-    /**
-     * Parse slot definitions (supports ranges like 0-8)
-     */
     private void parseSlots(String slotDef, MenuItem item) {
         if (slotDef.contains("-")) {
             String[] parts = slotDef.split("-");
@@ -263,9 +234,6 @@ public class MenuManager {
         }
     }
     
-    /**
-     * Load actions from section
-     */
     private void loadActions(ConfigurationSection section, String path, MenuItem item, boolean leftClick) {
         if (!section.contains(path)) return;
         
@@ -285,9 +253,6 @@ public class MenuManager {
         }
     }
     
-    /**
-     * Load requirements from section
-     */
     private void loadRequirements(ConfigurationSection section, String path, MenuItem item, boolean view) {
         if (!section.contains(path)) return;
         
@@ -304,16 +269,10 @@ public class MenuManager {
         }
     }
     
-    /**
-     * Color single string
-     */
     private String color(String text) {
         return text == null ? null : ChatColor.translateAlternateColorCodes('&', text);
     }
     
-    /**
-     * Color list of strings
-     */
     private List<String> colorList(List<String> texts) {
         List<String> colored = new ArrayList<>();
         for (String text : texts) {
@@ -321,8 +280,6 @@ public class MenuManager {
         }
         return colored;
     }
-    
-    // === PUBLIC API ===
     
     public Menu getMenu(String id) {
         return menus.get(id);
@@ -332,19 +289,14 @@ public class MenuManager {
         return commandMenus.get(command.toLowerCase());
     }
     
-    /**
-     * Get menu by its title (for listener detection)
-     */
     public Menu getMenuByTitle(String title) {
         if (title == null) return null;
         
         for (Menu menu : menus.values()) {
-            // Check static title
             if (title.equals(menu.getTitle())) {
                 return menu;
             }
             
-            // Check animated title frames
             if (menu.isAnimatedTitle() && menu.getTitleFrames() != null) {
                 for (String frame : menu.getTitleFrames()) {
                     if (title.equals(frame)) {
@@ -357,52 +309,22 @@ public class MenuManager {
         return null;
     }
     
-    /**
-     * Get active menu for player (more reliable than title matching)
-     */
     public Menu getActiveMenu(Player player) {
-        UUID uuid = player.getUniqueId();
-        Menu menu = activeMenus.get(uuid);
-        
-        // DEBUG: Log chaque appel à getActiveMenu
-        System.out.println("[MENUMANAGER] getActiveMenu(" + player.getName() + ", " + uuid + ") => " + (menu != null ? menu.getId() : "NULL"));
-        System.out.println("[MENUMANAGER] activeMenus HashMap taille: " + activeMenus.size());
-        if (!activeMenus.isEmpty()) {
-            System.out.println("[MENUMANAGER] activeMenus contenu:");
-            activeMenus.forEach((key, value) -> System.out.println("  - " + key + " => " + value.getId()));
-        }
-        
-        return menu;
+        return activeMenus.get(player.getUniqueId());
     }
     
-    /**
-     * Set active menu for player
-     */
     public void setActiveMenu(Player player, Menu menu) {
         UUID uuid = player.getUniqueId();
         
-        // DEBUG: Log chaque appel à setActiveMenu
-        System.out.println("[MENUMANAGER] setActiveMenu(" + player.getName() + ", " + uuid + ", " + (menu != null ? menu.getId() : "NULL") + ")");
-        
         if (menu == null) {
             activeMenus.remove(uuid);
-            System.out.println("[MENUMANAGER] Menu remové. activeMenus taille: " + activeMenus.size());
         } else {
             activeMenus.put(uuid, menu);
-            System.out.println("[MENUMANAGER] Menu mis en cache. activeMenus taille: " + activeMenus.size());
-            
-            // Vérifier que le menu a bien été inséré
-            Menu verify = activeMenus.get(uuid);
-            System.out.println("[MENUMANAGER] Vérification: activeMenus.get(" + uuid + ") = " + (verify != null ? verify.getId() : "NULL"));
         }
     }
     
-    /**
-     * Clear active menu for player
-     */
     public void clearActiveMenu(Player player) {
-        UUID uuid = player.getUniqueId();
-        activeMenus.remove(uuid);
+        activeMenus.remove(player.getUniqueId());
     }
     
     public Collection<Menu> getAllMenus() {

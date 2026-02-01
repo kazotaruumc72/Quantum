@@ -1,155 +1,126 @@
 # ========================================
-# QUANTUM ORDER - SÉLECTION PRIX
+# ORDER PRICE SELECTION MENU
 # ========================================
-# Menu pour choisir le prix unitaire de l'offre d'achat
+# Menu pour sélectionner le prix unitaire de l'offre
 
-menu_title: '&b&lOffre d''achat &8| &fPrix unitaire'
+menu_title: '&6&lPrix par unité'
 size: 27
 
-# ========================================
-# ITEMS DU MENU
-# ========================================
 items:
-
-  # ──────────────────────────────────────
-  # BORDURES
-  # ──────────────────────────────────────
+  # Bordures
   border:
-    material: GRAY_STAINED_GLASS_PANE
+    material: BLACK_STAINED_GLASS_PANE
     display_name: ' '
     slots: [0, 1, 2, 3, 5, 6, 7, 8, 9, 17, 18, 19, 20, 21, 23, 24, 25, 26]
 
-  # ──────────────────────────────────────
-  # ITEM & INFO (Centre)
-  # ──────────────────────────────────────
-  target_item:
-    slots: [4]
-    material: BARRIER  # Remplacé dynamiquement
-    display_name: '&b&l➥ Item: &f%item_name%'
+  # Item de référence (centre haut)
+  reference_item:
+    slot: 4
+    material: '%item_material%'
+    display_name: '&f%item_display_name%'
     lore:
-      - '&7Quantité: &e%selected_quantity%'
       - ' '
-      - '&7Choisissez le prix unitaire'
-      - '&7que vous payerez par item'
+      - '&7Quantité recherchée: &a%order_quantity%'
+      - ' '
+      - '&6Définissez le prix unitaire'
+      - '&7Prix min: &e%min_price%$'
+      - '&7Prix max: &e%max_price%$'
 
-  # ──────────────────────────────────────
-  # BOUTONS DE SÉLECTION
-  # ──────────────────────────────────────
-  
-  # -0.1$
-  minus_01:
-    slots: [10]
-    material: RED_WOOL
-    display_name: '&c&l- 0.1$'
+  # Bouton: Prix minimum
+  price_min:
+    slot: 10
+    material: IRON_INGOT
+    display_name: '&e&lPrix minimum'
     lore:
-      - '&7Retirer 0.1$ au prix'
       - ' '
-      - '&fPrix actuel: &6%current_price%$'
+      - '&7Prix unitaire: &e%min_price%$'
+      - '&7Prix total: &6%total_min_price%$'
       - ' '
-      - '&e► Clic gauche: -0.1$'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: -0.1
+      - '&e► Cliquez pour sélectionner'
+    button_type: QUANTUM_ORDER_PRICE
+    price_type: MIN
 
-  # -1$
-  minus_1:
-    slots: [11]
-    material: RED_CONCRETE
-    display_name: '&c&l- 1$'
+  # Bouton: 25% entre min et max
+  price_25:
+    slot: 11
+    material: COPPER_INGOT
+    display_name: '&e&l25%'
     lore:
-      - '&7Retirer 1$ au prix'
       - ' '
-      - '&fPrix actuel: &6%current_price%$'
+      - '&7Prix unitaire: &e%price_25%$'
+      - '&7Prix total: &6%total_25%$'
       - ' '
-      - '&e► Clic gauche: -1$'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: -1
+      - '&e► Cliquez pour sélectionner'
+    button_type: QUANTUM_ORDER_PRICE
+    price_type: P25
 
-  # -10$
-  minus_10:
-    slots: [12]
-    material: RED_TERRACOTTA
-    display_name: '&c&l- 10$'
-    lore:
-      - '&7Retirer 10$ au prix'
-      - ' '
-      - '&fPrix actuel: &6%current_price%$'
-      - ' '
-      - '&e► Clic gauche: -10$'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: -10
-
-  # Affichage prix actuel
-  current_display:
-    slots: [13]
+  # Bouton: 50% (milieu)
+  price_50:
+    slot: 12
     material: GOLD_INGOT
-    display_name: '&6&l➤ Prix: &f%current_price%$'
+    display_name: '&e&l50%'
     lore:
-      - '&7Prix unitaire sélectionné'
       - ' '
-      - '&fQuantité: &e%selected_quantity%'
-      - '&fCoût total: &6%total_cost%$'
+      - '&7Prix unitaire: &e%price_50%$'
+      - '&7Prix total: &6%total_50%$'
       - ' '
-      - '&8Minimum: &70.1$'
+      - '&e► Cliquez pour sélectionner'
+    button_type: QUANTUM_ORDER_PRICE
+    price_type: P50
 
-  # +0.1$
-  plus_01:
-    slots: [14]
-    material: LIME_WOOL
-    display_name: '&a&l+ 0.1$'
-    lore:
-      - '&7Ajouter 0.1$ au prix'
-      - ' '
-      - '&fPrix actuel: &6%current_price%$'
-      - ' '
-      - '&e► Clic gauche: +0.1$'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: 0.1
-
-  # +1$
-  plus_1:
-    slots: [15]
-    material: LIME_CONCRETE
-    display_name: '&a&l+ 1$'
-    lore:
-      - '&7Ajouter 1$ au prix'
-      - ' '
-      - '&fPrix actuel: &6%current_price%$'
-      - ' '
-      - '&e► Clic gauche: +1$'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: 1
-
-  # +10$
-  plus_10:
-    slots: [16]
-    material: LIME_TERRACOTTA
-    display_name: '&a&l+ 10$'
-    lore:
-      - '&7Ajouter 10$ au prix'
-      - ' '
-      - '&fPrix actuel: &6%current_price%$'
-      - ' '
-      - '&e► Clic gauche: +10$'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: 10
-
-  # ──────────────────────────────────────
-  # VALIDATION FINALE
-  # ──────────────────────────────────────
-  confirm:
-    slots: [22]
+  # Bouton: 75%
+  price_75:
+    slot: 13
     material: EMERALD
-    display_name: '&a&l✓ Créer l''offre'
+    display_name: '&e&l75%'
     lore:
-      - '&7Créer votre offre d''achat'
       - ' '
-      - '&fItem: &e%item_name%'
-      - '&fQuantité: &e%selected_quantity%'
-      - '&fPrix unitaire: &6%current_price%$'
-      - '&fCoût total: &6%total_cost%$'
+      - '&7Prix unitaire: &e%price_75%$'
+      - '&7Prix total: &6%total_75%$'
       - ' '
-      - '&a⚠ L''argent sera déduit maintenant'
+      - '&e► Cliquez pour sélectionner'
+    button_type: QUANTUM_ORDER_PRICE
+    price_type: P75
+
+  # Bouton: Prix maximum
+  price_max:
+    slot: 14
+    material: DIAMOND
+    display_name: '&e&lPrix maximum'
+    lore:
       - ' '
-      - '&e► Cliquez pour confirmer'
-    left_click_actions:
-      - '[quantum_order_create]'
+      - '&7Prix unitaire: &e%max_price%$'
+      - '&7Prix total: &6%total_max_price%$'
+      - ' '
+      - '&e► Cliquez pour sélectionner'
+    button_type: QUANTUM_ORDER_PRICE
+    price_type: MAX
+
+  # Bouton: Prix personnalisé
+  price_custom:
+    slot: 22
+    material: ANVIL
+    display_name: '&6&lPrix personnalisé'
+    lore:
+      - ' '
+      - '&7Saisissez un prix exact'
+      - '&7dans le chat'
+      - ' '
+      - '&7Min: &e%min_price%$'
+      - '&7Max: &e%max_price%$'
+      - ' '
+      - '&e► Cliquez pour saisir'
+    button_type: QUANTUM_ORDER_PRICE_CUSTOM
+
+# ========================================
+# NOTES
+# ========================================
+# - Les placeholders sont remplacés dynamiquement:
+#   * %item_material%, %item_display_name%
+#   * %order_quantity% : Quantité sélectionnée à l'étape précédente
+#   * %min_price%, %max_price% : Fourchette depuis orders_template.yml
+#   * %price_25%, %price_50%, %price_75% : Prix calculés
+#   * %total_XXX% : Prix total (quantité * prix unitaire)
+# 
+# - QUANTUM_ORDER_PRICE: Valide l'offre et la crée
+# - QUANTUM_ORDER_PRICE_CUSTOM: Attend input chat du joueur

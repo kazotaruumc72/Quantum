@@ -2,6 +2,7 @@ package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.menu.Menu;
+import com.wynvers.quantum.storage.StorageMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -28,11 +29,17 @@ public class StorageCommand implements CommandExecutor {
             player.sendMessage(plugin.getMessagesManager().get("no-permission"));
             return true;
         }
+        
+        // Sous-commande togglemode
+        if (args.length > 0 && args[0].equalsIgnoreCase("togglemode")) {
+            StorageMode.toggleMode(player);
+            return true;
+        }
 
         // Open storage menu from storage.yml
         Menu storageMenu = plugin.getMenuManager().getMenu("storage");
         if (storageMenu != null) {
-            storageMenu.open(player, plugin);
+            storageMenu.open(player;
         } else {
             player.sendMessage("§cErreur: Menu storage non trouvé!");
         }

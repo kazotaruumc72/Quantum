@@ -3,6 +3,8 @@ package com.wynvers.quantum.utils;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.menu.Menu;
 import com.wynvers.quantum.menu.MenuAction;
+import com.wynvers.quantum.sell.SellSession;
+import com.wynvers.quantum.storage.PlayerStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
@@ -77,6 +79,178 @@ public class ActionExecutor {
             case EFFECT:
                 applyEffect(player, value);
                 break;
+                
+            // Actions de vente
+            case SELL_INCREASE:
+                handleSellIncrease(player, value);
+                break;
+                
+            case SELL_DECREASE:
+                handleSellDecrease(player, value);
+                break;
+                
+            case SELL_SET_MAX:
+                handleSellSetMax(player);
+                break;
+                
+            case SELL_CONFIRM:
+                handleSellConfirm(player);
+                break;
+        }
+    }
+    
+    /**
+     * Augmente la quantité à vendre
+     */
+    private void handleSellIncrease(Player player, String value) {
+        SellSession session = plugin.getSellManager().getSession(player);
+        if (session == null) {
+            player.sendMessage("§cAucune session de vente active.");
+            return;
+        }
+        
+        // Parser la valeur (par défaut 1)
+        int amount = 1;
+        try {
+            if (value != null && !value.isEmpty()) {
+                amount = Integer.parseInt(value.trim());
+            }
+        } catch (NumberFormatException e) {
+            amount = 1;
+        }
+        
+        // Augmenter la quantité
+        session.changeQuantity(amount);
+        
+        // Son de feedback
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 1.2f);
+        
+        // Rafraîchir le menu avec les nouveaux placeholders
+        refreshSellMenu(player);
+    }
+    
+    /**
+     * Diminue la quantité à vendre
+     */
+    private void handleSellDecrease(Player player, String value) {
+        SellSession session = plugin.getSellManager().getSession(player);
+        if (session == null) {
+            player.sendMessage("§cAucune session de vente active.");
+            return;
+        }
+        
+        // Parser la valeur (par défaut -1)
+        int amount = -1;
+        try {
+            if (value != null && !value.isEmpty()) {
+                amount = -Integer.parseInt(value.trim());
+            }
+        } catch (NumberFormatException e) {
+            amount = -1;
+        }
+        
+        // Diminuer la quantité
+        session.changeQuantity(amount);
+        
+        // Son de feedback
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.5f, 0.8f);
+        
+        // Rafraîchir le menu
+        refreshSellMenu(player);
+    }
+    
+    /**
+     * Définit la quantité au maximum
+     */
+    private void handleSellSetMax(Player player) {
+        SellSession session = plugin.getSellManager().getSession(player);
+        if (session == null) {
+            player.sendMessage("§cAucune session de vente active.");
+            return;
+        }
+        
+        // Définir au max
+        session.setQuantity(session.getMaxQuantity());
+        
+        // Son de feedback
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1.5f);
+        
+        // Rafraîchir le menu
+        refreshSellMenu(player);
+    }
+    
+    /**
+     * Confirme la vente
+     */
+    private void handleSellConfirm(Player player) {
+        SellSession session = plugin.getSellManager().getSession(player);
+        if (session == null) {
+            player.sendMessage("§cAucune session de vente active.");
+            return;
+        }
+        
+        // Vérifier que Vault est activé
+        if (!plugin.getVaultManager().isEnabled()) {
+            player.sendMessage("§cLe système économique n'est pas disponible.");
+            return;
+        }
+        
+        PlayerStorage storage = plugin.getStorageManager().getStorage(player);
+        
+        // Déterminer si c'est un item Nexo ou vanilla
+        com.nexomc.nexo.api.NexoItems nexoApi = new com.nexomc.nexo.api.NexoItems();
+        String nexoId = com.nexomc.nexo.api.NexoItems.idFromItem(session.getItemToSell());
+        
+        int availableInStorage;
+        if (nexoId != null) {
+            availableInStorage = storage.getNexoAmount(nexoId);
+        } else {
+            availableInStorage = storage.getAmount(session.getItemToSell().getType());
+        }
+        
+        // Vérifier que le joueur a toujours assez d'items
+        if (availableInStorage < session.getQuantity()) {
+            player.sendMessage("§cVous n'avez pas assez d'items en stock.");
+            player.closeInventory();
+            plugin.getSellManager().removeSession(player);
+            return;
+        }
+        
+        // Retirer les items du storage
+        if (nexoId != null) {
+            storage.removeNexoItem(nexoId, session.getQuantity());
+        } else {
+            storage.removeItem(session.getItemToSell().getType(), session.getQuantity());
+        }
+        storage.save(plugin);
+        
+        // Donner l'argent au joueur
+        double totalPrice = session.getTotalPrice();
+        plugin.getVaultManager().deposit(player, totalPrice);
+        
+        // Message de succès
+        player.sendMessage("§6[Quantum] §aVente réussie !");
+        player.sendMessage("§7Vous avez vendu §e" + session.getQuantity() + "x §7pour §a" + String.format("%.2f$", totalPrice));
+        
+        // Son de succès
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+        
+        // Fermer le menu et supprimer la session
+        player.closeInventory();
+        plugin.getSellManager().removeSession(player);
+    }
+    
+    /**
+     * Rafraîchit le menu de vente avec les placeholders mis à jour
+     */
+    private void refreshSellMenu(Player player) {
+        SellSession session = plugin.getSellManager().getSession(player);
+        if (session == null) return;
+        
+        Menu sellMenu = plugin.getMenuManager().getMenu("sell");
+        if (sellMenu != null) {
+            // Rafraîchir avec les nouveaux placeholders
+            sellMenu.refresh(player, plugin, session.getPlaceholders());
         }
     }
     
@@ -96,8 +270,7 @@ public class ActionExecutor {
     private void openMenu(Player player, String menuId) {
         Menu menu = plugin.getMenuManager().getMenu(menuId);
         if (menu != null) {
-            // TODO: Open menu GUI
-            plugin.getQuantumLogger().debug("Opening menu: " + menuId + " for " + player.getName());
+            menu.open(player, plugin);
         } else {
             plugin.getQuantumLogger().warning("Menu not found: " + menuId);
         }

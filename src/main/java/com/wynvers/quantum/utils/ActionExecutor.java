@@ -107,7 +107,7 @@ public class ActionExecutor {
     private void handleSellIncrease(Player player, String value) {
         SellSession session = plugin.getSellManager().getSession(player);
         if (session == null) {
-            player.sendMessage(plugin.getMessagesManager().getMessage("sell.no-session"));
+            player.sendMessage(plugin.getMessagesManager().get("sell.no-session"));
             return;
         }
         
@@ -137,7 +137,7 @@ public class ActionExecutor {
     private void handleSellDecrease(Player player, String value) {
         SellSession session = plugin.getSellManager().getSession(player);
         if (session == null) {
-            player.sendMessage(plugin.getMessagesManager().getMessage("sell.no-session"));
+            player.sendMessage(plugin.getMessagesManager().get("sell.no-session"));
             return;
         }
         
@@ -167,7 +167,7 @@ public class ActionExecutor {
     private void handleSellSetMax(Player player) {
         SellSession session = plugin.getSellManager().getSession(player);
         if (session == null) {
-            player.sendMessage(plugin.getMessagesManager().getMessage("sell.no-session"));
+            player.sendMessage(plugin.getMessagesManager().get("sell.no-session"));
             return;
         }
         
@@ -187,13 +187,13 @@ public class ActionExecutor {
     private void handleSellConfirm(Player player) {
         SellSession session = plugin.getSellManager().getSession(player);
         if (session == null) {
-            player.sendMessage(plugin.getMessagesManager().getMessage("sell.no-session"));
+            player.sendMessage(plugin.getMessagesManager().get("sell.no-session"));
             return;
         }
         
         // Vérifier que Vault est activé
         if (!plugin.getVaultManager().isEnabled()) {
-            player.sendMessage(plugin.getMessagesManager().getMessage("sell.economy-disabled"));
+            player.sendMessage(plugin.getMessagesManager().get("sell.economy-disabled"));
             return;
         }
         
@@ -211,7 +211,7 @@ public class ActionExecutor {
         
         // Vérifier que le joueur a toujours assez d'items
         if (availableInStorage < session.getQuantity()) {
-            player.sendMessage(plugin.getMessagesManager().getMessage("sell.not-enough-stock"));
+            player.sendMessage(plugin.getMessagesManager().get("sell.not-enough-stock"));
             player.closeInventory();
             plugin.getSellManager().removeSession(player);
             return;
@@ -252,9 +252,9 @@ public class ActionExecutor {
         placeholders.put("total_price", String.format("%.2f$", totalPrice));
         
         // Messages de succès avec le display name
-        player.sendMessage(plugin.getMessagesManager().getMessage("sell.success-title", placeholders));
-        player.sendMessage(plugin.getMessagesManager().getMessage("sell.success-sold", placeholders));
-        player.sendMessage(plugin.getMessagesManager().getMessage("sell.success-received", placeholders));
+        player.sendMessage(plugin.getMessagesManager().get("sell.success-title", placeholders));
+        player.sendMessage(plugin.getMessagesManager().get("sell.success-sold", placeholders));
+        player.sendMessage(plugin.getMessagesManager().get("sell.success-received", placeholders));
         
         // Son de succès
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);

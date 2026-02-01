@@ -193,15 +193,15 @@ public class PlayerStorage {
                 Material material = Material.valueOf(materialName);
                 addItem(material, amount);
                 
-                // Track statistics par catégorie
+                // Track statistics par catégorie (cast int to long)
                 Quantum plugin = Quantum.getInstance();
                 if (plugin != null && plugin.getStatisticsManager() != null) {
-                    plugin.getStatisticsManager().incrementItemsStored(category, amount);
+                    plugin.getStatisticsManager().incrementItemsStored(category, (long) amount);
                 }
                 
-                // Track statistiques globales du storage
+                // Track statistiques globales du storage (cast int to long)
                 if (plugin != null && plugin.getStorageStatsManager() != null) {
-                    plugin.getStorageStatsManager().incrementItemsStored(amount);
+                    plugin.getStorageStatsManager().incrementItemsStored((long) amount);
                 }
             } catch (IllegalArgumentException e) {
                 // Material invalide, ignorer
@@ -210,15 +210,15 @@ public class PlayerStorage {
             String nexoId = itemId.substring(5);
             addNexoItem(nexoId, amount);
             
-            // Track statistics par catégorie
+            // Track statistics par catégorie (cast int to long)
             Quantum plugin = Quantum.getInstance();
             if (plugin != null && plugin.getStatisticsManager() != null) {
-                plugin.getStatisticsManager().incrementItemsStored(category, amount);
+                plugin.getStatisticsManager().incrementItemsStored(category, (long) amount);
             }
             
-            // Track statistiques globales du storage
+            // Track statistiques globales du storage (cast int to long)
             if (plugin != null && plugin.getStorageStatsManager() != null) {
-                plugin.getStorageStatsManager().incrementItemsStored(amount);
+                plugin.getStorageStatsManager().incrementItemsStored((long) amount);
             }
         }
     }

@@ -1,5 +1,7 @@
 package com.wynvers.quantum.orders;
 
+import org.bukkit.inventory.ItemStack;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +18,7 @@ public class OrderCreationSession {
     private final String itemId;
     private final String itemName;
     private final int stockQuantity;
+    private ItemStack displayItem; // PATCH: Item à afficher dans les menus
     
     private Step currentStep;
     private int quantity;
@@ -33,6 +36,17 @@ public class OrderCreationSession {
         this.currentStep = Step.QUANTITY;
         this.quantity = 1;
         this.price = (minPrice + maxPrice) / 2.0; // Prix moyen par défaut
+        this.displayItem = null; // Sera défini plus tard
+    }
+    
+    // === DISPLAY ITEM METHODS ===
+    
+    public void setDisplayItem(ItemStack displayItem) {
+        this.displayItem = displayItem;
+    }
+    
+    public ItemStack getDisplayItem() {
+        return displayItem;
     }
     
     // === QUANTITY METHODS ===

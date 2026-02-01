@@ -122,7 +122,7 @@ public class MenuManager {
             }
         }
         
-        // G\u00e9rer d'abord le champ 'type' (ancienne syntaxe)
+        // Gérer d'abord le champ 'type' (ancienne syntaxe)
         if (section.contains("type")) {
             String type = section.getString("type");
             item.setType(type);
@@ -137,9 +137,13 @@ public class MenuManager {
                     item.setTargetMode(section.getString("mode"));
                 }
             }
+            // Nouveau type: quantum_sell_item
+            else if ("quantum_sell_item".equalsIgnoreCase(type)) {
+                item.setButtonType(ButtonType.QUANTUM_SELL_ITEM);
+            }
         }
         
-        // G\u00e9rer le champ 'button_type' (nouvelle syntaxe)
+        // Gérer le champ 'button_type' (nouvelle syntaxe)
         if (section.contains("button_type")) {
             try {
                 ButtonType buttonType = ButtonType.valueOf(section.getString("button_type").toUpperCase());

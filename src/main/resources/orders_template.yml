@@ -1,107 +1,275 @@
-# orders_template.yml - Template des items autorisés par catégorie
+# orders_template.yml - Template des items autorisés par catégorie avec prix min/max
 
 # Format:
 # categorie:
 #   items:
-#     - "minecraft:item_id"
-#     - "nexo:custom_item_id"
+#     item_id:
+#       min_price: 10.0
+#       max_price: 100.0
 
 cultures:
   items:
-    - "minecraft:wheat"
-    - "minecraft:wheat_seeds"
-    - "minecraft:carrot"
-    - "minecraft:potato"
-    - "minecraft:beetroot"
-    - "minecraft:beetroot_seeds"
-    - "minecraft:sugar_cane"
-    - "minecraft:cactus"
-    - "minecraft:melon"
-    - "minecraft:pumpkin"
-    - "minecraft:cocoa_beans"
-    - "minecraft:nether_wart"
+    minecraft:wheat:
+      min_price: 5.0
+      max_price: 20.0
+    minecraft:wheat_seeds:
+      min_price: 2.0
+      max_price: 10.0
+    minecraft:carrot:
+      min_price: 4.0
+      max_price: 15.0
+    minecraft:potato:
+      min_price: 4.0
+      max_price: 15.0
+    minecraft:beetroot:
+      min_price: 3.0
+      max_price: 12.0
+    minecraft:beetroot_seeds:
+      min_price: 2.0
+      max_price: 8.0
+    minecraft:sugar_cane:
+      min_price: 3.0
+      max_price: 15.0
+    minecraft:cactus:
+      min_price: 5.0
+      max_price: 20.0
+    minecraft:melon:
+      min_price: 8.0
+      max_price: 30.0
+    minecraft:pumpkin:
+      min_price: 8.0
+      max_price: 30.0
+    minecraft:cocoa_beans:
+      min_price: 6.0
+      max_price: 25.0
+    minecraft:nether_wart:
+      min_price: 10.0
+      max_price: 40.0
 
 loots:
   items:
-    - "minecraft:diamond"
-    - "minecraft:emerald"
-    - "minecraft:gold_ingot"
-    - "minecraft:iron_ingot"
-    - "minecraft:netherite_ingot"
-    - "minecraft:ancient_debris"
-    - "minecraft:nether_star"
-    - "minecraft:dragon_egg"
-    - "minecraft:elytra"
-    - "minecraft:totem_of_undying"
+    minecraft:diamond:
+      min_price: 100.0
+      max_price: 500.0
+    minecraft:emerald:
+      min_price: 80.0
+      max_price: 400.0
+    minecraft:gold_ingot:
+      min_price: 30.0
+      max_price: 150.0
+    minecraft:iron_ingot:
+      min_price: 20.0
+      max_price: 100.0
+    minecraft:netherite_ingot:
+      min_price: 500.0
+      max_price: 2000.0
+    minecraft:ancient_debris:
+      min_price: 400.0
+      max_price: 1500.0
+    minecraft:nether_star:
+      min_price: 1000.0
+      max_price: 5000.0
+    minecraft:dragon_egg:
+      min_price: 10000.0
+      max_price: 50000.0
+    minecraft:elytra:
+      min_price: 5000.0
+      max_price: 20000.0
+    minecraft:totem_of_undying:
+      min_price: 800.0
+      max_price: 3000.0
 
 items:
   items:
-    - "minecraft:golden_apple"
-    - "minecraft:enchanted_golden_apple"
-    - "minecraft:ender_pearl"
-    - "minecraft:blaze_rod"
-    - "minecraft:ghast_tear"
-    - "minecraft:magma_cream"
-    - "minecraft:slime_ball"
-    - "minecraft:phantom_membrane"
+    minecraft:golden_apple:
+      min_price: 50.0
+      max_price: 200.0
+    minecraft:enchanted_golden_apple:
+      min_price: 500.0
+      max_price: 2000.0
+    minecraft:ender_pearl:
+      min_price: 20.0
+      max_price: 100.0
+    minecraft:blaze_rod:
+      min_price: 15.0
+      max_price: 80.0
+    minecraft:ghast_tear:
+      min_price: 30.0
+      max_price: 150.0
+    minecraft:magma_cream:
+      min_price: 10.0
+      max_price: 50.0
+    minecraft:slime_ball:
+      min_price: 12.0
+      max_price: 60.0
+    minecraft:phantom_membrane:
+      min_price: 25.0
+      max_price: 120.0
 
 potions:
   items:
-    - "minecraft:potion"
-    - "minecraft:splash_potion"
-    - "minecraft:lingering_potion"
-    - "minecraft:glass_bottle"
-    - "minecraft:dragon_breath"
-    - "minecraft:fermented_spider_eye"
-    - "minecraft:blaze_powder"
-    - "minecraft:magma_cream"
-    - "minecraft:glistering_melon_slice"
-    - "minecraft:golden_carrot"
+    minecraft:potion:
+      min_price: 10.0
+      max_price: 100.0
+    minecraft:splash_potion:
+      min_price: 15.0
+      max_price: 150.0
+    minecraft:lingering_potion:
+      min_price: 20.0
+      max_price: 200.0
+    minecraft:glass_bottle:
+      min_price: 2.0
+      max_price: 10.0
+    minecraft:dragon_breath:
+      min_price: 100.0
+      max_price: 500.0
+    minecraft:fermented_spider_eye:
+      min_price: 8.0
+      max_price: 40.0
+    minecraft:blaze_powder:
+      min_price: 10.0
+      max_price: 50.0
+    minecraft:glistering_melon_slice:
+      min_price: 15.0
+      max_price: 75.0
+    minecraft:golden_carrot:
+      min_price: 12.0
+      max_price: 60.0
 
 armures:
   items:
-    - "minecraft:leather_helmet"
-    - "minecraft:leather_chestplate"
-    - "minecraft:leather_leggings"
-    - "minecraft:leather_boots"
-    - "minecraft:chainmail_helmet"
-    - "minecraft:chainmail_chestplate"
-    - "minecraft:chainmail_leggings"
-    - "minecraft:chainmail_boots"
-    - "minecraft:iron_helmet"
-    - "minecraft:iron_chestplate"
-    - "minecraft:iron_leggings"
-    - "minecraft:iron_boots"
-    - "minecraft:diamond_helmet"
-    - "minecraft:diamond_chestplate"
-    - "minecraft:diamond_leggings"
-    - "minecraft:diamond_boots"
-    - "minecraft:netherite_helmet"
-    - "minecraft:netherite_chestplate"
-    - "minecraft:netherite_leggings"
-    - "minecraft:netherite_boots"
+    minecraft:leather_helmet:
+      min_price: 50.0
+      max_price: 300.0
+    minecraft:leather_chestplate:
+      min_price: 80.0
+      max_price: 400.0
+    minecraft:leather_leggings:
+      min_price: 70.0
+      max_price: 350.0
+    minecraft:leather_boots:
+      min_price: 40.0
+      max_price: 250.0
+    minecraft:chainmail_helmet:
+      min_price: 100.0
+      max_price: 500.0
+    minecraft:chainmail_chestplate:
+      min_price: 150.0
+      max_price: 700.0
+    minecraft:chainmail_leggings:
+      min_price: 120.0
+      max_price: 600.0
+    minecraft:chainmail_boots:
+      min_price: 80.0
+      max_price: 400.0
+    minecraft:iron_helmet:
+      min_price: 150.0
+      max_price: 800.0
+    minecraft:iron_chestplate:
+      min_price: 200.0
+      max_price: 1000.0
+    minecraft:iron_leggings:
+      min_price: 180.0
+      max_price: 900.0
+    minecraft:iron_boots:
+      min_price: 100.0
+      max_price: 600.0
+    minecraft:diamond_helmet:
+      min_price: 500.0
+      max_price: 2000.0
+    minecraft:diamond_chestplate:
+      min_price: 800.0
+      max_price: 3000.0
+    minecraft:diamond_leggings:
+      min_price: 700.0
+      max_price: 2500.0
+    minecraft:diamond_boots:
+      min_price: 400.0
+      max_price: 1500.0
+    minecraft:netherite_helmet:
+      min_price: 2000.0
+      max_price: 8000.0
+    minecraft:netherite_chestplate:
+      min_price: 3000.0
+      max_price: 12000.0
+    minecraft:netherite_leggings:
+      min_price: 2500.0
+      max_price: 10000.0
+    minecraft:netherite_boots:
+      min_price: 1500.0
+      max_price: 6000.0
 
 outils:
   items:
-    - "minecraft:wooden_pickaxe"
-    - "minecraft:stone_pickaxe"
-    - "minecraft:iron_pickaxe"
-    - "minecraft:diamond_pickaxe"
-    - "minecraft:netherite_pickaxe"
-    - "minecraft:wooden_axe"
-    - "minecraft:stone_axe"
-    - "minecraft:iron_axe"
-    - "minecraft:diamond_axe"
-    - "minecraft:netherite_axe"
-    - "minecraft:wooden_shovel"
-    - "minecraft:stone_shovel"
-    - "minecraft:iron_shovel"
-    - "minecraft:diamond_shovel"
-    - "minecraft:netherite_shovel"
-    - "minecraft:wooden_hoe"
-    - "minecraft:stone_hoe"
-    - "minecraft:iron_hoe"
-    - "minecraft:diamond_hoe"
-    - "minecraft:netherite_hoe"
-    - "minecraft:shears"
-    - "minecraft:fishing_rod"
+    minecraft:wooden_pickaxe:
+      min_price: 10.0
+      max_price: 50.0
+    minecraft:stone_pickaxe:
+      min_price: 20.0
+      max_price: 100.0
+    minecraft:iron_pickaxe:
+      min_price: 100.0
+      max_price: 500.0
+    minecraft:diamond_pickaxe:
+      min_price: 500.0
+      max_price: 2000.0
+    minecraft:netherite_pickaxe:
+      min_price: 2000.0
+      max_price: 8000.0
+    minecraft:wooden_axe:
+      min_price: 10.0
+      max_price: 50.0
+    minecraft:stone_axe:
+      min_price: 20.0
+      max_price: 100.0
+    minecraft:iron_axe:
+      min_price: 100.0
+      max_price: 500.0
+    minecraft:diamond_axe:
+      min_price: 500.0
+      max_price: 2000.0
+    minecraft:netherite_axe:
+      min_price: 2000.0
+      max_price: 8000.0
+    minecraft:wooden_shovel:
+      min_price: 8.0
+      max_price: 40.0
+    minecraft:stone_shovel:
+      min_price: 15.0
+      max_price: 80.0
+    minecraft:iron_shovel:
+      min_price: 80.0
+      max_price: 400.0
+    minecraft:diamond_shovel:
+      min_price: 400.0
+      max_price: 1500.0
+    minecraft:netherite_shovel:
+      min_price: 1500.0
+      max_price: 6000.0
+    minecraft:wooden_hoe:
+      min_price: 8.0
+      max_price: 40.0
+    minecraft:stone_hoe:
+      min_price: 15.0
+      max_price: 80.0
+    minecraft:iron_hoe:
+      min_price: 80.0
+      max_price: 400.0
+    minecraft:diamond_hoe:
+      min_price: 400.0
+      max_price: 1500.0
+    minecraft:netherite_hoe:
+      min_price: 1500.0
+      max_price: 6000.0
+    minecraft:shears:
+      min_price: 30.0
+      max_price: 150.0
+    minecraft:fishing_rod:
+      min_price: 20.0
+      max_price: 200.0
+
+# NOTES:
+# - Les prix sont indicatifs et peuvent être ajustés
+# - Le système vérifiera que le prix de l'offre est dans la fourchette
+# - Pour les items avec enchantements/durabilité, le prix peut varier
+# - Les admins peuvent modifier ces valeurs selon l'économie du serveur

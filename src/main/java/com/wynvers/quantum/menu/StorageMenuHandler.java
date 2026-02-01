@@ -47,7 +47,7 @@ public class StorageMenuHandler {
             return;
         }
 
-        // V\u00e9rifier le mode du joueur
+        // Vérifier le mode du joueur
         StorageMode.Mode mode = StorageMode.getMode(player);
         
         if (mode == StorageMode.Mode.SELL) {
@@ -182,20 +182,20 @@ public class StorageMenuHandler {
     
     /**
      * Handle selling items from storage
-     * Ouvre le menu de vente avec l'item s\u00e9lectionn\u00e9
+     * Ouvre le menu de vente avec l'item sélectionné
      */
     private void handleSell(Player player, PlayerStorage storage, ItemStack clickedItem) {
-        // V\u00e9rifier que Vault est activ\u00e9
+        // Vérifier que Vault est activé
         if (!plugin.getVaultManager().isEnabled()) {
-            player.sendMessage("\u00a7cLe syst\u00e8me de vente n'est pas disponible (Vault requis).");
+            player.sendMessage("§cLe système de vente n'est pas disponible (Vault requis).");
             return;
         }
         
-        // D\u00e9terminer le type d'item
+        // Déterminer le type d'item
         String nexoId = NexoItems.idFromItem(clickedItem);
         Material material = clickedItem.getType();
         
-        // V\u00e9rifier la quantit\u00e9 disponible
+        // Vérifier la quantité disponible
         int available;
         if (nexoId != null) {
             available = storage.getNexoAmount(nexoId);
@@ -204,11 +204,11 @@ public class StorageMenuHandler {
         }
         
         if (available <= 0) {
-            player.sendMessage("\u00a7cVous n'avez pas cet item en stock.");
+            player.sendMessage("§cVous n'avez pas cet item en stock.");
             return;
         }
         
-        // R\u00e9cup\u00e9rer le prix de l'item
+        // Récupérer le prix de l'item
         double pricePerUnit;
         if (nexoId != null) {
             pricePerUnit = plugin.getPriceManager().getPrice(nexoId);
@@ -217,11 +217,11 @@ public class StorageMenuHandler {
         }
         
         if (pricePerUnit <= 0) {
-            player.sendMessage("\u00a7cCet item ne peut pas \u00eatre vendu.");
+            player.sendMessage("§cCet item ne peut pas être vendu.");
             return;
         }
         
-        // Cr\u00e9er une session de vente
+        // Créer une session de vente
         SellSession session = plugin.getSellManager().createSession(player, clickedItem, available, pricePerUnit);
         
         // Ouvrir le menu de vente
@@ -231,10 +231,11 @@ public class StorageMenuHandler {
             
             // Attendre 2 ticks avant d'ouvrir le menu de vente
             org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                sellMenu.open(player, plugin);
+                // Passer les placeholders au menu
+                sellMenu.open(player, plugin, session.getPlaceholders());
             }, 2L);
         } else {
-            player.sendMessage("\u00a7cErreur: Menu de vente introuvable.");
+            player.sendMessage("§cErreur: Menu de vente introuvable.");
             plugin.getSellManager().removeSession(player);
         }
     }

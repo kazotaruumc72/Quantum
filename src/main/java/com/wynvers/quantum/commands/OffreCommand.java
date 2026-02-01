@@ -2,7 +2,6 @@ package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.orders.Order;
-import com.wynvers.quantum.orders.OrderItem;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -60,45 +59,10 @@ public class OffreCommand implements CommandExecutor {
             return true;
         }
 
-        // Vérifier si l'item existe
-        if (!plugin.getOrderManager().hasItem(itemId)) {
-            player.sendMessage(mm.deserialize("<red>Item inconnu: " + itemId));
-            player.sendMessage(mm.deserialize("<gray>Utilisez <white>/menu orders_categories</white> pour voir les items disponibles."));
-            return true;
-        }
-
-        OrderItem item = plugin.getOrderManager().getItem(itemId);
-
-        // Valider le prix
-        if (!item.isValidPrice(price)) {
-            player.sendMessage(mm.deserialize(
-                "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"
-            ));
-            player.sendMessage(mm.deserialize(
-                "<red>❌ Prix invalide pour " + item.getDisplayName()
-            ));
-            player.sendMessage("");
-            
-            if (price < item.getMinPrice()) {
-                player.sendMessage(mm.deserialize(
-                    "<yellow>Prix trop bas! Prix minimal attendu: <green>" + 
-                    String.format("%.2f$", item.getMinPrice())
-                ));
-            } else {
-                player.sendMessage(mm.deserialize(
-                    "<yellow>Prix trop élevé! Prix maximal attendu: <green>" + 
-                    String.format("%.2f$", item.getMaxPrice())
-                ));
-            }
-            
-            player.sendMessage("");
-            player.sendMessage(mm.deserialize(
-                "<gray>Fourchette de prix acceptée: <green>" + 
-                String.format("%.2f$ - %.2f$", item.getMinPrice(), item.getMaxPrice())
-            ));
-            player.sendMessage(mm.deserialize(
-                "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"
-            ));
+        // Vérifier si l'item est autorisé
+        if (!plugin.getOrderManager().isItemAllowed(itemId)) {
+            player.sendMessage(mm.deserialize("<red>Item non autorisé: " + itemId));
+            player.sendMessage(mm.deserialize("<gray>Utilisez <white>/rechercher</white> pour voir les items disponibles."));
             return true;
         }
 
@@ -132,6 +96,7 @@ public class OffreCommand implements CommandExecutor {
         // Créer l'ordre
         Order order = plugin.getOrderManager().createOrder(player, itemId, quantity, price);
         long duration = plugin.getOrderManager().getOrderDurationForPlayer(player);
+        String category = plugin.getOrderManager().getCategoryForItem(itemId);
 
         // Confirmation
         player.sendMessage(mm.deserialize(
@@ -142,7 +107,10 @@ public class OffreCommand implements CommandExecutor {
         ));
         player.sendMessage("");
         player.sendMessage(mm.deserialize(
-            "<#32b8c6>Item : <white>" + item.getDisplayName()
+            "<#32b8c6>Item : <white>" + itemId
+        ));
+        player.sendMessage(mm.deserialize(
+            "<#32b8c6>Catégorie : <white>" + category
         ));
         player.sendMessage(mm.deserialize(
             "<#32b8c6>Quantité : <white>" + quantity
@@ -158,7 +126,7 @@ public class OffreCommand implements CommandExecutor {
         ));
         player.sendMessage("");
         player.sendMessage(mm.deserialize(
-            "<gray>Votre offre est maintenant visible pour tous les joueurs."
+            "<gray>Votre offre est maintenant visible dans la catégorie <white>" + category + "</white>."
         ));
         player.sendMessage(mm.deserialize(
             "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"

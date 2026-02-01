@@ -1,7 +1,6 @@
 package com.wynvers.quantum.orders;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.orders.OrderCreationManager.PendingOrder;
 import com.wynvers.quantum.orders.OrderCreationManager.PriceRange;
 import org.bukkit.entity.Player;
 
@@ -18,6 +17,9 @@ import java.util.UUID;
  * - Validation de la quantité (passage au menu prix)
  * - Finalisation de l'offre
  * - Annulation de l'offre
+ * 
+ * NOTE: Cette classe est obsolète et remplacée par OrderButtonHandler.
+ * Gardée pour compatibilité au cas où.
  */
 public class OrderMenuHandler {
     
@@ -35,16 +37,13 @@ public class OrderMenuHandler {
      * @param adjustment Valeur d'ajustement (+5, +50, -5, -50)
      */
     public boolean adjustQuantity(Player player, int adjustment) {
-        PendingOrder order = orderManager.getPendingOrder(player);
-        if (order == null) {
+        OrderCreationSession session = orderManager.getSession(player);
+        if (session == null) {
             player.sendMessage("§cErreur: Aucune offre en cours!");
             return false;
         }
         
-        int currentQty = order.getQuantity();
-        int newQty = Math.max(1, Math.min(currentQty + adjustment, order.getMaxQuantity()));
-        
-        order.setQuantity(newQty);
+        session.adjustQuantity(adjustment);
         return true;
     }
     
@@ -52,13 +51,13 @@ public class OrderMenuHandler {
      * Définit la quantité au maximum
      */
     public boolean setQuantityMax(Player player) {
-        PendingOrder order = orderManager.getPendingOrder(player);
-        if (order == null) {
+        OrderCreationSession session = orderManager.getSession(player);
+        if (session == null) {
             player.sendMessage("§cErreur: Aucune offre en cours!");
             return false;
         }
         
-        order.setQuantity(order.getMaxQuantity());
+        session.setQuantity(session.getMaxQuantity());
         return true;
     }
     
@@ -67,23 +66,19 @@ public class OrderMenuHandler {
      * Initialise le prix au milieu de la fourchette (50%)
      */
     public boolean validateQuantity(Player player) {
-        PendingOrder order = orderManager.getPendingOrder(player);
-        if (order == null) {
+        OrderCreationSession session = orderManager.getSession(player);
+        if (session == null) {
             player.sendMessage("§cErreur: Aucune offre en cours!");
             return false;
         }
         
-        if (order.getQuantity() <= 0) {
+        if (session.getQuantity() <= 0) {
             player.sendMessage("§cLa quantité doit être supérieure à 0!");
             return false;
         }
         
-        // Initialiser le prix au milieu de la fourchette
-        PriceRange range = orderManager.getPriceRange(order.getItemId());
-        if (range != null) {
-            double initialPrice = range.getPrice50(); // Prix moyen
-            order.setPricePerUnit(initialPrice);
-        }
+        // Le prix est déjà initialisé dans OrderCreationSession
+        session.setStep(OrderCreationSession.Step.PRICE);
         
         return true;
     }
@@ -93,26 +88,13 @@ public class OrderMenuHandler {
      * @param adjustment Pourcentage d'ajustement (+5, +20, -5, -20)
      */
     public boolean adjustPrice(Player player, int adjustment) {
-        PendingOrder order = orderManager.getPendingOrder(player);
-        if (order == null) {
+        OrderCreationSession session = orderManager.getSession(player);
+        if (session == null) {
             player.sendMessage("§cErreur: Aucune offre en cours!");
             return false;
         }
         
-        PriceRange range = orderManager.getPriceRange(order.getItemId());
-        if (range == null) {
-            player.sendMessage("§cErreur: Impossible de récupérer la fourchette de prix!");
-            return false;
-        }
-        
-        double currentPrice = order.getPricePerUnit();
-        double priceRange = range.getMaxPrice() - range.getMinPrice();
-        double adjustmentAmount = priceRange * (adjustment / 100.0);
-        
-        double newPrice = currentPrice + adjustmentAmount;
-        newPrice = Math.max(range.getMinPrice(), Math.min(newPrice, range.getMaxPrice()));
-        
-        order.setPricePerUnit(newPrice);
+        session.adjustPrice(adjustment);
         return true;
     }
     
@@ -120,19 +102,13 @@ public class OrderMenuHandler {
      * Définit le prix au maximum
      */
     public boolean setPriceMax(Player player) {
-        PendingOrder order = orderManager.getPendingOrder(player);
-        if (order == null) {
+        OrderCreationSession session = orderManager.getSession(player);
+        if (session == null) {
             player.sendMessage("§cErreur: Aucune offre en cours!");
             return false;
         }
         
-        PriceRange range = orderManager.getPriceRange(order.getItemId());
-        if (range == null) {
-            player.sendMessage("§cErreur: Impossible de récupérer la fourchette de prix!");
-            return false;
-        }
-        
-        order.setPricePerUnit(range.getMaxPrice());
+        session.setPrice(session.getMaxPrice());
         return true;
     }
     
@@ -140,24 +116,24 @@ public class OrderMenuHandler {
      * Finalise la création de l'offre
      */
     public boolean finalizeOrder(Player player) {
-        PendingOrder order = orderManager.getPendingOrder(player);
-        if (order == null) {
+        OrderCreationSession session = orderManager.getSession(player);
+        if (session == null) {
             player.sendMessage("§cErreur: Aucune offre en cours!");
             return false;
         }
         
-        if (order.getQuantity() <= 0) {
+        if (session.getQuantity() <= 0) {
             player.sendMessage("§cLa quantité doit être supérieure à 0!");
             return false;
         }
         
-        if (order.getPricePerUnit() <= 0) {
+        if (session.getPrice() <= 0) {
             player.sendMessage("§cLe prix doit être supérieur à 0!");
             return false;
         }
         
         // Utiliser la méthode existante pour finaliser
-        return orderManager.setOrderPriceAndFinalize(player, order.getPricePerUnit());
+        return orderManager.finalizeOrder(player);
     }
     
     /**
@@ -171,36 +147,26 @@ public class OrderMenuHandler {
      * Obtient un placeholder pour le menu de quantité
      */
     public String getQuantityPlaceholder(Player player, String placeholder) {
-        PendingOrder order = orderManager.getPendingOrder(player);
-        if (order == null) return "N/A";
+        OrderCreationSession session = orderManager.getSession(player);
+        if (session == null) return "N/A";
         
         switch (placeholder) {
             case "quantum_order_item_name":
-                return formatItemName(order.getItemId());
+                return session.getItemName();
             case "quantum_order_current_quantity":
-                return String.valueOf(order.getQuantity());
+                return String.valueOf(session.getQuantity());
             case "quantum_order_max_quantity":
-                return String.valueOf(order.getMaxQuantity());
+                return String.valueOf(session.getMaxQuantity());
             case "quantum_order_price_min":
-                PriceRange rangeMin = orderManager.getPriceRange(order.getItemId());
-                return rangeMin != null ? priceFormat.format(rangeMin.getMinPrice()) : "N/A";
+                return priceFormat.format(session.getMinPrice());
             case "quantum_order_price_max":
-                PriceRange rangeMax = orderManager.getPriceRange(order.getItemId());
-                return rangeMax != null ? priceFormat.format(rangeMax.getMaxPrice()) : "N/A";
+                return priceFormat.format(session.getMaxPrice());
             case "quantum_order_total_min":
-                PriceRange rangeTMin = orderManager.getPriceRange(order.getItemId());
-                if (rangeTMin != null) {
-                    double total = order.getQuantity() * rangeTMin.getMinPrice();
-                    return priceFormat.format(total);
-                }
-                return "N/A";
+                double totalMin = session.getQuantity() * session.getMinPrice();
+                return priceFormat.format(totalMin);
             case "quantum_order_total_max":
-                PriceRange rangeTMax = orderManager.getPriceRange(order.getItemId());
-                if (rangeTMax != null) {
-                    double total = order.getQuantity() * rangeTMax.getMaxPrice();
-                    return priceFormat.format(total);
-                }
-                return "N/A";
+                double totalMax = session.getQuantity() * session.getMaxPrice();
+                return priceFormat.format(totalMax);
             default:
                 return null;
         }
@@ -210,63 +176,30 @@ public class OrderMenuHandler {
      * Obtient un placeholder pour le menu de prix
      */
     public String getPricePlaceholder(Player player, String placeholder) {
-        PendingOrder order = orderManager.getPendingOrder(player);
-        if (order == null) return "N/A";
+        OrderCreationSession session = orderManager.getSession(player);
+        if (session == null) return "N/A";
         
         switch (placeholder) {
             case "quantum_order_item_name":
-                return formatItemName(order.getItemId());
+                return session.getItemName();
             case "quantum_order_current_quantity":
-                return String.valueOf(order.getQuantity());
+                return String.valueOf(session.getQuantity());
             case "quantum_order_current_price":
-                return priceFormat.format(order.getPricePerUnit());
+                return priceFormat.format(session.getPrice());
             case "quantum_order_current_total":
-                return priceFormat.format(order.getQuantity() * order.getPricePerUnit());
+                return priceFormat.format(session.getTotalPrice());
             case "quantum_order_price_min":
-                PriceRange rangeMin = orderManager.getPriceRange(order.getItemId());
-                return rangeMin != null ? priceFormat.format(rangeMin.getMinPrice()) : "N/A";
+                return priceFormat.format(session.getMinPrice());
             case "quantum_order_price_max":
-                PriceRange rangeMax = orderManager.getPriceRange(order.getItemId());
-                return rangeMax != null ? priceFormat.format(rangeMax.getMaxPrice()) : "N/A";
+                return priceFormat.format(session.getMaxPrice());
             case "quantum_order_total_min":
-                PriceRange rangeTMin = orderManager.getPriceRange(order.getItemId());
-                if (rangeTMin != null) {
-                    double total = order.getQuantity() * rangeTMin.getMinPrice();
-                    return priceFormat.format(total);
-                }
-                return "N/A";
+                double totalMin = session.getQuantity() * session.getMinPrice();
+                return priceFormat.format(totalMin);
             case "quantum_order_total_max":
-                PriceRange rangeTMax = orderManager.getPriceRange(order.getItemId());
-                if (rangeTMax != null) {
-                    double total = order.getQuantity() * rangeTMax.getMaxPrice();
-                    return priceFormat.format(total);
-                }
-                return "N/A";
+                double totalMax = session.getQuantity() * session.getMaxPrice();
+                return priceFormat.format(totalMax);
             default:
                 return null;
         }
-    }
-    
-    /**
-     * Formate joliment un itemId pour l'affichage
-     */
-    private String formatItemName(String itemId) {
-        if (itemId.startsWith("nexo:")) {
-            return "[Nexo] " + itemId.substring(5).replace("_", " ");
-        } else if (itemId.startsWith("minecraft:")) {
-            String name = itemId.substring(10).replace("_", " ");
-            // Capitalize first letter of each word
-            String[] words = name.split(" ");
-            StringBuilder formatted = new StringBuilder();
-            for (String word : words) {
-                if (word.length() > 0) {
-                    formatted.append(Character.toUpperCase(word.charAt(0)))
-                             .append(word.substring(1).toLowerCase())
-                             .append(" ");
-                }
-            }
-            return formatted.toString().trim();
-        }
-        return itemId;
     }
 }

@@ -14,6 +14,7 @@ items:
   cultures:
     slot: 10
     material: WHEAT
+    custom_model_data: 2001
     display_name: "<gradient:#32b8c6:#1d6880>🌾 Cultures</gradient>"
     lore:
       - ""
@@ -28,6 +29,7 @@ items:
   loots:
     slot: 11
     material: DIAMOND
+    custom_model_data: 2002
     display_name: "<gradient:#32b8c6:#1d6880>💎 Loots</gradient>"
     lore:
       - ""
@@ -42,6 +44,7 @@ items:
   items:
     slot: 12
     material: GOLDEN_APPLE
+    custom_model_data: 2003
     display_name: "<gradient:#32b8c6:#1d6880>📦 Items</gradient>"
     lore:
       - ""
@@ -56,7 +59,7 @@ items:
   potions:
     slot: 13
     material: POTION
-    custom_model_data: 1
+    custom_model_data: 2004
     display_name: "<gradient:#32b8c6:#1d6880>🧪 Potions</gradient>"
     lore:
       - ""
@@ -71,6 +74,7 @@ items:
   armures:
     slot: 14
     material: DIAMOND_CHESTPLATE
+    custom_model_data: 2005
     display_name: "<gradient:#32b8c6:#1d6880>🛡️ Armures</gradient>"
     lore:
       - ""
@@ -85,6 +89,7 @@ items:
   outils:
     slot: 15
     material: DIAMOND_PICKAXE
+    custom_model_data: 2006
     display_name: "<gradient:#32b8c6:#1d6880>⚒️ Outils</gradient>"
     lore:
       - ""

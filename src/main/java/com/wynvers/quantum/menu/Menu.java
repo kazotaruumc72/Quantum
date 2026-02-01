@@ -232,12 +232,54 @@ public class Menu {
     public void populateInventory(Inventory inventory, Player player, Map<String, String> customPlaceholders) {
         inventory.clear();
         
+        // Récupérer la session sell si elle existe
+        SellSession sellSession = player != null ? plugin.getSellManager().getSession(player) : null;
+        
         // Premièrement, remplir les items standards (non-quantum_storage)
         for (MenuItem item : items.values()) {
             if (item.getSlots().isEmpty()) continue;
             
             // Si c'est un slot quantum_storage, le StorageRenderer s'en occupera
             if (item.isQuantumStorage()) {
+                continue;
+            }
+            
+            // Si c'est un quantum_sell_item ET qu'il y a une session, utiliser l'item de la session
+            if (item.getButtonType() == ButtonType.QUANTUM_SELL_ITEM && sellSession != null) {
+                ItemStack sellItem = sellSession.getItemToSell().clone();
+                
+                // Définir le nombre d'items (max 64 si plus)
+                int displayAmount = Math.min(sellSession.getQuantity(), 64);
+                sellItem.setAmount(displayAmount);
+                
+                // Parser les placeholders dans le display name et lore si présents dans le MenuItem
+                ItemMeta meta = sellItem.getItemMeta();
+                if (meta != null) {
+                    // Utiliser le display name et lore du MenuItem s'ils existent
+                    if (item.getDisplayName() != null) {
+                        String parsedName = customPlaceholders != null
+                            ? plugin.getPlaceholderManager().parse(player, item.getDisplayName(), customPlaceholders)
+                            : plugin.getPlaceholderManager().parse(player, item.getDisplayName());
+                        meta.setDisplayName(parsedName);
+                    }
+                    
+                    if (item.getLore() != null && !item.getLore().isEmpty()) {
+                        List<String> parsedLore = customPlaceholders != null
+                            ? plugin.getPlaceholderManager().parse(player, item.getLore(), customPlaceholders)
+                            : plugin.getPlaceholderManager().parse(player, item.getLore());
+                        meta.setLore(parsedLore);
+                    }
+                    
+                    sellItem.setItemMeta(meta);
+                }
+                
+                // Placer l'item dans tous les slots configurés
+                for (int slot : item.getSlots()) {
+                    if (slot >= 0 && slot < size) {
+                        inventory.setItem(slot, sellItem.clone());
+                    }
+                }
+                
                 continue;
             }
  

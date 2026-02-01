@@ -86,6 +86,14 @@ public class MenuAction {
             case EFFECT:
                 // TODO: Implement potion effects
                 break;
+                
+            case SELL_INCREASE:
+            case SELL_DECREASE:
+            case SELL_SET_MAX:
+            case SELL_CONFIRM:
+                // Ces actions sont gérées dans ActionExecutor pour accéder aux managers
+                plugin.getActionExecutor().executeAction(player, this);
+                break;
         }
     }
     
@@ -160,16 +168,22 @@ public class MenuAction {
     }
     
     public enum ActionType {
-        MESSAGE,      // Send message to player
-        CONSOLE,      // Execute console command
-        PLAYER,       // Execute command as player
-        CLOSE,        // Close current menu
-        MENU,         // Open another menu
-        SOUND,        // Play sound
-        BROADCAST,    // Broadcast message
-        ACTIONBAR,    // Send action bar message
-        TITLE,        // Send title
-        EFFECT        // Give potion effect
+        MESSAGE,         // Send message to player
+        CONSOLE,         // Execute console command
+        PLAYER,          // Execute command as player
+        CLOSE,           // Close current menu
+        MENU,            // Open another menu
+        SOUND,           // Play sound
+        BROADCAST,       // Broadcast message
+        ACTIONBAR,       // Send action bar message
+        TITLE,           // Send title
+        EFFECT,          // Give potion effect
+        
+        // Actions de vente
+        SELL_INCREASE,   // Augmenter la quantité à vendre
+        SELL_DECREASE,   // Diminuer la quantité à vendre
+        SELL_SET_MAX,    // Définir quantité max
+        SELL_CONFIRM     // Confirmer la vente
     }
 }
 

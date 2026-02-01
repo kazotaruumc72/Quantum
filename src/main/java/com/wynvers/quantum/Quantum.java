@@ -74,7 +74,7 @@ public final class Quantum extends JavaPlugin {
         this.logger = new Logger("Quantum");
         logger.info("┌───────────────────────────────────┐");
         logger.info("│  §6§lQUANTUM §f- Advanced Storage │");
-        logger.info(│       §7v1.0.0 by Kazotaruu_      │");
+        logger.info("│       §7v1.0.0 by Kazotaruu_      │");
         logger.info("└───────────────────────────────────┘");
         
         // Extract default resources
@@ -135,6 +135,7 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/orders_potions.yml");
         extractResource("menus/orders_armures.yml");
         extractResource("menus/orders_outils.yml");
+        extractResource("menus/orders_autre.yml");
         
         // Extract orders template
         extractResource("orders_template.yml");

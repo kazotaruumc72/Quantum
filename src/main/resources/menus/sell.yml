@@ -6,31 +6,18 @@
 
 # Titre du menu
 menu_title: '&6&lVente - %item_name%'
-
-# Taille de l'inventaire
 size: 27
-
-# ========================================
-# ITEMS DU MENU
-# ========================================
 items:
-
-  # ──────────────────────────────────────
-  # BORDURES DÉCORATIVES
-  # ──────────────────────────────────────
   border:
     material: GRAY_STAINED_GLASS_PANE
     display_name: ' '
-    slots: [0, 1, 2, 6, 7, 8, 18, 19, 20, 24, 25, 26]
-
-  # ──────────────────────────────────────
-  # LIGNE 1 : Item + Contrôles quantité
-  # ──────────────────────────────────────
+    slots: [0, 1, 2, 3, 5, 6, 7, 8, 18, 19, 20, 24, 25, 26]
   
-  # Item à vendre (centre)
+
   item_to_sell:
-    slots: [3]
-    material: BARRIER  # Sera remplacé dynamiquement
+    slots: [4]
+    material: '%item%'
+    amount: '%amount%'
     type: quantum_sell_item
     display_name: '&e%item_name%'
     lore:
@@ -41,10 +28,9 @@ items:
       - '&fPrix unitaire: &6%price_per_unit%'
       - '&fPrix total: &6%total_price%'
       - '&8─────────────────────'
-
-  # Retirer 10
+  
   remove_10:
-    slots: [4]
+    slots: [11]
     material: RED_DYE
     display_name: '&c&l-10'
     lore:
@@ -52,21 +38,6 @@ items:
     button_type: QUANTUM_CHANGE_AMOUNT
     amount: -10
 
-  # Ajouter 10
-  add_10:
-    slots: [5]
-    material: LIME_DYE
-    display_name: '&a&l+10'
-    lore:
-      - '&7Cliquer pour ajouter 10'
-    button_type: QUANTUM_CHANGE_AMOUNT
-    amount: 10
-
-  # ──────────────────────────────────────
-  # LIGNE 2 : Contrôles supplémentaires
-  # ──────────────────────────────────────
-  
-  # Retirer 1
   remove_1:
     slots: [12]
     material: RED_CONCRETE
@@ -76,7 +47,6 @@ items:
     button_type: QUANTUM_CHANGE_AMOUNT
     amount: -1
 
-  # Quantité actuelle (affichage)
   current_quantity:
     slots: [13]
     material: PAPER
@@ -87,7 +57,6 @@ items:
       - ' '
       - '&7Utilisez les boutons pour ajuster'
 
-  # Ajouter 1
   add_1:
     slots: [14]
     material: LIME_CONCRETE
@@ -97,11 +66,15 @@ items:
     button_type: QUANTUM_CHANGE_AMOUNT
     amount: 1
 
-  # ──────────────────────────────────────
-  # LIGNE 3 : Actions finales
-  # ──────────────────────────────────────
-  
-  # Annuler
+  add_10:
+    slots: [15]
+    material: LIME_DYE
+    display_name: '&a&l+10'
+    lore:
+      - '&7Cliquer pour ajouter 10'
+    button_type: QUANTUM_CHANGE_AMOUNT
+    amount: 10
+
   cancel:
     slots: [21]
     material: BARRIER
@@ -111,7 +84,6 @@ items:
     left_click_actions:
       - '[close]'
 
-  # Vendre tout
   sell_all:
     slots: [22]
     material: GOLD_BLOCK
@@ -122,9 +94,8 @@ items:
       - '&fQuantité: &a%max_quantity%'
       - '&fPrix total: &6%max_total_price%'
     button_type: QUANTUM_CHANGE_AMOUNT
-    amount: 999999  # Valeur arbitraire pour mettre au max
+    amount: -1  # -1 = all
 
-  # Confirmer la vente
   confirm_sell:
     slots: [23]
     material: EMERALD

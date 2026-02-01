@@ -4,6 +4,7 @@ import com.wynvers.quantum.commands.*;
 import com.wynvers.quantum.listeners.MenuListener;
 import com.wynvers.quantum.listeners.StorageListener;
 import com.wynvers.quantum.placeholder.QuantumPlaceholderExpansion;
+import com.wynvers.quantum.placeholders.QuantumExpansion;
 import com.wynvers.quantum.tabcompleters.*;
 import com.wynvers.quantum.managers.*;
 import com.wynvers.quantum.orders.OrderButtonHandler;
@@ -58,8 +59,9 @@ public final class Quantum extends JavaPlugin {
     // Utils
     private ActionExecutor actionExecutor;
     
-    // PlaceholderAPI expansion
+    // PlaceholderAPI expansions
     private QuantumPlaceholderExpansion placeholderExpansion;
+    private QuantumExpansion quantumExpansion;
 
     @Override
     public void onEnable() {
@@ -241,15 +243,23 @@ public final class Quantum extends JavaPlugin {
      */
     private void registerPlaceholderExpansion() {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            logger.info("Registering PlaceholderAPI expansion...");
+            logger.info("Registering PlaceholderAPI expansions...");
+            
+            // Register legacy expansion (storage amounts)
             this.placeholderExpansion = new QuantumPlaceholderExpansion(this);
             if (placeholderExpansion.register()) {
-                logger.success("✓ PlaceholderAPI expansion registered");
-                logger.info("  Available placeholders:");
-                logger.info("  - %quantum_amt_nexo-<id>% (e.g., %quantum_amt_nexo-custom_sword%)");
-                logger.info("  - %quantum_amt_minecraft-<id>% (e.g., %quantum_amt_minecraft-diamond%)");
-            } else {
-                logger.error("✗ Failed to register PlaceholderAPI expansion");
+                logger.success("✓ QuantumPlaceholderExpansion registered");
+                logger.info("  - %quantum_amt_nexo-<id>%");
+                logger.info("  - %quantum_amt_minecraft-<id>%");
+            }
+            
+            // Register new expansion (order creation + mode)
+            this.quantumExpansion = new QuantumExpansion(this);
+            if (quantumExpansion.register()) {
+                logger.success("✓ QuantumExpansion registered");
+                logger.info("  - %quantum_mode%");
+                logger.info("  - %quantum_mode_display%");
+                logger.info("  - %quantum_order_*% (all order placeholders)");
             }
         }
     }
@@ -294,9 +304,12 @@ public final class Quantum extends JavaPlugin {
     public void onDisable() {
         logger.info("Disabling Quantum...");
         
-        // Unregister PlaceholderAPI expansion
+        // Unregister PlaceholderAPI expansions
         if (placeholderExpansion != null) {
             placeholderExpansion.unregister();
+        }
+        if (quantumExpansion != null) {
+            quantumExpansion.unregister();
         }
         
         // Stop animations

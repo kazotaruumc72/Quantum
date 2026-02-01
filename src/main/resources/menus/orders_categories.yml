@@ -1,87 +1,92 @@
 # orders_categories.yml - Menu principal des catégories d'ordres
 
-menu:
-  title: "<gradient:#32b8c6:#1d6880>Catégories d'Ordres</gradient>"
-  size: 27
+title: "<gradient:#32b8c6:#1d6880>Catégories d'Ordres</gradient>"
+size: 27
   
 items:
   # Décoration
   filler:
-    slot: [0,1,2,3,5,6,7,8,9,17,18,19,20,21,22,23,24,25,26]
+    slots: [0,1,2,3,5,6,7,8,9,17,18,19,20,21,22,23,24,25,26]
     material: BLACK_STAINED_GLASS_PANE
-    name: " "
+    display_name: " "
     
   # Catégorie Cultures
   cultures:
     slot: 10
     material: WHEAT
-    name: "<gradient:#32b8c6:#1d6880>🌾 Cultures</gradient>"
+    display_name: "<gradient:#32b8c6:#1d6880>🌾 Cultures</gradient>"
     lore:
       - ""
       - "<gray>Toutes les cultures et graines"
       - "<gray>disponibles pour les ordres"
       - ""
       - "<#32b8c6>➥ Cliquez pour ouvrir"
-    action: "OPEN_MENU:orders_cultures"
+    left_click_actions:
+      - "[open-menu] orders_cultures"
     
   # Catégorie Loots
   loots:
     slot: 11
     material: DIAMOND
-    name: "<gradient:#32b8c6:#1d6880>💎 Loots</gradient>"
+    display_name: "<gradient:#32b8c6:#1d6880>💎 Loots</gradient>"
     lore:
       - ""
       - "<gray>Objets de loots et drops"
       - "<gray>de mobs et donjons"
       - ""
       - "<#32b8c6>➥ Cliquez pour ouvrir"
-    action: "OPEN_MENU:orders_loots"
+    left_click_actions:
+      - "[open-menu] orders_loots"
     
   # Catégorie Items
   items:
     slot: 12
     material: GOLDEN_APPLE
-    name: "<gradient:#32b8c6:#1d6880>📦 Items</gradient>"
+    display_name: "<gradient:#32b8c6:#1d6880>📦 Items</gradient>"
     lore:
       - ""
       - "<gray>Items spéciaux et ressources"
       - "<gray>diverses du serveur"
       - ""
       - "<#32b8c6>➥ Cliquez pour ouvrir"
-    action: "OPEN_MENU:orders_items"
+    left_click_actions:
+      - "[open-menu] orders_items"
     
   # Catégorie Armures
   armures:
     slot: 14
     material: DIAMOND_CHESTPLATE
-    name: "<gradient:#32b8c6:#1d6880>🛡️ Armures</gradient>"
+    display_name: "<gradient:#32b8c6:#1d6880>🛡️ Armures</gradient>"
     lore:
       - ""
       - "<gray>Pièces d'armures et"
       - "<gray>équipements de protection"
       - ""
       - "<#32b8c6>➥ Cliquez pour ouvrir"
-    action: "OPEN_MENU:orders_armures"
+    left_click_actions:
+      - "[open-menu] orders_armures"
     
   # Catégorie Outils
   outils:
     slot: 15
     material: DIAMOND_PICKAXE
-    name: "<gradient:#32b8c6:#1d6880>⚒️ Outils</gradient>"
+    display_name: "<gradient:#32b8c6:#1d6880>⛏️ Outils</gradient>"
     lore:
       - ""
       - "<gray>Outils et équipements"
       - "<gray>pour récolter des ressources"
       - ""
       - "<#32b8c6>➥ Cliquez pour ouvrir"
-    action: "OPEN_MENU:orders_outils"
+    left_click_actions:
+      - "[open-menu] orders_outils"
     
   # Bouton de fermeture
   close:
     slot: 4
     material: BARRIER
-    name: "<red>✖ Fermer</red>"
+    display_name: "<red>✖ Fermer</red>"
     lore:
       - ""
       - "<gray>Ferme ce menu"
-    action: "CLOSE"
+    left_click_actions:
+      - "[close]"

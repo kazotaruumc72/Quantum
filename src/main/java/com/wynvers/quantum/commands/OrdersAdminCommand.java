@@ -11,7 +11,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Commande admin pour gérer les catégories d'ordres
@@ -67,7 +69,7 @@ public class OrdersAdminCommand implements CommandExecutor {
             "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"
         ));
         sender.sendMessage(mm.deserialize(
-            "<#32b8c6>➤ Création de la catégorie <white>" + categorie + "</white>"
+            "<#32b8c6>➜ Création de la catégorie <white>" + categorie + "</white>"
         ));
         sender.sendMessage("");
 
@@ -88,10 +90,14 @@ public class OrdersAdminCommand implements CommandExecutor {
         }
 
         // 2. Ajouter la catégorie dans orders_template.yml
-        List<String> defaultItems = new ArrayList<>();
-        defaultItems.add("minecraft:stone");
-        defaultItems.add("minecraft:dirt");
-        template.set(categorie + ".items", defaultItems);
+        Map<String, Object> defaultItem = new HashMap<>();
+        defaultItem.put("min_price", 10.0);
+        defaultItem.put("max_price", 100.0);
+        
+        Map<String, Object> items = new HashMap<>();
+        items.put("minecraft:stone", defaultItem);
+        
+        template.set(categorie + ".items", items);
 
         try {
             template.save(templateFile);
@@ -110,6 +116,18 @@ public class OrdersAdminCommand implements CommandExecutor {
             createMenuFile(menuFile, categorie);
             sender.sendMessage(mm.deserialize("<green>✓ Menu orders_" + categorie + ".yml créé"));
         }
+        
+        // 4. Ajouter automatiquement le bouton dans orders_categories.yml
+        File categoriesFile = new File(plugin.getDataFolder(), "menus/orders_categories.yml");
+        if (!categoriesFile.exists()) {
+            sender.sendMessage(mm.deserialize("<red>✗ Fichier orders_categories.yml introuvable!"));
+        } else {
+            if (addButtonToCategories(categoriesFile, categorie)) {
+                sender.sendMessage(mm.deserialize("<green>✓ Bouton ajouté dans orders_categories.yml"));
+            } else {
+                sender.sendMessage(mm.deserialize("<yellow>⚠ Le bouton existe déjà dans orders_categories.yml"));
+            }
+        }
 
         sender.sendMessage("");
         sender.sendMessage(mm.deserialize("<green>✓ Catégorie <white>" + categorie + "</white> créée avec succès!"));
@@ -117,11 +135,96 @@ public class OrdersAdminCommand implements CommandExecutor {
         sender.sendMessage(mm.deserialize("<gray>Prochaines étapes:"));
         sender.sendMessage(mm.deserialize("<gray>1. Éditez <white>orders_template.yml</white> pour ajouter des items"));
         sender.sendMessage(mm.deserialize("<gray>2. Éditez <white>menus/orders_" + categorie + ".yml</white> pour personnaliser le menu"));
-        sender.sendMessage(mm.deserialize("<gray>3. Ajoutez un bouton dans <white>orders_categories.yml</white>"));
-        sender.sendMessage(mm.deserialize("<gray>4. Exécutez <white>/quantum reload</white>"));
+        sender.sendMessage(mm.deserialize("<gray>3. Exécutez <white>/quantum reload</white>"));
         sender.sendMessage(mm.deserialize(
             "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"
         ));
+    }
+    
+    /**
+     * Ajoute automatiquement un bouton dans le menu orders_categories.yml
+     */
+    private boolean addButtonToCategories(File categoriesFile, String categorie) {
+        YamlConfiguration categoriesMenu = YamlConfiguration.loadConfiguration(categoriesFile);
+        
+        // Vérifier si le bouton existe déjà
+        String buttonPath = "items." + categorie;
+        if (categoriesMenu.contains(buttonPath)) {
+            return false; // Bouton existe déjà
+        }
+        
+        // Trouver le prochain slot disponible (commence à 9)
+        int nextSlot = findNextAvailableSlot(categoriesMenu);
+        if (nextSlot == -1) {
+            return false; // Plus de slot disponible
+        }
+        
+        String capitalizedCategorie = categorie.substring(0, 1).toUpperCase() + categorie.substring(1);
+        
+        // Créer le bouton
+        categoriesMenu.set(buttonPath + ".slot", nextSlot);
+        categoriesMenu.set(buttonPath + ".material", "PAPER");
+        categoriesMenu.set(buttonPath + ".custom_model_data", getCustomModelData(categorie));
+        categoriesMenu.set(buttonPath + ".display_name", "<gradient:#32b8c6:#1d6880>" + capitalizedCategorie + "</gradient>");
+        
+        List<String> lore = new ArrayList<>();
+        lore.add("");
+        lore.add("<gray>Offres d'achat de " + categorie);
+        lore.add("");
+        lore.add("<yellow>► Cliquez pour voir les offres</yellow>");
+        categoriesMenu.set(buttonPath + ".lore", lore);
+        
+        List<String> leftClick = new ArrayList<>();
+        leftClick.add("[menu] orders_" + categorie);
+        categoriesMenu.set(buttonPath + ".left_click_actions", leftClick);
+        
+        try {
+            categoriesMenu.save(categoriesFile);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
+     * Trouve le prochain slot disponible dans le menu des catégories
+     */
+    private int findNextAvailableSlot(YamlConfiguration config) {
+        List<Integer> usedSlots = new ArrayList<>();
+        
+        // Récupérer tous les slots utilisés
+        if (config.contains("items")) {
+            for (String key : config.getConfigurationSection("items").getKeys(false)) {
+                if (config.contains("items." + key + ".slot")) {
+                    usedSlots.add(config.getInt("items." + key + ".slot"));
+                }
+            }
+        }
+        
+        // Chercher le premier slot libre entre 9 et 44
+        for (int i = 9; i <= 44; i++) {
+            if (!usedSlots.contains(i)) {
+                return i;
+            }
+        }
+        
+        return -1; // Aucun slot disponible
+    }
+    
+    /**
+     * Retourne un custom_model_data en fonction du nom de la catégorie
+     */
+    private int getCustomModelData(String categorie) {
+        switch (categorie.toLowerCase()) {
+            case "cultures": return 1001;
+            case "loots": return 1002;
+            case "items": return 1003;
+            case "potions": return 1004;
+            case "armures": return 1005;
+            case "outils": return 1006;
+            default: return 1000 + (categorie.hashCode() % 100);
+        }
     }
 
     private void deleteCategorie(CommandSender sender, String categorie) {
@@ -129,7 +232,7 @@ public class OrdersAdminCommand implements CommandExecutor {
             "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"
         ));
         sender.sendMessage(mm.deserialize(
-            "<red>➤ Suppression de la catégorie <white>" + categorie + "</white>"
+            "<red>➜ Suppression de la catégorie <white>" + categorie + "</white>"
         ));
         sender.sendMessage("");
 
@@ -169,16 +272,44 @@ public class OrdersAdminCommand implements CommandExecutor {
                 sender.sendMessage(mm.deserialize("<red>✗ Impossible de supprimer le fichier menu!"));
             }
         }
+        
+        // 4. Supprimer le bouton de orders_categories.yml
+        File categoriesFile = new File(plugin.getDataFolder(), "menus/orders_categories.yml");
+        if (categoriesFile.exists()) {
+            if (removeButtonFromCategories(categoriesFile, categorie)) {
+                sender.sendMessage(mm.deserialize("<green>✓ Bouton supprimé de orders_categories.yml"));
+            }
+        }
 
         sender.sendMessage("");
         sender.sendMessage(mm.deserialize("<green>✓ Catégorie <white>" + categorie + "</white> supprimée!"));
         sender.sendMessage("");
-        sender.sendMessage(mm.deserialize("<yellow>⚠ N'oubliez pas de:"));
-        sender.sendMessage(mm.deserialize("<gray>1. Retirer le bouton de <white>orders_categories.yml</white>"));
-        sender.sendMessage(mm.deserialize("<gray>2. Exécuter <white>/quantum reload</white>"));
+        sender.sendMessage(mm.deserialize("<gray>Exécutez <white>/quantum reload</white> pour appliquer les changements"));
         sender.sendMessage(mm.deserialize(
             "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"
         ));
+    }
+    
+    /**
+     * Supprime le bouton d'une catégorie du menu orders_categories.yml
+     */
+    private boolean removeButtonFromCategories(File categoriesFile, String categorie) {
+        YamlConfiguration categoriesMenu = YamlConfiguration.loadConfiguration(categoriesFile);
+        
+        String buttonPath = "items." + categorie;
+        if (!categoriesMenu.contains(buttonPath)) {
+            return false; // Bouton n'existe pas
+        }
+        
+        categoriesMenu.set(buttonPath, null);
+        
+        try {
+            categoriesMenu.save(categoriesFile);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private void createMenuFile(File file, String categorie) {
@@ -237,7 +368,7 @@ public class OrdersAdminCommand implements CommandExecutor {
             "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"
         ));
         sender.sendMessage(mm.deserialize(
-            "<#32b8c6>➤ Gestion des catégories d'ordres"
+            "<#32b8c6>➜ Gestion des catégories d'ordres"
         ));
         sender.sendMessage("");
         sender.sendMessage(mm.deserialize(

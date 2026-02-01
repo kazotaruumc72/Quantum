@@ -1,12 +1,15 @@
 package com.wynvers.quantum.sell;
 
+import com.nexomc.nexo.api.NexoItems;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
- * Repr\u00e9sente une session de vente pour un joueur
- * Contient l'item \u00e0 vendre et la quantit\u00e9
+ * Représente une session de vente pour un joueur
+ * Contient l'item à vendre et la quantité
  */
 public class SellSession {
     
@@ -21,7 +24,7 @@ public class SellSession {
         this.itemToSell = itemToSell.clone();
         this.maxQuantity = maxQuantity;
         this.pricePerUnit = pricePerUnit;
-        this.quantity = Math.min(maxQuantity / 2, 1); // Par d\u00e9faut: moiti\u00e9 ou 1 minimum
+        this.quantity = Math.min(maxQuantity / 2, 1); // Par défaut: moitié ou 1 minimum
     }
     
     public UUID getPlayerUUID() {
@@ -52,10 +55,47 @@ public class SellSession {
         return pricePerUnit * quantity;
     }
     
+    public double getMaxTotalPrice() {
+        return pricePerUnit * maxQuantity;
+    }
+    
     /**
-     * Modifie la quantit\u00e9 (ajoute ou retire)
+     * Modifie la quantité (ajoute ou retire)
      */
     public void changeQuantity(int amount) {
         setQuantity(quantity + amount);
+    }
+    
+    /**
+     * Génére les placeholders pour le menu de vente
+     */
+    public Map<String, String> getPlaceholders() {
+        Map<String, String> placeholders = new HashMap<>();
+        
+        // Nom de l'item
+        String itemName;
+        if (itemToSell.hasItemMeta() && itemToSell.getItemMeta().hasDisplayName()) {
+            itemName = itemToSell.getItemMeta().getDisplayName();
+        } else {
+            // Vérifier si c'est un item Nexo
+            String nexoId = NexoItems.idFromItem(itemToSell);
+            if (nexoId != null) {
+                itemName = nexoId;
+            } else {
+                itemName = itemToSell.getType().name().toLowerCase().replace('_', ' ');
+            }
+        }
+        placeholders.put("item_name", itemName);
+        
+        // Quantités
+        placeholders.put("quantity", String.valueOf(quantity));
+        placeholders.put("max_quantity", String.valueOf(maxQuantity));
+        
+        // Prix
+        placeholders.put("price_per_unit", String.format("%.2f$", pricePerUnit));
+        placeholders.put("total_price", String.format("%.2f$", getTotalPrice()));
+        placeholders.put("max_total_price", String.format("%.2f$", getMaxTotalPrice()));
+        
+        return placeholders;
     }
 }

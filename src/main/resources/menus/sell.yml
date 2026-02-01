@@ -13,7 +13,6 @@ items:
     display_name: ' '
     slots: [0, 1, 2, 3, 5, 6, 7, 8, 18, 19, 20, 24, 25, 26]
   
-
   item_to_sell:
     slots: [4]
     material: '%item%'
@@ -94,7 +93,7 @@ items:
       - '&fQuantité: &a%max_quantity%'
       - '&fPrix total: &6%max_total_price%'
     button_type: QUANTUM_CHANGE_AMOUNT
-    amount: -1  # -1 = all
+    amount: 999999
 
   confirm_sell:
     slots: [23]
@@ -112,6 +111,8 @@ items:
 # ========================================
 # • Les placeholders sont remplacés dynamiquement
 # • %item_name% = Nom de l'item
+# • %item% = Material de l'item (placeholder dynamique)
+# • %amount% = Quantité affichée (max 64 si >64)
 # • %quantity% = Quantité actuelle à vendre
 # • %max_quantity% = Quantité maximale disponible
 # • %price_per_unit% = Prix unitaire

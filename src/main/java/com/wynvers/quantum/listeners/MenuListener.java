@@ -219,17 +219,32 @@ public class MenuListener implements Listener {
             }
         }
     }
-    
-    @EventHandler
+        @EventHandler(priority = EventPriority.HIGHEST)
     public void onInventoryClose(InventoryCloseEvent event) {
         if (!(event.getPlayer() instanceof Player)) return;
-        
+
         Player player = (Player) event.getPlayer();
         Menu menu = plugin.getMenuManager().getActiveMenu(player);
-        
+
         if (menu != null) {
+            // DEBUG: Log avant la suppression
+            player.sendMessage("§e[DEBUG] InventoryCloseEvent détecté pour menu: " + menu.getId());
+            
             plugin.getAnimationManager().stopAnimation(player);
-            plugin.getMenuManager().clearActiveMenu(player);
+            
+            // CRITICAL FIX: Attendre 1 tick avant de supprimer le menu
+            // Car InventoryCloseEvent se déclenche AVANT l'ouverture du prochain inventaire
+            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                // Vérifier si le joueur a toujours un inventaire ouvert
+                if (player.getOpenInventory().getType() == InventoryType.CRAFTING) {
+                    // Le joueur n'a vraiment aucun menu ouvert maintenant
+                    plugin.getMenuManager().clearActiveMenu(player);
+                    player.sendMessage("§a[DEBUG] Menu supprimé du cache après vérification");
+                } else {
+                    // Le joueur a déjà un autre inventaire ouvert, on ne supprime PAS
+                    player.sendMessage("§6[DEBUG] Inventaire encore ouvert, menu gardé en cache");
+                }
+            }, 1L);
         }
-    }
+    }}
 }

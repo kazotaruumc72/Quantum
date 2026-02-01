@@ -99,7 +99,6 @@ items:
       - '&7Utilisez les commandes:'
       - '&a/qstorage transfer <item> <qté>'
       - '&a/qstorage remove <item> <qté>'
-      - '&a/qstorage list'
 
   # ──────────────────────────────────────
   # BOUTON: FERMER (Coin bas droit)

@@ -73,6 +73,101 @@ public class PlayerStorage {
         return nexoItems;
     }
     
+    // === UNIFIED ITEM ID ===
+    
+    /**
+     * Récupère la quantité d'un item par son ID unifié
+     * Format supporté:
+     * - minecraft:stone (item vanilla)
+     * - nexo:custom_sword (item Nexo)
+     * 
+     * @param itemId L'ID de l'item au format minecraft:xxx ou nexo:xxx
+     * @return La quantité en stock, ou 0 si aucun
+     */
+    public int getAmountByItemId(String itemId) {
+        if (itemId == null || itemId.isEmpty()) {
+            return 0;
+        }
+        
+        if (itemId.startsWith("minecraft:")) {
+            // Item Minecraft vanilla
+            String materialName = itemId.substring(10).toUpperCase();
+            try {
+                Material material = Material.valueOf(materialName);
+                return getAmount(material);
+            } catch (IllegalArgumentException e) {
+                return 0;
+            }
+        } else if (itemId.startsWith("nexo:")) {
+            // Item Nexo
+            String nexoId = itemId.substring(5);
+            return getNexoAmount(nexoId);
+        }
+        
+        return 0;
+    }
+    
+    /**
+     * Vérifie si le joueur possède au moins une certaine quantité d'un item par son ID unifié
+     * 
+     * @param itemId L'ID de l'item au format minecraft:xxx ou nexo:xxx
+     * @param amount La quantité requise
+     * @return true si le joueur a au moins cette quantité, false sinon
+     */
+    public boolean hasItemById(String itemId, int amount) {
+        return getAmountByItemId(itemId) >= amount;
+    }
+    
+    /**
+     * Retire un item par son ID unifié
+     * 
+     * @param itemId L'ID de l'item au format minecraft:xxx ou nexo:xxx
+     * @param amount La quantité à retirer
+     */
+    public void removeItemById(String itemId, int amount) {
+        if (itemId == null || itemId.isEmpty()) {
+            return;
+        }
+        
+        if (itemId.startsWith("minecraft:")) {
+            String materialName = itemId.substring(10).toUpperCase();
+            try {
+                Material material = Material.valueOf(materialName);
+                removeItem(material, amount);
+            } catch (IllegalArgumentException e) {
+                // Material invalide, ignorer
+            }
+        } else if (itemId.startsWith("nexo:")) {
+            String nexoId = itemId.substring(5);
+            removeNexoItem(nexoId, amount);
+        }
+    }
+    
+    /**
+     * Ajoute un item par son ID unifié
+     * 
+     * @param itemId L'ID de l'item au format minecraft:xxx ou nexo:xxx
+     * @param amount La quantité à ajouter
+     */
+    public void addItemById(String itemId, int amount) {
+        if (itemId == null || itemId.isEmpty()) {
+            return;
+        }
+        
+        if (itemId.startsWith("minecraft:")) {
+            String materialName = itemId.substring(10).toUpperCase();
+            try {
+                Material material = Material.valueOf(materialName);
+                addItem(material, amount);
+            } catch (IllegalArgumentException e) {
+                // Material invalide, ignorer
+            }
+        } else if (itemId.startsWith("nexo:")) {
+            String nexoId = itemId.substring(5);
+            addNexoItem(nexoId, amount);
+        }
+    }
+    
     // === DATABASE ===
     
     /**

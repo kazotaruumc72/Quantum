@@ -2,7 +2,9 @@ package com.wynvers.quantum.menu;
 
 import com.nexomc.nexo.api.NexoItems;
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.sell.SellSession;
 import com.wynvers.quantum.storage.PlayerStorage;
+import com.wynvers.quantum.storage.StorageMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -45,8 +47,16 @@ public class StorageMenuHandler {
             return;
         }
 
-        // If clicking stored item - withdraw it
-        handleWithdraw(player, storage, clickedItem, clickType);
+        // V\u00e9rifier le mode du joueur
+        StorageMode.Mode mode = StorageMode.getMode(player);
+        
+        if (mode == StorageMode.Mode.SELL) {
+            // Mode VENTE : ouvrir le menu de vente
+            handleSell(player, storage, clickedItem);
+        } else {
+            // Mode STORAGE : retirer l'item
+            handleWithdraw(player, storage, clickedItem, clickType);
+        }
     }
 
     /**
@@ -168,6 +178,65 @@ public class StorageMenuHandler {
         storage.save(plugin);
         player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1.0f, 1.0f);
         refreshMenu(player);
+    }
+    
+    /**
+     * Handle selling items from storage
+     * Ouvre le menu de vente avec l'item s\u00e9lectionn\u00e9
+     */
+    private void handleSell(Player player, PlayerStorage storage, ItemStack clickedItem) {
+        // V\u00e9rifier que Vault est activ\u00e9
+        if (!plugin.getVaultManager().isEnabled()) {
+            player.sendMessage("\u00a7cLe syst\u00e8me de vente n'est pas disponible (Vault requis).");
+            return;
+        }
+        
+        // D\u00e9terminer le type d'item
+        String nexoId = NexoItems.idFromItem(clickedItem);
+        Material material = clickedItem.getType();
+        
+        // V\u00e9rifier la quantit\u00e9 disponible
+        int available;
+        if (nexoId != null) {
+            available = storage.getNexoAmount(nexoId);
+        } else {
+            available = storage.getAmount(material);
+        }
+        
+        if (available <= 0) {
+            player.sendMessage("\u00a7cVous n'avez pas cet item en stock.");
+            return;
+        }
+        
+        // R\u00e9cup\u00e9rer le prix de l'item
+        double pricePerUnit;
+        if (nexoId != null) {
+            pricePerUnit = plugin.getPriceManager().getPrice(nexoId);
+        } else {
+            pricePerUnit = plugin.getPriceManager().getPrice(material.name());
+        }
+        
+        if (pricePerUnit <= 0) {
+            player.sendMessage("\u00a7cCet item ne peut pas \u00eatre vendu.");
+            return;
+        }
+        
+        // Cr\u00e9er une session de vente
+        SellSession session = plugin.getSellManager().createSession(player, clickedItem, available, pricePerUnit);
+        
+        // Ouvrir le menu de vente
+        Menu sellMenu = plugin.getMenuManager().getMenu("sell");
+        if (sellMenu != null) {
+            player.closeInventory();
+            
+            // Attendre 2 ticks avant d'ouvrir le menu de vente
+            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                sellMenu.open(player, plugin);
+            }, 2L);
+        } else {
+            player.sendMessage("\u00a7cErreur: Menu de vente introuvable.");
+            plugin.getSellManager().removeSession(player);
+        }
     }
 
     /**

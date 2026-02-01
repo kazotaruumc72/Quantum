@@ -32,11 +32,15 @@ public class MenuListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player)) return;
         
         Player player = (Player) event.getWhoClicked();
-        InventoryView view = event.getView();
-        String title = view.getTitle();
         
-        // Check if this is a Quantum menu
-        Menu menu = plugin.getMenuManager().getMenuByTitle(title);
+        // Utiliser le menu actif pour une détection fiable
+        Menu menu = plugin.getMenuManager().getActiveMenu(player);
+        if (menu == null) {
+            // Fallback sur getMenuByTitle si pas de menu actif
+            String title = event.getView().getTitle();
+            menu = plugin.getMenuManager().getMenuByTitle(title);
+        }
+        
         if (menu == null) return;
         
         // Special handling for storage menu
@@ -47,7 +51,7 @@ public class MenuListener implements Listener {
         
         // Cancel all clicks in menu inventory
         Inventory clickedInv = event.getClickedInventory();
-        Inventory topInv = view.getTopInventory();
+        Inventory topInv = event.getView().getTopInventory();
         
         // If clicking in the menu inventory (top inventory)
         if (clickedInv != null && clickedInv.equals(topInv)) {
@@ -142,18 +146,22 @@ public class MenuListener implements Listener {
     public void onInventoryDrag(InventoryDragEvent event) {
         if (!(event.getWhoClicked() instanceof Player)) return;
         
-        InventoryView view = event.getView();
-        String title = view.getTitle();
+        Player player = (Player) event.getWhoClicked();
         
-        // Check if this is a Quantum menu
-        Menu menu = plugin.getMenuManager().getMenuByTitle(title);
+        // Utiliser le menu actif pour une détection fiable
+        Menu menu = plugin.getMenuManager().getActiveMenu(player);
+        if (menu == null) {
+            // Fallback sur getMenuByTitle si pas de menu actif
+            String title = event.getView().getTitle();
+            menu = plugin.getMenuManager().getMenuByTitle(title);
+        }
+        
         if (menu != null) {
             // Cancel all drag events in menu
             event.setCancelled(true);
             
             // For storage menu, show message if non-admin tries to drag
             if (menu.getId().equals("storage")) {
-                Player player = (Player) event.getWhoClicked();
                 if (!player.hasPermission("quantum.admin")) {
                     player.sendMessage("§cStorage is view-only. Use /qstorage commands or contact an admin.");
                 }
@@ -166,13 +174,16 @@ public class MenuListener implements Listener {
         if (!(event.getPlayer() instanceof Player)) return;
         
         Player player = (Player) event.getPlayer();
-        String title = event.getView().getTitle();
         
-        // Check if this is a Quantum menu
-        Menu menu = plugin.getMenuManager().getMenuByTitle(title);
+        // Utiliser le menu actif
+        Menu menu = plugin.getMenuManager().getActiveMenu(player);
+        
         if (menu != null) {
             // Stop title animation if any
             plugin.getAnimationManager().stopAnimation(player);
+            
+            // Clear active menu
+            plugin.getMenuManager().clearActiveMenu(player);
         }
     }
 }

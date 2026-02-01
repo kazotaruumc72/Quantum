@@ -1,15 +1,9 @@
 package com.wynvers.quantum;
 
-import com.wynvers.quantum.commands.MenuCommand;
-import com.wynvers.quantum.commands.QuantumCommand;
-import com.wynvers.quantum.commands.QuantumStorageCommand;
-import com.wynvers.quantum.commands.QuantumStorageTabCompleter;
-import com.wynvers.quantum.commands.StorageCommand;
+import com.wynvers.quantum.commands.*;
 import com.wynvers.quantum.listeners.MenuListener;
 import com.wynvers.quantum.placeholder.QuantumPlaceholderExpansion;
-import com.wynvers.quantum.tabcompleters.MenuTabCompleter;
-import com.wynvers.quantum.tabcompleters.QuantumTabCompleter;
-import com.wynvers.quantum.tabcompleters.StorageTabCompleter;
+import com.wynvers.quantum.tabcompleters.*;
 import com.wynvers.quantum.managers.*;
 import com.wynvers.quantum.sell.SellManager;
 import com.wynvers.quantum.utils.ActionExecutor;
@@ -37,6 +31,7 @@ import java.nio.file.StandardCopyOption;
  * - Database storage (MySQL/SQLite)
  * - Vault economy integration
  * - Selling system
+ * - Orders system (buy/sell orders)
  */
 public final class Quantum extends JavaPlugin {
 
@@ -53,6 +48,7 @@ public final class Quantum extends JavaPlugin {
     private PriceManager priceManager;
     private VaultManager vaultManager;
     private SellManager sellManager;
+    private OrderManager orderManager;
     
     // Utils
     private ActionExecutor actionExecutor;
@@ -98,6 +94,7 @@ public final class Quantum extends JavaPlugin {
         if (vaultManager.isEnabled()) {
             logger.success("✓ Economy system ready!");
         }
+        logger.success("✓ Orders system ready!");
     }
     
     /**
@@ -114,6 +111,14 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/example_advanced.yml");
         extractResource("menus/storage.yml");
         extractResource("menus/sell.yml");
+        
+        // Extract orders menu files
+        extractResource("menus/orders_categories.yml");
+        extractResource("menus/orders_cultures.yml");
+        extractResource("menus/orders_loots.yml");
+        extractResource("menus/orders_items.yml");
+        extractResource("menus/orders_armures.yml");
+        extractResource("menus/orders_outils.yml");
         
         logger.success("✓ Default resources extracted");
     }
@@ -185,6 +190,10 @@ public final class Quantum extends JavaPlugin {
         this.sellManager = new SellManager(this);
         logger.success("✓ Sell Manager");
         
+        // Order Manager
+        this.orderManager = new OrderManager(this);
+        logger.success("✓ Order Manager");
+        
         // Animation
         this.animationManager = new AnimationManager(this);
         logger.success("✓ Animation Manager");
@@ -234,16 +243,23 @@ public final class Quantum extends JavaPlugin {
     private void registerCommands() {
         logger.info("Registering commands...");
         
+        // Existing commands
         getCommand("quantum").setExecutor(new QuantumCommand(this));
         getCommand("storage").setExecutor(new StorageCommand(this));
         getCommand("menu").setExecutor(new MenuCommand(this));
         getCommand("qstorage").setExecutor(new QuantumStorageCommand(this));
+        
+        // Orders system commands
+        getCommand("recherche").setExecutor(new RechercheCommand(this));
+        getCommand("offre").setExecutor(new OffreCommand(this));
 
         // Register TabCompleters
         getCommand("quantum").setTabCompleter(new QuantumTabCompleter());
         getCommand("storage").setTabCompleter(new StorageTabCompleter());
         getCommand("menu").setTabCompleter(new MenuTabCompleter(this));
         getCommand("qstorage").setTabCompleter(new QuantumStorageTabCompleter(this));
+        getCommand("recherche").setTabCompleter(new RechercheTabCompleter(this));
+        getCommand("offre").setTabCompleter(new OffreTabCompleter(this));
         
         logger.success("✓ Commands registered");
     }
@@ -293,6 +309,7 @@ public final class Quantum extends JavaPlugin {
         if (animationManager != null) animationManager.reload();
         if (messagesManager != null) messagesManager.reload();
         if (priceManager != null) priceManager.reload();
+        if (orderManager != null) orderManager.loadPrices();
         
         logger.success("Quantum reloaded successfully!");
     }
@@ -341,6 +358,10 @@ public final class Quantum extends JavaPlugin {
     
     public SellManager getSellManager() {
         return sellManager;
+    }
+    
+    public OrderManager getOrderManager() {
+        return orderManager;
     }
     
     public ActionExecutor getActionExecutor() {

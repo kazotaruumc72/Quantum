@@ -1,0 +1,159 @@
+# orders_cultures.yml - Configuration des cultures
+
+menu:
+  title: "<gradient:#32b8c6:#1d6880>Ordres - Cultures</gradient>"
+  size: 54
+
+prices:
+  # Graines et cultures Minecraft
+  "minecraft:wheat":
+    min: 0.5
+    max: 2.0
+    display_name: "Blé"
+    
+  "minecraft:wheat_seeds":
+    min: 0.1
+    max: 0.5
+    display_name: "Graines de Blé"
+    
+  "minecraft:carrot":
+    min: 0.8
+    max: 3.0
+    display_name: "Carotte"
+    
+  "minecraft:potato":
+    min: 0.8
+    max: 3.0
+    display_name: "Pomme de Terre"
+    
+  "minecraft:beetroot":
+    min: 1.0
+    max: 4.0
+    display_name: "Betterave"
+    
+  "minecraft:beetroot_seeds":
+    min: 0.2
+    max: 1.0
+    display_name: "Graines de Betterave"
+    
+  "minecraft:melon_slice":
+    min: 0.5
+    max: 2.0
+    display_name: "Tranche de Pastèque"
+    
+  "minecraft:pumpkin":
+    min: 1.5
+    max: 5.0
+    display_name: "Citrouille"
+    
+  "minecraft:sugar_cane":
+    min: 0.8
+    max: 3.0
+    display_name: "Canne à Sucre"
+    
+  "minecraft:bamboo":
+    min: 0.2
+    max: 1.0
+    display_name: "Bambou"
+    
+  "minecraft:sweet_berries":
+    min: 1.0
+    max: 4.0
+    display_name: "Baies Sucrées"
+    
+  "minecraft:glow_berries":
+    min: 2.0
+    max: 8.0
+    display_name: "Baies Lumineuses"
+    
+  "minecraft:cocoa_beans":
+    min: 1.5
+    max: 5.0
+    display_name: "Fèves de Cacao"
+    
+  # Cultures personnalisées Nexo
+  "nexo:afelia_bark":
+    min: 5.0
+    max: 15.0
+    display_name: "Écorce d'Afelia"
+    
+  "nexo:mystic_wheat":
+    min: 10.0
+    max: 30.0
+    display_name: "Blé Mystique"
+    
+  "nexo:crystal_seeds":
+    min: 20.0
+    max: 60.0
+    display_name: "Graines de Cristal"
+
+items:
+  filler:
+    slot: [0,1,2,3,4,5,6,7,8,45,46,47,48,50,51,52,53]
+    material: BLACK_STAINED_GLASS_PANE
+    name: " "
+    
+  back:
+    slot: 49
+    material: ARROW
+    name: "<yellow>← Retour</yellow>"
+    lore:
+      - ""
+      - "<gray>Retour au menu des catégories"
+    action: "OPEN_MENU:orders_categories"
+    
+  # Affichage des cultures (exemples)
+  wheat:
+    slot: 10
+    material: WHEAT
+    name: "<#32b8c6>Blé</#32b8c6>"
+    lore:
+      - ""
+      - "<gray>Prix: <green>0.5$ - 2.0$</green> par unité"
+      - ""
+      - "<#32b8c6>➥ /recherche minecraft:wheat"
+      - "<#32b8c6>➥ /offre minecraft:wheat <quantité> <prix>"
+    
+  carrot:
+    slot: 11
+    material: CARROT
+    name: "<#32b8c6>Carotte</#32b8c6>"
+    lore:
+      - ""
+      - "<gray>Prix: <green>0.8$ - 3.0$</green> par unité"
+      - ""
+      - "<#32b8c6>➥ /recherche minecraft:carrot"
+      - "<#32b8c6>➥ /offre minecraft:carrot <quantité> <prix>"
+    
+  potato:
+    slot: 12
+    material: POTATO
+    name: "<#32b8c6>Pomme de Terre</#32b8c6>"
+    lore:
+      - ""
+      - "<gray>Prix: <green>0.8$ - 3.0$</green> par unité"
+      - ""
+      - "<#32b8c6>➥ /recherche minecraft:potato"
+      - "<#32b8c6>➥ /offre minecraft:potato <quantité> <prix>"
+    
+  sugar_cane:
+    slot: 13
+    material: SUGAR_CANE
+    name: "<#32b8c6>Canne à Sucre</#32b8c6>"
+    lore:
+      - ""
+      - "<gray>Prix: <green>0.8$ - 3.0$</green> par unité"
+      - ""
+      - "<#32b8c6>➥ /recherche minecraft:sugar_cane"
+      - "<#32b8c6>➥ /offre minecraft:sugar_cane <quantité> <prix>"
+    
+  bamboo:
+    slot: 14
+    material: BAMBOO
+    name: "<#32b8c6>Bambou</#32b8c6>"
+    lore:
+      - ""
+      - "<gray>Prix: <green>0.2$ - 1.0$</green> par unité"
+      - ""
+      - "<#32b8c6>➥ /recherche minecraft:bamboo"
+      - "<#32b8c6>➥ /offre minecraft:bamboo <quantité> <prix>"

@@ -152,6 +152,23 @@ public class Menu {
         }
     }
     
+    /**
+     * Rafraîchit le menu sans le fermer
+     * Utile pour mettre à jour le contenu dynamique (mode de stockage, items, etc.)
+     */
+    public void refresh(Player player, Quantum plugin) {
+        // Récupérer l'inventaire actuellement ouvert
+        Inventory currentInventory = player.getOpenInventory().getTopInventory();
+        
+        // Vérifier que c'est bien ce menu qui est ouvert
+        if (currentInventory == null || currentInventory.getSize() != size) {
+            return;
+        }
+        
+        // Repeupler l'inventaire avec les données à jour
+        populateInventory(currentInventory, player);
+    }
+    
     // Additional methods needed by MenuManager
  
     public MenuItem getMenuItem(int slot) {

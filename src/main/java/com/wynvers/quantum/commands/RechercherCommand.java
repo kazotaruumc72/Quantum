@@ -40,7 +40,7 @@ public class RechercherCommand implements CommandExecutor {
         Menu menu = plugin.getMenuManager().getMenu("orders_categories");
         
         if (menu != null) {
-            menu.open(player);
+            menu.open(player, plugin);
         } else {
             player.sendMessage(mm.deserialize(
                 "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"

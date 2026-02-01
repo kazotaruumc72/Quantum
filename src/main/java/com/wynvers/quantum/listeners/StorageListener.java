@@ -141,8 +141,6 @@ public class StorageListener implements Listener {
     /**
      * Gère la création d'offre d'achat en mode RECHERCHE
      * IMPORTANT: NE RETIRE PAS LES ITEMS DU STORAGE !
-     * Étape 1: Vérifier qu'au moins 1 item est stocké
-     * Étape 2: Démarrer le workflow de création d'offre via OrderCreationManager
      */
     private void handleCreateOrder(Player player, ItemStack displayItem) {
         PlayerStorage storage = plugin.getStorageManager().getStorage(player);
@@ -157,11 +155,6 @@ public class StorageListener implements Listener {
         
         // Récupérer la quantité en stock (SANS LA RETIRER)
         int stockQuantity = storage.getAmountByItemId(itemId);
-        if (stockQuantity <= 0) {
-            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
-            player.sendMessage("§c⚠ Vous devez avoir au moins 1 item en stock pour créer une offre!");
-            return;
-        }
         
         // Démarrer la création d'offre via OrderCreationManager
         OrderCreationManager orderManager = plugin.getOrderCreationManager();

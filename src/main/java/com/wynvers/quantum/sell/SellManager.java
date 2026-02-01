@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * G\u00e8re les sessions de vente des joueurs
+ * Gère les sessions de vente des joueurs
  */
 public class SellManager {
     
@@ -25,7 +25,7 @@ public class SellManager {
     }
     
     /**
-     * Cr\u00e9e une session de vente pour un joueur
+     * Crée une session de vente pour un joueur
      */
     public SellSession createSession(Player player, ItemStack item, int maxQuantity, double pricePerUnit) {
         SellSession session = new SellSession(player.getUniqueId(), item, maxQuantity, pricePerUnit);
@@ -34,7 +34,7 @@ public class SellManager {
     }
     
     /**
-     * R\u00e9cup\u00e8re la session de vente d'un joueur
+     * Récupère la session de vente d'un joueur
      */
     public SellSession getSession(Player player) {
         return sessions.get(player.getUniqueId());
@@ -48,7 +48,7 @@ public class SellManager {
     }
     
     /**
-     * Modifie la quantit\u00e9 dans la session
+     * Modifie la quantité dans la session
      */
     public boolean changeQuantity(Player player, int amount) {
         SellSession session = getSession(player);
@@ -59,30 +59,57 @@ public class SellManager {
     }
     
     /**
-     * Ex\u00e9cute la vente
+     * Récupère le display name d'un item (avec support Nexo)
+     */
+    private String getItemDisplayName(ItemStack item) {
+        // Vérifier le display name direct
+        if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+            return item.getItemMeta().getDisplayName();
+        }
+        
+        // Vérifier si c'est un item Nexo
+        String nexoId = NexoItems.idFromItem(item);
+        if (nexoId != null) {
+            try {
+                ItemStack nexoItem = NexoItems.itemFromId(nexoId).build();
+                if (nexoItem.hasItemMeta() && nexoItem.getItemMeta().hasDisplayName()) {
+                    return nexoItem.getItemMeta().getDisplayName();
+                }
+                return nexoId;
+            } catch (Exception e) {
+                return nexoId;
+            }
+        }
+        
+        // Fallback sur le type vanilla
+        return item.getType().name().toLowerCase().replace('_', ' ');
+    }
+    
+    /**
+     * Exécute la vente
      */
     public boolean executeSell(Player player) {
         SellSession session = getSession(player);
         if (session == null) {
-            player.sendMessage("\u00a7cErreur: Aucune session de vente active.");
+            player.sendMessage("§cErreur: Aucune session de vente active.");
             return false;
         }
         
-        // V\u00e9rifier que Vault est activ\u00e9
+        // Vérifier que Vault est activé
         if (!plugin.getVaultManager().isEnabled()) {
-            player.sendMessage("\u00a7cErreur: Le syst\u00e8me \u00e9conomique n'est pas disponible.");
+            player.sendMessage("§cErreur: Le système économique n'est pas disponible.");
             return false;
         }
         
-        // R\u00e9cup\u00e9rer le storage du joueur
+        // Récupérer le storage du joueur
         PlayerStorage storage = plugin.getStorageManager().getStorage(player);
         ItemStack itemToSell = session.getItemToSell();
         int quantity = session.getQuantity();
         
-        // D\u00e9terminer si c'est un item Nexo ou vanilla
+        // Déterminer si c'est un item Nexo ou vanilla
         String nexoId = NexoItems.idFromItem(itemToSell);
         
-        // V\u00e9rifier que le joueur a toujours les items
+        // Vérifier que le joueur a toujours les items
         boolean hasEnough;
         if (nexoId != null) {
             hasEnough = storage.hasNexoItem(nexoId, quantity);
@@ -91,7 +118,7 @@ public class SellManager {
         }
         
         if (!hasEnough) {
-            player.sendMessage("\u00a7cErreur: Vous n'avez plus assez de cet item en stock.");
+            player.sendMessage("§cErreur: Vous n'avez plus assez de cet item en stock.");
             removeSession(player);
             return false;
         }
@@ -110,26 +137,24 @@ public class SellManager {
         double totalPrice = session.getTotalPrice();
         plugin.getVaultManager().deposit(player, totalPrice);
         
-        // Message de succ\u00e8s
-        String formattedPrice = plugin.getVaultManager().format(totalPrice);
-        player.sendMessage("\u00a7a\u2713 Vente r\u00e9ussie !");
-        player.sendMessage("\u00a7fVous avez vendu \u00a7e" + quantity + "x \u00a7f" + getItemName(itemToSell));
-        player.sendMessage("\u00a7fVous avez re\u00e7u \u00a76" + formattedPrice);
+        // Récupérer le vrai display name
+        String itemDisplayName = getItemDisplayName(itemToSell);
+        
+        // Créer les placeholders pour les messages
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("amount", String.valueOf(quantity));
+        placeholders.put("item", itemDisplayName);
+        placeholders.put("total_price", String.format("%.2f$", totalPrice));
+        
+        // Messages de succès avec placeholders
+        player.sendMessage(plugin.getMessagesManager().get("sell.success-title", placeholders));
+        player.sendMessage(plugin.getMessagesManager().get("sell.success-sold", placeholders));
+        player.sendMessage(plugin.getMessagesManager().get("sell.success-received", placeholders));
         
         // Supprimer la session
         removeSession(player);
         
         return true;
-    }
-    
-    /**
-     * R\u00e9cup\u00e8re le nom d'un item
-     */
-    private String getItemName(ItemStack item) {
-        if (item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
-            return item.getItemMeta().getDisplayName();
-        }
-        return item.getType().name().toLowerCase().replace('_', ' ');
     }
     
     /**

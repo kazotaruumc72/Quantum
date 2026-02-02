@@ -313,12 +313,17 @@ public class MenuItem {
                 player.sendMessage("§aMode changé en: §e" + StorageMode.getModeDisplay(player));
             }
             
-            // Rafraîchir le menu SANS le fermer
+            // ✅ FIX: Fermer et rouvrir le menu pour afficher le nouveau titre
+            // (Bukkit ne supporte pas la mise à jour dynamique des titres)
             Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
             if (activeMenu != null) {
+                // Fermer l'inventaire actuel
+                player.closeInventory();
+                
+                // Rouvrir le menu après 2 ticks avec le nouveau titre
                 org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    activeMenu.refresh(player, plugin);
-                }, 1L);
+                    activeMenu.open(player, plugin);
+                }, 2L);
             }
             
             return;
@@ -502,8 +507,9 @@ public class MenuItem {
                     }
                 }
                 
-                // Handle skull owner
-                if (skullOwner != null && meta instanceof org.bukkit.inventory.meta.SkullMeta) {
+                // Skull owner (player head)
+                if (skullOwner != null && !skullOwner.isEmpty() && 
+                    meta instanceof org.bukkit.inventory.meta.SkullMeta) {
                     ((org.bukkit.inventory.meta.SkullMeta) meta).setOwner(skullOwner);
                 }
                 

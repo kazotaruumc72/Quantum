@@ -1,66 +1,38 @@
-# Menu des ordres - Catégorie Autre
-title: '&6&lOrdres - Autre'
+# orders_autre.yml - Configuration des autres items
+
+title: "<gradient:#32b8c6:#1d6880>Ordres - Autre</gradient>"
 size: 54
 
 items:
-  # Background
-  background:
-    slot: [0,1,2,3,4,5,6,7,8,9,17,18,26,27,35,36,44,45,46,47,48,49,50,51,52,53]
+  filler:
+    slots: [0,1,2,3,4,5,6,7,8,45,46,47,48,50,51,52,53]
     material: BLACK_STAINED_GLASS_PANE
-    name: ' '
-  
-  # Retour
+    display_name: " "
+    
   back:
     slot: 49
-    material: BARRIER
-    name: '&c&lRetour'
-    lore:
-      - ''
-      - '&7Cliquer pour retourner'
-      - '&7au menu des catégories'
-    actions:
-      left_click:
-        - '[player] menu orders_categories'
-  
-  # Créer une offre
-  create_offer:
-    slot: 48
-    material: EMERALD
-    name: '&a&lCréer une Offre'
-    lore:
-      - ''
-      - '&7Cliquer pour créer une'
-      - '&7nouvelle offre d''achat'
-    actions:
-      left_click:
-        - '[player] offre'
-  
-  # Créer une demande
-  create_request:
-    slot: 50
-    material: GOLD_INGOT
-    name: '&e&lCréer une Demande'
-    lore:
-      - ''
-      - '&7Cliquer pour créer une'
-      - '&7nouvelle demande de vente'
-    actions:
-      left_click:
-        - '[player] recherche'
-  
-  # === SLOTS DES ORDRES DYNAMIQUES ===
-  # Ces slots seront remplis dynamiquement par le plugin
-  # avec les offres d'achat actives dans la catégorie "autre"
-  
-  dynamic_orders:
-    slots: [10,11,12,13,14,15,16,19,20,21,22,23,24,25,28,29,30,31,32,33,34,37,38,39,40,41,42,43]
-    # Le plugin remplacera ces slots par les vraies offres
-    # Format de chaque offre :
-    # - material: l'item recherché
-    # - name: nom du joueur + quantité
-    # - lore: prix unitaire, prix total, etc.
     material: PAPER
-    name: '&7Aucune offre'
+    custom_model_data: 1000
+    display_name: "<yellow>← Retour</yellow>"
     lore:
-      - '&8Aucune offre active'
-      - '&8dans cette catégorie'
+      - ""
+      - "<gray>Retour au menu des catégories"
+    left_click_actions:
+      - "[menu] orders_categories"
+    
+  # Affichage des autres items
+  orders_autre:
+    slots: [9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44]
+    display_name: "%item_display_name%"
+    button_type: QUANTUM_ORDERS_ITEM
+    type: autre
+    lore_append:
+      - ' '
+      - '&8─────────────────────'
+      - '&fChercheur: &b%orderer%'
+      - '&fQuantité: &a%quantity%'
+      - '&fPrix unitaire: &6%price%'
+      - '&fPrix total: &e%total_price%'
+      - '&8─────────────────────'
+      - ' '
+      - '&7▸ Clic droit: &eVendre'

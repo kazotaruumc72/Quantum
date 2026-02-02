@@ -33,7 +33,7 @@ items:
       - '&7nouvelle offre d''achat'
     actions:
       left_click:
-        - '[console] rechercher %player_name%'
+        - '[console] offre %player_name%'
   
   # Créer une demande
   create_request:

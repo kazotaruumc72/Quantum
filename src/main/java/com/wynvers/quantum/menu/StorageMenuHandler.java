@@ -348,13 +348,13 @@ public class StorageMenuHandler {
         }
         
         // === PATCH: DÉFINIR displayItem DANS LA SESSION ===
-        // Récupérer l'ItemStack réel depuis le storage pour l'afficher dans les menus
-        ItemStack displayItem = storage.getStorageItem(itemId);
+        // Créer l'ItemStack depuis l'itemId pour l'afficher dans les menus
+        ItemStack displayItem = createItemStackFromId(itemId);
         
         if (displayItem != null) {
             orderManager.getSession(player).setDisplayItem(displayItem.clone());
         } else {
-            plugin.getQuantumLogger().warning("Failed to retrieve displayItem for itemId: " + itemId);
+            plugin.getQuantumLogger().warning("Failed to create displayItem for itemId: " + itemId);
         }
         
         // Ouvrir le menu order_quantity pour configurer la quantité
@@ -371,6 +371,41 @@ public class StorageMenuHandler {
             // Annuler la création d'offre
             orderManager.cancelOrder(player);
         }
+    }
+    
+    /**
+     * Crée un ItemStack depuis un itemId (nexo:xxx ou minecraft:xxx)
+     * @param itemId L'ID de l'item
+     * @return L'ItemStack créé, ou null si échec
+     */
+    private ItemStack createItemStackFromId(String itemId) {
+        if (itemId == null || itemId.isEmpty()) {
+            return null;
+        }
+        
+        if (itemId.startsWith("nexo:")) {
+            // Item Nexo
+            String nexoId = itemId.substring(5);
+            try {
+                com.nexomc.nexo.items.ItemBuilder itemBuilder = NexoItems.itemFromId(nexoId);
+                if (itemBuilder != null) {
+                    return itemBuilder.build();
+                }
+            } catch (Exception e) {
+                plugin.getQuantumLogger().warning("Failed to create Nexo item: " + nexoId + " - " + e.getMessage());
+            }
+        } else if (itemId.startsWith("minecraft:")) {
+            // Item vanilla
+            String materialName = itemId.substring(10).toUpperCase();
+            try {
+                Material material = Material.valueOf(materialName);
+                return new ItemStack(material, 1);
+            } catch (IllegalArgumentException e) {
+                plugin.getQuantumLogger().warning("Invalid material: " + materialName);
+            }
+        }
+        
+        return null;
     }
 
     /**

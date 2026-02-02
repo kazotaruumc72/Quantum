@@ -301,6 +301,23 @@ public class Menu {
             orders.add(orderData);
         }
         
+        // ✅ TRI PAR NOM D'ITEM (alphabétique), PUIS PAR PRIX (du plus cher au moins cher)
+        orders.sort((o1, o2) -> {
+            String item1 = (String) o1.get("item");
+            String item2 = (String) o2.get("item");
+            
+            // D'abord comparer les noms d'items
+            int itemComparison = item1.compareTo(item2);
+            if (itemComparison != 0) {
+                return itemComparison; // Items différents -> tri alphabétique
+            }
+            
+            // Même item -> trier par prix total (du plus cher au moins cher)
+            double price1 = (double) o1.get("total_price");
+            double price2 = (double) o2.get("total_price");
+            return Double.compare(price2, price1); // Ordre décroissant
+        });
+        
         return orders;
     }
     

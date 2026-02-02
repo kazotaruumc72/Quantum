@@ -284,21 +284,32 @@ public class MenuListener implements Listener {
      * Gère les boutons VENDRE et REFUSER
      */
     private void handleOrderConfirmMenu(InventoryClickEvent event, Player player, Menu menu, Inventory clickedInv, Inventory topInv) {
+        plugin.getLogger().info("[ORDER_CONFIRM] Click detected in order_confirm menu");
+        plugin.getLogger().info("[ORDER_CONFIRM] Clicked inventory: " + (clickedInv != null ? "YES" : "NULL"));
+        plugin.getLogger().info("[ORDER_CONFIRM] Is top inventory: " + (clickedInv != null && clickedInv.equals(topInv)));
+        
         if (clickedInv != null && clickedInv.equals(topInv)) {
             int slot = event.getSlot();
+            plugin.getLogger().info("[ORDER_CONFIRM] Slot clicked: " + slot);
+            
             MenuItem menuItem = menu.getItemAt(slot);
+            plugin.getLogger().info("[ORDER_CONFIRM] MenuItem exists: " + (menuItem != null));
             
             if (menuItem != null) {
                 ButtonType buttonType = menuItem.getButtonType();
+                plugin.getLogger().info("[ORDER_CONFIRM] ButtonType: " + (buttonType != null ? buttonType.name() : "NULL"));
                 
                 if (buttonType == ButtonType.QUANTUM_CONFIRM_ORDER_SELL) {
+                    plugin.getLogger().info("[ORDER_CONFIRM] VENDRE button detected! Calling handleConfirmSell...");
                     // Bouton VENDRE : exécuter la transaction
                     event.setCancelled(true);
                     orderButtonHandler.handleConfirmSell(player);
+                    plugin.getLogger().info("[ORDER_CONFIRM] handleConfirmSell completed");
                     return;
                 }
                 
                 if (buttonType == ButtonType.QUANTUM_CANCEL_ORDER_CONFIRM) {
+                    plugin.getLogger().info("[ORDER_CONFIRM] REFUSER button detected! Calling handleCancelConfirm...");
                     // Bouton REFUSER : retourner au menu catégorie
                     event.setCancelled(true);
                     orderButtonHandler.handleCancelConfirm(player);
@@ -306,11 +317,18 @@ public class MenuListener implements Listener {
                 }
                 
                 if (buttonType == ButtonType.QUANTUM_ORDER_CONFIRM_DISPLAY) {
+                    plugin.getLogger().info("[ORDER_CONFIRM] Display item clicked (no action)");
                     // Item de démonstration : ne rien faire
                     event.setCancelled(true);
                     return;
                 }
+                
+                plugin.getLogger().warning("[ORDER_CONFIRM] Unknown button type: " + buttonType);
+            } else {
+                plugin.getLogger().warning("[ORDER_CONFIRM] No MenuItem found at slot " + slot);
             }
+        } else {
+            plugin.getLogger().info("[ORDER_CONFIRM] Click was not in top inventory");
         }
     }
     

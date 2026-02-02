@@ -41,7 +41,7 @@ public class StorageMenuHandler {
     public void handleClick(Player player, int slot, ClickType clickType, ItemStack cursorItem) {
         PlayerStorage storage = plugin.getStorageManager().getStorage(player);
 
-        // If player has item on cursor - deposit it
+        // If player has item on cursor - deposit it (ALLOWED ON ALL SLOTS)
         if (cursorItem != null && cursorItem.getType() != Material.AIR) {
             handleDeposit(player, storage, cursorItem, clickType);
             return;
@@ -53,7 +53,7 @@ public class StorageMenuHandler {
             return;
         }
 
-        // IMPORTANT: Vérifier que le slot cliqué fait partie des storage_slots (9-44)
+        // IMPORTANT: Pour les RETRAITS uniquement, vérifier que le slot fait partie des storage_slots (9-44)
         // Les boutons de mode (0, 4, 8) et autres UI ne doivent pas déclencher d'actions
         if (!isStorageSlot(slot)) {
             return;

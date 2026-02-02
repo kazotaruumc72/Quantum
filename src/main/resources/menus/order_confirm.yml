@@ -1,0 +1,59 @@
+# ====================================
+# Menu de confirmation de vente d'ordre
+# ====================================
+# Affiché quand un joueur clique sur un ordre dans orders_*
+# Permet d'accepter (vendre) ou refuser l'ordre
+# ====================================
+
+title: '&8Confirmation de vente'
+size: 9  # Hopper (1 ligne = 9 slots, mais hopper n'affiche que 5)
+
+items:
+  # === ITEM À VENDRE (Centre) ===
+  order_item:
+    slots: [2]
+    button_type: QUANTUM_ORDER_CONFIRM_DISPLAY
+    material: PAPER  # Sera remplacé par l'item réel
+    lore:
+      - ''
+      - '&7Acheteur: &f%quantum_order_buyer%'
+      - '&7Quantité demandée: &a%quantum_order_quantity%'
+      - '&7Prix unitaire: &6%quantum_order_price_per_unit%$'
+      - '&7Prix total: &e%quantum_order_total_price%$'
+      - ''
+      - '&7Votre stock: &b%quantum_order_seller_stock%'
+      - ''
+      - '&eChoisissez une action ci-dessous'
+
+  # === BOUTON VENDRE (Gauche) ===
+  accept:
+    slots: [1]
+    material: LIME_DYE
+    display_name: '&a&lVENDRE'
+    lore:
+      - ''
+      - '&7Vendre &a%quantum_order_quantity% &7items pour'
+      - '&6%quantum_order_total_price%$'
+      - ''
+      - '&7➤ L''argent vous sera versé'
+      - '&7➤ Les items seront retirés de votre storage'
+      - '&7➤ L''acheteur recevra les items'
+      - ''
+      - '&aCliquez pour confirmer'
+    button_type: QUANTUM_CONFIRM_ORDER_SELL
+
+  # === BOUTON REFUSER (Droite) ===
+  decline:
+    slots: [3]
+    material: RED_DYE
+    display_name: '&c&lREFUSER'
+    lore:
+      - ''
+      - '&7Annuler la vente et retourner'
+      - '&7au menu de catégorie'
+      - ''
+      - '&cCliquez pour refuser'
+    button_type: QUANTUM_CANCEL_ORDER_CONFIRM
+    parameters:
+      # La catégorie sera injectée dynamiquement
+      menu: 'orders_{category}'

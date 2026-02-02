@@ -53,6 +53,12 @@ public class StorageMenuHandler {
             return;
         }
 
+        // IMPORTANT: Vérifier que le slot cliqué fait partie des storage_slots (9-44)
+        // Les boutons de mode (0, 4, 8) et autres UI ne doivent pas déclencher d'actions
+        if (!isStorageSlot(slot)) {
+            return;
+        }
+
         // Vérifier le mode du joueur
         StorageMode.Mode mode = StorageMode.getMode(player);
         
@@ -68,10 +74,20 @@ public class StorageMenuHandler {
                 break;
                 
             case RECHERCHE:
-                // Mode RECHERCHE : créer une offre d'achat (NE PAS RETIRER)
+                // Mode RECHERCHE : ouvrir le menu order_quantity
                 handleCreateOrder(player, storage, clickedItem);
                 break;
         }
+    }
+
+    /**
+     * Vérifie si un slot fait partie des storage_slots (slots 9 à 44)
+     * @param slot Le numéro du slot
+     * @return true si c'est un slot de storage, false sinon
+     */
+    private boolean isStorageSlot(int slot) {
+        // Les storage_slots vont du slot 9 au slot 44 (4 lignes complètes du milieu)
+        return slot >= 9 && slot <= 44;
     }
 
     /**
@@ -257,8 +273,7 @@ public class StorageMenuHandler {
     
     /**
      * Handle creating a purchase order from storage
-     * IMPORTANT: NE RETIRE PAS LES ITEMS DU STORAGE !
-     * NE DOIT PAS OUVRIR DE MENU - Le joueur reste dans le menu storage
+     * IMPORTANT: Ouvre le menu order_quantity pour configurer l'offre
      */
     private void handleCreateOrder(Player player, PlayerStorage storage, ItemStack clickedItem) {
         // Récupérer l'itemId depuis le PersistentDataContainer si disponible
@@ -303,12 +318,22 @@ public class StorageMenuHandler {
             return;
         }
         
-        // NE PAS fermer l'inventaire - Le joueur reste dans le menu storage
-        // NE PAS ouvrir de menu order_quantity
-        // Juste envoyer un message de succès
-        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
-        player.sendMessage("§a✓ Offre d'achat créée pour " + itemId + " !");
-        player.sendMessage("§eQuantité disponible: §b" + stockQuantity);
+        // Ouvrir le menu order_quantity pour configurer la quantité
+        Menu orderQuantityMenu = plugin.getMenuManager().getMenu("order_quantity");
+        if (orderQuantityMenu != null) {
+            player.closeInventory();
+            
+            // Attendre 2 ticks avant d'ouvrir le menu order_quantity
+            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                orderQuantityMenu.open(player, plugin);
+            }, 2L);
+        } else {
+            player.sendMessage("§c⚠ Menu order_quantity introuvable!");
+            // Annuler la création d'offre
+            if (orderManager != null) {
+                orderManager.cancelOrderCreation(player);
+            }
+        }
     }
 
     /**

@@ -53,7 +53,7 @@ public class StorageMenuHandler {
             return;
         }
 
-        // IMPORTANT: Ignorer tous les clics sur les STAINED_GLASS_PANE (bordures décoratives)
+        // IMPORTANT: Ignorer tous les clics sur les items décoratifs (bordures, boutons de mode)
         if (isDecorativeItem(clickedItem)) {
             return;
         }
@@ -85,18 +85,36 @@ public class StorageMenuHandler {
     }
 
     /**
-     * Vérifie si un item est un élément décoratif (vitre teintée)
+     * Vérifie si un item est un élément décoratif ou un bouton de mode
      * @param item L'item à vérifier
-     * @return true si c'est un item décoratif, false sinon
+     * @return true si c'est un item décoratif/bouton, false sinon
      */
     private boolean isDecorativeItem(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) {
             return false;
         }
         
-        String materialName = item.getType().name();
-        // Détecter tous les types de STAINED_GLASS_PANE (GRAY, WHITE, BLACK, etc.)
-        return materialName.endsWith("_STAINED_GLASS_PANE") || materialName.equals("GLASS_PANE");
+        Material type = item.getType();
+        String materialName = type.name();
+        
+        // Détecter tous les types de STAINED_GLASS_PANE (bordures)
+        if (materialName.endsWith("_STAINED_GLASS_PANE") || materialName.equals("GLASS_PANE")) {
+            return true;
+        }
+        
+        // Détecter les boutons de mode (items décoratifs du menu)
+        // Mode STORAGE: LIME_WOOL
+        // Mode RECHERCHE: DIAMOND
+        // Mode VENTE: GOLD_BLOCK
+        // Bouton fermer: BARRIER
+        if (type == Material.LIME_WOOL || 
+            type == Material.DIAMOND || 
+            type == Material.GOLD_BLOCK || 
+            type == Material.BARRIER) {
+            return true;
+        }
+        
+        return false;
     }
 
     /**

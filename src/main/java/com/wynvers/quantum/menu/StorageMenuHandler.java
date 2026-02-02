@@ -13,6 +13,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashMap;
@@ -28,6 +29,7 @@ public class StorageMenuHandler {
 
     private final Quantum plugin;
     private final NamespacedKey itemIdKey;
+    private final NamespacedKey buttonTypeKey;
     
     // Track players who clicked a button (to prevent storage action)
     private final Set<UUID> buttonClickedPlayers = new HashSet<>();
@@ -35,6 +37,7 @@ public class StorageMenuHandler {
     public StorageMenuHandler(Quantum plugin) {
         this.plugin = plugin;
         this.itemIdKey = new NamespacedKey(plugin, "quantum_item_id");
+        this.buttonTypeKey = new NamespacedKey(plugin, "button_type");
     }
     
     /**
@@ -57,6 +60,33 @@ public class StorageMenuHandler {
      */
     private boolean hasClickedButton(Player player) {
         return buttonClickedPlayers.contains(player.getUniqueId());
+    }
+    
+    /**
+     * Vérifie si un item est un bouton Quantum (QUANTUM_CHANGE_MODE, etc.)
+     * @param item L'item à vérifier
+     * @return true si c'est un bouton Quantum, false sinon
+     */
+    private boolean isQuantumButton(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) {
+            return false;
+        }
+        
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return false;
+        }
+        
+        // Vérifier si l'item a le tag button_type dans son PersistentDataContainer
+        String buttonType = meta.getPersistentDataContainer().get(buttonTypeKey, PersistentDataType.STRING);
+        
+        // Si c'est un bouton QUANTUM_CHANGE_MODE ou autre type de bouton Quantum
+        if (buttonType != null && buttonType.startsWith("QUANTUM_")) {
+            // Marquer immédiatement le joueur comme ayant cliqué sur un bouton
+            return true;
+        }
+        
+        return false;
     }
 
     /**
@@ -91,6 +121,14 @@ public class StorageMenuHandler {
             return;
         }
         
+        // IMMEDIATE: Vérifier si c'est un bouton QUANTUM via PDC
+        // Si oui, annuler l'action de recherche immédiatement
+        if (isQuantumButton(clickedItem)) {
+            // Le bouton sera traité par le système de menus
+            // On n'exécute PAS d'action de storage
+            return;
+        }
+        
         // ⚠️ DELAYED: Wait 1 tick before processing storage action
         // This allows the button system to process and set the flag if needed
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -100,9 +138,61 @@ public class StorageMenuHandler {
                 return;
             }
             
+            // Vérifier que l'item n'est toujours pas un bouton ou un item interdit
+            if (!isValidStorageItem(clickedItem, slot)) {
+                return;
+            }
+            
             // No button was clicked, proceed with storage action
             handleStorageAction(player, storage, clickedItem, clickType);
         }, 1L);
+    }
+    
+    /**
+     * Vérifie si un item cliqué est un item de storage valide
+     * Critères :
+     * - NE DOIT PAS être un STAINED_GLASS_PANE (bordures)
+     * - NE DOIT PAS être un DIAMOND (bouton mode recherche)
+     * - NE DOIT PAS être LIME_WOOL, GOLD_BLOCK, BARRIER (autres boutons)
+     * - DOIT être dans les slots 9-44 (storage_slots)
+     * 
+     * @param item L'item à vérifier
+     * @param slot Le slot de l'item
+     * @return true si c'est un item de storage valide, false sinon
+     */
+    private boolean isValidStorageItem(ItemStack item, int slot) {
+        if (item == null || item.getType() == Material.AIR) {
+            return false;
+        }
+        
+        // Vérifier que le slot est dans la zone de storage (9-44)
+        if (!isStorageSlot(slot)) {
+            return false;
+        }
+        
+        Material type = item.getType();
+        String materialName = type.name();
+        
+        // Rejeter les STAINED_GLASS_PANE (bordures)
+        if (materialName.endsWith("_STAINED_GLASS_PANE") || materialName.equals("GLASS_PANE")) {
+            return false;
+        }
+        
+        // Rejeter les boutons de mode et autres items décoratifs
+        if (type == Material.LIME_WOOL ||   // Mode STORAGE
+            type == Material.DIAMOND ||      // Mode RECHERCHE
+            type == Material.GOLD_BLOCK ||   // Mode VENTE
+            type == Material.BARRIER) {      // Bouton fermer
+            return false;
+        }
+        
+        // Vérifier via PDC si c'est un bouton Quantum
+        if (isQuantumButton(item)) {
+            return false;
+        }
+        
+        // L'item est valide
+        return true;
     }
     
     /**

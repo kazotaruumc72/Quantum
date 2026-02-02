@@ -17,10 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * Handles click events in the storage menu
@@ -29,68 +26,20 @@ public class StorageMenuHandler {
 
     private final Quantum plugin;
     private final NamespacedKey itemIdKey;
-    private final NamespacedKey buttonTypeKey;
-    
-    // Track players who clicked a button (to prevent storage action)
-    private final Set<UUID> buttonClickedPlayers = new HashSet<>();
 
     public StorageMenuHandler(Quantum plugin) {
         this.plugin = plugin;
         this.itemIdKey = new NamespacedKey(plugin, "quantum_item_id");
-        this.buttonTypeKey = new NamespacedKey(plugin, "button_type");
-    }
-    
-    /**
-     * Mark a player as having clicked a button (called by button system)
-     * @param player The player who clicked a button
-     */
-    public void markButtonClicked(Player player) {
-        buttonClickedPlayers.add(player.getUniqueId());
-        
-        // Auto-remove after 3 ticks (cleanup)
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            buttonClickedPlayers.remove(player.getUniqueId());
-        }, 3L);
-    }
-    
-    /**
-     * Check if a player recently clicked a button
-     * @param player The player to check
-     * @return true if they clicked a button recently
-     */
-    private boolean hasClickedButton(Player player) {
-        return buttonClickedPlayers.contains(player.getUniqueId());
-    }
-    
-    /**
-     * Vérifie si un item est un bouton Quantum (QUANTUM_CHANGE_MODE, etc.)
-     * @param item L'item à vérifier
-     * @return true si c'est un bouton Quantum, false sinon
-     */
-    private boolean isQuantumButton(ItemStack item) {
-        if (item == null || !item.hasItemMeta()) {
-            return false;
-        }
-        
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null) {
-            return false;
-        }
-        
-        // Vérifier si l'item a le tag button_type dans son PersistentDataContainer
-        String buttonType = meta.getPersistentDataContainer().get(buttonTypeKey, PersistentDataType.STRING);
-        
-        // Si c'est un bouton QUANTUM_CHANGE_MODE ou autre type de bouton Quantum
-        if (buttonType != null && buttonType.startsWith("QUANTUM_")) {
-            // Marquer immédiatement le joueur comme ayant cliqué sur un bouton
-            return true;
-        }
-        
-        return false;
     }
 
     /**
-     * Handle storage menu click with 1-tick delay to let button system process first
+     * Handle storage menu click
+     * 
+     * NOUVELLE LOGIQUE SIMPLIFIÉE:
+     * - Seuls les items avec le tag "quantum_item_id" dans leur PDC peuvent déclencher des actions
+     * - Les boutons, bordures, et autres items décoratifs n'ont PAS ce tag
+     * - Pas besoin de listes noires ou de détection complexe
+     * 
      * @param player The player who clicked
      * @param slot The slot that was clicked
      * @param clickType The type of click
@@ -111,103 +60,16 @@ public class StorageMenuHandler {
             return;
         }
 
-        // IMMEDIATE: If clicking decorative items (borders) - do nothing
-        if (isDecorativeItem(clickedItem)) {
+        // ✅ NOUVELLE VÉRIFICATION PRINCIPALE:
+        // L'item DOIT avoir le tag "quantum_item_id" pour être considéré comme un item de storage
+        // Si ce tag est absent, c'est un bouton/bordure/décoration -> on ignore
+        if (!hasQuantumItemId(clickedItem)) {
+            // Pas un item de storage, ignorer le clic
             return;
         }
         
-        // IMMEDIATE: If not in storage slots (9-44) - do nothing
-        if (!isStorageSlot(slot)) {
-            return;
-        }
-        
-        // IMMEDIATE: Vérifier si c'est un bouton QUANTUM via PDC
-        // Si oui, annuler l'action de recherche immédiatement
-        if (isQuantumButton(clickedItem)) {
-            // Le bouton sera traité par le système de menus
-            // On n'exécute PAS d'action de storage
-            return;
-        }
-        
-        // ⚠️ DELAYED: Wait 1 tick before processing storage action
-        // This allows the button system to process and set the flag if needed
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            // Check if a button was clicked during this time
-            if (hasClickedButton(player)) {
-                // A button was processed, don't execute storage action
-                return;
-            }
-            
-            // Vérifier que l'item n'est toujours pas un bouton ou un item interdit
-            if (!isValidStorageItem(clickedItem, slot)) {
-                return;
-            }
-            
-            // No button was clicked, proceed with storage action
-            handleStorageAction(player, storage, clickedItem, clickType);
-        }, 1L);
-    }
-    
-    /**
-     * Vérifie si un item cliqué est un item de storage valide
-     * Critères :
-     * - NE DOIT PAS être un STAINED_GLASS_PANE (bordures)
-     * - NE DOIT PAS être un DIAMOND (bouton mode recherche)
-     * - NE DOIT PAS être LIME_WOOL, GOLD_BLOCK, BARRIER (autres boutons)
-     * - DOIT être dans les slots 9-44 (storage_slots)
-     * 
-     * @param item L'item à vérifier
-     * @param slot Le slot de l'item
-     * @return true si c'est un item de storage valide, false sinon
-     */
-    private boolean isValidStorageItem(ItemStack item, int slot) {
-        if (item == null || item.getType() == Material.AIR) {
-            return false;
-        }
-        
-        // Vérifier que le slot est dans la zone de storage (9-44)
-        if (!isStorageSlot(slot)) {
-            return false;
-        }
-        
-        Material type = item.getType();
-        String materialName = type.name();
-        
-        // Rejeter les STAINED_GLASS_PANE (bordures)
-        if (materialName.endsWith("_STAINED_GLASS_PANE") || materialName.equals("GLASS_PANE")) {
-            return false;
-        }
-        
-        // Rejeter les boutons de mode et autres items décoratifs
-        if (type == Material.LIME_WOOL ||   // Mode STORAGE
-            type == Material.DIAMOND ||      // Mode RECHERCHE
-            type == Material.GOLD_BLOCK ||   // Mode VENTE
-            type == Material.BARRIER) {      // Bouton fermer
-            return false;
-        }
-        
-        // Vérifier via PDC si c'est un bouton Quantum
-        if (isQuantumButton(item)) {
-            return false;
-        }
-        
-        // L'item est valide
-        return true;
-    }
-    
-    /**
-     * Process the storage action after verifying it's not a button
-     */
-    private void handleStorageAction(Player player, PlayerStorage storage, ItemStack clickedItem, ClickType clickType) {
-        // Verify the menu is still open
-        if (player.getOpenInventory().getTopInventory().getHolder() == null) {
-            return; // Menu was closed
-        }
-        
-        // Verify the item is still there (wasn't removed by button action)
-        // We can't easily verify this, but the button system should handle its own items
-        
-        // Vérifier le mode du joueur
+        // L'item a le tag quantum_item_id, c'est un vrai item de storage
+        // On peut maintenant traiter l'action selon le mode
         StorageMode.Mode mode = StorageMode.getMode(player);
         
         switch (mode) {
@@ -227,33 +89,31 @@ public class StorageMenuHandler {
                 break;
         }
     }
-
+    
     /**
-     * Vérifie si un item est un élément décoratif (bordures uniquement)
-     * Ne vérifie PAS les boutons (ils sont gérés par le système de boutons)
+     * Vérifie si un item possède le tag "quantum_item_id" dans son PersistentDataContainer
+     * 
+     * Ce tag est présent UNIQUEMENT sur les items de storage légitimes.
+     * Les boutons, bordures, et items décoratifs n'ont PAS ce tag.
+     * 
      * @param item L'item à vérifier
-     * @return true si c'est un item décoratif, false sinon
+     * @return true si l'item a le tag quantum_item_id, false sinon
      */
-    private boolean isDecorativeItem(ItemStack item) {
-        if (item == null || item.getType() == Material.AIR) {
+    private boolean hasQuantumItemId(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) {
             return false;
         }
         
-        String materialName = item.getType().name();
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return false;
+        }
         
-        // Détecter uniquement les bordures (STAINED_GLASS_PANE)
-        // Les boutons sont gérés par le système ButtonType
-        return materialName.endsWith("_STAINED_GLASS_PANE") || materialName.equals("GLASS_PANE");
-    }
-
-    /**
-     * Vérifie si un slot fait partie des storage_slots (slots 9 à 44)
-     * @param slot Le numéro du slot
-     * @return true si c'est un slot de storage, false sinon
-     */
-    private boolean isStorageSlot(int slot) {
-        // Les storage_slots vont du slot 9 au slot 44 (4 lignes complètes du milieu)
-        return slot >= 9 && slot <= 44;
+        // Vérifier la présence du tag quantum_item_id
+        String itemId = meta.getPersistentDataContainer().get(itemIdKey, PersistentDataType.STRING);
+        
+        // Si le tag existe et n'est pas vide, c'est un item de storage
+        return itemId != null && !itemId.isEmpty();
     }
 
     /**

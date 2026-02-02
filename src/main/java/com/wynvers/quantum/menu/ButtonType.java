@@ -20,5 +20,10 @@ public enum ButtonType {
     QUANTUM_ADJUST_PRICE,           // Ajuster prix d'ordre (param: percentage)
     QUANTUM_SET_PRICE_MAX,          // Définir prix au max
     QUANTUM_FINALIZE_ORDER,         // Finaliser et créer l'ordre
-    QUANTUM_CANCEL_ORDER            // Annuler création d'ordre
+    QUANTUM_CANCEL_ORDER,           // Annuler création d'ordre
+    
+    // === ORDER TRANSACTION BUTTONS ===
+    QUANTUM_ORDER_CONFIRM_DISPLAY,  // Afficher l'item dans le menu de confirmation
+    QUANTUM_CONFIRM_ORDER_SELL,     // Accepter la vente (exécuter la transaction)
+    QUANTUM_CANCEL_ORDER_CONFIRM    // Refuser la vente (retour au menu catégorie)
 }

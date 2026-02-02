@@ -302,7 +302,7 @@ public class StorageMenuHandler {
     
     /**
      * Handle creating a purchase order from storage
-     * IMPORTANT: Ouvre le menu order_quantity pour configurer l'offre
+     * PATCH: Définir displayItem dans la session pour l'afficher dans order_quantity/order_price
      */
     private void handleCreateOrder(Player player, PlayerStorage storage, ItemStack clickedItem) {
         // Récupérer l'itemId depuis le PersistentDataContainer si disponible
@@ -345,6 +345,16 @@ public class StorageMenuHandler {
             // Le message d'erreur est géré par OrderCreationManager si nécessaire
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return;
+        }
+        
+        // === PATCH: DÉFINIR displayItem DANS LA SESSION ===
+        // Récupérer l'ItemStack réel depuis le storage pour l'afficher dans les menus
+        ItemStack displayItem = storage.getStorageItem(itemId);
+        
+        if (displayItem != null) {
+            orderManager.getSession(player).setDisplayItem(displayItem.clone());
+        } else {
+            plugin.getQuantumLogger().warning("Failed to retrieve displayItem for itemId: " + itemId);
         }
         
         // Ouvrir le menu order_quantity pour configurer la quantité

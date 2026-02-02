@@ -258,7 +258,7 @@ public class StorageMenuHandler {
     /**
      * Handle creating a purchase order from storage
      * IMPORTANT: NE RETIRE PAS LES ITEMS DU STORAGE !
-     * Ouvre le menu de création d'offre d'achat
+     * NE DOIT PAS OUVRIR DE MENU - Le joueur reste dans le menu storage
      */
     private void handleCreateOrder(Player player, PlayerStorage storage, ItemStack clickedItem) {
         // Récupérer l'itemId depuis le PersistentDataContainer si disponible
@@ -282,8 +282,14 @@ public class StorageMenuHandler {
         // Récupérer la quantité en stock (SANS LA RETIRER)
         int stockQuantity = storage.getAmountByItemId(itemId);
         
+        // Vérifier qu'il y a au moins 1 item en stock
+        if (stockQuantity <= 0) {
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage("§c⚠ Vous devez avoir au moins 1 item en stock!");
+            return;
+        }
+        
         // Démarrer la création d'offre via OrderCreationManager
-        // La vérification de quantité > 0 est faite dans OrderCreationManager
         OrderCreationManager orderManager = plugin.getOrderCreationManager();
         if (orderManager == null) {
             player.sendMessage("§c⚠ OrderCreationManager non initialisé!");
@@ -297,14 +303,12 @@ public class StorageMenuHandler {
             return;
         }
         
-        // Fermer l'inventaire et ouvrir le menu de quantité
-        player.closeInventory();
+        // NE PAS fermer l'inventaire - Le joueur reste dans le menu storage
+        // NE PAS ouvrir de menu order_quantity
+        // Juste envoyer un message de succès
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
-        
-        // Ouvrir le menu order_quantity via MenuManager
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            player.performCommand("menu order_quantity");
-        }, 2L);
+        player.sendMessage("§a✓ Offre d'achat créée pour " + itemId + " !");
+        player.sendMessage("§eQuantité disponible: §b" + stockQuantity);
     }
 
     /**
@@ -335,7 +339,13 @@ public class StorageMenuHandler {
      */
     private void giveNexoItems(Player player, String nexoId, int amount) {
         int remaining = amount;
-        ItemStack nexoItem = NexoItems.itemFromId(nexoId).build();
+        com.nexomc.nexo.items.ItemBuilder itemBuilder = NexoItems.itemFromId(nexoId);
+        if (itemBuilder == null) {
+            plugin.getQuantumLogger().warning("Cannot give Nexo item " + nexoId + " - ItemBuilder is null");
+            return;
+        }
+        
+        ItemStack nexoItem = itemBuilder.build();
         int maxStackSize = nexoItem.getMaxStackSize();
 
         while (remaining > 0) {

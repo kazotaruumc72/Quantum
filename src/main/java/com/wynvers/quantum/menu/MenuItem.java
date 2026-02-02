@@ -4,10 +4,12 @@ import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.sell.SellSession;
 import com.wynvers.quantum.storage.StorageMode;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -511,6 +513,20 @@ public class MenuItem {
                 if (skullOwner != null && !skullOwner.isEmpty() && 
                     meta instanceof org.bukkit.inventory.meta.SkullMeta) {
                     ((org.bukkit.inventory.meta.SkullMeta) meta).setOwner(skullOwner);
+                }
+                
+                // ========================================
+                // ✅ FIX CRITIQUE: Ajouter button_type au PDC
+                // ========================================
+                // Si ce MenuItem a un buttonType non-STANDARD, l'ajouter au PDC
+                // Cela permet à MenuListener de détecter les boutons via PDC
+                if (buttonType != null && buttonType != ButtonType.STANDARD) {
+                    NamespacedKey buttonTypeKey = new NamespacedKey(plugin, "button_type");
+                    meta.getPersistentDataContainer().set(
+                        buttonTypeKey, 
+                        PersistentDataType.STRING, 
+                        buttonType.name()
+                    );
                 }
                 
                 itemStack.setItemMeta(meta);

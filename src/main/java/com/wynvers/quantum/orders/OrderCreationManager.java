@@ -1,6 +1,7 @@
 package com.wynvers.quantum.orders;
 
 import com.wynvers.quantum.Quantum;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -22,6 +23,7 @@ import java.util.UUID;
  * 4. Menu prix s'ouvre
  * 5. Player sélectionne prix
  * 6. Offre créée et placée dans la bonne catégorie
+ * 7. ARGENT RETIRÉ IMMÉDIATEMENT
  */
 public class OrderCreationManager {
     
@@ -72,6 +74,7 @@ public class OrderCreationManager {
     
     /**
      * Finalise l'ordre avec la session actuelle
+     * NOUVEAU: Retire l'argent du joueur immédiatement après la création
      */
     public boolean finalizeOrder(Player player) {
         OrderCreationSession session = sessions.get(player.getUniqueId());
@@ -87,6 +90,20 @@ public class OrderCreationManager {
             player.sendMessage("§7Contact un administrateur pour l'ajouter.");
             cancelOrder(player);
             return false;
+        }
+        
+        // Vérifier que le joueur a assez d'argent (double-check)
+        Economy economy = plugin.getVaultManager().getEconomy();
+        double totalPrice = session.getTotalPrice();
+        
+        if (economy != null) {
+            if (!economy.has(player, totalPrice)) {
+                player.sendMessage("§c⚠ Vous n'avez pas assez d'argent!");
+                player.sendMessage("§7Requis: §6" + String.format("%.2f", totalPrice) + "$");
+                player.sendMessage("§7Solde: §6" + String.format("%.2f", economy.getBalance(player)) + "$");
+                cancelOrder(player);
+                return false;
+            }
         }
         
         // Sauvegarder l'offre dans orders.yml
@@ -108,11 +125,33 @@ public class OrderCreationManager {
         ordersConfig.set(path + ".item", session.getItemId()); // Format: minecraft:stone ou nexo:custom_item
         ordersConfig.set(path + ".quantity", session.getQuantity());
         ordersConfig.set(path + ".price_per_unit", session.getPrice());
-        ordersConfig.set(path + ".total_price", session.getTotalPrice());
+        ordersConfig.set(path + ".total_price", totalPrice);
         ordersConfig.set(path + ".created_at", System.currentTimeMillis());
         
         try {
             ordersConfig.save(ordersFile);
+            
+            // === RETRAIT D'ARGENT ===
+            if (economy != null) {
+                if (economy.withdrawPlayer(player, totalPrice).transactionSuccess()) {
+                    player.sendMessage("§8[§6Quantum§8] §c-" + String.format("%.2f", totalPrice) + "$");
+                    player.sendMessage("§7Argent bloqué jusqu'à ce que l'ordre soit rempli.");
+                } else {
+                    // Le retrait a échoué, supprimer l'ordre créé
+                    player.sendMessage("§c⚠ Erreur lors du retrait de l'argent!");
+                    ordersConfig.set(path, null);
+                    ordersConfig.save(ordersFile);
+                    cancelOrder(player);
+                    return false;
+                }
+            } else {
+                // Vault non disponible, supprimer l'ordre
+                player.sendMessage("§c⚠ Système économique indisponible!");
+                ordersConfig.set(path, null);
+                ordersConfig.save(ordersFile);
+                cancelOrder(player);
+                return false;
+            }
             
             // Nettoyer la session
             sessions.remove(player.getUniqueId());

@@ -1,5 +1,6 @@
 package com.wynvers.quantum.menu;
 
+import com.nexomc.nexo.api.NexoItems;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.managers.PriceManager;
 import com.wynvers.quantum.storage.PlayerStorage;
@@ -127,16 +128,28 @@ public class StorageRenderer {
         
         // Créer l'item (Nexo ou vanilla)
         if (item.nexoId != null) {
-            // Utiliser l'API Nexo directement
+            // Utiliser l'API Nexo selon la documentation officielle
             try {
-                stack = com.nexomc.nexo.api.NexoItems.itemFromId(item.nexoId).build();
-                if (stack == null) {
-                    plugin.getQuantumLogger().warning("Failed to create Nexo item: " + item.nexoId);
+                // NexoItems.itemFromId retourne un ItemBuilder
+                com.nexomc.nexo.items.ItemBuilder itemBuilder = NexoItems.itemFromId(item.nexoId);
+                
+                if (itemBuilder == null) {
+                    plugin.getQuantumLogger().warning("Nexo ItemBuilder is null for item: " + item.nexoId);
                     return null;
                 }
+                
+                // Construire l'ItemStack avec build()
+                stack = itemBuilder.build();
+                
+                if (stack == null) {
+                    plugin.getQuantumLogger().warning("Failed to build Nexo item: " + item.nexoId);
+                    return null;
+                }
+                
                 itemId = "nexo:" + item.nexoId;
             } catch (Exception e) {
                 plugin.getQuantumLogger().warning("Failed to create Nexo item: " + item.nexoId + " - " + e.getMessage());
+                e.printStackTrace();
                 return null;
             }
         } else if (item.material != null) {

@@ -7,7 +7,7 @@
 #   <bold>, <italic>, <underlined>, <strikethrough>
 #   <gradient:color1:color2>texte</gradient>
 #   <hover:show_text:'texte'>texte survolable</hover>
-# Placeholders disponibles: {player}, {amount}, {item}, {menu}, {price}, {total_price}
+# Placeholders disponibles: {player}, {amount}, {item}, {menu}, {price}, {total_price}, {buyer}, {seller}, {quantity}, {stock}
 
 prefix: "<gray>[</gray><gold>Quantum</gold><gray>]</gray> "
 
@@ -116,7 +116,48 @@ sell:
   success-title: "<green>Vente réussie !"
   success-sold: "<gray>Vous avez vendu <yellow>{amount}x {item}"
   success-received: "<gray>Vous avez reçu <green>{total_price}"
+
+# Messages des Ordres (Order System)
+orders:
+  # Erreurs fichier/ordre
+  file-not-found: "<red>⚠ Fichier orders.yml introuvable!"
+  order-not-found: "<red>⚠ Cet ordre n'existe plus!"
+  order-corrupted: "<red>⚠ Ordre corrompu!"
+  menu-not-found: "<red>⚠ Menu order_confirm introuvable!"
+  data-not-found: "<red>⚠ Données d'ordre introuvables! Veuillez réessayer."
+  data-lost: "<red>⚠ Données d'ordre introuvables!"
   
+  # Erreurs validation
+  invalid-buyer-uuid: "<red>⚠ UUID de l'acheteur invalide!"
+  cannot-sell-to-self: "<red>⚠ Vous ne pouvez pas vendre à vous-même!"
+  
+  # Erreurs stock
+  not-enough-stock: "<red>⚠ Vous n'avez pas assez d'items en stock!"
+  stock-details: "<gray>Requis: <yellow>{quantity}</yellow> <gray>| Stock: <red>{stock}"
+  
+  # Erreurs acheteur
+  buyer-no-money: "<red>⚠ L'acheteur n'a pas assez d'argent!"
+  transaction-cancelled: "<gray>Transaction annulée."
+  
+  # Erreurs transaction
+  error-withdraw-buyer: "<red>⚠ Erreur lors du retrait d'argent de l'acheteur!"
+  error-deposit-seller: "<red>⚠ Erreur lors de l'ajout d'argent au vendeur!"
+  error-critical: "<red>⚠ Erreur critique lors de la transaction!"
+  
+  # Succès vendeur (le prefix est ajouté automatiquement)
+  seller-success-header: "<green>✓ Vente réussie!"
+  seller-success-item: "<gray>Item: <white>{item}"
+  seller-success-quantity: "<gray>Quantité: <green>{quantity}"
+  seller-success-money: "<gray>Argent reçu: <gold>+{total_price}$"
+  seller-success-buyer: "<gray>Acheteur: <white>{buyer}"
+  
+  # Succès acheteur (le prefix est ajouté automatiquement)
+  buyer-success-header: "<green>✓ Votre ordre a été rempli!"
+  buyer-success-item: "<gray>Item: <white>{item}"
+  buyer-success-quantity: "<gray>Quantité: <green>{quantity}"
+  buyer-success-money: "<gray>Prix payé: <gold>{total_price}$"
+  buyer-success-seller: "<gray>Vendeur: <white>{seller}"
+
 # Messages d'Erreur
 error:
   generic: "<red>Une erreur s'est produite!"

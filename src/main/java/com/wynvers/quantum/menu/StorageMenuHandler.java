@@ -46,10 +46,13 @@ public class StorageMenuHandler {
      * @param cursorItem The item on the cursor
      */
     public void handleClick(Player player, int slot, ClickType clickType, ItemStack cursorItem) {
+        player.sendMessage("§7[DEBUG StorageHandler] handleClick appelé pour slot " + slot);
+        
         PlayerStorage storage = plugin.getStorageManager().getStorage(player);
 
         // IMMEDIATE: If player has item on cursor - deposit it (ALLOWED ON ALL SLOTS)
         if (cursorItem != null && cursorItem.getType() != Material.AIR) {
+            player.sendMessage("§7[DEBUG StorageHandler] Item sur curseur détecté - dépôt");
             handleDeposit(player, storage, cursorItem, clickType);
             return;
         }
@@ -57,16 +60,22 @@ public class StorageMenuHandler {
         // IMMEDIATE: If clicking empty slot - do nothing
         ItemStack clickedItem = player.getOpenInventory().getTopInventory().getItem(slot);
         if (clickedItem == null || clickedItem.getType() == Material.AIR) {
+            player.sendMessage("§7[DEBUG StorageHandler] Slot vide - ignoré");
             return;
         }
 
+        player.sendMessage("§7[DEBUG StorageHandler] Item cliqué: " + clickedItem.getType().name());
+        
         // ✅ NOUVELLE VÉRIFICATION PRINCIPALE:
         // L'item DOIT avoir le tag "quantum_item_id" pour être considéré comme un item de storage
         // Si ce tag est absent, c'est un bouton/bordure/décoration -> on ignore
         if (!hasQuantumItemId(clickedItem)) {
+            player.sendMessage("§e[DEBUG StorageHandler] ❌ Pas de quantum_item_id - item ignoré");
             // Pas un item de storage, ignorer le clic
             return;
         }
+        
+        player.sendMessage("§a[DEBUG StorageHandler] ✅ quantum_item_id présent - traitement du clic");
         
         // L'item a le tag quantum_item_id, c'est un vrai item de storage
         // On peut maintenant traiter l'action selon le mode

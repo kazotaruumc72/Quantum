@@ -2,7 +2,6 @@ package com.wynvers.quantum.orders;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.storage.PlayerStorage;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
@@ -28,11 +27,9 @@ import java.util.UUID;
 public class OrderTransaction {
     
     private final Quantum plugin;
-    private final Economy economy;
     
     public OrderTransaction(Quantum plugin) {
         this.plugin = plugin;
-        this.economy = plugin.getVaultManager().getEconomy();
     }
     
     /**
@@ -98,7 +95,7 @@ public class OrderTransaction {
         
         // 5. Vérifier que l'acheteur a assez d'argent
         OfflinePlayer buyer = Bukkit.getOfflinePlayer(buyerUuid);
-        if (!economy.has(buyer, totalPrice)) {
+        if (!plugin.getVaultManager().has(buyer, totalPrice)) {
             seller.sendMessage("§c⚠ L'acheteur n'a pas assez d'argent!");
             seller.sendMessage("§7Transaction annulée.");
             return false;
@@ -107,15 +104,15 @@ public class OrderTransaction {
         // 6. EXÉCUTER LA TRANSACTION (ATOMIQUE)
         try {
             // 6a. Retirer l'argent de l'acheteur
-            if (!economy.withdrawPlayer(buyer, totalPrice).transactionSuccess()) {
+            if (!plugin.getVaultManager().withdraw(buyer, totalPrice)) {
                 seller.sendMessage("§c⚠ Erreur lors du retrait d'argent de l'acheteur!");
                 return false;
             }
             
             // 6b. Ajouter l'argent au vendeur
-            if (!economy.depositPlayer(seller, totalPrice).transactionSuccess()) {
+            if (!plugin.getVaultManager().deposit(seller, totalPrice)) {
                 // ROLLBACK: Rembourser l'acheteur
-                economy.depositPlayer(buyer, totalPrice);
+                plugin.getVaultManager().deposit(buyer, totalPrice);
                 seller.sendMessage("§c⚠ Erreur lors de l'ajout d'argent au vendeur!");
                 return false;
             }

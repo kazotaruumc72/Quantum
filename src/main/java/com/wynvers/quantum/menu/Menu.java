@@ -362,22 +362,23 @@ public class Menu {
         // Appliquer les métadonnées du menu si disponibles
         ItemMeta meta = itemStack.getItemMeta();
         if (meta != null) {
-            // Utiliser le display name du MenuItem si présent, sinon utiliser le nom de l'item
-            if (menuItem.getDisplayName() != null && !menuItem.getDisplayName().isEmpty()) {
-                String parsedName = plugin.getPlaceholderManager().parse(player, menuItem.getDisplayName());
-                meta.setDisplayName(parsedName);
-            } else {
-                meta.setDisplayName(displayName);
-            }
+            // PATCH: NE PAS écraser le display name Nexo - le conserver tel quel
+            // (Le displayName Nexo est déjà dans l'item)
             
             // Créer la lore avec les informations de l'ordre
             List<String> lore = new ArrayList<>();
+            
+            // Conserver la lore Nexo existante
+            if (meta.hasLore()) {
+                lore.addAll(meta.getLore());
+            }
             
             // Si le MenuItem a une lore, l'utiliser comme base
             if (menuItem.getLore() != null && !menuItem.getLore().isEmpty()) {
                 lore.addAll(plugin.getPlaceholderManager().parse(player, menuItem.getLore()));
             } else {
                 // Lore par défaut
+                lore.add("");
                 lore.add(ChatColor.GRAY + "Quantité recherchée: " + ChatColor.WHITE + quantity);
                 lore.add(ChatColor.GRAY + "Prix unitaire: " + ChatColor.GOLD + String.format("%.2f", pricePerUnit) + "$");
                 lore.add(ChatColor.GRAY + "Prix total: " + ChatColor.GREEN + String.format("%.2f", totalPrice) + "$");
@@ -476,8 +477,7 @@ public class Menu {
                 continue;
             }
             
-            // === PATCH: QUANTUM_ORDER_DISPLAY_ITEM ===
-            // Si c'est un quantum_order_display_item ET qu'il y a une session, utiliser l'item de la session
+            // === PATCH: QUANTUM_ORDER_DISPLAY_ITEM (Enhanced with full Nexo support) ===
             if (item.getButtonType() == ButtonType.QUANTUM_ORDER_DISPLAY_ITEM && orderSession != null) {
                 ItemStack orderItem = orderSession.getDisplayItem();
                 
@@ -492,7 +492,7 @@ public class Menu {
                         finalItem = orderItem.clone();
                         finalItem.setAmount(1);
                         
-                        // Ajouter UNIQUEMENT la lore sans toucher aux autres métadonnées
+                        // Ajouter UNIQUEMENT la lore sans toucher au display name ni autres métadonnées
                         if (item.getLore() != null && !item.getLore().isEmpty()) {
                             ItemMeta meta = finalItem.getItemMeta();
                             if (meta != null) {
@@ -513,19 +513,12 @@ public class Menu {
                         }
                     } else {
                         // === Item VANILLA ===
-                        // Utiliser la méthode classique avec setItemMeta()
                         finalItem = orderItem.clone();
                         finalItem.setAmount(1);
                         
                         ItemMeta meta = finalItem.getItemMeta();
                         if (meta != null) {
-                            if (item.getDisplayName() != null) {
-                                String parsedName = customPlaceholders != null
-                                    ? plugin.getPlaceholderManager().parse(player, item.getDisplayName(), customPlaceholders)
-                                    : plugin.getPlaceholderManager().parse(player, item.getDisplayName());
-                                meta.setDisplayName(parsedName);
-                            }
-                            
+                            // Pour vanilla, appliquer la lore du menu
                             if (item.getLore() != null && !item.getLore().isEmpty()) {
                                 List<String> parsedLore = customPlaceholders != null
                                     ? plugin.getPlaceholderManager().parse(player, item.getLore(), customPlaceholders)

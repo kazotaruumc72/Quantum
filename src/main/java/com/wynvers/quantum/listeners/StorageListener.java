@@ -7,6 +7,7 @@ import com.wynvers.quantum.orders.OrderCreationManager;
 import com.wynvers.quantum.orders.OrderCreationSession;
 import com.wynvers.quantum.storage.PlayerStorage;
 import com.wynvers.quantum.storage.StorageMode;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -132,13 +133,70 @@ public class StorageListener implements Listener {
     
     /**
      * Gère la vente d'items en mode SELL
-     * TODO: Implémenter la logique de vente avec prix
      */
     private void handleSell(Player player, ItemStack displayItem, boolean shiftClick, boolean rightClick) {
+        PlayerStorage storage = plugin.getStorageManager().getStorage(player);
         Material material = displayItem.getType();
-        player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
-        player.sendMessage("§e⚠ Système de vente en développement pour " + material.name());
-        // TODO: Intégrer le système de prix et vente
+        
+        // Déterminer la quantité à vendre
+        int sellAmount;
+        if (shiftClick) {
+            // Shift-clic: vendre tout
+            sellAmount = storage.getAmount(material);
+        } else if (rightClick) {
+            // Clic-droit: vendre 64
+            sellAmount = 64;
+        } else {
+            // Clic-gauche: vendre 1
+            sellAmount = 1;
+        }
+        
+        // Vérifier la disponibilité
+        int available = storage.getAmount(material);
+        int toSell = Math.min(sellAmount, available);
+        
+        if (toSell <= 0) {
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage("§cAucun item disponible à vendre!");
+            return;
+        }
+        
+        // Obtenir le prix depuis le PriceManager (utilise MATERIAL en MAJUSCULES)
+        String itemKey = material.name();
+        double pricePerItem = plugin.getPriceManager().getPrice(itemKey);
+        
+        if (pricePerItem <= 0) {
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage("§c⚠ Cet item ne peut pas être vendu! (Prix non défini)");
+            return;
+        }
+        
+        // Calculer le montant total
+        double totalPrice = pricePerItem * toSell;
+        
+        // Retirer les items du storage
+        storage.removeItem(material, toSell);
+        
+        // Donner l'argent au joueur via Vault
+        if (plugin.getVaultManager().isEnabled()) {
+            Economy economy = plugin.getVaultManager().getEconomy();
+            economy.depositPlayer(player, totalPrice);
+        } else {
+            player.sendMessage("§c⚠ Système d'économie non disponible! Items retirés mais argent non crédité.");
+            plugin.getQuantumLogger().error("Vault non disponible pour la vente!");
+        }
+        
+        // Messages et son
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
+        player.sendMessage("§a§l✓ §aVendu §e" + toSell + "x §f" + material.name() + " §apour §6" + String.format("%.2f", totalPrice) + "$");
+        
+        // Sauvegarder et rafraîchir
+        storage.save(plugin);
+        
+        player.closeInventory();
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            player.performCommand("storage");
+        }, 1L);
     }
     
     /**

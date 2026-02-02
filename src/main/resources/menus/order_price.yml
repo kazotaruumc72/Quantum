@@ -3,9 +3,9 @@ title: '&8Prix de recherche'
 size: 27
 
 items:
-  # L'ITEM SUR LEQUEL L'UTILISATEUR A CLIQUÉ (slot 9)
+  # L'ITEM SUR LEQUEL L'UTILISATEUR A CLIQUÉ (slot 13)
   item_display:
-    slots: [9]
+    slots: [13]
     material: PAPER
     display_name: '&e%quantum_order_item_name%'
     lore:
@@ -35,7 +35,7 @@ items:
       percentage: -5
 
   price_display:
-    slots: [13]
+    slots: [16]
     material: GOLD_INGOT
     display_name: '&6Prix unitaire: &e%quantum_order_price%€'
     lore:
@@ -59,7 +59,7 @@ items:
       percentage: 5
 
   increase_20:
-    slots: [16]
+    slots: [17]
     material: GREEN_STAINED_GLASS_PANE
     display_name: '&2+20%'
     lore:

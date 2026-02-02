@@ -33,7 +33,7 @@ items:
       - '&7nouvelle offre d''achat'
     actions:
       left_click:
-        - '[console] offre %player_name%'
+        - '[player] offre'
   
   # Créer une demande
   create_request:
@@ -46,7 +46,7 @@ items:
       - '&7nouvelle demande de vente'
     actions:
       left_click:
-        - '[console] recherche %player_name%'
+        - '[player] recherche'
   
   # Slots des ordres dynamiques (10-16, 19-25, 28-34, 37-43)
   # Ces slots seront remplis dynamiquement par le plugin

@@ -17,6 +17,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -35,7 +36,7 @@ public class MenuListener implements Listener {
 
     private final Quantum plugin;
     private final StorageMenuHandler storageHandler;
-    private final OrderButtonHandler orderButtonHandler; // NOUVEAU
+    private final OrderButtonHandler orderButtonHandler;
     private final NamespacedKey buttonTypeKey;
     private final NamespacedKey orderIdKey;
     private final NamespacedKey ordererUuidKey;
@@ -43,7 +44,7 @@ public class MenuListener implements Listener {
     public MenuListener(Quantum plugin) {
         this.plugin = plugin;
         this.storageHandler = new StorageMenuHandler(plugin);
-        this.orderButtonHandler = new OrderButtonHandler(plugin); // NOUVEAU
+        this.orderButtonHandler = new OrderButtonHandler(plugin);
         this.buttonTypeKey = new NamespacedKey(plugin, "button_type");
         this.orderIdKey = new NamespacedKey(plugin, "quantum_order_id");
         this.ordererUuidKey = new NamespacedKey(plugin, "orderer_uuid");
@@ -670,8 +671,9 @@ public class MenuListener implements Listener {
         if (menu != null) {
             plugin.getAnimationManager().stopAnimation(player);
             
-            // NOUVEAU: Nettoyer le cache OrderButtonHandler
-            orderButtonHandler.clearCache(player);
+            // SUPPRIMÉ: Ne PLUS nettoyer le cache ici
+            // Le cache est nettoyé uniquement après transaction ou refus
+            // orderButtonHandler.clearCache(player);
             
             org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (player.getOpenInventory().getType() == InventoryType.CRAFTING) {
@@ -679,5 +681,22 @@ public class MenuListener implements Listener {
                 }
             }, 1L);
         }
+    }
+    
+    /**
+     * NOUVEAU: Nettoyer le cache quand le joueur se déconnecte
+     */
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        
+        // Nettoyer le cache des ordres
+        orderButtonHandler.clearCache(player);
+        
+        // Nettoyer les menus actifs
+        plugin.getMenuManager().clearActiveMenu(player);
+        
+        // Arrêter les animations
+        plugin.getAnimationManager().stopAnimation(player);
     }
 }

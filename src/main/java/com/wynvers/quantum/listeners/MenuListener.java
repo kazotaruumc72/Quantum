@@ -117,21 +117,12 @@ public class MenuListener implements Listener {
             MenuItem menuItem = menu.getItemAt(slot);
             ItemStack clickedItem = topInv.getItem(slot);
             
-            // DEBUG: Log initial click info
-            player.sendMessage("§7[DEBUG] Click on slot " + slot);
-            if (clickedItem != null) {
-                player.sendMessage("§7[DEBUG] Item: " + clickedItem.getType().name());
-            } else {
-                player.sendMessage("§7[DEBUG] Item: NULL");
-            }
-            
             // ========================================
             // FILTRAGE INSPIRÉ DE zMenu
             // ========================================
             
             // 1. Vérifier si c'est un bouton via MenuItem
             if (menuItem != null && isSpecialButton(menuItem)) {
-                player.sendMessage("§e[DEBUG] ✅ Détecté comme BOUTON via MenuItem");
                 if (!menuItem.meetsRequirements(player, plugin)) {
                     if (menuItem.getDenyMessage() != null && !menuItem.getDenyMessage().isEmpty()) {
                         player.sendMessage(menuItem.getDenyMessage());
@@ -141,41 +132,28 @@ public class MenuListener implements Listener {
                 
                 menuItem.executeActions(player, plugin, event.getClick());
                 return; // IMPORTANT: return ici pour ne pas traiter comme item de storage
-            } else if (menuItem != null) {
-                player.sendMessage("§7[DEBUG] MenuItem présent mais pas un bouton spécial");
-            } else {
-                player.sendMessage("§7[DEBUG] Aucun MenuItem à ce slot");
             }
             
             // 2. Vérifier si c'est un bouton via PDC (QUANTUM_CHANGE_MODE, etc.)
             if (clickedItem != null && hasButtonTypePDC(clickedItem)) {
-                player.sendMessage("§e[DEBUG] ✅ Détecté comme BOUTON via PDC");
-                ItemMeta meta = clickedItem.getItemMeta();
-                String buttonType = meta.getPersistentDataContainer().get(buttonTypeKey, PersistentDataType.STRING);
-                player.sendMessage("§7[DEBUG] ButtonType: " + buttonType);
                 // C'est un bouton détecté via PDC, le laisser au système de menus
                 // Ne PAS appeler storageHandler
                 return;
-            } else {
-                player.sendMessage("§7[DEBUG] Pas de button_type PDC trouvé");
             }
             
             // 3. Vérifier si c'est un item décoratif (STAINED_GLASS_PANE)
             if (clickedItem != null && isDecorativeItem(clickedItem)) {
-                player.sendMessage("§e[DEBUG] ✅ Item décoratif (GLASS_PANE)");
                 // Item décoratif → ignorer
                 return;
             }
             
             // 4. Vérifier que le slot contient un item valide
             if (clickedItem == null || clickedItem.getType() == Material.AIR) {
-                player.sendMessage("§e[DEBUG] ❌ Slot vide ou AIR");
                 return;
             }
             
             // 5. Vérifier que le slot est dans la zone de storage (9-44)
             if (slot < 9 || slot > 44) {
-                player.sendMessage("§e[DEBUG] ❌ Slot hors zone storage (9-44)");
                 // Hors zone de storage → ignorer
                 return;
             }
@@ -183,7 +161,6 @@ public class MenuListener implements Listener {
             // ========================================
             // SI ON ARRIVE ICI : C'EST UN ITEM DE STORAGE VALIDE
             // ========================================
-            player.sendMessage("§a[DEBUG] ✅ ITEM DE STORAGE VALIDE - Appel storageHandler");
             storageHandler.handleClick(player, slot, event.getClick(), event.getCursor());
         }
         else if (clickedInv != null && clickedInv.equals(player.getInventory())) {

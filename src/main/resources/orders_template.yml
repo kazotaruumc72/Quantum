@@ -268,8 +268,78 @@ outils:
       min_price: 20.0
       max_price: 200.0
 
+autre:
+  items:
+    minecraft:cobblestone:
+      min_price: 1.0
+      max_price: 10.0
+    minecraft:dirt:
+      min_price: 0.5
+      max_price: 5.0
+    minecraft:stone:
+      min_price: 2.0
+      max_price: 15.0
+    minecraft:coal:
+      min_price: 5.0
+      max_price: 25.0
+    minecraft:redstone:
+      min_price: 10.0
+      max_price: 50.0
+    minecraft:lapis_lazuli:
+      min_price: 15.0
+      max_price: 80.0
+    minecraft:string:
+      min_price: 3.0
+      max_price: 20.0
+    minecraft:leather:
+      min_price: 10.0
+      max_price: 50.0
+    minecraft:feather:
+      min_price: 5.0
+      max_price: 30.0
+    minecraft:arrow:
+      min_price: 2.0
+      max_price: 15.0
+    minecraft:bone:
+      min_price: 4.0
+      max_price: 25.0
+    minecraft:gunpowder:
+      min_price: 8.0
+      max_price: 40.0
+    minecraft:glass:
+      min_price: 3.0
+      max_price: 20.0
+    minecraft:obsidian:
+      min_price: 20.0
+      max_price: 100.0
+    minecraft:sand:
+      min_price: 1.0
+      max_price: 10.0
+    minecraft:gravel:
+      min_price: 1.0
+      max_price: 8.0
+    minecraft:oak_log:
+      min_price: 3.0
+      max_price: 15.0
+    minecraft:spruce_log:
+      min_price: 3.0
+      max_price: 15.0
+    minecraft:birch_log:
+      min_price: 3.0
+      max_price: 15.0
+    minecraft:jungle_log:
+      min_price: 3.0
+      max_price: 15.0
+    minecraft:acacia_log:
+      min_price: 3.0
+      max_price: 15.0
+    minecraft:dark_oak_log:
+      min_price: 3.0
+      max_price: 15.0
+
 # NOTES:
 # - Les prix sont indicatifs et peuvent être ajustés
 # - Le système vérifiera que le prix de l'offre est dans la fourchette
 # - Pour les items avec enchantements/durabilité, le prix peut varier
 # - Les admins peuvent modifier ces valeurs selon l'économie du serveur
+# - La catégorie 'autre' contient les ressources de base et items divers

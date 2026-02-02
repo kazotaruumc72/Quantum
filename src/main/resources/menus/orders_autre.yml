@@ -48,5 +48,19 @@ items:
       left_click:
         - '[player] recherche'
   
-  # Slots des ordres dynamiques (10-16, 19-25, 28-34, 37-43)
+  # === SLOTS DES ORDRES DYNAMIQUES ===
   # Ces slots seront remplis dynamiquement par le plugin
+  # avec les offres d'achat actives dans la catégorie "autre"
+  
+  dynamic_orders:
+    slots: [10,11,12,13,14,15,16,19,20,21,22,23,24,25,28,29,30,31,32,33,34,37,38,39,40,41,42,43]
+    # Le plugin remplacera ces slots par les vraies offres
+    # Format de chaque offre :
+    # - material: l'item recherché
+    # - name: nom du joueur + quantité
+    # - lore: prix unitaire, prix total, etc.
+    material: PAPER
+    name: '&7Aucune offre'
+    lore:
+      - '&8Aucune offre active'
+      - '&8dans cette catégorie'

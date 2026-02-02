@@ -41,6 +41,11 @@ public class OrderTransaction {
      * @return true si la transaction a réussi, false sinon
      */
     public boolean executeTransaction(Player seller, String category, String orderId) {
+        plugin.getLogger().info("[TRANSACTION] === Starting transaction ===");
+        plugin.getLogger().info("[TRANSACTION] Seller: " + seller.getName());
+        plugin.getLogger().info("[TRANSACTION] Category: " + category);
+        plugin.getLogger().info("[TRANSACTION] OrderId: " + orderId);
+        
         // 1. Charger l'ordre depuis orders.yml
         File ordersFile = new File(plugin.getDataFolder(), "orders.yml");
         if (!ordersFile.exists()) {
@@ -64,6 +69,11 @@ public class OrderTransaction {
         double pricePerUnit = ordersConfig.getDouble(orderPath + ".price_per_unit");
         double totalPrice = ordersConfig.getDouble(orderPath + ".total_price");
         
+        plugin.getLogger().info("[TRANSACTION] Buyer: " + buyerName);
+        plugin.getLogger().info("[TRANSACTION] ItemId from orders.yml: '" + itemId + "'");
+        plugin.getLogger().info("[TRANSACTION] Quantity: " + quantity);
+        plugin.getLogger().info("[TRANSACTION] Total price: " + totalPrice);
+        
         if (buyerName == null || buyerUuidStr == null || itemId == null) {
             seller.sendMessage("§c⚠ Ordre corrompu!");
             return false;
@@ -86,6 +96,16 @@ public class OrderTransaction {
         // 4. Vérifier que le vendeur a les items en stock
         PlayerStorage sellerStorage = plugin.getStorageManager().getStorage(seller);
         int sellerStock = sellerStorage.getAmountByItemId(itemId);
+        
+        plugin.getLogger().info("[TRANSACTION] Checking seller storage...");
+        plugin.getLogger().info("[TRANSACTION] Seller stock for '" + itemId + "': " + sellerStock);
+        plugin.getLogger().info("[TRANSACTION] Required: " + quantity);
+        plugin.getLogger().info("[TRANSACTION] Has enough: " + (sellerStock >= quantity));
+        
+        // DEBUG: Afficher tout le storage du vendeur
+        plugin.getLogger().info("[TRANSACTION] === Seller's full storage ===");
+        plugin.getLogger().info("[TRANSACTION] Vanilla items: " + sellerStorage.getVanillaItems());
+        plugin.getLogger().info("[TRANSACTION] Nexo items: " + sellerStorage.getNexoItems());
         
         if (sellerStock < quantity) {
             seller.sendMessage("§c⚠ Vous n'avez pas assez d'items en stock!");
@@ -152,6 +172,8 @@ public class OrderTransaction {
             seller.sendMessage("§7Argent reçu: §6+" + String.format("%.2f", totalPrice) + "$");
             seller.sendMessage("§7Acheteur: §f" + buyerName);
             seller.playSound(seller.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+            
+            plugin.getLogger().info("[TRANSACTION] === Transaction completed successfully ===");
             
             return true;
             

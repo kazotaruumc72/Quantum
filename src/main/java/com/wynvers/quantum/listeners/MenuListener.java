@@ -24,6 +24,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import java.io.File;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -256,27 +257,103 @@ public class MenuListener implements Listener {
                 return;
             }
             
-            // === NOUVEAU: CLIC NORMAL SUR UN ORDRE (VENDRE) ===
-            // Détecter si l'item a le tag quantum_order_id
-            if (clickedItem != null && clickedItem.hasItemMeta()) {
-                ItemMeta meta = clickedItem.getItemMeta();
-                String orderId = meta.getPersistentDataContainer().get(orderIdKey, PersistentDataType.STRING);
+            // === CLIC NORMAL SUR UN ORDRE (VENDRE) ===
+            
+            // Extraire la catégorie depuis l'ID du menu ("orders_cultures" -> "cultures")
+            String category = menu.getId().substring(7);
+            
+            // NOUVEAU: Essayer de trouver l'orderId via lore (système de fallback)
+            String orderId = extractOrderIdFromLore(clickedItem, category);
+            
+            if (orderId != null && !orderId.isEmpty()) {
+                plugin.getLogger().info("[ORDERS_MENU] Order detected via LORE! Category: " + category + ", OrderID: " + orderId);
+                // Ouvrir order_confirm via OrderButtonHandler
+                orderButtonHandler.handleOrderClick(player, category, orderId);
+                return;
+            }
+            
+            // Si aucun ordre détecté
+            plugin.getLogger().warning("[ORDERS_MENU] No order detected for item: " + clickedItem.getType());
+            player.sendMessage("§c⚠ Impossible de détecter cet ordre!");
+        }
+    }
+    
+    /**
+     * NOUVEAU: Extrait l'orderId depuis la lore d'un item d'ordre
+     * En cherchant dans orders.yml pour trouver l'ordre correspondant
+     * 
+     * @param orderItem L'ItemStack de l'ordre
+     * @param category La catégorie de l'ordre
+     * @return L'orderId, ou null si non trouvé
+     */
+    private String extractOrderIdFromLore(ItemStack orderItem, String category) {
+        if (orderItem == null || !orderItem.hasItemMeta()) {
+            return null;
+        }
+        
+        ItemMeta meta = orderItem.getItemMeta();
+        if (meta == null || !meta.hasLore()) {
+            return null;
+        }
+        
+        List<String> lore = meta.getLore();
+        
+        // Extraire les infos depuis la lore
+        String buyerName = null;
+        String itemName = null;
+        String quantity = null;
+        
+        for (String line : lore) {
+            // Ex: "§e⚡ Commandé par: §fKazotaruu_"
+            if (line.contains("Commandé par:")) {
+                buyerName = line.split(":")[1].trim().replaceAll("§.", "");
+            }
+            // Ex: "§e⚡ Quantité: §f64x"
+            else if (line.contains("Quantité:")) {
+                quantity = line.split(":")[1].trim().replaceAll("§.", "").replace("x", "");
+            }
+        }
+        
+        if (buyerName == null) {
+            plugin.getLogger().warning("[EXTRACT_ORDER_ID] Impossible de trouver le nom de l'acheteur dans la lore");
+            return null;
+        }
+        
+        // Chercher dans orders.yml pour trouver l'ordre correspondant
+        try {
+            File ordersFile = new File(plugin.getDataFolder(), "orders.yml");
+            if (!ordersFile.exists()) {
+                plugin.getLogger().warning("[EXTRACT_ORDER_ID] Fichier orders.yml introuvable");
+                return null;
+            }
+            
+            YamlConfiguration ordersConfig = YamlConfiguration.loadConfiguration(ordersFile);
+            
+            // Parcourir tous les ordres de la catégorie
+            if (!ordersConfig.contains(category)) {
+                plugin.getLogger().warning("[EXTRACT_ORDER_ID] Catégorie " + category + " introuvable dans orders.yml");
+                return null;
+            }
+            
+            for (String orderId : ordersConfig.getConfigurationSection(category).getKeys(false)) {
+                String path = category + "." + orderId;
+                String storedBuyerName = ordersConfig.getString(path + ".orderer", "");
                 
-                if (orderId != null && !orderId.isEmpty()) {
-                    // Extraire la catégorie depuis l'ID du menu ("orders_cultures" -> "cultures")
-                    String category = menu.getId().substring(7);
-                    
-                    // Ouvrir order_confirm via OrderButtonHandler
-                    orderButtonHandler.handleOrderClick(player, category, orderId);
-                    return;
+                // Comparer les noms (insensible à la casse)
+                if (storedBuyerName.equalsIgnoreCase(buyerName)) {
+                    plugin.getLogger().info("[EXTRACT_ORDER_ID] Ordre trouvé: " + orderId + " pour " + buyerName);
+                    return orderId;
                 }
             }
             
-            // Clic normal sur un ordre (ancien système, fallback)
-            if (menuItem != null && menuItem.getButtonType() == ButtonType.QUANTUM_ORDERS_ITEM) {
-                menuItem.executeActions(player, plugin, clickType);
-            }
+            plugin.getLogger().warning("[EXTRACT_ORDER_ID] Aucun ordre trouvé pour l'acheteur: " + buyerName);
+            
+        } catch (Exception e) {
+            plugin.getLogger().severe("[EXTRACT_ORDER_ID] Erreur lors de la lecture de orders.yml: " + e.getMessage());
+            e.printStackTrace();
         }
+        
+        return null;
     }
     
     /**

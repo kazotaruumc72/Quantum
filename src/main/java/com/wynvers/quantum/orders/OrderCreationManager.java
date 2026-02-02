@@ -1,7 +1,6 @@
 package com.wynvers.quantum.orders;
 
 import com.wynvers.quantum.Quantum;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -93,14 +92,13 @@ public class OrderCreationManager {
         }
         
         // Vérifier que le joueur a assez d'argent (double-check)
-        Economy economy = plugin.getVaultManager().getEconomy();
         double totalPrice = session.getTotalPrice();
         
-        if (economy != null) {
-            if (!economy.has(player, totalPrice)) {
+        if (plugin.getVaultManager().isEnabled()) {
+            if (!plugin.getVaultManager().has(player, totalPrice)) {
                 player.sendMessage("§c⚠ Vous n'avez pas assez d'argent!");
                 player.sendMessage("§7Requis: §6" + String.format("%.2f", totalPrice) + "$");
-                player.sendMessage("§7Solde: §6" + String.format("%.2f", economy.getBalance(player)) + "$");
+                player.sendMessage("§7Solde: §6" + String.format("%.2f", plugin.getVaultManager().getBalance(player)) + "$");
                 cancelOrder(player);
                 return false;
             }
@@ -132,8 +130,8 @@ public class OrderCreationManager {
             ordersConfig.save(ordersFile);
             
             // === RETRAIT D'ARGENT ===
-            if (economy != null) {
-                if (economy.withdrawPlayer(player, totalPrice).transactionSuccess()) {
+            if (plugin.getVaultManager().isEnabled()) {
+                if (plugin.getVaultManager().withdraw(player, totalPrice)) {
                     player.sendMessage("§8[§6Quantum§8] §c-" + String.format("%.2f", totalPrice) + "$");
                     player.sendMessage("§7Argent bloqué jusqu'à ce que l'ordre soit rempli.");
                 } else {

@@ -1,5 +1,6 @@
 package com.wynvers.quantum.menu;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,7 @@ import com.nexomc.nexo.api.NexoItems;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -19,6 +21,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class Menu {
  
@@ -262,6 +265,136 @@ public class Menu {
     }
     
     /**
+     * Récupère tous les ordres d'une catégorie depuis orders.yml
+     * @param category Nom de la catégorie (ex: "autre", "minerais", etc.)
+     * @return Liste des ordres sous forme de Map
+     */
+    private List<Map<String, Object>> getOrdersForCategory(String category) {
+        List<Map<String, Object>> orders = new ArrayList<>();
+        
+        File ordersFile = new File(plugin.getDataFolder(), "orders.yml");
+        if (!ordersFile.exists()) {
+            return orders;
+        }
+        
+        YamlConfiguration ordersConfig = YamlConfiguration.loadConfiguration(ordersFile);
+        
+        ConfigurationSection categorySection = ordersConfig.getConfigurationSection(category);
+        if (categorySection == null) {
+            return orders;
+        }
+        
+        // Parcourir tous les ordres de cette catégorie
+        for (String orderId : categorySection.getKeys(false)) {
+            String path = category + "." + orderId;
+            
+            Map<String, Object> orderData = new HashMap<>();
+            orderData.put("orderId", orderId);
+            orderData.put("orderer", ordersConfig.getString(path + ".orderer", "Unknown"));
+            orderData.put("orderer_uuid", ordersConfig.getString(path + ".orderer_uuid"));
+            orderData.put("item", ordersConfig.getString(path + ".item", "minecraft:stone"));
+            orderData.put("quantity", ordersConfig.getInt(path + ".quantity", 0));
+            orderData.put("price_per_unit", ordersConfig.getDouble(path + ".price_per_unit", 0.0));
+            orderData.put("total_price", ordersConfig.getDouble(path + ".total_price", 0.0));
+            orderData.put("created_at", ordersConfig.getLong(path + ".created_at", System.currentTimeMillis()));
+            
+            orders.add(orderData);
+        }
+        
+        return orders;
+    }
+    
+    /**
+     * Extrait le nom de catégorie depuis l'ID du menu
+     * Ex: "orders_autre" -> "autre"
+     */
+    private String getCategoryFromMenuId() {
+        if (id.startsWith("orders_")) {
+            return id.substring(7); // Enlever "orders_"
+        }
+        return null;
+    }
+    
+    /**
+     * Crée un ItemStack pour un ordre
+     */
+    private ItemStack createOrderItemStack(Map<String, Object> orderData, MenuItem menuItem, Player player) {
+        String itemId = (String) orderData.get("item");
+        int quantity = (int) orderData.get("quantity");
+        double pricePerUnit = (double) orderData.get("price_per_unit");
+        double totalPrice = (double) orderData.get("total_price");
+        String orderer = (String) orderData.get("orderer");
+        
+        ItemStack itemStack;
+        String displayName;
+        
+        // Créer l'item (Nexo ou vanilla)
+        if (itemId.startsWith("nexo:")) {
+            String nexoId = itemId.substring(5);
+            itemStack = NexoItems.itemFromId(nexoId).build();
+            if (itemStack == null) {
+                itemStack = new ItemStack(Material.STONE);
+            }
+        } else if (itemId.startsWith("minecraft:")) {
+            String materialName = itemId.substring(10).toUpperCase();
+            Material material = Material.matchMaterial(materialName);
+            if (material == null) {
+                material = Material.STONE;
+            }
+            itemStack = new ItemStack(material);
+        } else {
+            itemStack = new ItemStack(Material.STONE);
+        }
+        
+        // Obtenir le nom de l'item (Nexo ou vanilla)
+        ItemMeta baseMeta = itemStack.getItemMeta();
+        if (baseMeta != null && baseMeta.hasDisplayName()) {
+            displayName = baseMeta.getDisplayName();
+        } else {
+            // Formater joliment le nom de l'item
+            if (itemId.startsWith("nexo:")) {
+                displayName = ChatColor.WHITE + itemId.substring(5).replace("_", " ");
+            } else {
+                displayName = ChatColor.WHITE + itemId.substring(10).replace("_", " ");
+            }
+        }
+        
+        // Appliquer les métadonnées du menu si disponibles
+        ItemMeta meta = itemStack.getItemMeta();
+        if (meta != null) {
+            // Utiliser le display name du MenuItem si présent, sinon utiliser le nom de l'item
+            if (menuItem.getDisplayName() != null && !menuItem.getDisplayName().isEmpty()) {
+                String parsedName = plugin.getPlaceholderManager().parse(player, menuItem.getDisplayName());
+                meta.setDisplayName(parsedName);
+            } else {
+                meta.setDisplayName(displayName);
+            }
+            
+            // Créer la lore avec les informations de l'ordre
+            List<String> lore = new ArrayList<>();
+            
+            // Si le MenuItem a une lore, l'utiliser comme base
+            if (menuItem.getLore() != null && !menuItem.getLore().isEmpty()) {
+                lore.addAll(plugin.getPlaceholderManager().parse(player, menuItem.getLore()));
+            } else {
+                // Lore par défaut
+                lore.add(ChatColor.GRAY + "Quantité recherchée: " + ChatColor.WHITE + quantity);
+                lore.add(ChatColor.GRAY + "Prix unitaire: " + ChatColor.GOLD + String.format("%.2f", pricePerUnit) + "$");
+                lore.add(ChatColor.GRAY + "Prix total: " + ChatColor.GREEN + String.format("%.2f", totalPrice) + "$");
+                lore.add("");
+                lore.add(ChatColor.YELLOW + "⚡ Commandé par: " + ChatColor.WHITE + orderer);
+                lore.add("");
+                lore.add(ChatColor.AQUA + "» Clic droit: Vendre (mode Vente)");
+            }
+            
+            meta.setLore(lore);
+            itemStack.setItemMeta(meta);
+        }
+        
+        return itemStack;
+    }
+    
+    /**
      * Remplit l'inventaire avec les items du menu pour un joueur spécifique avec placeholders
      */
     public void populateInventory(Inventory inventory, Player player, Map<String, String> customPlaceholders) {
@@ -273,12 +406,34 @@ public class Menu {
         // Récupérer la session order si elle existe
         OrderCreationSession orderSession = player != null ? plugin.getOrderCreationManager().getSession(player) : null;
         
+        // Détecter si c'est un menu d'ordres (orders_autre, orders_minerais, etc.)
+        String category = getCategoryFromMenuId();
+        List<Map<String, Object>> categoryOrders = category != null ? getOrdersForCategory(category) : new ArrayList<>();
+        
+        // Index pour parcourir les ordres
+        int orderIndex = 0;
+        
         // Premièrement, remplir les items standards (non-quantum_storage)
         for (MenuItem item : items.values()) {
             if (item.getSlots().isEmpty()) continue;
             
             // Si c'est un slot quantum_storage, le StorageRenderer s'en occupera
             if (item.isQuantumStorage()) {
+                continue;
+            }
+            
+            // === NOUVEAU: Gestion des QUANTUM_ORDERS_ITEM ===
+            // Si c'est un quantum_orders_item, afficher les ordres de la catégorie
+            if (item.getButtonType() == ButtonType.QUANTUM_ORDERS_ITEM) {
+                // Pour chaque slot configuré, essayer de placer un ordre
+                for (int slot : item.getSlots()) {
+                    if (slot >= 0 && slot < size && orderIndex < categoryOrders.size()) {
+                        Map<String, Object> orderData = categoryOrders.get(orderIndex);
+                        ItemStack orderItem = createOrderItemStack(orderData, item, player);
+                        inventory.setItem(slot, orderItem);
+                        orderIndex++;
+                    }
+                }
                 continue;
             }
             

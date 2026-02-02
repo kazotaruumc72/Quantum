@@ -11,7 +11,7 @@ import java.util.Locale;
 
 /**
  * Commande pour afficher les statistiques globales du storage
- * Affiche : total items stockés, items vendus, items actuellement en stock
+ * Affiche : items en stock, items vendus, nombre de joueurs
  */
 public class StorageStatsCommand implements CommandExecutor {
     
@@ -41,14 +41,8 @@ public class StorageStatsCommand implements CommandExecutor {
         sender.sendMessage("§6§l├──────────────────────────────────────────────┤");
         sender.sendMessage("§6│");
         
-        // Items stockés historiquement
-        sender.sendMessage("§6│ §e📦 Total Items Stockés:");
-        sender.sendMessage("§6│   §7(Historique depuis toujours)");
-        sender.sendMessage("§6│   §f" + formatNumber(stats.totalItemsStored) + " items");
-        sender.sendMessage("§6│");
-        
-        // Items actuellement en stock
-        sender.sendMessage("§6│ §b📋 Items Actuellement en Stock:");
+        // Items actuellement en stock avec nombre de joueurs en vert lime
+        sender.sendMessage("§6│ §b📋 Items Actuellement en Stock §a[§a" + formatNumber(stats.totalPlayers) + " joueurs§a]§:");
         sender.sendMessage("§6│   §7(Total de tous les joueurs)");
         sender.sendMessage("§6│   §f" + formatNumber(stats.currentStoredItems) + " items");
         sender.sendMessage("§6│");
@@ -58,14 +52,6 @@ public class StorageStatsCommand implements CommandExecutor {
         sender.sendMessage("§6│   §7(Vendus via /sell)");
         sender.sendMessage("§6│   §f" + formatNumber(stats.totalItemsSold) + " items");
         sender.sendMessage("§6│");
-        
-        // Taux de vente (si applicable)
-        if (stats.totalItemsStored > 0) {
-            double sellRate = ((double) stats.totalItemsSold / stats.totalItemsStored) * 100;
-            sender.sendMessage("§6│ §d📊 Taux de Vente:");
-            sender.sendMessage("§6│   §f" + String.format("%.2f", sellRate) + "%");
-            sender.sendMessage("§6│");
-        }
         
         sender.sendMessage("§6§l└──────────────────────────────────────────────┘");
         sender.sendMessage("§7§oUtilise: /quantum stats pour les stats par catégorie");

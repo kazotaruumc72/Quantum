@@ -133,16 +133,26 @@ public class StorageListener implements Listener {
     
     /**
      * Gère la vente d'items en mode SELL
+     * Supporte à la fois les items Minecraft vanilla et Nexo
      */
     private void handleSell(Player player, ItemStack displayItem, boolean shiftClick, boolean rightClick) {
         PlayerStorage storage = plugin.getStorageManager().getStorage(player);
-        Material material = displayItem.getType();
+        
+        // Convertir l'ItemStack en itemId unifié (minecraft:xxx ou nexo:xxx)
+        String itemId = OrderCreationManager.getItemId(displayItem);
+        if (itemId == null) {
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage("§c⚠ Item invalide!");
+            return;
+        }
         
         // Déterminer la quantité à vendre
         int sellAmount;
+        int available = storage.getAmountByItemId(itemId);
+        
         if (shiftClick) {
             // Shift-clic: vendre tout
-            sellAmount = storage.getAmount(material);
+            sellAmount = available;
         } else if (rightClick) {
             // Clic-droit: vendre 64
             sellAmount = 64;
@@ -151,8 +161,6 @@ public class StorageListener implements Listener {
             sellAmount = 1;
         }
         
-        // Vérifier la disponibilité
-        int available = storage.getAmount(material);
         int toSell = Math.min(sellAmount, available);
         
         if (toSell <= 0) {
@@ -161,21 +169,36 @@ public class StorageListener implements Listener {
             return;
         }
         
-        // Obtenir le prix depuis le PriceManager (utilise MATERIAL en MAJUSCULES)
-        String itemKey = material.name();
-        double pricePerItem = plugin.getPriceManager().getPrice(itemKey);
+        // Obtenir le prix depuis le PriceManager
+        // Pour Nexo: utilise l'ID sans le préfixe "nexo:" (ex: afzelia_bark)
+        // Pour Minecraft: utilise le MATERIAL en MAJUSCULES (ex: DIAMOND)
+        String priceKey;
+        if (itemId.startsWith("nexo:")) {
+            // Item Nexo: extraire l'ID sans le préfixe
+            priceKey = itemId.substring(5); // Retire "nexo:"
+        } else if (itemId.startsWith("minecraft:")) {
+            // Item Minecraft: extraire le material en MAJUSCULES
+            priceKey = itemId.substring(10).toUpperCase(); // Retire "minecraft:" et met en majuscules
+        } else {
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            player.sendMessage("§c⚠ Format d'item non reconnu!");
+            return;
+        }
+        
+        double pricePerItem = plugin.getPriceManager().getPrice(priceKey);
         
         if (pricePerItem <= 0) {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
-            player.sendMessage("§c⚠ Cet item ne peut pas être vendu! (Prix non défini)");
+            player.sendMessage("§c⚠ Cet item ne peut pas être vendu!");
+            player.sendMessage("§7Prix non défini dans price.yml pour: §e" + priceKey);
             return;
         }
         
         // Calculer le montant total
         double totalPrice = pricePerItem * toSell;
         
-        // Retirer les items du storage
-        storage.removeItem(material, toSell);
+        // Retirer les items du storage (en utilisant l'ID unifié)
+        storage.removeItemById(itemId, toSell);
         
         // Donner l'argent au joueur via Vault
         if (plugin.getVaultManager().isEnabled()) {
@@ -186,9 +209,12 @@ public class StorageListener implements Listener {
             plugin.getQuantumLogger().error("Vault non disponible pour la vente!");
         }
         
+        // Formater le nom d'affichage
+        String displayName = formatItemName(itemId);
+        
         // Messages et son
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
-        player.sendMessage("§a§l✓ §aVendu §e" + toSell + "x §f" + material.name() + " §apour §6" + String.format("%.2f", totalPrice) + "$");
+        player.sendMessage("§a§l✓ §aVendu §e" + toSell + "x §f" + displayName + " §apour §6" + String.format("%.2f", totalPrice) + "$");
         
         // Sauvegarder et rafraîchir
         storage.save(plugin);
@@ -197,6 +223,18 @@ public class StorageListener implements Listener {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             player.performCommand("storage");
         }, 1L);
+    }
+    
+    /**
+     * Formate un itemId pour l'affichage
+     */
+    private String formatItemName(String itemId) {
+        if (itemId.startsWith("nexo:")) {
+            return "[Nexo] " + itemId.substring(5).replace("_", " ");
+        } else if (itemId.startsWith("minecraft:")) {
+            return itemId.substring(10).replace("_", " ");
+        }
+        return itemId;
     }
     
     /**

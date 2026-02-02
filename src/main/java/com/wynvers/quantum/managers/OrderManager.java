@@ -69,6 +69,7 @@ public class OrderManager {
 
     /**
      * Charge tous les items depuis orders_template.yml
+     * FIX: Supporte maintenant la structure imbriquée avec min_price/max_price
      */
     public void loadItems() {
         itemToCategory.clear();
@@ -87,14 +88,24 @@ public class OrderManager {
             if (!config.isConfigurationSection(category)) continue;
             
             ConfigurationSection categorySection = config.getConfigurationSection(category);
-            List<String> items = categorySection.getStringList("items");
             
-            categoryItems.put(category.toLowerCase(), new ArrayList<>(items));
-            
-            // Mapper chaque item à sa catégorie
-            for (String item : items) {
-                itemToCategory.put(item.toLowerCase(), category.toLowerCase());
+            // FIX: Vérifier que la section 'items' existe
+            if (!categorySection.isConfigurationSection("items")) {
+                plugin.getQuantumLogger().warning("⚠ Category " + category + " has no 'items' section");
+                continue;
             }
+            
+            ConfigurationSection itemsSection = categorySection.getConfigurationSection("items");
+            List<String> items = new ArrayList<>();
+            
+            // FIX: Parcourir les clés de la section items (ce sont les itemIds)
+            for (String itemId : itemsSection.getKeys(false)) {
+                items.add(itemId);
+                // Mapper chaque item à sa catégorie
+                itemToCategory.put(itemId.toLowerCase(), category.toLowerCase());
+            }
+            
+            categoryItems.put(category.toLowerCase(), items);
             
             plugin.getQuantumLogger().info("  ✓ Loaded category " + category + " with " + items.size() + " items");
         }

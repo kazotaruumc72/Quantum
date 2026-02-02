@@ -14,6 +14,8 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.Material;
 import java.util.UUID;
 
 /**
@@ -120,8 +122,17 @@ public class MenuListener implements Listener {
                 
                 menuItem.executeActions(player, plugin, event.getClick());
             }
-            // Sinon, c'est un item de storage normal
+            // Sinon, c'est potentiellement un item de storage normal
             else {
+                // VÉRIFICATION FIX: Vérifier que le slot contient un item avant d'appeler storageHandler
+                ItemStack clickedItem = topInv.getItem(slot);
+                
+                // Si le slot est vide ou ne contient pas d'item, ne rien faire
+                if (clickedItem == null || clickedItem.getType() == Material.AIR) {
+                    return; // FIX: Ne pas ouvrir de menu si le slot est vide
+                }
+                
+                // Si l'item existe, traiter le clic
                 storageHandler.handleClick(player, slot, event.getClick(), event.getCursor());
             }
         }

@@ -330,9 +330,7 @@ public class StorageMenuHandler {
         } else {
             player.sendMessage("§c⚠ Menu order_quantity introuvable!");
             // Annuler la création d'offre
-            if (orderManager != null) {
-                orderManager.cancelOrderCreation(player);
-            }
+            orderManager.cancelOrder(player);
         }
     }
 

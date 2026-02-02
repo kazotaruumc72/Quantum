@@ -10,7 +10,8 @@ items:
     button_type: QUANTUM_ORDER_DISPLAY_ITEM
     # Material sera remplacé dynamiquement par l'item du storage
     material: PAPER
-    display_name: '&e%quantum_order_item_name%'
+    # PATCH: NE PAS définir display_name pour préserver le nom Nexo original
+    # display_name: '&e%quantum_order_item_name%'  # <- SUPPRIMÉ
     lore:
       - ''
       - '&7Quantité recherchée: &a%quantum_order_quantity%'

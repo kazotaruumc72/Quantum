@@ -16,7 +16,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Handles click events in the storage menu
@@ -25,14 +28,39 @@ public class StorageMenuHandler {
 
     private final Quantum plugin;
     private final NamespacedKey itemIdKey;
+    
+    // Track players who clicked a button (to prevent storage action)
+    private final Set<UUID> buttonClickedPlayers = new HashSet<>();
 
     public StorageMenuHandler(Quantum plugin) {
         this.plugin = plugin;
         this.itemIdKey = new NamespacedKey(plugin, "quantum_item_id");
     }
+    
+    /**
+     * Mark a player as having clicked a button (called by button system)
+     * @param player The player who clicked a button
+     */
+    public void markButtonClicked(Player player) {
+        buttonClickedPlayers.add(player.getUniqueId());
+        
+        // Auto-remove after 3 ticks (cleanup)
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            buttonClickedPlayers.remove(player.getUniqueId());
+        }, 3L);
+    }
+    
+    /**
+     * Check if a player recently clicked a button
+     * @param player The player to check
+     * @return true if they clicked a button recently
+     */
+    private boolean hasClickedButton(Player player) {
+        return buttonClickedPlayers.contains(player.getUniqueId());
+    }
 
     /**
-     * Handle storage menu click
+     * Handle storage menu click with 1-tick delay to let button system process first
      * @param player The player who clicked
      * @param slot The slot that was clicked
      * @param clickType The type of click
@@ -41,28 +69,54 @@ public class StorageMenuHandler {
     public void handleClick(Player player, int slot, ClickType clickType, ItemStack cursorItem) {
         PlayerStorage storage = plugin.getStorageManager().getStorage(player);
 
-        // If player has item on cursor - deposit it (ALLOWED ON ALL SLOTS)
+        // IMMEDIATE: If player has item on cursor - deposit it (ALLOWED ON ALL SLOTS)
         if (cursorItem != null && cursorItem.getType() != Material.AIR) {
             handleDeposit(player, storage, cursorItem, clickType);
             return;
         }
 
-        // If clicking empty slot - do nothing
+        // IMMEDIATE: If clicking empty slot - do nothing
         ItemStack clickedItem = player.getOpenInventory().getTopInventory().getItem(slot);
         if (clickedItem == null || clickedItem.getType() == Material.AIR) {
             return;
         }
 
-        // IMPORTANT: Ignorer tous les clics sur les items décoratifs (bordures, boutons de mode)
+        // IMMEDIATE: If clicking decorative items (borders) - do nothing
         if (isDecorativeItem(clickedItem)) {
             return;
         }
-
-        // Vérifier que le slot fait partie des storage_slots (9-44)
+        
+        // IMMEDIATE: If not in storage slots (9-44) - do nothing
         if (!isStorageSlot(slot)) {
             return;
         }
-
+        
+        // ⚠️ DELAYED: Wait 1 tick before processing storage action
+        // This allows the button system to process and set the flag if needed
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            // Check if a button was clicked during this time
+            if (hasClickedButton(player)) {
+                // A button was processed, don't execute storage action
+                return;
+            }
+            
+            // No button was clicked, proceed with storage action
+            handleStorageAction(player, storage, clickedItem, clickType);
+        }, 1L);
+    }
+    
+    /**
+     * Process the storage action after verifying it's not a button
+     */
+    private void handleStorageAction(Player player, PlayerStorage storage, ItemStack clickedItem, ClickType clickType) {
+        // Verify the menu is still open
+        if (player.getOpenInventory().getTopInventory().getHolder() == null) {
+            return; // Menu was closed
+        }
+        
+        // Verify the item is still there (wasn't removed by button action)
+        // We can't easily verify this, but the button system should handle its own items
+        
         // Vérifier le mode du joueur
         StorageMode.Mode mode = StorageMode.getMode(player);
         
@@ -85,36 +139,21 @@ public class StorageMenuHandler {
     }
 
     /**
-     * Vérifie si un item est un élément décoratif ou un bouton de mode
+     * Vérifie si un item est un élément décoratif (bordures uniquement)
+     * Ne vérifie PAS les boutons (ils sont gérés par le système de boutons)
      * @param item L'item à vérifier
-     * @return true si c'est un item décoratif/bouton, false sinon
+     * @return true si c'est un item décoratif, false sinon
      */
     private boolean isDecorativeItem(ItemStack item) {
         if (item == null || item.getType() == Material.AIR) {
             return false;
         }
         
-        Material type = item.getType();
-        String materialName = type.name();
+        String materialName = item.getType().name();
         
-        // Détecter tous les types de STAINED_GLASS_PANE (bordures)
-        if (materialName.endsWith("_STAINED_GLASS_PANE") || materialName.equals("GLASS_PANE")) {
-            return true;
-        }
-        
-        // Détecter les boutons de mode (items décoratifs du menu)
-        // Mode STORAGE: LIME_WOOL
-        // Mode RECHERCHE: DIAMOND
-        // Mode VENTE: GOLD_BLOCK
-        // Bouton fermer: BARRIER
-        if (type == Material.LIME_WOOL || 
-            type == Material.DIAMOND || 
-            type == Material.GOLD_BLOCK || 
-            type == Material.BARRIER) {
-            return true;
-        }
-        
-        return false;
+        // Détecter uniquement les bordures (STAINED_GLASS_PANE)
+        // Les boutons sont gérés par le système ButtonType
+        return materialName.endsWith("_STAINED_GLASS_PANE") || materialName.equals("GLASS_PANE");
     }
 
     /**

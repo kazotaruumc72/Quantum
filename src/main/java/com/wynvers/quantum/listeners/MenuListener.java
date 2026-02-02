@@ -4,6 +4,7 @@ import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.menu.ButtonType;
 import com.wynvers.quantum.menu.Menu;
 import com.wynvers.quantum.menu.MenuItem;
+import com.wynvers.quantum.menu.OrderButtonHandler;
 import com.wynvers.quantum.menu.StorageMenuHandler;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -33,6 +34,7 @@ public class MenuListener implements Listener {
 
     private final Quantum plugin;
     private final StorageMenuHandler storageHandler;
+    private final OrderButtonHandler orderButtonHandler; // NOUVEAU
     private final NamespacedKey buttonTypeKey;
     private final NamespacedKey orderIdKey;
     private final NamespacedKey ordererUuidKey;
@@ -40,8 +42,9 @@ public class MenuListener implements Listener {
     public MenuListener(Quantum plugin) {
         this.plugin = plugin;
         this.storageHandler = new StorageMenuHandler(plugin);
+        this.orderButtonHandler = new OrderButtonHandler(plugin); // NOUVEAU
         this.buttonTypeKey = new NamespacedKey(plugin, "button_type");
-        this.orderIdKey = new NamespacedKey(plugin, "order_id");
+        this.orderIdKey = new NamespacedKey(plugin, "quantum_order_id");
         this.ordererUuidKey = new NamespacedKey(plugin, "orderer_uuid");
     }
 
@@ -101,6 +104,12 @@ public class MenuListener implements Listener {
         // === ORDERS MENU HANDLER (orders_autre, orders_minerais, etc.) ===
         if (menu.getId().startsWith("orders_")) {
             handleOrdersMenu(event, player, menu, clickedInv, topInv);
+            return;
+        }
+        
+        // === ORDER_CONFIRM MENU HANDLER ===
+        if (menu.getId().equals("order_confirm")) {
+            handleOrderConfirmMenu(event, player, menu, clickedInv, topInv);
             return;
         }
         
@@ -195,7 +204,8 @@ public class MenuListener implements Listener {
     /**
      * Handle orders menu clicks (orders_autre, orders_minerais, etc.)
      * 
-     * Gestion des shift-clics:
+     * Gestion des clics:
+     * - Clic Normal: Ouvrir order_confirm (vendre l'item)
      * - Shift + Clic Gauche (Admin): Retirer l'ordre de la recherche
      * - Shift + Clic Droit (Propriétaire): Supprimer sa propre recherche
      */
@@ -230,8 +240,9 @@ public class MenuListener implements Listener {
                 return;
             }
             
-            // === GESTION DES SHIFT-CLICS SUR LES ORDRES ===
             ClickType clickType = event.getClick();
+            
+            // === GESTION DES SHIFT-CLICS SUR LES ORDRES (SUPPRESSION) ===
             
             // SHIFT + CLIC GAUCHE (ADMIN) : Supprimer n'importe quel ordre
             if (clickType == ClickType.SHIFT_LEFT && isAdmin) {
@@ -245,9 +256,60 @@ public class MenuListener implements Listener {
                 return;
             }
             
-            // Clic normal sur un ordre (ex: mode vente)
+            // === NOUVEAU: CLIC NORMAL SUR UN ORDRE (VENDRE) ===
+            // Détecter si l'item a le tag quantum_order_id
+            if (clickedItem != null && clickedItem.hasItemMeta()) {
+                ItemMeta meta = clickedItem.getItemMeta();
+                String orderId = meta.getPersistentDataContainer().get(orderIdKey, PersistentDataType.STRING);
+                
+                if (orderId != null && !orderId.isEmpty()) {
+                    // Extraire la catégorie depuis l'ID du menu ("orders_cultures" -> "cultures")
+                    String category = menu.getId().substring(7);
+                    
+                    // Ouvrir order_confirm via OrderButtonHandler
+                    orderButtonHandler.handleOrderClick(player, category, orderId);
+                    return;
+                }
+            }
+            
+            // Clic normal sur un ordre (ancien système, fallback)
             if (menuItem != null && menuItem.getButtonType() == ButtonType.QUANTUM_ORDERS_ITEM) {
                 menuItem.executeActions(player, plugin, clickType);
+            }
+        }
+    }
+    
+    /**
+     * NOUVEAU: Handle order_confirm menu clicks
+     * Gère les boutons VENDRE et REFUSER
+     */
+    private void handleOrderConfirmMenu(InventoryClickEvent event, Player player, Menu menu, Inventory clickedInv, Inventory topInv) {
+        if (clickedInv != null && clickedInv.equals(topInv)) {
+            int slot = event.getSlot();
+            MenuItem menuItem = menu.getItemAt(slot);
+            
+            if (menuItem != null) {
+                ButtonType buttonType = menuItem.getButtonType();
+                
+                if (buttonType == ButtonType.QUANTUM_CONFIRM_ORDER_SELL) {
+                    // Bouton VENDRE : exécuter la transaction
+                    event.setCancelled(true);
+                    orderButtonHandler.handleConfirmSell(player);
+                    return;
+                }
+                
+                if (buttonType == ButtonType.QUANTUM_CANCEL_ORDER_CONFIRM) {
+                    // Bouton REFUSER : retourner au menu catégorie
+                    event.setCancelled(true);
+                    orderButtonHandler.handleCancelConfirm(player);
+                    return;
+                }
+                
+                if (buttonType == ButtonType.QUANTUM_ORDER_CONFIRM_DISPLAY) {
+                    // Item de démonstration : ne rien faire
+                    event.setCancelled(true);
+                    return;
+                }
             }
         }
     }
@@ -512,6 +574,9 @@ public class MenuListener implements Listener {
 
         if (menu != null) {
             plugin.getAnimationManager().stopAnimation(player);
+            
+            // NOUVEAU: Nettoyer le cache OrderButtonHandler
+            orderButtonHandler.clearCache(player);
             
             org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (player.getOpenInventory().getType() == InventoryType.CRAFTING) {

@@ -53,8 +53,12 @@ public class StorageMenuHandler {
             return;
         }
 
-        // IMPORTANT: Pour les RETRAITS uniquement, vérifier que le slot fait partie des storage_slots (9-44)
-        // Les boutons de mode (0, 4, 8) et autres UI ne doivent pas déclencher d'actions
+        // IMPORTANT: Ignorer tous les clics sur les STAINED_GLASS_PANE (bordures décoratives)
+        if (isDecorativeItem(clickedItem)) {
+            return;
+        }
+
+        // Vérifier que le slot fait partie des storage_slots (9-44)
         if (!isStorageSlot(slot)) {
             return;
         }
@@ -78,6 +82,21 @@ public class StorageMenuHandler {
                 handleCreateOrder(player, storage, clickedItem);
                 break;
         }
+    }
+
+    /**
+     * Vérifie si un item est un élément décoratif (vitre teintée)
+     * @param item L'item à vérifier
+     * @return true si c'est un item décoratif, false sinon
+     */
+    private boolean isDecorativeItem(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) {
+            return false;
+        }
+        
+        String materialName = item.getType().name();
+        // Détecter tous les types de STAINED_GLASS_PANE (GRAY, WHITE, BLACK, etc.)
+        return materialName.endsWith("_STAINED_GLASS_PANE") || materialName.equals("GLASS_PANE");
     }
 
     /**

@@ -8,6 +8,8 @@ import java.util.Map;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.orders.OrderCreationSession;
 import com.wynvers.quantum.sell.SellSession;
+import com.nexomc.nexo.api.NexoItems;
+import com.nexomc.nexo.items.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -326,34 +328,63 @@ public class Menu {
                 ItemStack orderItem = orderSession.getDisplayItem();
                 
                 if (orderItem != null) {
-                    orderItem = orderItem.clone();
-                    orderItem.setAmount(1); // Toujours 1 pour l'affichage
+                    // Détecter si c'est un item Nexo
+                    String nexoId = NexoItems.idFromItem(orderItem);
+                    ItemStack finalItem;
                     
-                    // Parser les placeholders dans le display name et lore si présents dans le MenuItem
-                    ItemMeta meta = orderItem.getItemMeta();
-                    if (meta != null) {
-                        // Utiliser le display name et lore du MenuItem s'ils existent
-                        if (item.getDisplayName() != null) {
-                            String parsedName = customPlaceholders != null
-                                ? plugin.getPlaceholderManager().parse(player, item.getDisplayName(), customPlaceholders)
-                                : plugin.getPlaceholderManager().parse(player, item.getDisplayName());
-                            meta.setDisplayName(parsedName);
-                        }
+                    if (nexoId != null) {
+                        // === C'est un item NEXO ===
+                        // Utiliser ItemBuilder pour préserver les métadonnées Nexo
+                        ItemBuilder builder = NexoItems.itemFromId(nexoId);
                         
-                        if (item.getLore() != null && !item.getLore().isEmpty()) {
-                            List<String> parsedLore = customPlaceholders != null
-                                ? plugin.getPlaceholderManager().parse(player, item.getLore(), customPlaceholders)
-                                : plugin.getPlaceholderManager().parse(player, item.getLore());
-                            meta.setLore(parsedLore);
+                        if (builder != null) {
+                            // Construire l'item avec la lore personnalisée
+                            if (item.getLore() != null && !item.getLore().isEmpty()) {
+                                List<String> parsedLore = customPlaceholders != null
+                                    ? plugin.getPlaceholderManager().parse(player, item.getLore(), customPlaceholders)
+                                    : plugin.getPlaceholderManager().parse(player, item.getLore());
+                                
+                                // Ajouter la lore du menu à la lore existante de Nexo
+                                builder.setLore(parsedLore);
+                            }
+                            
+                            finalItem = builder.build();
+                            finalItem.setAmount(1);
+                        } else {
+                            // Fallback si ItemBuilder échoue
+                            finalItem = orderItem.clone();
+                            finalItem.setAmount(1);
                         }
+                    } else {
+                        // === Item VANILLA ===
+                        // Utiliser la méthode classique avec setItemMeta()
+                        finalItem = orderItem.clone();
+                        finalItem.setAmount(1);
                         
-                        orderItem.setItemMeta(meta);
+                        ItemMeta meta = finalItem.getItemMeta();
+                        if (meta != null) {
+                            if (item.getDisplayName() != null) {
+                                String parsedName = customPlaceholders != null
+                                    ? plugin.getPlaceholderManager().parse(player, item.getDisplayName(), customPlaceholders)
+                                    : plugin.getPlaceholderManager().parse(player, item.getDisplayName());
+                                meta.setDisplayName(parsedName);
+                            }
+                            
+                            if (item.getLore() != null && !item.getLore().isEmpty()) {
+                                List<String> parsedLore = customPlaceholders != null
+                                    ? plugin.getPlaceholderManager().parse(player, item.getLore(), customPlaceholders)
+                                    : plugin.getPlaceholderManager().parse(player, item.getLore());
+                                meta.setLore(parsedLore);
+                            }
+                            
+                            finalItem.setItemMeta(meta);
+                        }
                     }
                     
                     // Placer l'item dans tous les slots configurés
                     for (int slot : item.getSlots()) {
                         if (slot >= 0 && slot < size) {
-                            inventory.setItem(slot, orderItem.clone());
+                            inventory.setItem(slot, finalItem.clone());
                         }
                     }
                     

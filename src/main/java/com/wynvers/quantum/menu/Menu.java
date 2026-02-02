@@ -9,7 +9,6 @@ import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.orders.OrderCreationSession;
 import com.wynvers.quantum.sell.SellSession;
 import com.nexomc.nexo.api.NexoItems;
-import com.nexomc.nexo.items.ItemBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -334,26 +333,28 @@ public class Menu {
                     
                     if (nexoId != null) {
                         // === C'est un item NEXO ===
-                        // Utiliser ItemBuilder pour préserver les métadonnées Nexo
-                        ItemBuilder builder = NexoItems.itemFromId(nexoId);
+                        // Cloner l'item pour préserver TOUTES les métadonnées Nexo
+                        finalItem = orderItem.clone();
+                        finalItem.setAmount(1);
                         
-                        if (builder != null) {
-                            // Construire l'item avec la lore personnalisée
-                            if (item.getLore() != null && !item.getLore().isEmpty()) {
+                        // Ajouter UNIQUEMENT la lore sans toucher aux autres métadonnées
+                        if (item.getLore() != null && !item.getLore().isEmpty()) {
+                            ItemMeta meta = finalItem.getItemMeta();
+                            if (meta != null) {
+                                // Parser la lore du menu
                                 List<String> parsedLore = customPlaceholders != null
                                     ? plugin.getPlaceholderManager().parse(player, item.getLore(), customPlaceholders)
                                     : plugin.getPlaceholderManager().parse(player, item.getLore());
                                 
-                                // Ajouter la lore du menu à la lore existante de Nexo
-                                builder.setLore(parsedLore);
+                                // Récupérer la lore existante de Nexo
+                                List<String> existingLore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
+                                
+                                // Combiner: lore Nexo + lore du menu
+                                existingLore.addAll(parsedLore);
+                                meta.setLore(existingLore);
+                                
+                                finalItem.setItemMeta(meta);
                             }
-                            
-                            finalItem = builder.build();
-                            finalItem.setAmount(1);
-                        } else {
-                            // Fallback si ItemBuilder échoue
-                            finalItem = orderItem.clone();
-                            finalItem.setAmount(1);
                         }
                     } else {
                         // === Item VANILLA ===

@@ -116,6 +116,26 @@ public class StorageStatsManager {
     }
     
     /**
+     * Récupérer le nombre total de joueurs qui ont un storage
+     * @return Nombre de joueurs avec storage
+     */
+    public long getTotalPlayers() {
+        try (Connection conn = plugin.getDatabaseManager().getConnection()) {
+            String query = "SELECT COUNT(DISTINCT player_uuid) as total FROM player_storage";
+            
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    return rs.getLong("total");
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getQuantumLogger().error("Failed to get total players: " + e.getMessage());
+        }
+        return 0;
+    }
+    
+    /**
      * Calculer le nombre d'items stockés pour un joueur spécifique
      * @param uuid UUID du joueur
      * @return Nombre d'items en stock pour ce joueur
@@ -136,7 +156,8 @@ public class StorageStatsManager {
         return new StorageStats(
             getTotalItemsStored(),
             getTotalItemsSold(),
-            getCurrentStoredItems()
+            getCurrentStoredItems(),
+            getTotalPlayers()
         );
     }
     
@@ -165,11 +186,13 @@ public class StorageStatsManager {
         public final long totalItemsStored;     // Total historique d'items ajoutés
         public final long totalItemsSold;       // Total d'items vendus depuis le storage
         public final long currentStoredItems;   // Nombre actuel d'items en stock
+        public final long totalPlayers;         // Nombre de joueurs avec storage
         
-        public StorageStats(long totalItemsStored, long totalItemsSold, long currentStoredItems) {
+        public StorageStats(long totalItemsStored, long totalItemsSold, long currentStoredItems, long totalPlayers) {
             this.totalItemsStored = totalItemsStored;
             this.totalItemsSold = totalItemsSold;
             this.currentStoredItems = currentStoredItems;
+            this.totalPlayers = totalPlayers;
         }
     }
 }

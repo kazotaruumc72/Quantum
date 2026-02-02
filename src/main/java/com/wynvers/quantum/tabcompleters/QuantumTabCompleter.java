@@ -33,6 +33,8 @@ public class QuantumTabCompleter implements TabCompleter {
             List<String> subcommands = new ArrayList<>(Arrays.asList(
                 "reload",
                 "stats",
+                "storagestats",
+                "sstats",
                 "help",
                 "version"
             ));
@@ -80,7 +82,8 @@ public class QuantumTabCompleter implements TabCompleter {
                 "items",
                 "potions",
                 "armures",
-                "outils"
+                "outils",
+                "autre"
             ));
             
             // Ajouter les catégories du fichier orders_template.yml

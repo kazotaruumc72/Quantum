@@ -7,7 +7,6 @@ import com.wynvers.quantum.orders.OrderCreationManager;
 import com.wynvers.quantum.orders.OrderCreationSession;
 import com.wynvers.quantum.storage.PlayerStorage;
 import com.wynvers.quantum.storage.StorageMode;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -190,7 +189,7 @@ public class StorageListener implements Listener {
         if (pricePerItem <= 0) {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             player.sendMessage("§c⚠ Cet item ne peut pas être vendu!");
-            player.sendMessage("§7Prix non défini dans price.yml pour: §e" + priceKey);
+            player.sendMessage("§7Prix non défini dans prices.yml pour: §e" + priceKey);
             return;
         }
         
@@ -200,10 +199,13 @@ public class StorageListener implements Listener {
         // Retirer les items du storage (en utilisant l'ID unifié)
         storage.removeItemById(itemId, toSell);
         
-        // Donner l'argent au joueur via Vault
+        // Donner l'argent au joueur via VaultManager
         if (plugin.getVaultManager().isEnabled()) {
-            Economy economy = plugin.getVaultManager().getEconomy();
-            economy.depositPlayer(player, totalPrice);
+            boolean success = plugin.getVaultManager().deposit(player, totalPrice);
+            if (!success) {
+                player.sendMessage("§c⚠ Erreur lors du dépôt d'argent! Items retirés mais argent non crédité.");
+                plugin.getQuantumLogger().error("Erreur deposit Vault pour " + player.getName() + ": " + totalPrice + "$");
+            }
         } else {
             player.sendMessage("§c⚠ Système d'économie non disponible! Items retirés mais argent non crédité.");
             plugin.getQuantumLogger().error("Vault non disponible pour la vente!");

@@ -3,9 +3,11 @@ package com.wynvers.quantum.menu;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.orders.OrderTransaction;
 import com.wynvers.quantum.storage.PlayerStorage;
+import com.nexomc.nexo.api.NexoItems;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.HashMap;
@@ -75,6 +77,9 @@ public class OrderButtonHandler {
         placeholders.put("quantum_order_total_price", String.format("%.2f", totalPrice));
         placeholders.put("quantum_order_seller_stock", String.valueOf(sellerStock));
         
+        // NOUVEAU: Créer l'ItemStack Nexo réel pour le display
+        ItemStack displayItem = createDisplayItem(itemId, quantity);
+        
         // Ouvrir le menu order_confirm
         Menu confirmMenu = plugin.getMenuManager().getMenu("order_confirm");
         if (confirmMenu != null) {
@@ -82,10 +87,64 @@ public class OrderButtonHandler {
             
             // Attendre 2 ticks avant d'ouvrir le menu
             org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                // NOUVEAU: Remplacer l'item PAPER par l'item Nexo réel
                 confirmMenu.open(player, plugin, placeholders);
+                
+                // Remplacer l'item du slot 2 (order_item) par l'item réel
+                if (displayItem != null) {
+                    player.getOpenInventory().getTopInventory().setItem(2, displayItem);
+                }
             }, 2L);
         } else {
             player.sendMessage("§c⚠ Menu order_confirm introuvable!");
+        }
+    }
+    
+    /**
+     * NOUVEAU: Crée l'ItemStack Nexo réel pour affichage dans order_confirm
+     * 
+     * @param itemId L'ID de l'item (nexo:xxx ou minecraft:xxx)
+     * @param quantity La quantité à afficher
+     * @return L'ItemStack créé, ou null si erreur
+     */
+    private ItemStack createDisplayItem(String itemId, int quantity) {
+        try {
+            ItemStack displayItem;
+            
+            if (itemId.startsWith("nexo:")) {
+                // Item Nexo
+                String nexoId = itemId.substring(5); // Enlever "nexo:"
+                
+                var itemBuilder = NexoItems.itemFromId(nexoId);
+                if (itemBuilder != null) {
+                    displayItem = itemBuilder.build();
+                    displayItem.setAmount(Math.min(quantity, 64)); // Max 64 pour l'affichage
+                    return displayItem;
+                } else {
+                    plugin.getLogger().warning("[ORDER_CONFIRM] Item Nexo introuvable: " + nexoId);
+                    return null;
+                }
+            } else if (itemId.startsWith("minecraft:")) {
+                // Item Minecraft vanilla
+                String materialName = itemId.substring(10).toUpperCase(); // Enlever "minecraft:"
+                
+                try {
+                    org.bukkit.Material material = org.bukkit.Material.valueOf(materialName);
+                    displayItem = new ItemStack(material, Math.min(quantity, 64));
+                    return displayItem;
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("[ORDER_CONFIRM] Material Minecraft invalide: " + materialName);
+                    return null;
+                }
+            } else {
+                plugin.getLogger().warning("[ORDER_CONFIRM] Format d'itemId invalide: " + itemId);
+                return null;
+            }
+            
+        } catch (Exception e) {
+            plugin.getLogger().severe("[ORDER_CONFIRM] Erreur lors de la création de l'item: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
     }
     

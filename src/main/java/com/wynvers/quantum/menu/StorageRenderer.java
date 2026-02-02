@@ -190,6 +190,11 @@ public class StorageRenderer {
     
     /**
      * Remplace les placeholders dans le lore
+     * 
+     * PATCH: Extraire l'ID propre pour PriceManager
+     * PriceManager attend:
+     * - Nexo: "afzelia_bark" (PAS "nexo:afzelia_bark")
+     * - Vanilla: "stone" (PAS "minecraft:stone")
      */
     private String replacePlaceholders(String text, StorageItemDisplay item) {
         String result = text;
@@ -197,9 +202,18 @@ public class StorageRenderer {
         // %quantity% - Quantité formatée
         result = result.replace("%quantity%", formatNumber(item.quantity));
         
+        // === PATCH: EXTRACTION CORRECTE DE L'ID POUR PRICE LOOKUP ===
+        String priceKey;
+        if (item.nexoId != null) {
+            // Nexo: utiliser juste l'ID sans le préfixe "nexo:"
+            priceKey = item.nexoId;
+        } else {
+            // Vanilla: utiliser juste le nom du material sans "minecraft:"
+            priceKey = item.material.name().toLowerCase();
+        }
+        
         // %price% - Prix unitaire
-        String itemId = item.nexoId != null ? "nexo:" + item.nexoId : "minecraft:" + item.material.name().toLowerCase();
-        double price = priceManager.getPrice(itemId);
+        double price = priceManager.getPrice(priceKey);
         result = result.replace("%price%", priceManager.formatPrice(price));
         
         // %total_price% - Prix total

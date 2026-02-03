@@ -53,13 +53,32 @@ public class QuantumTabCompleter implements TabCompleter {
             }
         } 
         else if (args.length == 2 && args[0].equalsIgnoreCase("reload")) {
-            // Sous-commandes pour /quantum reload
+            // Sous-commandes pour /quantum reload avec TOUS les fichiers
             List<String> reloadTypes = Arrays.asList(
                 "all",
-                "price",
                 "config",
+                "config.yml",
+                "price",
+                "price.yml",
+                "prices",
+                "messages",
+                "messages.yml",
+                "messages_gui",
+                "messages_gui.yml",
+                "gui",
                 "menus",
-                "messages"
+                "menu",
+                "zones",
+                "zones.yml",
+                "towers",
+                "tower",
+                "escrow",
+                "escrow.yml",
+                "orders",
+                "orders_template.yml",
+                "stats",
+                "statistics",
+                "statistics.yml"
             );
             
             String input = args[1].toLowerCase();

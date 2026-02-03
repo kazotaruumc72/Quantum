@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Manages tower system - configuration, progress tracking, and integration
@@ -165,6 +166,14 @@ public class TowerManager {
      */
     public Map<String, TowerConfig> getAllTowers() {
         return new HashMap<>(towers);
+    }
+    
+    /**
+     * Get list of all tower IDs
+     * @return List of tower IDs
+     */
+    public List<String> getTowerIds() {
+        return new ArrayList<>(towers.keySet());
     }
     
     /**

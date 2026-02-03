@@ -59,6 +59,7 @@ public final class Quantum extends JavaPlugin {
 
     private static Quantum instance;
     private Logger logger;
+        private ScoreboardManager scoreboardManager;
     
     // Managers
     private DatabaseManager databaseManager;
@@ -125,6 +126,7 @@ public final class Quantum extends JavaPlugin {
             this.killTracker = new KillTracker(this);
             this.zoneManager = new ZoneManager(this);
             this.towerManager = new TowerManager(this);
+        this.scoreboardManager = new ScoreboardManager(this);
             this.scoreboardHandler = new TowerScoreboardHandler(this);
             logger.success("✓ WorldGuard integration enabled!");
             logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
@@ -646,6 +648,14 @@ public final class Quantum extends JavaPlugin {
      */
     public TowerManager getTowerManager() {
         return towerManager;
+    }
+
+        /**
+     * Get the ScoreboardManager for custom scoreboard system
+     * @return ScoreboardManager instance
+     */
+    public ScoreboardManager getScoreboardManager() {
+        return scoreboardManager;
     }
     
     /**

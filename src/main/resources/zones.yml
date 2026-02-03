@@ -1,0 +1,60 @@
+# Configuration des zones WorldGuard avec restrictions de sortie
+# 
+# Format:
+# zones:
+#   zone_name:
+#     world: "nom_du_monde"
+#     region: "nom_region_worldguard"
+#     requirements:
+#       - mob: "mob_id_mythicmobs"
+#         amount: nombre_requis
+#     messages:
+#       enter: "Message à l'entrée"
+#       exit_denied: "Message si sortie refusée"
+#       exit_allowed: "Message si sortie autorisée"
+
+zones:
+  # Exemple: Zone de boss zombie
+  zombie_dungeon:
+    world: "world"
+    region: "zombie_boss_arena"
+    requirements:
+      - mob: "zombie_boss"
+        amount: 1
+    messages:
+      enter: "§c§l⚔ ZONE DANGEREUSE ⚔\n§7Vous devez vaincre le Boss Zombie pour sortir!"
+      exit_denied: "§cVous devez tuer %requirements% avant de pouvoir sortir!"
+      exit_allowed: "§aFélicitations! Vous avez vaincu le boss!"
+  
+  # Exemple: Zone avec plusieurs types de mobs
+  mixed_arena:
+    world: "world"
+    region: "mixed_mob_arena"
+    requirements:
+      - mob: "skeleton_king"
+        amount: 5
+      - mob: "zombie_knight"
+        amount: 10
+      - mob: "spider_queen"
+        amount: 3
+    messages:
+      enter: "§6§l⚡ ARÈNE MIXTE ⚡\n§7Éliminez tous les ennemis pour vous échapper!"
+      exit_denied: "§cObjectifs restants: %requirements%"
+      exit_allowed: "§aVous avez éliminé tous les ennemis!"
+  
+  # Exemple: Donjon difficile
+  hard_dungeon:
+    world: "world_dungeon"
+    region: "hard_dungeon_zone"
+    requirements:
+      - mob: "ancient_guardian"
+        amount: 1
+      - mob: "corrupted_soul"
+        amount: 20
+    messages:
+      enter: "§4§l☠ DONJON MAUDIT ☠\n§cSeuls les plus forts survivront..."
+      exit_denied: "§4Les esprits vous retiennent... Tuez %requirements%!"
+      exit_allowed: "§6Vous avez brisé la malédiction du donjon!"
+
+# Permission de bypass: quantum.zone.bypass
+# Les joueurs avec cette permission peuvent entrer et sortir librement

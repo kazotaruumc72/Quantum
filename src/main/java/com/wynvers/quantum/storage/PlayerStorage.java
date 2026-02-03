@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -71,6 +72,30 @@ public class PlayerStorage {
     
     public Map<String, Integer> getNexoItems() {
         return nexoItems;
+    }
+    
+    // === COMBINED ITEMS ACCESS ===
+    
+    /**
+     * Récupère tous les items (Minecraft + Nexo) sous forme unifiée
+     * Format des clés: "minecraft:material" ou "nexo:id"
+     * 
+     * @return Map avec tous les items et leurs quantités
+     */
+    public Map<String, Integer> getAllStorageItems() {
+        Map<String, Integer> allItems = new HashMap<>();
+        
+        // Ajouter items vanilla avec préfixe minecraft:
+        for (Map.Entry<Material, Integer> entry : vanillaItems.entrySet()) {
+            allItems.put("minecraft:" + entry.getKey().name().toLowerCase(), entry.getValue());
+        }
+        
+        // Ajouter items Nexo avec préfixe nexo:
+        for (Map.Entry<String, Integer> entry : nexoItems.entrySet()) {
+            allItems.put("nexo:" + entry.getKey(), entry.getValue());
+        }
+        
+        return allItems;
     }
     
     // === STATISTICS ===

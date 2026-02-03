@@ -1,7 +1,7 @@
 package com.wynvers.quantum.menu;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.orders.OrderTransaction;
+import com.wynvers.quantum.orders.OrderAcceptanceHandler;
 import com.wynvers.quantum.storage.PlayerStorage;
 import com.nexomc.nexo.api.NexoItems;
 import org.bukkit.Sound;
@@ -15,18 +15,17 @@ import java.util.Map;
 
 /**
  * Gère les clics sur les ordres dans les menus orders_* et order_confirm
+ * PATCH: Utilise maintenant OrderAcceptanceHandler pour gérer les transactions avec escrow
  */
 public class OrderButtonHandler {
     
     private final Quantum plugin;
-    private final OrderTransaction orderTransaction;
     
     // Cache des données d'ordre pour chaque joueur
     private final Map<Player, OrderClickData> orderClickCache = new HashMap<>();
     
     public OrderButtonHandler(Quantum plugin) {
         this.plugin = plugin;
-        this.orderTransaction = new OrderTransaction(plugin);
     }
     
     /**
@@ -150,7 +149,7 @@ public class OrderButtonHandler {
     
     /**
      * Gère le clic sur le bouton VENDRE (confirmation de vente)
-     * Exécute la transaction
+     * Exécute la transaction via OrderAcceptanceHandler (avec escrow)
      * 
      * @param player Le joueur qui vend
      */
@@ -163,10 +162,30 @@ public class OrderButtonHandler {
             return;
         }
         
-        // Exécuter la transaction
-        boolean success = orderTransaction.executeTransaction(player, data.category, data.orderId);
+        plugin.getLogger().info("[ORDER_BUTTON_HANDLER] Processing order acceptance:");
+        plugin.getLogger().info("  - Seller: " + player.getName());
+        plugin.getLogger().info("  - Category: " + data.category);
+        plugin.getLogger().info("  - OrderID: " + data.orderId);
+        plugin.getLogger().info("  - Item: " + data.itemId);
+        plugin.getLogger().info("  - Quantity: " + data.quantity);
+        plugin.getLogger().info("  - Total Price: " + data.totalPrice);
+        
+        // NOUVEAU: Utiliser OrderAcceptanceHandler au lieu de OrderTransaction
+        OrderAcceptanceHandler acceptanceHandler = plugin.getOrderAcceptanceHandler();
+        
+        if (acceptanceHandler == null) {
+            player.sendMessage("§c⚠ Système d'acceptation d'ordre non disponible!");
+            plugin.getLogger().severe("[ORDER_BUTTON_HANDLER] OrderAcceptanceHandler is NULL!");
+            player.closeInventory();
+            return;
+        }
+        
+        // Exécuter la transaction avec escrow
+        boolean success = acceptanceHandler.acceptOrder(player, data.orderId, data.category);
         
         if (success) {
+            plugin.getLogger().info("[ORDER_BUTTON_HANDLER] Order accepted successfully!");
+            
             // Nettoyer le cache
             orderClickCache.remove(player);
             
@@ -182,7 +201,8 @@ public class OrderButtonHandler {
                 }, 5L);
             }
         } else {
-            // La transaction a échoué, le message d'erreur a déjà été envoyé par OrderTransaction
+            // La transaction a échoué, le message d'erreur a déjà été envoyé par OrderAcceptanceHandler
+            plugin.getLogger().warning("[ORDER_BUTTON_HANDLER] Order acceptance failed!");
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             
             // Rester sur le menu actuel pour que le joueur puisse réessayer

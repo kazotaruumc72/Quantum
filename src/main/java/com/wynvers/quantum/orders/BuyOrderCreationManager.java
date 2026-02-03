@@ -1,8 +1,8 @@
 package com.wynvers.quantum.orders;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.utils.ColorUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -48,8 +48,8 @@ public class BuyOrderCreationManager implements Listener {
     public void startSession(Player player, String itemId, String category) {
         // Vérifier si une session existe déjà
         if (sessions.containsKey(player.getUniqueId())) {
-            player.sendMessage(ColorUtils.format("&c⚠ Vous avez déjà une création d'ordre en cours!"));
-            player.sendMessage(ColorUtils.format("&7Tapez &ecancel &7pour annuler."));
+            player.sendMessage(ChatColor.RED + "⚠ Vous avez déjà une création d'ordre en cours!");
+            player.sendMessage(ChatColor.GRAY + "Tapez " + ChatColor.YELLOW + "cancel " + ChatColor.GRAY + "pour annuler.");
             return;
         }
         
@@ -59,15 +59,15 @@ public class BuyOrderCreationManager implements Listener {
         
         // Messages de démarrage
         player.sendMessage("");
-        player.sendMessage(ColorUtils.format("&8[≈≈≈] &6Création d'ordre d'ACHAT &8[≈≈≈]"));
+        player.sendMessage(ChatColor.DARK_GRAY + "[≈≈≈] " + ChatColor.GOLD + "Création d'ordre d'ACHAT " + ChatColor.DARK_GRAY + "[≈≈≈]");
         player.sendMessage("");
-        player.sendMessage(ColorUtils.format("&7Vous voulez &aACHETER&7: &f" + formatItemName(itemId)));
-        player.sendMessage(ColorUtils.format("&7Catégorie: &e" + category));
+        player.sendMessage(ChatColor.GRAY + "Vous voulez " + ChatColor.GREEN + "ACHETER" + ChatColor.GRAY + ": " + ChatColor.WHITE + formatItemName(itemId));
+        player.sendMessage(ChatColor.GRAY + "Catégorie: " + ChatColor.YELLOW + category);
         player.sendMessage("");
-        player.sendMessage(ColorUtils.format("&e➜ Combien voulez-vous ACHETER?"));
-        player.sendMessage(ColorUtils.format("&7Tapez la quantité dans le chat (ex: &e64&7)"));
+        player.sendMessage(ChatColor.YELLOW + "➜ Combien voulez-vous ACHETER?");
+        player.sendMessage(ChatColor.GRAY + "Tapez la quantité dans le chat (ex: " + ChatColor.YELLOW + "64" + ChatColor.GRAY + ")");
         player.sendMessage("");
-        player.sendMessage(ColorUtils.format("&8» &7Tapez &ccancel &7pour annuler."));
+        player.sendMessage(ChatColor.DARK_GRAY + "» " + ChatColor.GRAY + "Tapez " + ChatColor.RED + "cancel " + ChatColor.GRAY + "pour annuler.");
         player.sendMessage("");
     }
     
@@ -91,7 +91,7 @@ public class BuyOrderCreationManager implements Listener {
         // Commande d'annulation
         if (message.equalsIgnoreCase("cancel")) {
             sessions.remove(uuid);
-            player.sendMessage(ColorUtils.format("&c✖ Création d'ordre annulée."));
+            player.sendMessage(ChatColor.RED + "✖ Création d'ordre annulée.");
             return;
         }
         
@@ -116,12 +116,12 @@ public class BuyOrderCreationManager implements Listener {
             
             // Validation
             if (quantity <= 0) {
-                player.sendMessage(ColorUtils.format("&c⚠ La quantité doit être supérieure à 0!"));
+                player.sendMessage(ChatColor.RED + "⚠ La quantité doit être supérieure à 0!");
                 return;
             }
             
             if (quantity > 999999) {
-                player.sendMessage(ColorUtils.format("&c⚠ Quantité maximale: 999,999"));
+                player.sendMessage(ChatColor.RED + "⚠ Quantité maximale: 999,999");
                 return;
             }
             
@@ -131,16 +131,16 @@ public class BuyOrderCreationManager implements Listener {
             
             // Message suivant
             player.sendMessage("");
-            player.sendMessage(ColorUtils.format("&a✓ Quantité définie: &e" + quantity + "x"));
+            player.sendMessage(ChatColor.GREEN + "✓ Quantité définie: " + ChatColor.YELLOW + quantity + "x");
             player.sendMessage("");
-            player.sendMessage(ColorUtils.format("&e➜ Quel est votre prix par unité?"));
-            player.sendMessage(ColorUtils.format("&7Tapez le prix dans le chat (ex: &e10.5&7)"));
-            player.sendMessage(ColorUtils.format("&8» &7Le coût total sera: &6" + quantity + " x [votre prix]$"));
+            player.sendMessage(ChatColor.YELLOW + "➜ Quel est votre prix par unité?");
+            player.sendMessage(ChatColor.GRAY + "Tapez le prix dans le chat (ex: " + ChatColor.YELLOW + "10.5" + ChatColor.GRAY + ")");
+            player.sendMessage(ChatColor.DARK_GRAY + "» " + ChatColor.GRAY + "Le coût total sera: " + ChatColor.GOLD + quantity + " x [votre prix]$");
             player.sendMessage("");
             
         } catch (NumberFormatException e) {
-            player.sendMessage(ColorUtils.format("&c⚠ Quantité invalide! Entrez un nombre entier."));
-            player.sendMessage(ColorUtils.format("&7Exemple: &e64"));
+            player.sendMessage(ChatColor.RED + "⚠ Quantité invalide! Entrez un nombre entier.");
+            player.sendMessage(ChatColor.GRAY + "Exemple: " + ChatColor.YELLOW + "64");
         }
     }
     
@@ -153,12 +153,12 @@ public class BuyOrderCreationManager implements Listener {
             
             // Validation
             if (pricePerUnit <= 0) {
-                player.sendMessage(ColorUtils.format("&c⚠ Le prix doit être supérieur à 0!"));
+                player.sendMessage(ChatColor.RED + "⚠ Le prix doit être supérieur à 0!");
                 return;
             }
             
             if (pricePerUnit > 1000000) {
-                player.sendMessage(ColorUtils.format("&c⚠ Prix maximal par unité: 1,000,000$"));
+                player.sendMessage(ChatColor.RED + "⚠ Prix maximal par unité: 1,000,000$");
                 return;
             }
             
@@ -167,11 +167,11 @@ public class BuyOrderCreationManager implements Listener {
             
             // Vérifier que le joueur a assez d'argent
             if (!plugin.getVaultManager().has(player, totalCost)) {
-                player.sendMessage(ColorUtils.format("&c⚠ Argent insuffisant!"));
-                player.sendMessage(ColorUtils.format("&7Coût total: &6" + String.format("%.2f", totalCost) + "$"));
-                player.sendMessage(ColorUtils.format("&7Votre solde: &6" + String.format("%.2f", plugin.getVaultManager().getBalance(player)) + "$"));
+                player.sendMessage(ChatColor.RED + "⚠ Argent insuffisant!");
+                player.sendMessage(ChatColor.GRAY + "Coût total: " + ChatColor.GOLD + String.format("%.2f", totalCost) + "$");
+                player.sendMessage(ChatColor.GRAY + "Votre solde: " + ChatColor.GOLD + String.format("%.2f", plugin.getVaultManager().getBalance(player)) + "$");
                 player.sendMessage("");
-                player.sendMessage(ColorUtils.format("&7Tapez un prix inférieur ou &ccancel &7pour annuler."));
+                player.sendMessage(ChatColor.GRAY + "Tapez un prix inférieur ou " + ChatColor.RED + "cancel " + ChatColor.GRAY + "pour annuler.");
                 return;
             }
             
@@ -184,8 +184,8 @@ public class BuyOrderCreationManager implements Listener {
             });
             
         } catch (NumberFormatException e) {
-            player.sendMessage(ColorUtils.format("&c⚠ Prix invalide! Entrez un nombre décimal."));
-            player.sendMessage(ColorUtils.format("&7Exemples: &e10 &7ou &e10.5"));
+            player.sendMessage(ChatColor.RED + "⚠ Prix invalide! Entrez un nombre décimal.");
+            player.sendMessage(ChatColor.GRAY + "Exemples: " + ChatColor.YELLOW + "10 " + ChatColor.GRAY + "ou " + ChatColor.YELLOW + "10.5");
         }
     }
     
@@ -197,7 +197,7 @@ public class BuyOrderCreationManager implements Listener {
         
         // Retirer l'argent du joueur
         if (!plugin.getVaultManager().withdraw(player, totalCost)) {
-            player.sendMessage(ColorUtils.format("&c⚠ Erreur lors du retrait de l'argent!"));
+            player.sendMessage(ChatColor.RED + "⚠ Erreur lors du retrait de l'argent!");
             sessions.remove(uuid);
             return;
         }
@@ -228,20 +228,20 @@ public class BuyOrderCreationManager implements Listener {
             
             // Messages de succès
             player.sendMessage("");
-            player.sendMessage(ColorUtils.format("&8[≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈]"));
+            player.sendMessage(ChatColor.DARK_GRAY + "[≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈]");
             player.sendMessage("");
-            player.sendMessage(ColorUtils.format("  &a&l✓ ORDRE D'ACHAT CRÉÉ !"));
+            player.sendMessage("  " + ChatColor.GREEN + ChatColor.BOLD + "✓ ORDRE D'ACHAT CRÉÉ !");
             player.sendMessage("");
-            player.sendMessage(ColorUtils.format("  &7Item: &f" + formatItemName(session.getItemId())));
-            player.sendMessage(ColorUtils.format("  &7Quantité: &e" + session.getQuantity() + "x"));
-            player.sendMessage(ColorUtils.format("  &7Prix/u: &6" + String.format("%.2f", session.getPricePerUnit()) + "$"));
-            player.sendMessage(ColorUtils.format("  &7Coût total: &6" + String.format("%.2f", totalCost) + "$"));
+            player.sendMessage("  " + ChatColor.GRAY + "Item: " + ChatColor.WHITE + formatItemName(session.getItemId()));
+            player.sendMessage("  " + ChatColor.GRAY + "Quantité: " + ChatColor.YELLOW + session.getQuantity() + "x");
+            player.sendMessage("  " + ChatColor.GRAY + "Prix/u: " + ChatColor.GOLD + String.format("%.2f", session.getPricePerUnit()) + "$");
+            player.sendMessage("  " + ChatColor.GRAY + "Coût total: " + ChatColor.GOLD + String.format("%.2f", totalCost) + "$");
             player.sendMessage("");
-            player.sendMessage(ColorUtils.format("  &8→ &7Votre argent est en sécurité (escrow)"));
-            player.sendMessage(ColorUtils.format("  &8→ &7Les vendeurs verront votre ordre"));
-            player.sendMessage(ColorUtils.format("  &8→ &7Tapez &e/market &7pour gérer vos ordres"));
+            player.sendMessage("  " + ChatColor.DARK_GRAY + "→ " + ChatColor.GRAY + "Votre argent est en sécurité (escrow)");
+            player.sendMessage("  " + ChatColor.DARK_GRAY + "→ " + ChatColor.GRAY + "Les vendeurs verront votre ordre");
+            player.sendMessage("  " + ChatColor.DARK_GRAY + "→ " + ChatColor.GRAY + "Tapez " + ChatColor.YELLOW + "/market " + ChatColor.GRAY + "pour gérer vos ordres");
             player.sendMessage("");
-            player.sendMessage(ColorUtils.format("&8[≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈]"));
+            player.sendMessage(ChatColor.DARK_GRAY + "[≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈≈]");
             player.sendMessage("");
             
             // Logger
@@ -253,7 +253,7 @@ public class BuyOrderCreationManager implements Listener {
             plugin.getQuantumLogger().info("  UUID: " + orderUUID);
             
         } catch (IOException e) {
-            player.sendMessage(ColorUtils.format("&c⚠ Erreur lors de la sauvegarde de l'ordre!"));
+            player.sendMessage(ChatColor.RED + "⚠ Erreur lors de la sauvegarde de l'ordre!");
             plugin.getQuantumLogger().error("Failed to save buy order: " + e.getMessage());
             
             // Rembourser le joueur
@@ -284,7 +284,7 @@ public class BuyOrderCreationManager implements Listener {
         for (UUID uuid : sessions.keySet()) {
             Player player = Bukkit.getPlayer(uuid);
             if (player != null && player.isOnline()) {
-                player.sendMessage(ColorUtils.format("&c✖ Création d'ordre annulée (plugin rechargé)."));
+                player.sendMessage(ChatColor.RED + "✖ Création d'ordre annulée (plugin rechargé).");
             }
         }
         sessions.clear();

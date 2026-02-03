@@ -22,7 +22,8 @@ import java.util.UUID;
  * 4. Menu prix s'ouvre
  * 5. Player sélectionne prix
  * 6. Offre créée et placée dans la bonne catégorie
- * 7. ARGENT RETIRÉ IMMÉDIATEMENT
+ * 7. ARGENT RETIRÉ ET STOCKÉ EN ESCROW
+ * 8. Quand vendeur accepte → Argent transféré de l'escrow au vendeur
  */
 public class OrderCreationManager {
     
@@ -73,7 +74,7 @@ public class OrderCreationManager {
     
     /**
      * Finalise l'ordre avec la session actuelle
-     * NOUVEAU: Retire l'argent du joueur immédiatement après la création
+     * NOUVEAU: Retire l'argent du joueur et le stocke en ESCROW
      */
     public boolean finalizeOrder(Player player) {
         OrderCreationSession session = sessions.get(player.getUniqueId());
@@ -102,6 +103,10 @@ public class OrderCreationManager {
                 cancelOrder(player);
                 return false;
             }
+        } else {
+            player.sendMessage("§c⚠ Système économique indisponible!");
+            cancelOrder(player);
+            return false;
         }
         
         // Sauvegarder l'offre dans orders.yml
@@ -114,10 +119,12 @@ public class OrderCreationManager {
             ordersConfig = new YamlConfiguration();
         }
         
-        // Générer un ID unique pour l'offre
-        String orderId = UUID.randomUUID().toString().substring(0, 8);
+        // Générer un ID unique pour l'offre (UUID complet pour l'escrow)
+        UUID orderUUID = UUID.randomUUID();
+        String orderId = orderUUID.toString().substring(0, 8); // Short ID pour display
         String path = category + "." + orderId;
         
+        ordersConfig.set(path + ".order_uuid", orderUUID.toString()); // UUID complet pour escrow
         ordersConfig.set(path + ".orderer", player.getName());
         ordersConfig.set(path + ".orderer_uuid", player.getUniqueId().toString());
         ordersConfig.set(path + ".item", session.getItemId()); // Format: minecraft:stone ou nexo:custom_item
@@ -125,31 +132,36 @@ public class OrderCreationManager {
         ordersConfig.set(path + ".price_per_unit", session.getPrice());
         ordersConfig.set(path + ".total_price", totalPrice);
         ordersConfig.set(path + ".created_at", System.currentTimeMillis());
+        ordersConfig.set(path + ".status", "ACTIVE"); // ACTIVE, COMPLETED, CANCELLED
         
         try {
             ordersConfig.save(ordersFile);
             
-            // === RETRAIT D'ARGENT ===
-            if (plugin.getVaultManager().isEnabled()) {
-                if (plugin.getVaultManager().withdraw(player, totalPrice)) {
-                    player.sendMessage("§8[§6Quantum§8] §c-" + String.format("%.2f", totalPrice) + "$");
-                    player.sendMessage("§7Argent bloqué jusqu'à ce que l'ordre soit rempli.");
-                } else {
-                    // Le retrait a échoué, supprimer l'ordre créé
-                    player.sendMessage("§c⚠ Erreur lors du retrait de l'argent!");
-                    ordersConfig.set(path, null);
-                    ordersConfig.save(ordersFile);
-                    cancelOrder(player);
-                    return false;
-                }
-            } else {
-                // Vault non disponible, supprimer l'ordre
-                player.sendMessage("§c⚠ Système économique indisponible!");
+            // === ÉTAPE 1: RETRAIT D'ARGENT ===
+            if (!plugin.getVaultManager().withdraw(player, totalPrice)) {
+                // Le retrait a échoué, supprimer l'ordre créé
+                player.sendMessage("§c⚠ Erreur lors du retrait de l'argent!");
                 ordersConfig.set(path, null);
                 ordersConfig.save(ordersFile);
                 cancelOrder(player);
                 return false;
             }
+            
+            // === ÉTAPE 2: DÉPÔT EN ESCROW ===
+            if (!plugin.getEscrowManager().deposit(orderUUID, totalPrice)) {
+                // Le dépôt a échoué, rembourser le joueur
+                player.sendMessage("§c⚠ Erreur lors du dépôt en escrow!");
+                plugin.getVaultManager().deposit(player, totalPrice);
+                ordersConfig.set(path, null);
+                ordersConfig.save(ordersFile);
+                cancelOrder(player);
+                return false;
+            }
+            
+            // === SUCCÈS ===
+            player.sendMessage("§8[§6Quantum§8] §c-" + String.format("%.2f", totalPrice) + "$");
+            player.sendMessage("§7Argent sécurisé en dépôt fiduciaire.");
+            player.sendMessage("§7Il sera transféré au vendeur une fois l'ordre rempli.");
             
             // Nettoyer la session
             sessions.remove(player.getUniqueId());

@@ -1,14 +1,14 @@
-# ╔═══════════════════════════════════════════════════════════════╗
-# ║                   QUANTUM - Messages Configuration             ║
-# ║            Tous les messages du plugin sont ici !              ║
-# ╚═══════════════════════════════════════════════════════════════╝
+# ═══════════════════════════════════════════════════════════════
+#                   QUANTUM - Messages Configuration             
+#            Tous les messages du plugin sont ici !              
+# ═══════════════════════════════════════════════════════════════
 
 # Prefix global du plugin
 prefix: "<gradient:#32b8c6:#1d6880>[Quantum]</gradient>"
 
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 #                        COMMANDES GÉNÉRALES
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 
 commands:
   # Commande /menu
@@ -56,9 +56,9 @@ commands:
     max-orders-help: "<gray>Annulez un ordre existant ou attendez qu'il expire."
     not-enough-money: "<red>Vous n'avez pas assez d'argent! Coût total: <yellow>{total}$"
 
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 #                           STORAGE
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 
 storage:
   # Dépôt/Retrait
@@ -79,9 +79,9 @@ storage:
   cannot-sell-item: "<red>Cet item ne peut pas être vendu."
   sell-menu-error: "<red>Erreur: Menu de vente introuvable."
 
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 #                           VENTE (SELL)
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 
 sell:
   # Erreurs
@@ -94,9 +94,9 @@ sell:
   success-sold: "<gray>Vous avez vendu: <white>×{amount} {item}"
   success-received: "<gray>Argent reçu: <gold>+{total_price}$"
 
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 #                       ORDRES D'ACHAT (ORDERS)
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 
 orders:
   # Erreurs générales
@@ -131,9 +131,9 @@ orders:
   data-not-found: "<red>⚠ Données d'ordre introuvables! Veuillez réessayer."
   confirm-menu-not-found: "<red>⚠ Menu order_confirm introuvable!"
 
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 #                  CRÉATION D'ORDRES (ORDER CREATION)
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 
 order_creation:
   # Erreurs générales
@@ -141,6 +141,24 @@ order_creation:
   quantity-positive: "<red>La quantité doit être supérieure à 0!"
   price-positive: "<red>Le prix doit être supérieur à 0!"
   invalid-value: "<red>Valeur invalide: {value}"
+  no-price-range: "<red>⚠ Cet item n'a pas de fourchette de prix définie!"
+  no-category: "<red>⚠ Cet item n'appartient à aucune catégorie d'offres!"
+  no-category-help: "<gray>Contact un administrateur pour l'ajouter."
+  
+  # Messages de balance (OrderCreationManager.java ligne 95-97)
+  not-enough-money: "<red>⚠ Vous n'avez pas assez d'argent!"
+  balance-required: "<gray>Requis: <gold>{required}$"
+  balance-current: "<gray>Solde: <gold>{balance}$"
+  
+  # Messages de retrait d'argent
+  money-withdrawn: "<dark_gray>[<gold>Quantum<dark_gray>] <red>-{amount}$"
+  money-locked: "<gray>Argent bloqué jusqu'à ce que l'ordre soit rempli."
+  withdraw-failed: "<red>⚠ Erreur lors du retrait de l'argent!"
+  economy-unavailable: "<red>⚠ Système économique indisponible!"
+  
+  # Erreurs session
+  no-active-session: "<red>⚠ Aucune session de création d'ordre active!"
+  save-error: "<red>⚠ Erreur lors de la sauvegarde de l'offre!"
   
   # OrderMenuHandler - Ajustement quantité/prix
   adjust-quantity-error: "<red>Impossible d'ajuster la quantité."
@@ -159,26 +177,26 @@ order_creation:
   success-items-removed: "<gray>Les items ont été retirés de votre inventaire."
   success-footer: "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"
 
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 #                         MODE DE STOCKAGE
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 
 mode:
   changed: "<gradient:#32b8c6:#1d6880>[Quantum]</gradient> <gray>Mode changé en {mode}"
   invalid: "<red>Mode invalide!"
 
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 #                         ACTIONS GÉNÉRALES
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 
 actions:
   menu-not-found: "<red>Menu introuvable: {menu}"
   invalid-sound: "<red>Son invalide: {sound}"
   invalid-effect: "<red>Effet invalide: {effect}"
 
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 #                         STATISTIQUES
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 
 statistics:
   # En-têtes
@@ -213,12 +231,12 @@ statistics:
   help-list: "<gray><italic>Utilise: /quantum stats list pour voir par catégorie"
   total-categories: "<gray><italic>Total: <white>{count} <gray>catégories"
 
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 #                           HELP MENUS
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 
 help:
-  separator: "<gray>────────────────────────────────"
+  separator: "<gray>────────────────────────────────────"
   title: "<gold><bold>COMMANDES QUANTUM</bold>"
   admin-title: "<gold><bold>COMMANDES ADMIN ORDRES</bold>"
   
@@ -239,12 +257,12 @@ help:
   orders-delete-category: "<yellow>/quantum orders button deletecategorie <nom>"
   orders-delete-category-desc: "  <gray>- Supprimer une catégorie d'ordres"
 
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 #                           VERSION INFO
-# ═══════════════════════════════════════════════════════════════
+# ───────────────────────────────────────────────────────────────
 
 version:
-  separator: "<gray>────────────────────────────"
+  separator: "<gray>────────────────────────────────"
   title: "<gold><bold>QUANTUM</bold> <white>- Advanced Storage"
   version: "<gray>Version: <yellow>1.0.0"
   author: "<gray>Auteur: <yellow>Kazotaruu_"

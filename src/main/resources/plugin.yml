@@ -11,6 +11,8 @@ softdepend:
   - Nexo
   - Vault
   - LuckPerms
+  - WorldEdit
+  - WorldGuard
 
 commands:
   quantum:
@@ -52,6 +54,10 @@ commands:
     usage: /offre <item> <quantity> <price>
     aliases: [order, createorder]
     permission: quantum.orders.create
+  
+  zoneexit:
+    description: Force a player to exit a restricted zone (console only)
+    usage: /zoneexit <player>
 
 permissions:
   quantum.*:
@@ -65,6 +71,7 @@ permissions:
       quantum.menu.open: true
       quantum.menu.admin: true
       quantum.orders.*: true
+      quantum.zone.bypass: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -126,3 +133,8 @@ permissions:
   quantum.orders.elite:
     description: Elite order duration (90 days)
     default: false
+  
+  # Permissions pour les zones WorldGuard
+  quantum.zone.bypass:
+    description: Bypass zone restrictions (can enter and exit freely)
+    default: op

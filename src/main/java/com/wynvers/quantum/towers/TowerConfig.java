@@ -13,6 +13,7 @@ public class TowerConfig {
     private final int totalFloors;
     private final List<Integer> bossFloors;
     private final int finalBossFloor;
+        private final List<String> scoreboardLines;
     
     public TowerConfig(String id, String name, String world, int totalFloors, 
                        List<Integer> bossFloors, int finalBossFloor) {
@@ -22,6 +23,7 @@ public class TowerConfig {
         this.totalFloors = totalFloors;
         this.bossFloors = bossFloors;
         this.finalBossFloor = finalBossFloor;
+                this.scoreboardLines = new java.util.ArrayList<>();
     }
     
     public String getId() {
@@ -80,5 +82,14 @@ public class TowerConfig {
             return finalBossFloor;
         }
         return -1;
+    }
+
+        public List<String> getScoreboardLines() {
+        return scoreboardLines;
+    }
+    
+    public void setScoreboardLines(List<String> lines) {
+        this.scoreboardLines.clear();
+        this.scoreboardLines.addAll(lines);
     }
 }

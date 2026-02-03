@@ -1,60 +1,351 @@
-# Configuration des zones WorldGuard avec restrictions de sortie
-# 
-# Format:
-# zones:
-#   zone_name:
-#     world: "nom_du_monde"
-#     region: "nom_region_worldguard"
-#     requirements:
-#       - mob: "mob_id_mythicmobs"
-#         amount: nombre_requis
-#     messages:
-#       enter: "Message à l'entrée"
-#       exit_denied: "Message si sortie refusée"
-#       exit_allowed: "Message si sortie autorisée"
+# ===================================================================
+# QUANTUM - ZONE & TOWER SYSTEM CONFIGURATION
+# ===================================================================
+# Ce fichier configure :
+# 1. Les tours et leurs étages
+# 2. Les zones WorldGuard avec restrictions de sortie
+# 3. Les requirements de mobs pour chaque étage
+# ===================================================================
+
+# ===================================================================
+# CONFIGURATION DES TOURS
+# ===================================================================
+# Définit les métadonnées de chaque tour (4 tours)
+# ===================================================================
+
+towers:
+  # TOUR DE FEU
+  fire_tower:
+    name: "&c&lTour de Feu"
+    world: "world"
+    floors: 25                          # Nombre d'étages normaux
+    boss_floors: [5, 10, 15, 20, 25]   # Étages avec boss
+    final_boss_floor: 26                # Boss final de tour
+  
+  # TOUR D'EAU
+  water_tower:
+    name: "&b&lTour d'Eau"
+    world: "world"
+    floors: 25
+    boss_floors: [5, 10, 15, 20, 25]
+    final_boss_floor: 26
+  
+  # TOUR DE TERRE
+  earth_tower:
+    name: "&a&lTour de Terre"
+    world: "world"
+    floors: 25
+    boss_floors: [5, 10, 15, 20, 25]
+    final_boss_floor: 26
+  
+  # TOUR DE VENT
+  wind_tower:
+    name: "&e&lTour de Vent"
+    world: "world"
+    floors: 25
+    boss_floors: [5, 10, 15, 20, 25]
+    final_boss_floor: 26
+
+# ===================================================================
+# CONFIGURATION DES ZONES/ÉTAGES
+# ===================================================================
+# Chaque zone = 1 étage d'une tour
+# Format du nom de région WorldGuard : <tower_id>_floor_<number>
+# Exemple : fire_tower_floor_1, water_tower_floor_5, etc.
+# ===================================================================
 
 zones:
-  # Exemple: Zone de boss zombie
-  zombie_dungeon:
-    world: "world"
-    region: "zombie_boss_arena"
-    requirements:
-      - mob: "zombie_boss"
-        amount: 1
-    messages:
-      enter: "§c§l⚔ ZONE DANGEREUSE ⚔\n§7Vous devez vaincre le Boss Zombie pour sortir!"
-      exit_denied: "§cVous devez tuer %requirements% avant de pouvoir sortir!"
-      exit_allowed: "§aFélicitations! Vous avez vaincu le boss!"
+  # ===================================================================
+  # TOUR DE FEU - ÉTAGES 1-26
+  # ===================================================================
   
-  # Exemple: Zone avec plusieurs types de mobs
-  mixed_arena:
+  # Étage 1
+  fire_tower_floor_1:
+    tower: "fire_tower"           # ID de la tour (référence ci-dessus)
+    floor: 1                       # Numéro d'étage
     world: "world"
-    region: "mixed_mob_arena"
+    region: "fire_tower_floor_1"  # Nom de la région WorldGuard
     requirements:
-      - mob: "skeleton_king"
-        amount: 5
-      - mob: "zombie_knight"
+      - mob: "fire_zombie"         # MythicMobs ID
         amount: 10
-      - mob: "spider_queen"
+      - mob: "fire_skeleton"
+        amount: 5
+    messages:
+      enter: |
+        &c&l⚔ TOUR DE FEU - ÉTAGE 1 ⚔
+        &7Éliminez tous les monstres pour progresser!
+        &7&oObjectif : 10x Zombies de Feu, 5x Squelettes de Feu
+      exit_denied: "&cVous devez tuer %requirements% avant de progresser!"
+      exit_allowed: "&aÉtage 1 terminé! Vous pouvez progresser!"
+  
+  # Étage 2
+  fire_tower_floor_2:
+    tower: "fire_tower"
+    floor: 2
+    world: "world"
+    region: "fire_tower_floor_2"
+    requirements:
+      - mob: "fire_zombie"
+        amount: 12
+      - mob: "fire_skeleton"
+        amount: 8
+      - mob: "fire_creeper"
         amount: 3
     messages:
-      enter: "§6§l⚡ ARÈNE MIXTE ⚡\n§7Éliminez tous les ennemis pour vous échapper!"
-      exit_denied: "§cObjectifs restants: %requirements%"
-      exit_allowed: "§aVous avez éliminé tous les ennemis!"
+      enter: |
+        &c&l⚔ TOUR DE FEU - ÉTAGE 2 ⚔
+        &7La difficulté augmente!
+      exit_denied: "&cVous devez tuer %requirements% avant de progresser!"
+      exit_allowed: "&aÉtage 2 terminé!"
   
-  # Exemple: Donjon difficile
-  hard_dungeon:
-    world: "world_dungeon"
-    region: "hard_dungeon_zone"
+  # Étage 3
+  fire_tower_floor_3:
+    tower: "fire_tower"
+    floor: 3
+    world: "world"
+    region: "fire_tower_floor_3"
     requirements:
-      - mob: "ancient_guardian"
-        amount: 1
-      - mob: "corrupted_soul"
-        amount: 20
+      - mob: "fire_zombie"
+        amount: 15
+      - mob: "fire_skeleton"
+        amount: 10
+      - mob: "fire_creeper"
+        amount: 5
+      - mob: "fire_spider"
+        amount: 3
     messages:
-      enter: "§4§l☠ DONJON MAUDIT ☠\n§cSeuls les plus forts survivront..."
-      exit_denied: "§4Les esprits vous retiennent... Tuez %requirements%!"
-      exit_allowed: "§6Vous avez brisé la malédiction du donjon!"
+      enter: "&c&l⚔ TOUR DE FEU - ÉTAGE 3 ⚔"
+      exit_denied: "&cVous devez tuer %requirements% avant de progresser!"
+      exit_allowed: "&aÉtage 3 terminé!"
+  
+  # Étage 4
+  fire_tower_floor_4:
+    tower: "fire_tower"
+    floor: 4
+    world: "world"
+    region: "fire_tower_floor_4"
+    requirements:
+      - mob: "fire_zombie"
+        amount: 18
+      - mob: "fire_skeleton"
+        amount: 12
+      - mob: "fire_creeper"
+        amount: 6
+      - mob: "fire_spider"
+        amount: 5
+    messages:
+      enter: "&c&l⚔ TOUR DE FEU - ÉTAGE 4 ⚔\n&7Un boss vous attend au prochain étage!"
+      exit_denied: "&cVous devez tuer %requirements% avant de progresser!"
+      exit_allowed: "&aÉtage 4 terminé! Préparez-vous pour le boss!"
+  
+  # Étage 5 - BOSS
+  fire_tower_floor_5:
+    tower: "fire_tower"
+    floor: 5
+    is_boss_floor: true
+    world: "world"
+    region: "fire_tower_floor_5"
+    requirements:
+      - mob: "fire_golem_boss"    # Boss d'étage
+        amount: 1
+    messages:
+      enter: |
+        &c&l⚔ BOSS D'ÉTAGE 5 - GOLEM DE FEU ⚔
+        &7Le gardien de l'étage vous attend!
+        &c⚠ Boss Level 5
+      exit_denied: "&cVous devez vaincre le Golem de Feu pour progresser!"
+      exit_allowed: |
+        &a&l✓ BOSS VAINCU!
+        &7Gardien de l'étage 5 vaincu!
+  
+  # Étages 6-24 (répéter le pattern)
+  # ...
+  
+  # Étage 25 - BOSS FINAL D'ÉTAGE
+  fire_tower_floor_25:
+    tower: "fire_tower"
+    floor: 25
+    is_boss_floor: true
+    world: "world"
+    region: "fire_tower_floor_25"
+    requirements:
+      - mob: "fire_titan_boss"
+        amount: 1
+    messages:
+      enter: |
+        &c&l⚔ BOSS D'ÉTAGE 25 - TITAN DE FEU ⚔
+        &7Le dernier gardien avant le boss final!
+        &c⚠ Boss Level 25
+      exit_denied: "&cVous devez vaincre le Titan de Feu!"
+      exit_allowed: "&a&l✓ TITAN VAINCU! Un dernier défi vous attend..."
+  
+  # Étage 26 - BOSS FINAL DE TOUR
+  fire_tower_floor_26:
+    tower: "fire_tower"
+    floor: 26
+    is_final_boss: true
+    world: "world"
+    region: "fire_tower_final_boss"
+    requirements:
+      - mob: "fire_dragon_boss"   # Boss final de tour
+        amount: 1
+    messages:
+      enter: |
+        &c&l⚔ BOSS FINAL - DRAGON DE FEU ⚔
+        &7Le maître de la Tour de Feu vous attend!
+        &c⚠ BOSS FINAL - Level 100
+        &e&lRécompenses légendaires garanties!
+      exit_denied: "&cVous devez vaincre le Dragon de Feu!"
+      exit_allowed: |
+        &6&l✦ TOUR DE FEU COMPLÉTÉE ✦
+        &7Félicitations! Vous avez conquérit la Tour de Feu!
+        &e➤ 3 tours restantes
+  
+  # ===================================================================
+  # TOUR D'EAU - ÉTAGES 1-26
+  # ===================================================================
+  
+  water_tower_floor_1:
+    tower: "water_tower"
+    floor: 1
+    world: "world"
+    region: "water_tower_floor_1"
+    requirements:
+      - mob: "water_zombie"
+        amount: 10
+      - mob: "water_drowned"
+        amount: 5
+    messages:
+      enter: |
+        &b&l⚔ TOUR D'EAU - ÉTAGE 1 ⚔
+        &7Les créatures aquatiques vous attendent!
+      exit_denied: "&cVous devez tuer %requirements% avant de progresser!"
+      exit_allowed: "&aÉtage 1 terminé!"
+  
+  # ... (étages 2-25)
+  
+  water_tower_floor_26:
+    tower: "water_tower"
+    floor: 26
+    is_final_boss: true
+    world: "world"
+    region: "water_tower_final_boss"
+    requirements:
+      - mob: "water_kraken_boss"
+        amount: 1
+    messages:
+      enter: |
+        &b&l⚔ BOSS FINAL - KRAKEN DES MERS ⚔
+        &7Le maître de la Tour d'Eau vous attend!
+      exit_denied: "&cVous devez vaincre le Kraken!"
+      exit_allowed: "&6&l✦ TOUR D'EAU COMPLÉTÉE ✦"
+  
+  # ===================================================================
+  # TOUR DE TERRE - ÉTAGES 1-26
+  # ===================================================================
+  
+  earth_tower_floor_1:
+    tower: "earth_tower"
+    floor: 1
+    world: "world"
+    region: "earth_tower_floor_1"
+    requirements:
+      - mob: "earth_zombie"
+        amount: 10
+      - mob: "earth_golem"
+        amount: 3
+    messages:
+      enter: |
+        &a&l⚔ TOUR DE TERRE - ÉTAGE 1 ⚔
+        &7Les gardiens de la terre vous attendent!
+      exit_denied: "&cVous devez tuer %requirements% avant de progresser!"
+      exit_allowed: "&aÉtage 1 terminé!"
+  
+  # ... (étages 2-25)
+  
+  earth_tower_floor_26:
+    tower: "earth_tower"
+    floor: 26
+    is_final_boss: true
+    world: "world"
+    region: "earth_tower_final_boss"
+    requirements:
+      - mob: "earth_colossus_boss"
+        amount: 1
+    messages:
+      enter: |
+        &a&l⚔ BOSS FINAL - COLOSSE DE TERRE ⚔
+        &7Le maître de la Tour de Terre vous attend!
+      exit_denied: "&cVous devez vaincre le Colosse!"
+      exit_allowed: "&6&l✦ TOUR DE TERRE COMPLÉTÉE ✦"
+  
+  # ===================================================================
+  # TOUR DE VENT - ÉTAGES 1-26
+  # ===================================================================
+  
+  wind_tower_floor_1:
+    tower: "wind_tower"
+    floor: 1
+    world: "world"
+    region: "wind_tower_floor_1"
+    requirements:
+      - mob: "wind_phantom"
+        amount: 8
+      - mob: "wind_vex"
+        amount: 5
+    messages:
+      enter: |
+        &e&l⚔ TOUR DE VENT - ÉTAGE 1 ⚔
+        &7Les créatures volantes vous attendent!
+      exit_denied: "&cVous devez tuer %requirements% avant de progresser!"
+      exit_allowed: "&aÉtage 1 terminé!"
+  
+  # ... (étages 2-25)
+  
+  wind_tower_floor_26:
+    tower: "wind_tower"
+    floor: 26
+    is_final_boss: true
+    world: "world"
+    region: "wind_tower_final_boss"
+    requirements:
+      - mob: "wind_phoenix_boss"
+        amount: 1
+    messages:
+      enter: |
+        &e&l⚔ BOSS FINAL - PHÉNIX CÉLESTE ⚔
+        &7Le maître de la Tour de Vent vous attend!
+      exit_denied: "&cVous devez vaincre le Phénix!"
+      exit_allowed: |
+        &6&l✦ TOUR DE VENT COMPLÉTÉE ✦
+        &6&l✦ FÉLICITATIONS! TOUTES LES TOURS COMPLÉTÉES! ✦
 
-# Permission de bypass: quantum.zone.bypass
-# Les joueurs avec cette permission peuvent entrer et sortir librement
+# ===================================================================
+# NOTES IMPORTANTES
+# ===================================================================
+# 1. Créez les régions WorldGuard avec WorldEdit :
+#    //pos1  (coin 1)
+#    //pos2  (coin 2)
+#    /region define <nom_region>
+#
+# 2. Les noms de régions DOIVENT suivre le format :
+#    <tower_id>_floor_<number>
+#    Exemples : fire_tower_floor_1, water_tower_floor_5
+#
+# 3. Les MythicMobs doivent être configurés dans MythicMobs/Mobs/
+#
+# 4. Utilisez /tower progress pour voir la progression
+#
+# 5. Les placeholders disponibles pour scoreboards :
+#    %quantum_tower_current%
+#    %quantum_tower_floor%
+#    %quantum_tower_progress%
+#    %quantum_tower_kills_current%
+#    %quantum_tower_kills_required%
+#    %quantum_tower_kills_progress%
+#    %quantum_tower_percentage%
+#    %quantum_tower_next_boss%
+#    %quantum_tower_status%
+#    %quantum_towers_completed%
+#    %quantum_total_floors_completed%
+# ===================================================================

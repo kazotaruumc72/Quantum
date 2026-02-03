@@ -1,6 +1,7 @@
 package com.wynvers.quantum.worldguard;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.towers.TowerManager;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,20 +16,22 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Écoute les mouvements des joueurs pour gérer les zones restreintes
+ * Écoute les mouvements des joueurs pour gérer les zones restreintes et la progression des tours
  * 
  * @author Kazotaruu_
- * @version 1.0
+ * @version 2.0
  */
 public class ZoneListener implements Listener {
     
     private final Quantum plugin;
     private final ZoneManager zoneManager;
+    private final TowerManager towerManager;
     private final Map<UUID, String> lastZone = new HashMap<>();
     
     public ZoneListener(Quantum plugin) {
         this.plugin = plugin;
         this.zoneManager = plugin.getZoneManager();
+        this.towerManager = plugin.getTowerManager();
     }
     
     @EventHandler(priority = EventPriority.HIGH)
@@ -86,14 +89,30 @@ public class ZoneListener implements Listener {
                 return;
             }
             
-            // Le joueur peut sortir
+            // Le joueur peut sortir - compléter l'étage si dans une tour
+            handleFloorCompletion(player, fromZone);
+            
             zoneManager.onPlayerExitZone(player, fromZone);
             lastZone.remove(player.getUniqueId());
+            
+            // Clear tower location
+            if (towerManager != null) {
+                towerManager.clearCurrentLocation(player);
+            }
         }
         // Entrée dans une zone
         else if (fromZone == null && toZone != null) {
             zoneManager.onPlayerEnterZone(player, toZone);
             lastZone.put(player.getUniqueId(), toZone);
+            
+            // Update tower location
+            if (towerManager != null) {
+                String towerId = towerManager.getTowerByRegion(toZone);
+                int floor = towerManager.getFloorByRegion(toZone);
+                if (towerId != null && floor != -1) {
+                    towerManager.updateCurrentLocation(player, towerId, floor);
+                }
+            }
         }
         // Changement de zone à zone
         else if (fromZone != null && toZone != null && !fromZone.equals(toZone)) {
@@ -105,9 +124,21 @@ public class ZoneListener implements Listener {
                 return;
             }
             
+            // Compléter l'étage précédent
+            handleFloorCompletion(player, fromZone);
+            
             zoneManager.onPlayerExitZone(player, fromZone);
             zoneManager.onPlayerEnterZone(player, toZone);
             lastZone.put(player.getUniqueId(), toZone);
+            
+            // Update tower location
+            if (towerManager != null) {
+                String towerId = towerManager.getTowerByRegion(toZone);
+                int floor = towerManager.getFloorByRegion(toZone);
+                if (towerId != null && floor != -1) {
+                    towerManager.updateCurrentLocation(player, towerId, floor);
+                }
+            }
         }
     }
     
@@ -124,12 +155,25 @@ public class ZoneListener implements Listener {
                 return;
             }
             
+            handleFloorCompletion(player, fromZone);
             zoneManager.onPlayerExitZone(player, fromZone);
             lastZone.remove(player.getUniqueId());
+            
+            if (towerManager != null) {
+                towerManager.clearCurrentLocation(player);
+            }
         }
         else if (fromZone == null && toZone != null) {
             zoneManager.onPlayerEnterZone(player, toZone);
             lastZone.put(player.getUniqueId(), toZone);
+            
+            if (towerManager != null) {
+                String towerId = towerManager.getTowerByRegion(toZone);
+                int floor = towerManager.getFloorByRegion(toZone);
+                if (towerId != null && floor != -1) {
+                    towerManager.updateCurrentLocation(player, towerId, floor);
+                }
+            }
         }
         else if (fromZone != null && toZone != null && !fromZone.equals(toZone)) {
             if (!zoneManager.canPlayerLeaveZone(player, fromZone)) {
@@ -139,9 +183,33 @@ public class ZoneListener implements Listener {
                 return;
             }
             
+            handleFloorCompletion(player, fromZone);
             zoneManager.onPlayerExitZone(player, fromZone);
             zoneManager.onPlayerEnterZone(player, toZone);
             lastZone.put(player.getUniqueId(), toZone);
+            
+            if (towerManager != null) {
+                String towerId = towerManager.getTowerByRegion(toZone);
+                int floor = towerManager.getFloorByRegion(toZone);
+                if (towerId != null && floor != -1) {
+                    towerManager.updateCurrentLocation(player, towerId, floor);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Handle floor completion when player exits a tower floor
+     */
+    private void handleFloorCompletion(Player player, String zoneName) {
+        if (towerManager == null) return;
+        
+        String towerId = towerManager.getTowerByRegion(zoneName);
+        int floor = towerManager.getFloorByRegion(zoneName);
+        
+        if (towerId != null && floor != -1) {
+            // Mark floor as completed
+            towerManager.completeFloor(player, towerId, floor);
         }
     }
     
@@ -150,6 +218,11 @@ public class ZoneListener implements Listener {
         Player player = event.getPlayer();
         lastZone.remove(player.getUniqueId());
         zoneManager.onPlayerQuit(player);
+        
+        // Clear tower location
+        if (towerManager != null) {
+            towerManager.clearCurrentLocation(player);
+        }
     }
     
     /**

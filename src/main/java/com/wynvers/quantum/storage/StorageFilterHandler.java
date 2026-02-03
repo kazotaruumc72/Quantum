@@ -83,8 +83,8 @@ public class StorageFilterHandler {
     public List<StorageEntry> applyFilters(PlayerStorage storage, Player player) {
         FilterSettings settings = getFilterSettings(player);
         
-        // Récupérer tous les items
-        Map<String, Integer> items = storage.getItems();
+        // Récupérer tous les items avec la nouvelle méthode getAllStorageItems()
+        Map<String, Integer> items = storage.getAllStorageItems();
         List<StorageEntry> entries = new ArrayList<>();
         
         for (Map.Entry<String, Integer> entry : items.entrySet()) {

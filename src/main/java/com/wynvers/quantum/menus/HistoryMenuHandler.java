@@ -28,35 +28,6 @@ public class HistoryMenuHandler {
     }
     
     /**
-     * Open history menu for player
-     * 
-     * @param player The player
-     * @param filterType Filter type ("BUY", "SELL", or null for ALL)
-     * @param page Page number
-     */
-    public void openHistoryMenu(Player player, String filterType, int page) {
-        // Set filter
-        FilterType filter = FilterType.ALL;
-        if (filterType != null) {
-            if (filterType.equalsIgnoreCase("BUY")) {
-                filter = FilterType.BUY;
-            } else if (filterType.equalsIgnoreCase("SELL")) {
-                filter = FilterType.SELL;
-            }
-        }
-        
-        setFilter(player, filter);
-        setPage(player, page);
-        
-        // Open menu using TrMenu
-        if (plugin.getServer().getPluginManager().isPluginEnabled("TrMenu")) {
-            player.performCommand("trmenu open history");
-        } else {
-            player.sendMessage("§cErreur: TrMenu n'est pas installé.");
-        }
-    }
-    
-    /**
      * Get or create session for player
      */
     public HistoryViewSession getSession(Player player) {

@@ -163,6 +163,10 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/orders_outils.yml");
         extractResource("menus/orders_autre.yml");
         
+        // Extract history and statistics menus (NEW)
+        extractResource("menus/history.yml");
+        extractResource("menus/statistics.yml");
+        
         // Extract orders template
         extractResource("orders_template.yml");
         
@@ -308,13 +312,16 @@ public final class Quantum extends JavaPlugin {
                 logger.info("  - %quantum_amt_minecraft-<id>%");
             }
             
-            // Register new expansion (order creation + mode)
+            // Register new expansion (order creation + mode + stats)
             this.quantumExpansion = new QuantumExpansion(this);
             if (quantumExpansion.register()) {
                 logger.success("✓ QuantumExpansion registered");
                 logger.info("  - %quantum_mode%");
                 logger.info("  - %quantum_mode_display%");
-                logger.info("  - %quantum_order_*% (all order placeholders)");
+                logger.info("  - %quantum_order_*% (order placeholders)");
+                logger.info("  - %quantum_stats_*% (statistics placeholders)");
+                logger.info("  - %quantum_history_*% (history placeholders)");
+                logger.info("  - %quantum_top_*% (top rankings placeholders)");
             }
         }
     }

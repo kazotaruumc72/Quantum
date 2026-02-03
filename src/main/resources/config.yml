@@ -108,11 +108,17 @@ orders:
 # ───────────────────────────────────────────────────────────────
 # MESSAGES
 # ───────────────────────────────────────────────────────────────
-messages:
-  prefix: "<gradient:#32b8c6:#1d6880>[Quantum]</gradient> "
-  no-permission: "<red>Vous n'avez pas la permission d'utiliser cette commande."
-  player-only: "<red>Cette commande ne peut être exécutée que par un joueur."
-  reload-success: "<green>✓ Quantum rechargé avec succès!"
+# 
+# ℹ️ TOUS LES MESSAGES SONT MAINTENANT DANS messages.yml
+# 
+# Le fichier messages.yml centralise tous les messages du plugin
+# pour faciliter la maintenance, la traduction et la personnalisation.
+# 
+# Pour modifier les messages:
+#   1. Éditez src/main/resources/messages.yml
+#   2. Rechargez avec /quantum reload messages
+# 
+# ───────────────────────────────────────────────────────────────
 
 # ───────────────────────────────────────────────────────────────
 # NOTES

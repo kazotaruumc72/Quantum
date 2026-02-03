@@ -9,6 +9,7 @@ import com.wynvers.quantum.statistics.StatisticsManager;
 import com.wynvers.quantum.statistics.StorageStatsManager;
 import com.wynvers.quantum.statistics.TradingStatisticsManager;
 import com.wynvers.quantum.towers.TowerManager;
+import com.wynvers.quantum.towers.TowerScoreboardManager;
 import com.wynvers.quantum.transactions.TransactionHistoryManager;
 import com.wynvers.quantum.worldguard.KillTracker;
 import com.wynvers.quantum.worldguard.ZoneListener;
@@ -52,6 +53,7 @@ import java.nio.file.StandardCopyOption;
  * - Centralized message system (MiniMessage + Legacy support)
  * - WorldGuard zone restrictions with mob kill requirements
  * - Tower progression system with 4 towers (25 floors + final boss each)
+ * - Automatic scoreboard switching on tower enter/exit
  */
 public final class Quantum extends JavaPlugin {
 
@@ -82,6 +84,7 @@ public final class Quantum extends JavaPlugin {
     private ZoneManager zoneManager; // NEW: WorldGuard zone manager
     private KillTracker killTracker; // NEW: Kill tracking for zones
     private TowerManager towerManager; // NEW: Tower progression system
+    private TowerScoreboardManager scoreboardManager; // NEW: Automatic scoreboard switching
     
     // Utils
     private ActionExecutor actionExecutor;
@@ -122,8 +125,10 @@ public final class Quantum extends JavaPlugin {
             this.killTracker = new KillTracker(this);
             this.zoneManager = new ZoneManager(this);
             this.towerManager = new TowerManager(this);
+            this.scoreboardManager = new TowerScoreboardManager(this);
             logger.success("✓ WorldGuard integration enabled!");
             logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
+            logger.success("✓ Scoreboard switching enabled!");
         } else {
             logger.warning("⚠ WorldGuard not found - zone restriction and tower features disabled");
         }
@@ -393,7 +398,8 @@ public final class Quantum extends JavaPlugin {
         // Tower command
         if (towerManager != null) {
             getCommand("tower").setExecutor(new TowerCommand(this));
-            logger.success("✓ Tower Command");
+            getCommand("tower").setTabCompleter(new TowerTabCompleter(this));
+            logger.success("✓ Tower Command + TabCompleter");
         }
 
         // Register TabCompleters
@@ -634,5 +640,13 @@ public final class Quantum extends JavaPlugin {
      */
     public TowerManager getTowerManager() {
         return towerManager;
+    }
+    
+    /**
+     * Get the TowerScoreboardManager for automatic scoreboard switching
+     * @return TowerScoreboardManager instance or null if WorldGuard not available
+     */
+    public TowerScoreboardManager getScoreboardManager() {
+        return scoreboardManager;
     }
 }

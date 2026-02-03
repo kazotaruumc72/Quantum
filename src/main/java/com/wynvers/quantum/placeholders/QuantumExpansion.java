@@ -7,11 +7,12 @@ import com.wynvers.quantum.storage.StorageMode;
 import com.wynvers.quantum.towers.TowerConfig;
 import com.wynvers.quantum.towers.TowerManager;
 import com.wynvers.quantum.towers.TowerProgress;
-import com.wynvers.quantum.worldguard.ZoneManager;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
@@ -264,16 +265,27 @@ public class QuantumExpansion extends PlaceholderExpansion {
      * Get required kills for a floor from zone configuration
      */
     private int getRequiredKills(String towerId, int floor) {
-        ZoneManager zoneManager = plugin.getZoneManager();
-        if (zoneManager == null) return 0;
-        
-        String regionName = towerId + "_floor_" + floor;
-        ZoneManager.ZoneRestriction zone = zoneManager.getZone(regionName);
-        if (zone == null) return 0;
-        
-        List<ZoneManager.MobRequirement> requirements = zone.getRequirements();
-        return requirements.stream()
-                .mapToInt(ZoneManager.MobRequirement::getAmount)
-                .sum();
+        try {
+            File zonesFile = new File(plugin.getDataFolder(), "zones.yml");
+            if (!zonesFile.exists()) return 0;
+            
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(zonesFile);
+            String regionName = towerId + "_floor_" + floor;
+            
+            // Get requirements for this zone
+            List<Map<?, ?>> requirements = config.getMapList("zones." + regionName + ".requirements");
+            
+            int total = 0;
+            for (Map<?, ?> req : requirements) {
+                Object amount = req.get("amount");
+                if (amount instanceof Integer) {
+                    total += (Integer) amount;
+                }
+            }
+            
+            return total;
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }

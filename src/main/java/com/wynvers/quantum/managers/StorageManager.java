@@ -37,7 +37,15 @@ public class StorageManager {
             PlayerStorage storage = new PlayerStorage(uuid2);
             storage.load(plugin);
             return storage;
-        });    }
+        });
+    }
+    
+    /**
+     * Save specific storage (alias for save)
+     */
+    public void saveStorage(UUID uuid) {
+        save(uuid);
+    }
     
     /**
      * Save specific storage
@@ -80,4 +88,3 @@ public class StorageManager {
         storages.clear();
     }
 }
-

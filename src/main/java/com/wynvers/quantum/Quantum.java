@@ -9,6 +9,7 @@ import com.wynvers.quantum.statistics.StatisticsManager;
 import com.wynvers.quantum.statistics.StorageStatsManager;
 import com.wynvers.quantum.tabcompleters.*;
 import com.wynvers.quantum.managers.*;
+import com.wynvers.quantum.orders.OrderAcceptanceHandler;
 import com.wynvers.quantum.orders.OrderButtonHandler;
 import com.wynvers.quantum.orders.OrderCreationManager;
 import com.wynvers.quantum.sell.SellManager;
@@ -38,6 +39,7 @@ import java.nio.file.StandardCopyOption;
  * - Vault economy integration
  * - Selling system
  * - Orders system (buy/sell orders)
+ * - Escrow system (secure money storage)
  * - Statistics tracking (items stored, trades, storage stats)
  * - Centralized message system (MiniMessage + Legacy support)
  */
@@ -55,12 +57,14 @@ public final class Quantum extends JavaPlugin {
     private MessagesManager messagesManager; // Legacy
     private MessageManager messageManager; // NEW: System messages
     private GuiMessageManager guiMessageManager; // NEW: GUI messages
+    private EscrowManager escrowManager; // NEW: Escrow system
     private PriceManager priceManager;
     private VaultManager vaultManager;
     private SellManager sellManager;
     private OrderManager orderManager;
     private OrderCreationManager orderCreationManager;
     private OrderButtonHandler orderButtonHandler;
+    private OrderAcceptanceHandler orderAcceptanceHandler; // NEW: Order acceptance
     private StatisticsManager statisticsManager;
     private StorageStatsManager storageStatsManager;
     
@@ -92,6 +96,9 @@ public final class Quantum extends JavaPlugin {
         this.messageManager = new MessageManager(this);
         this.guiMessageManager = new GuiMessageManager(this);
         
+        // Initialize escrow manager BEFORE order managers
+        this.escrowManager = new EscrowManager(this);
+        
         // Initialize legacy MessagesManager for compatibility
         this.messagesManager = new MessagesManager(this);
         
@@ -111,6 +118,7 @@ public final class Quantum extends JavaPlugin {
         logger.info("Dynamic GUI system loaded!");
         logger.info("Storage system ready!");
         logger.success("✓ Message system ready! (MiniMessage + Legacy)");
+        logger.success("✓ Escrow system ready! (" + escrowManager.getEscrowCount() + " deposits loaded)");
         if (vaultManager.isEnabled()) {
             logger.success("✓ Economy system ready!");
         }
@@ -237,6 +245,10 @@ public final class Quantum extends JavaPlugin {
         this.orderButtonHandler = new OrderButtonHandler(this);
         logger.success("✓ Order Button Handler");
         
+        // Order Acceptance Handler (NEW)
+        this.orderAcceptanceHandler = new OrderAcceptanceHandler(this);
+        logger.success("✓ Order Acceptance Handler");
+        
         // Statistics Manager
         this.statisticsManager = new StatisticsManager(this);
         logger.success("✓ Statistics Manager");
@@ -350,6 +362,12 @@ public final class Quantum extends JavaPlugin {
             sellManager.clearAllSessions();
         }
         
+        // Save escrow data
+        if (escrowManager != null) {
+            escrowManager.saveEscrow();
+            logger.success("✓ Escrow data saved (" + escrowManager.getTotalEscrow() + "€)");
+        }
+        
         // Save statistics
         if (statisticsManager != null) {
             statisticsManager.saveStatistics();
@@ -381,8 +399,9 @@ public final class Quantum extends JavaPlugin {
         if (menuManager != null) menuManager.reload();
         if (animationManager != null) animationManager.reload();
         if (messagesManager != null) messagesManager.reload();
-        if (messageManager != null) messageManager.reload(); // NEW
-        if (guiMessageManager != null) guiMessageManager.reload(); // NEW
+        if (messageManager != null) messageManager.reload();
+        if (guiMessageManager != null) guiMessageManager.reload();
+        if (escrowManager != null) escrowManager.reload(); // NEW
         if (priceManager != null) priceManager.reload();
         if (orderManager != null) orderManager.loadItems();
         if (statisticsManager != null) statisticsManager.loadStatistics();
@@ -440,6 +459,14 @@ public final class Quantum extends JavaPlugin {
     public GuiMessageManager getGuiMessageManager() {
         return guiMessageManager;
     }
+    
+    /**
+     * Get the EscrowManager for order money storage
+     * @return EscrowManager instance
+     */
+    public EscrowManager getEscrowManager() {
+        return escrowManager;
+    }
 
     public PriceManager getPriceManager() {
         return priceManager;
@@ -463,6 +490,14 @@ public final class Quantum extends JavaPlugin {
     
     public OrderButtonHandler getOrderButtonHandler() {
         return orderButtonHandler;
+    }
+    
+    /**
+     * Get the OrderAcceptanceHandler for processing seller order acceptance
+     * @return OrderAcceptanceHandler instance
+     */
+    public OrderAcceptanceHandler getOrderAcceptanceHandler() {
+        return orderAcceptanceHandler;
     }
     
     public StatisticsManager getStatisticsManager() {

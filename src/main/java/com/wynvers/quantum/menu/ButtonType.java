@@ -25,5 +25,28 @@ public enum ButtonType {
     // === ORDER TRANSACTION BUTTONS ===
     QUANTUM_ORDER_CONFIRM_DISPLAY,  // Afficher l'item dans le menu de confirmation
     QUANTUM_CONFIRM_ORDER_SELL,     // Accepter la vente (exécuter la transaction)
-    QUANTUM_CANCEL_ORDER_CONFIRM    // Refuser la vente (retour au menu catégorie)
+    QUANTUM_CANCEL_ORDER_CONFIRM,   // Refuser la vente (retour au menu catégorie)
+    
+    // === PAGINATION BUTTONS (NEW) ===
+    QUANTUM_ORDERS_NEXT_PAGE,       // Page suivante dans les menus d'ordres
+    QUANTUM_ORDERS_PREV_PAGE,       // Page précédente dans les menus d'ordres
+    QUANTUM_STORAGE_NEXT_PAGE,      // Page suivante dans le storage
+    QUANTUM_STORAGE_PREV_PAGE,      // Page précédente dans le storage
+    
+    // === FILTER BUTTONS (NEW) ===
+    QUANTUM_STORAGE_SEARCH,         // Rechercher un item dans le storage
+    QUANTUM_STORAGE_FILTER_TYPE,    // Filtrer par type (Nexo/Minecraft/Tous)
+    QUANTUM_STORAGE_SORT,           // Changer le mode de tri
+    QUANTUM_STORAGE_RESET_FILTERS,  // Réinitialiser tous les filtres
+    
+    // === HISTORY & STATS BUTTONS (NEW) ===
+    QUANTUM_VIEW_HISTORY,           // Ouvrir l'historique des transactions
+    QUANTUM_VIEW_STATS,             // Ouvrir les statistiques de trading
+    QUANTUM_HISTORY_FILTER_BUY,     // Filtrer historique: achats seulement
+    QUANTUM_HISTORY_FILTER_SELL,    // Filtrer historique: ventes seulement
+    QUANTUM_HISTORY_FILTER_ALL,     // Filtrer historique: tout
+    QUANTUM_STATS_PERIOD_TODAY,     // Stats: aujourd'hui
+    QUANTUM_STATS_PERIOD_WEEK,      // Stats: cette semaine
+    QUANTUM_STATS_PERIOD_MONTH,     // Stats: ce mois
+    QUANTUM_STATS_PERIOD_ALL        // Stats: global
 }

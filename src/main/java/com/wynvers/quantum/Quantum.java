@@ -9,6 +9,9 @@ import com.wynvers.quantum.statistics.StatisticsManager;
 import com.wynvers.quantum.statistics.StorageStatsManager;
 import com.wynvers.quantum.statistics.TradingStatisticsManager;
 import com.wynvers.quantum.transactions.TransactionHistoryManager;
+import com.wynvers.quantum.worldguard.KillTracker;
+import com.wynvers.quantum.worldguard.ZoneListener;
+import com.wynvers.quantum.worldguard.ZoneManager;
 import com.wynvers.quantum.tabcompleters.*;
 import com.wynvers.quantum.managers.*;
 import com.wynvers.quantum.orders.OrderAcceptanceHandler;
@@ -46,6 +49,7 @@ import java.nio.file.StandardCopyOption;
  * - Transaction history (all trades recorded)
  * - Trading statistics (performance analysis)
  * - Centralized message system (MiniMessage + Legacy support)
+ * - WorldGuard zone restrictions with mob kill requirements
  */
 public final class Quantum extends JavaPlugin {
 
@@ -73,6 +77,8 @@ public final class Quantum extends JavaPlugin {
     private StorageStatsManager storageStatsManager;
     private TransactionHistoryManager transactionHistoryManager; // NEW: Transaction history
     private TradingStatisticsManager tradingStatisticsManager; // NEW: Trading statistics
+    private ZoneManager zoneManager; // NEW: WorldGuard zone manager
+    private KillTracker killTracker; // NEW: Kill tracking for zones
     
     // Utils
     private ActionExecutor actionExecutor;
@@ -89,7 +95,7 @@ public final class Quantum extends JavaPlugin {
         this.logger = new Logger("Quantum");
         logger.info("┌───────────────────────────────────┐");
         logger.info("│  §6§lQUANTUM §f- Advanced Storage │");
-        logger.info("│       §7v2.0.0 by Kazotaruu_      │");
+        logger.info(│       §7v2.0.0 by Kazotaruu_      │");
         logger.info("└───────────────────────────────────┘");
         
         // Extract default resources
@@ -107,6 +113,15 @@ public final class Quantum extends JavaPlugin {
         
         // Initialize legacy MessagesManager for compatibility
         this.messagesManager = new MessagesManager(this);
+        
+        // Initialize WorldGuard zone system
+        if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
+            this.killTracker = new KillTracker(this);
+            this.zoneManager = new ZoneManager(this);
+            logger.success("✓ WorldGuard integration enabled!");
+        } else {
+            logger.warning("⚠ WorldGuard not found - zone restriction features disabled");
+        }
         
         // Initialize managers
         initializeManagers();
@@ -131,6 +146,9 @@ public final class Quantum extends JavaPlugin {
         logger.success("✓ Orders system ready!");
         logger.success("✓ Statistics tracking enabled!");
         logger.success("✓ Transaction history enabled!");
+        if (zoneManager != null) {
+            logger.success("✓ Zone restriction system ready! (" + zoneManager.getZoneCount() + " zones)");
+        }
     }
     
     /**
@@ -173,6 +191,9 @@ public final class Quantum extends JavaPlugin {
         // Extract message files
         extractResource("messages.yml");
         extractResource("messages_gui.yml");
+        
+        // Extract zones config
+        extractResource("zones.yml");
         
         logger.success("✓ Default resources extracted");
     }
@@ -312,7 +333,7 @@ public final class Quantum extends JavaPlugin {
                 logger.info("  - %quantum_amt_minecraft-<id>%");
             }
             
-            // Register new expansion (order creation + mode + stats)
+            // Register new expansion (order creation + mode + stats + kills)
             this.quantumExpansion = new QuantumExpansion(this);
             if (quantumExpansion.register()) {
                 logger.success("✓ QuantumExpansion registered");
@@ -322,6 +343,7 @@ public final class Quantum extends JavaPlugin {
                 logger.info("  - %quantum_stats_*% (statistics placeholders)");
                 logger.info("  - %quantum_history_*% (history placeholders)");
                 logger.info("  - %quantum_top_*% (top rankings placeholders)");
+                logger.info("  - %quantum_killed_<mob>_<amount>% (kill tracking)");
             }
         }
     }
@@ -334,6 +356,12 @@ public final class Quantum extends JavaPlugin {
         
         Bukkit.getPluginManager().registerEvents(new StorageListener(this), this);
         logger.success("✓ Storage Listener");
+        
+        // Register ZoneListener if WorldGuard is available
+        if (zoneManager != null) {
+            Bukkit.getPluginManager().registerEvents(new ZoneListener(this), this);
+            logger.success("✓ Zone Listener");
+        }
     }
     
     private void registerCommands() {
@@ -349,6 +377,12 @@ public final class Quantum extends JavaPlugin {
         getCommand("rechercher").setExecutor(new RechercherCommand(this));
         getCommand("recherche").setExecutor(new RechercheCommand(this));
         getCommand("offre").setExecutor(new OffreCommand(this));
+        
+        // Zone exit command (console only)
+        if (zoneManager != null) {
+            getCommand("zoneexit").setExecutor(new ZoneExitCommand(this));
+            logger.success("✓ Zone Exit Command");
+        }
 
         // Register TabCompleters
         getCommand("quantum").setTabCompleter(new QuantumTabCompleter(this));
@@ -387,7 +421,7 @@ public final class Quantum extends JavaPlugin {
         // Save escrow data
         if (escrowManager != null) {
             escrowManager.saveEscrow();
-            logger.success("✓ Escrow data saved (" + escrowManager.getTotalEscrow() + "€)");
+            logger.success("✓ Escrow data saved (" + escrowManager.getTotalEscrow() + "€");
         }
         
         // NOTE: TransactionHistoryManager saves transactions automatically in real-time
@@ -433,7 +467,9 @@ public final class Quantum extends JavaPlugin {
         if (priceManager != null) priceManager.reload();
         if (orderManager != null) orderManager.loadItems();
         if (statisticsManager != null) statisticsManager.loadStatistics();
+        if (zoneManager != null) zoneManager.reloadConfig();
         // NOTE: TransactionHistoryManager loads from file on-the-fly, no need to reload
+        // NOTE: KillTracker loads from file on-the-fly, no need to reload
         
         logger.success("Quantum reloaded successfully!");
     }
@@ -555,5 +591,21 @@ public final class Quantum extends JavaPlugin {
     
     public ActionExecutor getActionExecutor() {
         return actionExecutor;
+    }
+    
+    /**
+     * Get the ZoneManager for WorldGuard zone restrictions
+     * @return ZoneManager instance or null if WorldGuard not available
+     */
+    public ZoneManager getZoneManager() {
+        return zoneManager;
+    }
+    
+    /**
+     * Get the KillTracker for mob kill tracking
+     * @return KillTracker instance or null if WorldGuard not available
+     */
+    public KillTracker getKillTracker() {
+        return killTracker;
     }
 }

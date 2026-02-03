@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * PlaceholderAPI Expansion pour Quantum
- * Supporte les placeholders de session de création d'ordres
+ * Supporte les placeholders de session de création d'ordres et de tracking de kills
  */
 public class QuantumExpansion extends PlaceholderExpansion {
     
@@ -74,6 +74,46 @@ public class QuantumExpansion extends PlaceholderExpansion {
         if (params.equals("storage_total")) {
             PlayerStorage storage = plugin.getStorageManager().getStorage(player);
             return String.valueOf(storage.getTotalItemCount());
+        }
+        
+        // === KILL TRACKING ===
+        // Format: %quantum_killed_<mob_id>_<amount>%
+        // Retourne "true" si le joueur a tué assez de mobs, "false" sinon
+        if (params.startsWith("killed_")) {
+            if (plugin.getKillTracker() == null) {
+                return "false";
+            }
+            
+            // Extraire mob_id et amount
+            String[] parts = params.substring(7).split("_");
+            if (parts.length < 2) {
+                return "false";
+            }
+            
+            // Reconstruire le mob_id (peut contenir des underscores)
+            StringBuilder mobIdBuilder = new StringBuilder();
+            for (int i = 0; i < parts.length - 1; i++) {
+                if (i > 0) mobIdBuilder.append("_");
+                mobIdBuilder.append(parts[i]);
+            }
+            String mobId = mobIdBuilder.toString();
+            
+            // Le dernier élément est l'amount
+            int requiredAmount;
+            try {
+                requiredAmount = Integer.parseInt(parts[parts.length - 1]);
+            } catch (NumberFormatException e) {
+                return "false";
+            }
+            
+            // Vérifier si le joueur a atteint le quota
+            boolean hasReached = plugin.getKillTracker().hasReachedQuota(
+                player.getUniqueId(), 
+                mobId, 
+                requiredAmount
+            );
+            
+            return hasReached ? "true" : "false";
         }
         
         // === ORDER CREATION SESSION ===

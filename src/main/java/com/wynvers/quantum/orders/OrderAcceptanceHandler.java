@@ -1,12 +1,10 @@
 package com.wynvers.quantum.orders;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.storage.StorageData;
+import com.wynvers.quantum.storage.PlayerStorage;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.UUID;
@@ -16,17 +14,19 @@ import java.util.UUID;
  * 
  * Workflow:
  * 1. Vendeur clique sur un ordre en mode VENTE
- * 2. Vérification du stock disponible
+ * 2. Vérification du stock disponible (DOUBLE CHECK)
  * 3. Retrait des items du storage
  * 4. Récupération de l'argent depuis l'escrow
  * 5. Transfert de l'argent au vendeur
- * 6. Notification à l'acheteur
- * 7. Mise à jour de l'ordre (status = COMPLETED)
+ * 6. Ajout des items au storage de l'acheteur
+ * 7. Notification à l'acheteur
+ * 8. Mise à jour de l'ordre (status = COMPLETED)
  * 
  * PATCH: Utilise UUID complet comme clé d'ordre (orderId = UUID complet)
+ * PATCH: Double vérification du stock avant transaction
  * 
  * @author Kazotaruu_
- * @version 1.1
+ * @version 1.2
  */
 public class OrderAcceptanceHandler {
     
@@ -72,7 +72,6 @@ public class OrderAcceptanceHandler {
         plugin.getLogger().info("[ORDER_ACCEPTANCE] Order found! Validating order data...");
         
         // Récupérer les infos de l'ordre
-        // PATCH: orderId EST déjà l'UUID complet, pas besoin de order_uuid séparé
         String buyerName = ordersConfig.getString(path + ".orderer");
         String buyerUUIDStr = ordersConfig.getString(path + ".orderer_uuid");
         String itemId = ordersConfig.getString(path + ".item");
@@ -107,15 +106,15 @@ public class OrderAcceptanceHandler {
         }
         
         // Vérifier que le vendeur n'est pas l'acheteur
-        if (seller.getName().equals(buyerName)) {
+        if (seller.getName().equalsIgnoreCase(buyerName)) {
             seller.sendMessage("§c⚠ Vous ne pouvez pas accepter votre propre ordre!");
             return false;
         }
         
-        // === ÉTAPE 1: VÉRIFIER LE STOCK ===
-        plugin.getLogger().info("[ORDER_ACCEPTANCE] Checking seller stock...");
-        StorageData storage = plugin.getStorageManager().getStorage(seller.getUniqueId());
-        int availableStock = storage.getAmount(itemId);
+        // === ÉTAPE 1: VÉRIFICATION DU STOCK (PREMIÈRE VÉRIFICATION) ===
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Checking seller stock (initial check)...");
+        PlayerStorage storage = plugin.getStorageManager().getStorage(seller);
+        int availableStock = storage.getAmountByItemId(itemId);
         
         plugin.getLogger().info("[ORDER_ACCEPTANCE] Seller stock: " + availableStock + "x (required: " + quantity + "x)");
         
@@ -123,6 +122,7 @@ public class OrderAcceptanceHandler {
             seller.sendMessage("§c⚠ Stock insuffisant!");
             seller.sendMessage("§7Requis: §e" + quantity + "x");
             seller.sendMessage("§7Disponible: §e" + availableStock + "x");
+            plugin.getLogger().warning("[ORDER_ACCEPTANCE] Insufficient stock: " + availableStock + "x < " + quantity + "x");
             return false;
         }
         
@@ -153,9 +153,24 @@ public class OrderAcceptanceHandler {
             return false;
         }
         
-        // === ÉTAPE 3: RETIRER LES ITEMS DU STORAGE ===
+        // === ÉTAPE 3: VÉRIFICATION DU STOCK (DOUBLE CHECK AVANT TRANSACTION) ===
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Double-checking seller stock before transaction...");
+        int currentStock = storage.getAmountByItemId(itemId);
+        
+        if (currentStock < quantity) {
+            seller.sendMessage("§c⚠ Erreur: Stock insuffisant lors de la vérification finale!");
+            seller.sendMessage("§7Requis: §e" + quantity + "x");
+            seller.sendMessage("§7Disponible maintenant: §e" + currentStock + "x");
+            seller.sendMessage("§7§oVotre stock a peut-être changé entre-temps.");
+            plugin.getLogger().warning("[ORDER_ACCEPTANCE] Stock check failed at transaction time: " + currentStock + "x < " + quantity + "x");
+            return false;
+        }
+        
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Stock verification passed: " + currentStock + "x >= " + quantity + "x");
+        
+        // === ÉTAPE 4: RETIRER LES ITEMS DU STORAGE ===
         plugin.getLogger().info("[ORDER_ACCEPTANCE] Removing items from seller storage...");
-        boolean removed = storage.removeItem(itemId, quantity);
+        boolean removed = storage.removeItemById(itemId, quantity);
         if (!removed) {
             seller.sendMessage("§c⚠ Erreur lors du retrait des items!");
             plugin.getLogger().severe("[ORDER_ACCEPTANCE] Failed to remove items from seller storage!");
@@ -163,10 +178,10 @@ public class OrderAcceptanceHandler {
         }
         
         // Sauvegarder le storage
-        plugin.getStorageManager().saveStorage(seller.getUniqueId());
-        plugin.getLogger().info("[ORDER_ACCEPTANCE] Items removed successfully");
+        storage.save(plugin);
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Items removed successfully from seller");
         
-        // === ÉTAPE 4: RÉCUPÉRER L'ARGENT DE L'ESCROW ===
+        // === ÉTAPE 5: RÉCUPÉRER L'ARGENT DE L'ESCROW ===
         plugin.getLogger().info("[ORDER_ACCEPTANCE] Retrieving money from escrow...");
         double withdrawnAmount = plugin.getEscrowManager().withdraw(orderUUID);
         if (withdrawnAmount <= 0) {
@@ -177,14 +192,15 @@ public class OrderAcceptanceHandler {
             plugin.getQuantumLogger().error("Seller: " + seller.getName() + ", Items removed: " + quantity + "x " + itemId);
             
             // Tenter de restaurer les items
-            storage.addItem(itemId, quantity);
-            plugin.getStorageManager().saveStorage(seller.getUniqueId());
+            storage.addItemById(itemId, quantity);
+            storage.save(plugin);
+            plugin.getLogger().info("[ORDER_ACCEPTANCE] Items restored to seller storage (rollback)");
             return false;
         }
         
         plugin.getLogger().info("[ORDER_ACCEPTANCE] Escrow withdrawn: " + withdrawnAmount + "€");
         
-        // === ÉTAPE 5: DONNER L'ARGENT AU VENDEUR ===
+        // === ÉTAPE 6: DONNER L'ARGENT AU VENDEUR ===
         plugin.getLogger().info("[ORDER_ACCEPTANCE] Depositing money to seller...");
         if (plugin.getVaultManager().isEnabled()) {
             if (!plugin.getVaultManager().deposit(seller, withdrawnAmount)) {
@@ -197,8 +213,9 @@ public class OrderAcceptanceHandler {
                 plugin.getEscrowManager().deposit(orderUUID, withdrawnAmount);
                 
                 // Restaurer les items
-                storage.addItem(itemId, quantity);
-                plugin.getStorageManager().saveStorage(seller.getUniqueId());
+                storage.addItemById(itemId, quantity);
+                storage.save(plugin);
+                plugin.getLogger().info("[ORDER_ACCEPTANCE] Full rollback completed");
                 return false;
             }
         } else {
@@ -206,28 +223,29 @@ public class OrderAcceptanceHandler {
             
             // Restaurer l'escrow et les items
             plugin.getEscrowManager().deposit(orderUUID, withdrawnAmount);
-            storage.addItem(itemId, quantity);
-            plugin.getStorageManager().saveStorage(seller.getUniqueId());
+            storage.addItemById(itemId, quantity);
+            storage.save(plugin);
+            plugin.getLogger().info("[ORDER_ACCEPTANCE] Full rollback completed (Vault unavailable)");
             return false;
         }
         
         plugin.getLogger().info("[ORDER_ACCEPTANCE] Money deposited to seller successfully");
         
-        // === ÉTAPE 6: AJOUTER LES ITEMS AU STORAGE DE L'ACHETEUR ===
+        // === ÉTAPE 7: AJOUTER LES ITEMS AU STORAGE DE L'ACHETEUR ===
         plugin.getLogger().info("[ORDER_ACCEPTANCE] Adding items to buyer storage...");
         if (buyerUUIDStr != null) {
             try {
                 UUID buyerUUID = UUID.fromString(buyerUUIDStr);
-                StorageData buyerStorage = plugin.getStorageManager().getStorage(buyerUUID);
-                buyerStorage.addItem(itemId, quantity);
-                plugin.getStorageManager().saveStorage(buyerUUID);
-                plugin.getLogger().info("[ORDER_ACCEPTANCE] Items added to buyer storage");
+                PlayerStorage buyerStorage = plugin.getStorageManager().getStorage(buyerUUID);
+                buyerStorage.addItemById(itemId, quantity);
+                buyerStorage.save(plugin);
+                plugin.getLogger().info("[ORDER_ACCEPTANCE] Items added to buyer storage successfully");
             } catch (IllegalArgumentException e) {
                 plugin.getQuantumLogger().warning("Invalid buyer UUID: " + buyerUUIDStr);
             }
         }
         
-        // === ÉTAPE 7: METTRE À JOUR L'ORDRE ===
+        // === ÉTAPE 8: METTRE À JOUR L'ORDRE ===
         plugin.getLogger().info("[ORDER_ACCEPTANCE] Updating order status...");
         ordersConfig.set(path + ".status", "COMPLETED");
         ordersConfig.set(path + ".seller", seller.getName());
@@ -242,7 +260,7 @@ public class OrderAcceptanceHandler {
             e.printStackTrace();
         }
         
-        // === ÉTAPE 8: NOTIFICATIONS ===
+        // === ÉTAPE 9: NOTIFICATIONS ===
         
         // Message au vendeur
         seller.sendMessage("§a§l✓ Ordre accepté avec succès!");
@@ -261,6 +279,7 @@ public class OrderAcceptanceHandler {
                     buyer.sendMessage("§7§b" + seller.getName() + " §7vous a vendu §e" + quantity + "x §f" + formatItemName(itemId));
                     buyer.sendMessage("§7Coût total: §6" + String.format("%.2f", totalPrice) + "$");
                     buyer.sendMessage("§7Les items sont disponibles dans votre storage!");
+                    buyer.playSound(buyer.getLocation(), org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
                 }
             } catch (IllegalArgumentException e) {
                 plugin.getQuantumLogger().warning("Invalid buyer UUID: " + buyerUUIDStr);

@@ -9,7 +9,7 @@ import com.wynvers.quantum.statistics.StatisticsManager;
 import com.wynvers.quantum.statistics.StorageStatsManager;
 import com.wynvers.quantum.statistics.TradingStatisticsManager;
 import com.wynvers.quantum.towers.TowerManager;
-import com.wynvers.quantum.towers.TowerScoreboardManager;
+import com.wynvers.quantum.towers.TowerScoreboardHandler;
 import com.wynvers.quantum.transactions.TransactionHistoryManager;
 import com.wynvers.quantum.worldguard.KillTracker;
 import com.wynvers.quantum.worldguard.ZoneListener;
@@ -53,7 +53,7 @@ import java.nio.file.StandardCopyOption;
  * - Centralized message system (MiniMessage + Legacy support)
  * - WorldGuard zone restrictions with mob kill requirements
  * - Tower progression system with 4 towers (25 floors + final boss each)
- * - Automatic scoreboard switching on tower enter/exit
+ * - Integrated tower scoreboard system (auto-disable Oreo Essentials)
  */
 public final class Quantum extends JavaPlugin {
 
@@ -84,7 +84,7 @@ public final class Quantum extends JavaPlugin {
     private ZoneManager zoneManager; // NEW: WorldGuard zone manager
     private KillTracker killTracker; // NEW: Kill tracking for zones
     private TowerManager towerManager; // NEW: Tower progression system
-    private TowerScoreboardManager scoreboardManager; // NEW: Automatic scoreboard switching
+    private TowerScoreboardHandler scoreboardHandler; // NEW: Integrated tower scoreboard
     
     // Utils
     private ActionExecutor actionExecutor;
@@ -125,10 +125,10 @@ public final class Quantum extends JavaPlugin {
             this.killTracker = new KillTracker(this);
             this.zoneManager = new ZoneManager(this);
             this.towerManager = new TowerManager(this);
-            this.scoreboardManager = new TowerScoreboardManager(this);
+            this.scoreboardHandler = new TowerScoreboardHandler(this);
             logger.success("✓ WorldGuard integration enabled!");
             logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
-            logger.success("✓ Scoreboard switching enabled!");
+            logger.success("✓ Integrated scoreboard system ready!");
         } else {
             logger.warning("⚠ WorldGuard not found - zone restriction and tower features disabled");
         }
@@ -436,6 +436,12 @@ public final class Quantum extends JavaPlugin {
             sellManager.clearAllSessions();
         }
         
+        // Shutdown scoreboard handler
+        if (scoreboardHandler != null) {
+            scoreboardHandler.shutdown();
+            logger.success("✓ Tower scoreboards cleared");
+        }
+        
         // Save escrow data
         if (escrowManager != null) {
             escrowManager.saveEscrow();
@@ -643,10 +649,10 @@ public final class Quantum extends JavaPlugin {
     }
     
     /**
-     * Get the TowerScoreboardManager for automatic scoreboard switching
-     * @return TowerScoreboardManager instance or null if WorldGuard not available
+     * Get the TowerScoreboardHandler for integrated tower scoreboard
+     * @return TowerScoreboardHandler instance or null if WorldGuard not available
      */
-    public TowerScoreboardManager getScoreboardManager() {
-        return scoreboardManager;
+    public TowerScoreboardHandler getScoreboardHandler() {
+        return scoreboardHandler;
     }
 }

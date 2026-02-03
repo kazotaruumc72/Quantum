@@ -1,298 +1,223 @@
 package com.wynvers.quantum.menus;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.transactions.Transaction;
 import com.wynvers.quantum.transactions.TransactionHistoryManager;
-import com.wynvers.quantum.transactions.TransactionHistoryManager.Transaction;
-import com.wynvers.quantum.transactions.TransactionHistoryManager.TransactionRole;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
- * Gère l'affichage du menu d'historique des transactions
- * 
- * Fonctionnalités:
- * - Affichage paginé des transactions (36 par page)
- * - Filtrage par type (achats/ventes)
- * - Navigation entre les pages
- * - Affichage détaillé de chaque transaction
- * 
- * @author Kazotaruu_
- * @version 1.0
+ * Handler for history menu
+ * Manages transaction history display with pagination and filters
  */
 public class HistoryMenuHandler {
     
     private final Quantum plugin;
-    private final TransactionHistoryManager historyManager;
-    
-    // Cache des filtres actifs par joueur
-    private final Map<Player, String> activeFilters = new HashMap<>();
-    private final Map<Player, Integer> currentPages = new HashMap<>();
-    
-    private static final int TRANSACTIONS_PER_PAGE = 36;
-    private static final int MENU_SIZE = 54;
+    private final Map<UUID, HistoryViewSession> sessions;
+    private static final int ITEMS_PER_PAGE = 21;
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     
     public HistoryMenuHandler(Quantum plugin) {
         this.plugin = plugin;
-        this.historyManager = plugin.getTransactionHistoryManager();
+        this.sessions = new HashMap<>();
     }
     
     /**
-     * Ouvre le menu d'historique pour un joueur
-     * 
-     * @param player Joueur
-     * @param filter Filtre ("BUY", "SELL", ou null pour tout)
-     * @param page Numéro de page (commence à 1)
+     * Get or create session for player
      */
-    public void openHistoryMenu(Player player, String filter, int page) {
-        // Sauvegarder le filtre et la page
-        activeFilters.put(player, filter);
-        currentPages.put(player, page);
+    public HistoryViewSession getSession(Player player) {
+        return sessions.computeIfAbsent(player.getUniqueId(), uuid -> new HistoryViewSession());
+    }
+    
+    /**
+     * Set filter for player
+     */
+    public void setFilter(Player player, FilterType filter) {
+        HistoryViewSession session = getSession(player);
+        session.setFilter(filter);
+        session.setCurrentPage(1);
+    }
+    
+    /**
+     * Set page for player
+     */
+    public void setPage(Player player, int page) {
+        HistoryViewSession session = getSession(player);
+        List<Transaction> filtered = getFilteredTransactions(player);
+        int totalPages = getTotalPages(filtered.size());
         
-        // Récupérer les transactions
-        List<Transaction> allTransactions = historyManager.getPlayerHistory(player, filter, 0);
-        
-        // Calculer la pagination
-        int totalPages = (int) Math.ceil((double) allTransactions.size() / TRANSACTIONS_PER_PAGE);
-        if (totalPages == 0) totalPages = 1;
-        if (page > totalPages) page = totalPages;
         if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
         
-        // Récupérer les transactions pour cette page
-        int startIndex = (page - 1) * TRANSACTIONS_PER_PAGE;
-        int endIndex = Math.min(startIndex + TRANSACTIONS_PER_PAGE, allTransactions.size());
-        List<Transaction> pageTransactions = allTransactions.subList(startIndex, endIndex);
-        
-        // Créer le menu
-        String title = "§8┃ §6§lHistorique des Transactions";
-        Inventory menu = Bukkit.createInventory(null, MENU_SIZE, title);
-        
-        // Bordures
-        addBorders(menu);
-        
-        // Boutons de filtre
-        addFilterButtons(menu, filter);
-        
-        // Informations
-        addInfoButton(menu, player);
-        
-        // Transactions (slots 9-44)
-        addTransactions(menu, pageTransactions);
-        
-        // Pagination
-        addPaginationButtons(menu, page, totalPages, allTransactions.size(), pageTransactions.size());
-        
-        // Ouvrir le menu
-        player.openInventory(menu);
+        session.setCurrentPage(page);
     }
     
     /**
-     * Ajoute les bordures décoratives
+     * Get filtered transactions for player
      */
-    private void addBorders(Inventory menu) {
-        ItemStack border = createItem(Material.BLACK_STAINED_GLASS_PANE, "§7", null);
+    private List<Transaction> getFilteredTransactions(Player player) {
+        TransactionHistoryManager historyManager = plugin.getTransactionHistoryManager();
+        HistoryViewSession session = getSession(player);
         
-        int[] borderSlots = {0, 1, 2, 3, 4, 5, 6, 7, 8, 45, 46, 47, 51, 52, 53};
-        for (int slot : borderSlots) {
-            menu.setItem(slot, border);
+        switch (session.getFilter()) {
+            case BUY:
+                return historyManager.getPlayerBuyTransactions(player.getUniqueId());
+            case SELL:
+                return historyManager.getPlayerSellTransactions(player.getUniqueId());
+            case ALL:
+            default:
+                return historyManager.getPlayerTransactions(player.getUniqueId());
         }
     }
     
     /**
-     * Ajoute les boutons de filtre
+     * Get total number of pages
      */
-    private void addFilterButtons(Inventory menu, String currentFilter) {
-        // Toutes les transactions
-        List<String> allLore = new ArrayList<>();
-        allLore.add("§7");
-        allLore.add("§7Affiche toutes vos transactions");
-        allLore.add("§7(achats et ventes)");
-        allLore.add("§7");
-        if (currentFilter == null) {
-            allLore.add("§a▶ Filtre actif");
-        } else {
-            allLore.add("§e▶ Cliquez pour filtrer");
-        }
-        menu.setItem(48, createItem(Material.BOOK, "§e§lToutes les Transactions", allLore));
-        
-        // Achats uniquement
-        List<String> buyLore = new ArrayList<>();
-        buyLore.add("§7");
-        buyLore.add("§7Affiche uniquement vos achats");
-        buyLore.add("§7");
-        if ("BUY".equals(currentFilter)) {
-            buyLore.add("§a▶ Filtre actif");
-        } else {
-            buyLore.add("§e▶ Cliquez pour filtrer");
-        }
-        menu.setItem(49, createItem(Material.EMERALD, "§a§lAchats Uniquement", buyLore));
-        
-        // Ventes uniquement
-        List<String> sellLore = new ArrayList<>();
-        sellLore.add("§7");
-        sellLore.add("§7Affiche uniquement vos ventes");
-        sellLore.add("§7");
-        if ("SELL".equals(currentFilter)) {
-            sellLore.add("§a▶ Filtre actif");
-        } else {
-            sellLore.add("§e▶ Cliquez pour filtrer");
-        }
-        menu.setItem(50, createItem(Material.GOLD_INGOT, "§6§lVentes Uniquement", sellLore));
+    private int getTotalPages(int totalItems) {
+        return Math.max(1, (int) Math.ceil((double) totalItems / ITEMS_PER_PAGE));
     }
     
     /**
-     * Ajoute le bouton d'informations
+     * Get placeholders for history menu
      */
-    private void addInfoButton(Inventory menu, Player player) {
-        double totalBuy = historyManager.getTotalBuyAmount(player);
-        double totalSell = historyManager.getTotalSellAmount(player);
-        double netProfit = historyManager.getNetProfit(player);
-        int transactionCount = historyManager.getTotalTransactionCount(player);
+    public Map<String, String> getPlaceholders(Player player) {
+        Map<String, String> placeholders = new HashMap<>();
+        HistoryViewSession session = getSession(player);
+        List<Transaction> filtered = getFilteredTransactions(player);
         
-        List<String> lore = new ArrayList<>();
-        lore.add("§7");
-        lore.add("§7Total des achats: §a" + String.format("%.2f", totalBuy) + "€");
-        lore.add("§7Total des ventes: §6" + String.format("%.2f", totalSell) + "€");
-        lore.add("§7Profit net: §e" + String.format("%.2f", netProfit) + "€");
-        lore.add("§7");
-        lore.add("§7Transactions: §f" + transactionCount);
-        lore.add("§7");
-        lore.add("§8Votre historique complet de trading");
+        int currentPage = session.getCurrentPage();
+        int totalPages = getTotalPages(filtered.size());
+        int totalTransactions = filtered.size();
         
-        menu.setItem(4, createItem(Material.BOOK, "§e§lInformations", lore));
-    }
-    
-    /**
-     * Ajoute les transactions à la page
-     */
-    private void addTransactions(Inventory menu, List<Transaction> transactions) {
-        int slot = 9; // Commence au slot 9
+        // Page info
+        placeholders.put("%quantum_history_current_page%", String.valueOf(currentPage));
+        placeholders.put("%quantum_history_total_pages%", String.valueOf(totalPages));
+        placeholders.put("%quantum_history_total%", String.valueOf(totalTransactions));
         
-        for (Transaction transaction : transactions) {
-            if (slot > 44) break; // Ne pas dépasser le slot 44
+        // Page navigation
+        placeholders.put("%quantum_history_has_previous%", String.valueOf(currentPage > 1));
+        placeholders.put("%quantum_history_has_next%", String.valueOf(currentPage < totalPages));
+        placeholders.put("%quantum_history_previous_page%", String.valueOf(Math.max(1, currentPage - 1)));
+        placeholders.put("%quantum_history_next_page%", String.valueOf(Math.min(totalPages, currentPage + 1)));
+        
+        // Status messages
+        placeholders.put("%quantum_history_previous_status%", 
+            currentPage > 1 ? "<green>Cliquez pour voir</green>" : "<gray>Première page</gray>");
+        placeholders.put("%quantum_history_next_status%", 
+            currentPage < totalPages ? "<green>Cliquez pour voir</green>" : "<gray>Dernière page</gray>");
+        
+        // Range display
+        int startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        int endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalTransactions);
+        placeholders.put("%quantum_history_showing_from%", String.valueOf(startIndex + 1));
+        placeholders.put("%quantum_history_showing_to%", String.valueOf(endIndex));
+        
+        // Filter status
+        FilterType filter = session.getFilter();
+        placeholders.put("%quantum_history_filter_all_status%", 
+            filter == FilterType.ALL ? "<green>▶ Actif</green>" : "<gray>Cliquez pour activer</gray>");
+        placeholders.put("%quantum_history_filter_buy_status%", 
+            filter == FilterType.BUY ? "<green>▶ Actif</green>" : "<gray>Cliquez pour activer</gray>");
+        placeholders.put("%quantum_history_filter_sell_status%", 
+            filter == FilterType.SELL ? "<green>▶ Actif</green>" : "<gray>Cliquez pour activer</gray>");
+        
+        // Statistics by type
+        TransactionHistoryManager historyManager = plugin.getTransactionHistoryManager();
+        List<Transaction> buyTransactions = historyManager.getPlayerBuyTransactions(player.getUniqueId());
+        List<Transaction> sellTransactions = historyManager.getPlayerSellTransactions(player.getUniqueId());
+        
+        double buyTotal = buyTransactions.stream().mapToDouble(Transaction::getTotalPrice).sum();
+        double sellTotal = sellTransactions.stream().mapToDouble(Transaction::getTotalPrice).sum();
+        
+        placeholders.put("%quantum_history_buy_count%", String.valueOf(buyTransactions.size()));
+        placeholders.put("%quantum_history_buy_total%", String.format("%.2f", buyTotal));
+        placeholders.put("%quantum_history_sell_count%", String.valueOf(sellTransactions.size()));
+        placeholders.put("%quantum_history_sell_total%", String.format("%.2f", sellTotal));
+        
+        // Transaction items (dynamic)
+        List<Transaction> pageTransactions = filtered.subList(
+            startIndex, 
+            Math.min(startIndex + ITEMS_PER_PAGE, totalTransactions)
+        );
+        
+        for (int i = 0; i < ITEMS_PER_PAGE; i++) {
+            String slotPrefix = "%quantum_history_" + i + "_";
             
-            Material material = transaction.playerRole == TransactionRole.BUYER ? Material.EMERALD : Material.GOLD_INGOT;
-            String displayName = transaction.playerRole == TransactionRole.BUYER 
-                ? "§a§lACHAT" 
-                : "§6§lVENTE";
-            
-            List<String> lore = new ArrayList<>();
-            lore.add("§7");
-            lore.add("§7Date: §f" + transaction.date);
-            
-            if (transaction.playerRole == TransactionRole.BUYER) {
-                lore.add("§7Vendeur: §f" + transaction.seller);
+            if (i < pageTransactions.size()) {
+                Transaction transaction = pageTransactions.get(i);
+                
+                placeholders.put(slotPrefix + "material%", transaction.getItemMaterial());
+                placeholders.put(slotPrefix + "item_name%", transaction.getItemName());
+                placeholders.put(slotPrefix + "type_display%", 
+                    transaction.isBuyOrder() ? "<green>Achat</green>" : "<gold>Vente</gold>");
+                placeholders.put(slotPrefix + "quantity%", String.valueOf(transaction.getQuantity()));
+                placeholders.put(slotPrefix + "unit_price%", String.format("%.2f", transaction.getUnitPrice()));
+                placeholders.put(slotPrefix + "total_price%", String.format("%.2f", transaction.getTotalPrice()));
+                placeholders.put(slotPrefix + "partner_label%", 
+                    transaction.isBuyOrder() ? "Vendeur" : "Acheteur");
+                placeholders.put(slotPrefix + "partner%", transaction.getPartnerName());
+                placeholders.put(slotPrefix + "date%", transaction.getDate().format(DATE_FORMAT));
+                placeholders.put(slotPrefix + "id%", transaction.getId());
             } else {
-                lore.add("§7Acheteur: §f" + transaction.buyer);
+                // Empty slot
+                placeholders.put(slotPrefix + "material%", "LIGHT_GRAY_STAINED_GLASS_PANE");
+                placeholders.put(slotPrefix + "item_name%", "<gray>Aucune transaction</gray>");
+                placeholders.put(slotPrefix + "type_display%", "");
+                placeholders.put(slotPrefix + "quantity%", "0");
+                placeholders.put(slotPrefix + "unit_price%", "0.00");
+                placeholders.put(slotPrefix + "total_price%", "0.00");
+                placeholders.put(slotPrefix + "partner_label%", "");
+                placeholders.put(slotPrefix + "partner%", "");
+                placeholders.put(slotPrefix + "date%", "");
+                placeholders.put(slotPrefix + "id%", "");
             }
-            
-            lore.add("§7Item: §f" + transaction.quantity + "x " + transaction.getFormattedItem());
-            lore.add("§7Prix unitaire: §e" + String.format("%.2f", transaction.pricePerUnit) + "€");
-            lore.add("§7Prix total: " + 
-                (transaction.playerRole == TransactionRole.BUYER ? "§a" : "§6") + 
-                String.format("%.2f", transaction.totalPrice) + "€");
-            
-            menu.setItem(slot, createItem(material, displayName, lore));
-            slot++;
+        }
+        
+        return placeholders;
+    }
+    
+    /**
+     * Clear session for player
+     */
+    public void clearSession(Player player) {
+        sessions.remove(player.getUniqueId());
+    }
+    
+    /**
+     * History view session
+     */
+    public static class HistoryViewSession {
+        private FilterType filter = FilterType.ALL;
+        private int currentPage = 1;
+        
+        public FilterType getFilter() {
+            return filter;
+        }
+        
+        public void setFilter(FilterType filter) {
+            this.filter = filter;
+        }
+        
+        public int getCurrentPage() {
+            return currentPage;
+        }
+        
+        public void setCurrentPage(int currentPage) {
+            this.currentPage = currentPage;
         }
     }
     
     /**
-     * Ajoute les boutons de pagination
+     * Filter type enum
      */
-    private void addPaginationButtons(Inventory menu, int currentPage, int totalPages, int totalTransactions, int shownTransactions) {
-        // Page précédente (slot 45)
-        if (currentPage > 1) {
-            List<String> prevLore = new ArrayList<>();
-            prevLore.add("§7");
-            prevLore.add("§7Page actuelle: §f" + currentPage);
-            prevLore.add("§7Total: §f" + totalPages + " pages");
-            prevLore.add("§7");
-            prevLore.add("§e▶ Cliquez pour page précédente");
-            menu.setItem(45, createItem(Material.ARROW, "§e◀ Page Précédente", prevLore));
-        }
-        
-        // Page suivante (slot 53)
-        if (currentPage < totalPages) {
-            List<String> nextLore = new ArrayList<>();
-            nextLore.add("§7");
-            nextLore.add("§7Page actuelle: §f" + currentPage);
-            nextLore.add("§7Total: §f" + totalPages + " pages");
-            nextLore.add("§7");
-            nextLore.add("§e▶ Cliquez pour page suivante");
-            menu.setItem(53, createItem(Material.ARROW, "§ePage Suivante ▶", nextLore));
-        }
-    }
-    
-    /**
-     * Gère le clic sur un bouton du menu
-     */
-    public void handleClick(Player player, int slot) {
-        String filter = activeFilters.getOrDefault(player, null);
-        int page = currentPages.getOrDefault(player, 1);
-        
-        switch (slot) {
-            case 45: // Page précédente
-                if (page > 1) {
-                    openHistoryMenu(player, filter, page - 1);
-                }
-                break;
-                
-            case 48: // Toutes les transactions
-                openHistoryMenu(player, null, 1);
-                break;
-                
-            case 49: // Achats uniquement
-                openHistoryMenu(player, "BUY", 1);
-                break;
-                
-            case 50: // Ventes uniquement
-                openHistoryMenu(player, "SELL", 1);
-                break;
-                
-            case 53: // Page suivante
-                List<Transaction> allTransactions = historyManager.getPlayerHistory(player, filter, 0);
-                int totalPages = (int) Math.ceil((double) allTransactions.size() / TRANSACTIONS_PER_PAGE);
-                if (page < totalPages) {
-                    openHistoryMenu(player, filter, page + 1);
-                }
-                break;
-        }
-    }
-    
-    /**
-     * Nettoie le cache pour un joueur
-     */
-    public void clearCache(Player player) {
-        activeFilters.remove(player);
-        currentPages.remove(player);
-    }
-    
-    /**
-     * Crée un ItemStack avec display name et lore
-     */
-    private ItemStack createItem(Material material, String displayName, List<String> lore) {
-        ItemStack item = new ItemStack(material);
-        ItemMeta meta = item.getItemMeta();
-        
-        if (meta != null) {
-            if (displayName != null) {
-                meta.setDisplayName(displayName);
-            }
-            if (lore != null) {
-                meta.setLore(lore);
-            }
-            item.setItemMeta(meta);
-        }
-        
-        return item;
+    public enum FilterType {
+        ALL,
+        BUY,
+        SELL
     }
 }

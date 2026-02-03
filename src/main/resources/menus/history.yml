@@ -1,0 +1,192 @@
+# ============================================================
+# QUANTUM - MENU HISTORIQUE DES TRANSACTIONS
+# ============================================================
+# Menu pour consulter l'historique complet des transactions
+# Affiche les achats et ventes avec pagination
+# ============================================================
+
+menu_title: '&8┃ &6&lHistorique des Transactions'
+size: 54
+open_command: history
+
+# Animation du titre (optionnel)
+animated_title:
+  enabled: true
+  speed: 20
+  frames:
+    - '&8┃ &6&lHistorique des Transactions'
+    - '&8┃ &e&lHistorique des Transactions'
+
+# ============================================================
+# ITEMS DU MENU
+# ============================================================
+
+items:
+  
+  # ========================================
+  # BORDURES ET DECORATION
+  # ========================================
+  
+  border:
+    material: BLACK_STAINED_GLASS_PANE
+    display_name: '&7'
+    slots:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 45
+      - 46
+      - 47
+      - 51
+      - 52
+      - 53
+  
+  # ========================================
+  # BOUTONS DE FILTRE
+  # ========================================
+  
+  filter_all:
+    material: BOOK
+    display_name: '&e&lToutes les Transactions'
+    lore:
+      - '&7'
+      - '&7Affiche toutes vos transactions'
+      - '&7(achats et ventes)'
+      - '&7'
+      - '&e▶ Cliquez pour filtrer'
+    slots: [48]
+    left_click:
+      actions:
+        - '[console] quantum history %player%'
+        - '[sound] BLOCK_NOTE_BLOCK_PLING:1.0:1.0'
+  
+  filter_buy:
+    material: EMERALD
+    display_name: '&a&lAchats Uniquement'
+    lore:
+      - '&7'
+      - '&7Affiche uniquement vos achats'
+      - '&7'
+      - '&e▶ Cliquez pour filtrer'
+    slots: [49]
+    left_click:
+      actions:
+        - '[console] quantum history %player% buy'
+        - '[sound] BLOCK_NOTE_BLOCK_PLING:1.0:1.0'
+  
+  filter_sell:
+    material: GOLD_INGOT
+    display_name: '&6&lVentes Uniquement'
+    lore:
+      - '&7'
+      - '&7Affiche uniquement vos ventes'
+      - '&7'
+      - '&e▶ Cliquez pour filtrer'
+    slots: [50]
+    left_click:
+      actions:
+        - '[console] quantum history %player% sell'
+        - '[sound] BLOCK_NOTE_BLOCK_PLING:1.0:1.0'
+  
+  # ========================================
+  # INFORMATIONS ET STATISTIQUES
+  # ========================================
+  
+  info:
+    material: BOOK
+    display_name: '&e&lInformations'
+    lore:
+      - '&7'
+      - '&7Total des achats: &a%quantum_stats_total_buy%€'
+      - '&7Total des ventes: &6%quantum_stats_total_sell%€'
+      - '&7Profit net: &e%quantum_stats_net_profit%€'
+      - '&7'
+      - '&7Transactions: &f%quantum_stats_transaction_count%'
+      - '&7'
+      - '&8Votre historique complet de trading'
+    slots: [4]
+  
+  # ========================================
+  # ZONES DE TRANSACTIONS (slots 9-44)
+  # ========================================
+  # Les transactions seront affichées dynamiquement
+  # par le plugin dans les slots 9 à 44 (36 transactions max)
+  # Format dynamique:
+  # - Titre: Type de transaction (Achat/Vente)
+  # - Lore: Détails (partenaire, item, quantité, prix, date)
+  # ========================================
+  
+  # Placeholder pour transaction (slot 9-44)
+  # Ces slots seront remplis dynamiquement par TransactionHistoryManager
+  
+  # ========================================
+  # PAGINATION
+  # ========================================
+  
+  # Page précédente
+  previous_page:
+    material: ARROW
+    display_name: '&e◀ Page Précédente'
+    lore:
+      - '&7'
+      - '&7Page actuelle: &f%quantum_history_current_page%'
+      - '&7Total: &f%quantum_history_total_pages% pages'
+      - '&7'
+      - '&e▶ Cliquez pour page précédente'
+    slots: [45]
+    # Action dynamique gérée par le plugin
+  
+  # Indicateur de page
+  page_indicator:
+    material: PAPER
+    display_name: '&e&lPage %quantum_history_current_page%/%quantum_history_total_pages%'
+    lore:
+      - '&7'
+      - '&7Transactions affichées: &f%quantum_history_shown%'
+      - '&7Total: &f%quantum_history_total%'
+    slots: [49]
+  
+  # Page suivante
+  next_page:
+    material: ARROW
+    display_name: '&ePage Suivante ▶'
+    lore:
+      - '&7'
+      - '&7Page actuelle: &f%quantum_history_current_page%'
+      - '&7Total: &f%quantum_history_total_pages% pages'
+      - '&7'
+      - '&e▶ Cliquez pour page suivante'
+    slots: [53]
+    # Action dynamique gérée par le plugin
+
+# ============================================================
+# FORMAT DES TRANSACTIONS DYNAMIQUES
+# ============================================================
+# Template pour l'affichage des transactions (géré par le code)
+# 
+# ACHAT:
+#   Material: EMERALD
+#   Display: '&a&lACHAT #%id%'
+#   Lore:
+#     - '&7Date: &f%date%'
+#     - '&7Vendeur: &f%seller%'
+#     - '&7Item: &f%quantity%x %item%'
+#     - '&7Prix unitaire: &e%price_per_unit%€'
+#     - '&7Prix total: &a%total_price%€'
+#
+# VENTE:
+#   Material: GOLD_INGOT
+#   Display: '&6&lVENTE #%id%'
+#   Lore:
+#     - '&7Date: &f%date%'
+#     - '&7Acheteur: &f%buyer%'
+#     - '&7Item: &f%quantity%x %item%'
+#     - '&7Prix unitaire: &e%price_per_unit%€'
+#     - '&7Prix total: &6%total_price%€'
+# ============================================================

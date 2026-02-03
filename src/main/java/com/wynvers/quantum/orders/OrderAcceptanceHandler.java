@@ -170,10 +170,24 @@ public class OrderAcceptanceHandler {
         
         // === ÉTAPE 4: RETIRER LES ITEMS DU STORAGE ===
         plugin.getLogger().info("[ORDER_ACCEPTANCE] Removing items from seller storage...");
-        boolean removed = storage.removeItemById(itemId, quantity);
-        if (!removed) {
-            seller.sendMessage("§c⚠ Erreur lors du retrait des items!");
-            plugin.getLogger().severe("[ORDER_ACCEPTANCE] Failed to remove items from seller storage!");
+        
+        // Vérifier une dernière fois avant le retrait
+        int stockBeforeRemoval = storage.getAmountByItemId(itemId);
+        if (stockBeforeRemoval < quantity) {
+            seller.sendMessage("§c⚠ Erreur: Stock modifié au dernier moment!");
+            plugin.getLogger().severe("[ORDER_ACCEPTANCE] Stock changed right before removal!");
+            return false;
+        }
+        
+        // Retirer les items (void return)
+        storage.removeItemById(itemId, quantity);
+        
+        // Vérifier que le retrait a bien fonctionné
+        int stockAfterRemoval = storage.getAmountByItemId(itemId);
+        if (stockAfterRemoval != stockBeforeRemoval - quantity) {
+            seller.sendMessage("§c⚠ ERREUR: Le retrait des items a échoué!");
+            plugin.getLogger().severe("[ORDER_ACCEPTANCE] Item removal verification failed!");
+            plugin.getLogger().severe("  Before: " + stockBeforeRemoval + "x, After: " + stockAfterRemoval + "x, Expected: " + (stockBeforeRemoval - quantity) + "x");
             return false;
         }
         

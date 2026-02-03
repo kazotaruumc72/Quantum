@@ -2,8 +2,7 @@ package com.wynvers.quantum.statistics;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.transactions.TransactionHistoryManager;
-import com.wynvers.quantum.transactions.Transaction;
-import com.wynvers.quantum.transactions.Transaction.TransactionRole;
+import com.wynvers.quantum.transactions.TransactionHistoryManager.Transaction;
 import org.bukkit.entity.Player;
 
 import java.text.DecimalFormat;
@@ -38,7 +37,7 @@ public class TradingStatisticsManager {
      * Récupère les statistiques globales d'un joueur
      */
     public PlayerStatistics getGlobalStatistics(Player player) {
-        List<Transaction> allTransactions = historyManager.getPlayerTransactions(player.getUniqueId());
+        List<Transaction> allTransactions = historyManager.getPlayerHistory(player, null, 0);
         
         double totalBuy = 0;
         double totalSell = 0;
@@ -46,11 +45,11 @@ public class TradingStatisticsManager {
         int sellCount = 0;
         
         for (Transaction transaction : allTransactions) {
-            if (transaction.getPlayerRole() == TransactionRole.BUYER) {
-                totalBuy += transaction.getTotalPrice();
+            if (transaction.playerRole == TransactionHistoryManager.TransactionRole.BUYER) {
+                totalBuy += transaction.totalPrice;
                 buyCount++;
             } else {
-                totalSell += transaction.getTotalPrice();
+                totalSell += transaction.totalPrice;
                 sellCount++;
             }
         }
@@ -75,11 +74,11 @@ public class TradingStatisticsManager {
      */
     public PlayerStatistics getPeriodStatistics(Player player, TimePeriod period) {
         long periodStart = getPeriodStartTimestamp(period);
-        List<Transaction> allTransactions = historyManager.getPlayerTransactions(player.getUniqueId());
+        List<Transaction> allTransactions = historyManager.getPlayerHistory(player, null, 0);
         
         // Filtrer les transactions de la période
         List<Transaction> periodTransactions = allTransactions.stream()
-            .filter(t -> t.getTimestamp() >= periodStart)
+            .filter(t -> t.timestamp >= periodStart)
             .collect(Collectors.toList());
         
         double totalBuy = 0;
@@ -88,11 +87,11 @@ public class TradingStatisticsManager {
         int sellCount = 0;
         
         for (Transaction transaction : periodTransactions) {
-            if (transaction.getPlayerRole() == TransactionRole.BUYER) {
-                totalBuy += transaction.getTotalPrice();
+            if (transaction.playerRole == TransactionHistoryManager.TransactionRole.BUYER) {
+                totalBuy += transaction.totalPrice;
                 buyCount++;
             } else {
-                totalSell += transaction.getTotalPrice();
+                totalSell += transaction.totalPrice;
                 sellCount++;
             }
         }
@@ -140,20 +139,20 @@ public class TradingStatisticsManager {
      * @param limit Nombre maximum d'items à retourner
      */
     public List<ItemStatistic> getMostTradedItems(Player player, int limit) {
-        List<Transaction> allTransactions = historyManager.getPlayerTransactions(player.getUniqueId());
+        List<Transaction> allTransactions = historyManager.getPlayerHistory(player, null, 0);
         
         Map<String, ItemStatistic> itemStats = new HashMap<>();
         
         for (Transaction transaction : allTransactions) {
             ItemStatistic stat = itemStats.computeIfAbsent(
-                transaction.getItemId(),
-                k -> new ItemStatistic(transaction.getItemId())
+                transaction.itemId,
+                k -> new ItemStatistic(transaction.itemId)
             );
             
-            if (transaction.getPlayerRole() == TransactionRole.BUYER) {
-                stat.addBuy(transaction.getQuantity(), transaction.getTotalPrice());
+            if (transaction.playerRole == TransactionHistoryManager.TransactionRole.BUYER) {
+                stat.addBuy(transaction.quantity, transaction.totalPrice);
             } else {
-                stat.addSell(transaction.getQuantity(), transaction.getTotalPrice());
+                stat.addSell(transaction.quantity, transaction.totalPrice);
             }
         }
         
@@ -169,19 +168,21 @@ public class TradingStatisticsManager {
      * @param limit Nombre maximum de partenaires à retourner
      */
     public List<PartnerStatistic> getTopTradingPartners(Player player, int limit) {
-        List<Transaction> allTransactions = historyManager.getPlayerTransactions(player.getUniqueId());
+        List<Transaction> allTransactions = historyManager.getPlayerHistory(player, null, 0);
         
         Map<String, PartnerStatistic> partnerStats = new HashMap<>();
         
         for (Transaction transaction : allTransactions) {
-            String partnerName = transaction.getPartnerName();
+            String partnerName = transaction.playerRole == TransactionHistoryManager.TransactionRole.BUYER
+                ? transaction.seller
+                : transaction.buyer;
             
             PartnerStatistic stat = partnerStats.computeIfAbsent(
                 partnerName,
                 k -> new PartnerStatistic(partnerName)
             );
             
-            stat.addTransaction(transaction.getTotalPrice());
+            stat.addTransaction(transaction.totalPrice);
         }
         
         return partnerStats.values().stream()
@@ -194,14 +195,14 @@ public class TradingStatisticsManager {
      * Calcule le prix moyen d'achat pour un item
      */
     public double getAverageBuyPrice(Player player, String itemId) {
-        List<Transaction> buyTransactions = historyManager.getPlayerBuyTransactions(player.getUniqueId()).stream()
-            .filter(t -> t.getItemId().equals(itemId))
+        List<Transaction> buyTransactions = historyManager.getPlayerHistory(player, "BUY", 0).stream()
+            .filter(t -> t.itemId.equals(itemId))
             .collect(Collectors.toList());
         
         if (buyTransactions.isEmpty()) return 0.0;
         
-        double totalPrice = buyTransactions.stream().mapToDouble(Transaction::getTotalPrice).sum();
-        int totalQuantity = buyTransactions.stream().mapToInt(Transaction::getQuantity).sum();
+        double totalPrice = buyTransactions.stream().mapToDouble(t -> t.totalPrice).sum();
+        int totalQuantity = buyTransactions.stream().mapToInt(t -> t.quantity).sum();
         
         return totalQuantity > 0 ? totalPrice / totalQuantity : 0.0;
     }
@@ -210,14 +211,14 @@ public class TradingStatisticsManager {
      * Calcule le prix moyen de vente pour un item
      */
     public double getAverageSellPrice(Player player, String itemId) {
-        List<Transaction> sellTransactions = historyManager.getPlayerSellTransactions(player.getUniqueId()).stream()
-            .filter(t -> t.getItemId().equals(itemId))
+        List<Transaction> sellTransactions = historyManager.getPlayerHistory(player, "SELL", 0).stream()
+            .filter(t -> t.itemId.equals(itemId))
             .collect(Collectors.toList());
         
         if (sellTransactions.isEmpty()) return 0.0;
         
-        double totalPrice = sellTransactions.stream().mapToDouble(Transaction::getTotalPrice).sum();
-        int totalQuantity = sellTransactions.stream().mapToInt(Transaction::getQuantity).sum();
+        double totalPrice = sellTransactions.stream().mapToDouble(t -> t.totalPrice).sum();
+        int totalQuantity = sellTransactions.stream().mapToInt(t -> t.quantity).sum();
         
         return totalQuantity > 0 ? totalPrice / totalQuantity : 0.0;
     }

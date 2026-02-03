@@ -1,208 +1,251 @@
-# ===============================================
-# QUANTUM - Configuration des Messages (FR)
-# ===============================================
-# Format MiniMessage: https://docs.advntr.dev/minimessage/format.html
-# Tags principaux:
-#   <red>, <yellow>, <green>, <gold>, <gray>, <white>
-#   <bold>, <italic>, <underlined>, <strikethrough>
-#   <gradient:color1:color2>texte</gradient>
-#   <hover:show_text:'texte'>texte survolable</hover>
-# Placeholders disponibles: {player}, {amount}, {item}, {menu}, {price}, {total_price}, {buyer}, {seller}, {quantity}, {stock}
+# ╔═══════════════════════════════════════════════════════════════╗
+# ║                   QUANTUM - Messages Configuration             ║
+# ║            Tous les messages du plugin sont ici !              ║
+# ╚═══════════════════════════════════════════════════════════════╝
 
-prefix: "<gray>[</gray><gold>Quantum</gold><gray>]</gray> "
+# Prefix global du plugin
+prefix: "<gradient:#32b8c6:#1d6880>[Quantum]</gradient>"
 
-# Messages Généraux
-no-permission: "<red>Vous n'avez pas la permission d'utiliser cette commande!"
-only-player: "<red>Seuls les joueurs peuvent utiliser cette commande!"
-player-not-found: "<red>Joueur introuvable: <gray>{player}"
-reload-success: "<green><bold>✓</bold> Quantum rechargé avec succès!"
-invalid-command: "<red>Commande invalide! Utilisez <gray>/quantum help"
+# ═══════════════════════════════════════════════════════════════
+#                        COMMANDES GÉNÉRALES
+# ═══════════════════════════════════════════════════════════════
 
-# Messages Storage (Admin)
+commands:
+  # Commande /menu
+  menu:
+    only-players: "<red>Seuls les joueurs peuvent utiliser cette commande!"
+    no-permission: "<red>Vous n'avez pas la permission!"
+    usage: "<red>Usage: /menu <menu_name>"
+    not-found: "<red>Menu introuvable: <gray>{menu}"
+  
+  # Commande /quantum
+  quantum:
+    no-permission: "<red>Vous n'avez pas la permission!"
+    reload-success: "<green>✓ Quantum rechargé complètement!"
+    reload-price: "<green>✓ Fichier price.yml rechargé!"
+    reload-config: "<green>✓ Fichier config.yml rechargé!"
+    reload-menus: "<green>✓ Menus rechargés!"
+    reload-messages: "<green>✓ Messages rechargés!"
+    reload-invalid: "<red>⚠ Type de reload invalide!"
+    reload-usage: "<yellow>Utilisation: /quantum reload <all|price|config|menus|messages>"
+    price-manager-null: "<red>⚠ PriceManager non initialisé!"
+  
+  # Commande /stats
+  stats:
+    manager-null: "<red>⚠ StatisticsManager non initialisé!"
+    calculating: "<yellow>⏳ Recalcul des statistiques en cours..."
+    calculated: "<green>✓ Statistiques recalculées avec succès!"
+    no-data: "<yellow>⚠ Aucune statistique disponible"
+    no-data-subtitle: "<gray>Ajoutez des items au storage pour commencer à tracker!"
+  
+  # Commande /offre
+  offre:
+    only-players: "<red>Cette commande est réservée aux joueurs."
+    usage: "<red>Usage: /offre <quantité> <prix_unitaire>"
+    usage-help: "<gray>Tenez l'item en main et spécifiez la quantité et le prix."
+    usage-example: "<gray>Exemple: <white>/offre 5 100 <gray>(5 items à 100$ l'unité)"
+    non-stackable-warning: "<yellow>⚠ Cette commande est pour les items NON stockables"
+    non-stackable-help: "<gray>Pour les items stackables, utilisez le Storage en mode ORDER"
+    no-item-in-hand: "<red>Vous devez tenir un item en main!"
+    item-not-allowed: "<red>Cet item ne peut pas faire l'objet d'une offre d'achat."
+    invalid-numbers: "<red>Quantité et prix doivent être des nombres valides."
+    quantity-positive: "<red>La quantité doit être positive."
+    price-positive: "<red>Le prix doit être positif."
+    not-enough-in-hand: "<red>Vous n'avez que {amount} item(s) en main!"
+    max-orders-reached: "<red>Vous avez atteint votre limite d'ordres actifs ({max})."
+    max-orders-help: "<gray>Annulez un ordre existant ou attendez qu'il expire."
+    not-enough-money: "<red>Vous n'avez pas assez d'argent! Coût total: <yellow>{total}$"
+
+# ═══════════════════════════════════════════════════════════════
+#                           STORAGE
+# ═══════════════════════════════════════════════════════════════
+
 storage:
-  # Ouverture
-  opened: "<green><bold>✓</bold> Storage ouvert"
-  admin-opened: "<green><bold>✓</bold> Storage de <yellow>{player}</yellow> ouvert"
-  
-  # Transfer (Admin/Console → Storage)
-  item-added: "<green><bold>✓</bold> Ajouté <yellow>{amount}x</yellow> <white>{item}</white> au storage!"
-  item-added-target: "<green><bold>✓</bold> Ajouté <yellow>{amount}x</yellow> <white>{item}</white> au storage de <yellow>{player}</yellow>!"
-  transferred: "<green><bold>✓</bold> Transféré <yellow>{amount}x</yellow> <white>{item}</white> au storage!"
-  transferred-all: "<green><bold>✓</bold> Transféré <yellow>{amount} items</yellow> au storage!"
-  
-  # Dépôt/Retrait via GUI (Menu)
-  deposited: "<green><bold>✓</bold> Déposé <yellow>{amount}x</yellow> <white>{item}</white> dans le storage!"
-  withdrawn: "<green><bold>✓</bold> Retiré <yellow>{amount}x</yellow> <white>{item}</white> du storage!"
-  
-  # Remove (Storage → Inventaire)
-  item-removed: "<green><bold>✓</bold> Retiré <yellow>{amount}x</yellow> <white>{item}</white> du storage!"
-  
-  # Erreurs Storage
-  inventory-full: "<red>Votre inventaire est plein!"
-  not-enough: "<red>Pas assez de <white>{item}</white> dans le storage!"
+  # Dépôt/Retrait
+  deposited: "<gray>Vous avez déposé <green>×{amount} {item}"
+  withdrawn: "<gray>Vous avez retiré <green>×{amount} {item}"
   not-in-storage: "<red>Cet item n'est pas dans votre storage!"
-  not-in-inventory: "<yellow>{player}</yellow> <red>n'a pas cet item dans son inventaire!"
-  cleared: "<red><bold>✓</bold> Storage vidé!"
+  inventory-full: "<red>Votre inventaire est plein!"
   
-  # Storage Plein - Titre/Sous-titre
-  full-title: "<red><bold>⚠ STORAGE PLEIN ⚠</bold></red>"
-  full-subtitle: "<gray>Vendez ou retirez des items pour libérer de l'espace"
+  # Mode RECHERCHE - Création d'offre
+  invalid-item: "<red>⚠ Item invalide!"
+  need-one-item: "<red>⚠ Vous devez avoir au moins 1 item en stock!"
+  order-creation-manager-null: "<red>⚠ OrderCreationManager non initialisé!"
+  order-menu-not-found: "<red>⚠ Menu order_quantity introuvable!"
   
-  # Messages GUI
-  view-only: "<red>Le storage est en lecture seule. Contactez un administrateur pour gérer les items."
-  admin-mode: "<green><bold>MODE ADMIN</bold> <gray>- Vous pouvez déposer/retirer des items"
+  # Mode VENTE
+  sell-unavailable: "<red>Le système de vente n'est pas disponible (Vault requis)."
+  no-item-in-stock: "<red>Vous n'avez pas cet item en stock."
+  cannot-sell-item: "<red>Cet item ne peut pas être vendu."
+  sell-menu-error: "<red>Erreur: Menu de vente introuvable."
 
-# Messages Commandes Storage
-storage-command:
-  # Usage
-  usage-transfer: "<red>Usage: <gray>/qstorage transfer <nexo:id|minecraft:id|hand|all> [amount]"
-  usage-remove: "<red>Usage: <gray>/qstorage remove <nexo:id|minecraft:id> [amount]"
-  usage-console-transfer: "<red>Usage: <gray>qstorage transfer <nexo:id|minecraft:id> <amount> <player>"
-  usage-console-remove: "<red>Usage: <gray>qstorage remove <nexo:id|minecraft:id> <amount> <player>"
-  
-  # Erreurs items
-  nexo-not-found: "<red>Item Nexo introuvable: <gray>{id}"
-  minecraft-not-found: "<red>Item Minecraft introuvable: <gray>{material}"
-  item-not-found: "<red>Item introuvable: <gray>{item}"
-  invalid-amount: "<red>Quantité invalide!"
-  
-  # Main/All
-  must-hold-item: "<red>Vous devez tenir un item dans votre main!"
-  no-items-to-transfer: "<red>Aucun item à transférer!"
-  
-  # Help Admin
-  help-header: "<gold><bold>■</bold> <yellow>Commandes Quantum Storage <gray>(Admin)"
-  help-blank: ""
-  help-transfer-hand: "<yellow>/qstorage transfer hand [amount] <gray>- Transférer l'item en main"
-  help-transfer-all: "<yellow>/qstorage transfer all <gray>- Transférer tout l'inventaire"
-  help-transfer-item: "<yellow>/qstorage transfer <item> <amount> <gray>- Ajouter directement au storage"
-  help-remove: "<yellow>/qstorage remove <item> [amount] <gray>- Retirer du storage"
-  help-syntax: "<gray>Syntaxe des items:"
-  help-nexo: "<white>nexo:<id> <gray>- Item custom Nexo"
-  help-minecraft: "<white>minecraft:<id> <gray>- Item vanilla Minecraft"
-  help-examples: "<gray>Exemples:"
-  help-example-1: "<white>/qstorage transfer nexo:afzelia_bark 1 <gray>- Ajouter 1 écorce au storage"
-  help-example-2: "<white>/qstorage transfer minecraft:diamond 64 <gray>- Ajouter 64 diamants"
-  help-example-3: "<white>/qstorage remove nexo:afzelia_bark 5 <gray>- Retirer 5 du storage"
+# ═══════════════════════════════════════════════════════════════
+#                           VENTE (SELL)
+# ═══════════════════════════════════════════════════════════════
 
-# Messages Menu
-menu:
-  not-found: "<red>Menu introuvable: <gray>{menu}"
-  opened: "<green><bold>✓</bold> Menu ouvert: <yellow>{menu}"
-  requirement-not-met: "<red>Vous ne remplissez pas les conditions!"
-  requirement-permission: "<red>Permission requise: <gray>{permission}"
-  requirement-money: "<red>Argent requis: <yellow>{amount}$"
-  requirement-item: "<red>Item requis: <gray>{item} x{amount}"
-  
-# Messages Commandes Générales
-command:
-  usage: "<red>Usage: <gray>{usage}"
-  help-header: "<gray><bold>=== <gold><bold>Quantum Aide</bold></gold> <gray><bold>==="
-  help-footer: "<gray><bold>======================="
-  help-reload: "<yellow>/quantum reload <gray>- Recharger la configuration"
-  help-storage: "<yellow>/storage <gray>- Ouvrir votre storage"
-  help-storage-admin: "<yellow>/storage <player> <gray>- Ouvrir le storage d'un joueur"
-  help-menu: "<yellow>/menu <nom> <gray>- Ouvrir un menu"
-
-# Messages de Vente (Sell System)
-# NOTE: Ces messages incluent déjà le prefix automatiquement
 sell:
-  # Session de vente
+  # Erreurs
   no-session: "<red>Aucune session de vente active."
   economy-disabled: "<red>Le système économique n'est pas disponible."
-  not-enough-stock: "<red>Vous n'avez pas assez d'items en stock."
+  not-enough-stock: "<red>Vous n'avez plus assez de cet item en stock."
   
-  # Confirmation de vente (sans prefix car il sera ajouté automatiquement)
-  success-title: "<green>Vente réussie !"
-  success-sold: "<gray>Vous avez vendu <yellow>{amount}x {item}"
-  success-received: "<gray>Vous avez reçu <green>{total_price}"
+  # Messages de succès (SellManager.java)
+  success-title: "<green>✓ Vente réussie!"
+  success-sold: "<gray>Vous avez vendu: <white>×{amount} {item}"
+  success-received: "<gray>Argent reçu: <gold>+{total_price}$"
 
-# Messages des Ordres (Order System)
+# ═══════════════════════════════════════════════════════════════
+#                       ORDRES D'ACHAT (ORDERS)
+# ═══════════════════════════════════════════════════════════════
+
 orders:
-  # Erreurs fichier/ordre
+  # Erreurs générales
   file-not-found: "<red>⚠ Fichier orders.yml introuvable!"
   order-not-found: "<red>⚠ Cet ordre n'existe plus!"
   order-corrupted: "<red>⚠ Ordre corrompu!"
-  menu-not-found: "<red>⚠ Menu order_confirm introuvable!"
-  data-not-found: "<red>⚠ Données d'ordre introuvables! Veuillez réessayer."
-  data-lost: "<red>⚠ Données d'ordre introuvables!"
-  
-  # Erreurs validation
   invalid-buyer-uuid: "<red>⚠ UUID de l'acheteur invalide!"
   cannot-sell-to-self: "<red>⚠ Vous ne pouvez pas vendre à vous-même!"
-  
-  # Erreurs stock
   not-enough-stock: "<red>⚠ Vous n'avez pas assez d'items en stock!"
-  stock-details: "<gray>Requis: <yellow>{quantity}</yellow> <gray>| Stock: <red>{stock}"
-  
-  # Erreurs acheteur
+  not-enough-stock-detail: "<gray>Requis: <yellow>{required} <gray>| Stock: <red>{stock}"
   buyer-no-money: "<red>⚠ L'acheteur n'a pas assez d'argent!"
-  transaction-cancelled: "<gray>Transaction annulée."
+  buyer-no-money-cancelled: "<gray>Transaction annulée."
+  withdraw-error: "<red>⚠ Erreur lors du retrait d'argent de l'acheteur!"
+  deposit-error: "<red>⚠ Erreur lors de l'ajout d'argent au vendeur!"
+  transaction-error: "<red>⚠ Erreur critique lors de la transaction!"
   
-  # Erreurs transaction
-  error-withdraw-buyer: "<red>⚠ Erreur lors du retrait d'argent de l'acheteur!"
-  error-deposit-seller: "<red>⚠ Erreur lors de l'ajout d'argent au vendeur!"
-  error-critical: "<red>⚠ Erreur critique lors de la transaction!"
-  
-  # Succès vendeur (le prefix est ajouté automatiquement)
-  seller-success-header: "<green>✓ Vente réussie!"
+  # Messages de succès - Vendeur
+  seller-success-header: "<gradient:#32b8c6:#1d6880>[Quantum]</gradient> <green>✓ Vente réussie!"
   seller-success-item: "<gray>Item: <white>{item}"
-  seller-success-quantity: "<gray>Quantité: <green>{quantity}"
+  seller-success-quantity: "<gray>Quantité: <green>×{quantity}"
   seller-success-money: "<gray>Argent reçu: <gold>+{total_price}$"
   seller-success-buyer: "<gray>Acheteur: <white>{buyer}"
   
-  # Succès acheteur (le prefix est ajouté automatiquement)
-  buyer-success-header: "<green>✓ Votre ordre a été rempli!"
+  # Messages de succès - Acheteur
+  buyer-success-header: "<gradient:#32b8c6:#1d6880>[Quantum]</gradient> <green>✓ Votre ordre a été rempli!"
   buyer-success-item: "<gray>Item: <white>{item}"
-  buyer-success-quantity: "<gray>Quantité: <green>{quantity}"
-  buyer-success-money: "<gray>Prix payé: <gold>{total_price}$"
+  buyer-success-quantity: "<gray>Quantité: <green>×{quantity}"
+  buyer-success-price: "<gray>Prix payé: <gold>{total_price}$"
   buyer-success-seller: "<gray>Vendeur: <white>{seller}"
-
-# Messages d'Erreur
-error:
-  generic: "<red>Une erreur s'est produite!"
-  database: "<red>Erreur de base de données!"
-  database-connection: "<red>Impossible de se connecter à la base de données!"
-  file-not-found: "<red>Fichier introuvable: <gray>{file}"
-  invalid-configuration: "<red>Configuration invalide dans <gray>{file}"
-  menu-load-failed: "<red>Erreur lors du chargement du menu: <gray>{menu}"
   
-# Messages Debug
-debug:
-  enabled: "<gray>[DEBUG] Mode debug activé"
-  disabled: "<gray>[DEBUG] Mode debug désactivé"
-  storage-loaded: "<gray>[DEBUG] Storage chargé pour {player}"
-  storage-saved: "<gray>[DEBUG] Storage sauvegardé pour {player}"
-  menu-loaded: "<gray>[DEBUG] Menu chargé: {menu}"
-  placeholder-registered: "<gray>[DEBUG] PlaceholderAPI enregistré"
+  # OrderButtonHandler
+  data-not-found: "<red>⚠ Données d'ordre introuvables! Veuillez réessayer."
+  confirm-menu-not-found: "<red>⚠ Menu order_confirm introuvable!"
 
-# ===============================================
-# GUIDE MINIMESSAGE
-# ===============================================
-# Couleurs simples:
-#   <black>, <dark_blue>, <dark_green>, <dark_aqua>, <dark_red>, <dark_purple>
-#   <gold>, <gray>, <dark_gray>, <blue>, <green>, <aqua>, <red>, <light_purple>
-#   <yellow>, <white>
-#
-# Formats:
-#   <bold>gras</bold>
-#   <italic>italique</italic>
-#   <underlined>souligné</underlined>
-#   <strikethrough>barré</strikethrough>
-#   <obfuscated>aléatoire</obfuscated>
-#
-# Hex colors:
-#   <color:#FF5555>texte couleur hex
-#   <#FF5555>raccourci hex
-#
-# Gradient:
-#   <gradient:red:blue>texte dégradé</gradient>
-#   <gradient:#FF5555:#5555FF>gradient hex</gradient>
-#
-# Hover & Click:
-#   <hover:show_text:'Info bulle'>survole moi</hover>
-#   <click:run_command:'/help'>clique ici</click>
-#
-# Reset:
-#   <reset> réinitialise tous les formats
-# ===============================================
+# ═══════════════════════════════════════════════════════════════
+#                  CRÉATION D'ORDRES (ORDER CREATION)
+# ═══════════════════════════════════════════════════════════════
+
+order_creation:
+  # Erreurs générales
+  no-session: "<red>Erreur: Aucune offre en cours!"
+  quantity-positive: "<red>La quantité doit être supérieure à 0!"
+  price-positive: "<red>Le prix doit être supérieur à 0!"
+  invalid-value: "<red>Valeur invalide: {value}"
+  
+  # OrderMenuHandler - Ajustement quantité/prix
+  adjust-quantity-error: "<red>Impossible d'ajuster la quantité."
+  adjust-price-error: "<red>Impossible d'ajuster le prix."
+  
+  # Succès création d'offre (OffreCommand.java)
+  success-header: "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"
+  success-title: "<green>✓ Offre créée avec succès!"
+  success-item: "<#32b8c6>Item : <white>{item}"
+  success-category: "<#32b8c6>Catégorie : <white>{category}"
+  success-quantity: "<#32b8c6>Quantité : <white>{quantity}"
+  success-price-unit: "<#32b8c6>Prix unitaire : <green>{price}$"
+  success-price-total: "<#32b8c6>Coût total : <yellow>{total}$"
+  success-duration: "<#32b8c6>Durée : <white>{duration} jours"
+  success-category-info: "<gray>Votre offre est maintenant visible dans la catégorie <white>{category}</white>."
+  success-items-removed: "<gray>Les items ont été retirés de votre inventaire."
+  success-footer: "<gradient:#32b8c6:#1d6880>══════════════════════════════════</gradient>"
+
+# ═══════════════════════════════════════════════════════════════
+#                         MODE DE STOCKAGE
+# ═══════════════════════════════════════════════════════════════
+
+mode:
+  changed: "<gradient:#32b8c6:#1d6880>[Quantum]</gradient> <gray>Mode changé en {mode}"
+  invalid: "<red>Mode invalide!"
+
+# ═══════════════════════════════════════════════════════════════
+#                         ACTIONS GÉNÉRALES
+# ═══════════════════════════════════════════════════════════════
+
+actions:
+  menu-not-found: "<red>Menu introuvable: {menu}"
+  invalid-sound: "<red>Son invalide: {sound}"
+  invalid-effect: "<red>Effet invalide: {effect}"
+
+# ═══════════════════════════════════════════════════════════════
+#                         STATISTIQUES
+# ═══════════════════════════════════════════════════════════════
+
+statistics:
+  # En-têtes
+  global-header: "<gold>┌──────────────────────────────────────┐"
+  global-title: "<gold>│    <white><bold>STATISTIQUES GLOBALES</bold>     <gold>│"
+  global-separator: "<gold>├──────────────────────────────────────┤"
+  global-footer: "<gold>└──────────────────────────────────────┘"
+  
+  category-header: "<gold>┌──────────────────────────────────────────────┐"
+  category-title: "<gold>│  <white><bold>STATISTIQUES PAR CATÉGORIE</bold>  <gold>│"
+  category-separator: "<gold>├──────────────────────────────────────────────┤"
+  category-footer: "<gold>└──────────────────────────────────────────────┘"
+  
+  # Lignes de stats
+  items-stored: "<gold>│ <yellow>📦 Items Stockés:"
+  items-stored-value: "<gold>│   <white>{value} items"
+  trades-created: "<gold>│ <blue>📊 Trades Créés:"
+  trades-created-value: "<gold>│   <white>{value} offres"
+  trades-completed: "<gold>│ <green>✓ Trades Complétés:"
+  trades-completed-value: "<gold>│   <white>{value} trades"
+  volume-traded: "<gold>│ <light_purple>🔁 Volume Total Échangé:"
+  volume-traded-value: "<gold>│   <white>{value} items"
+  
+  # Catégories
+  category-arrow: "<gold>│ <yellow><bold>➤ {category}"
+  category-stored: "<gold>│   <gray>Stockés: <white>{value}"
+  category-created: "<gold>│   <gray>Créés: <white>{value}"
+  category-completed: "<gold>│   <gray>Complétés: <white>{value}"
+  category-volume: "<gold>│   <gray>Volume: <white>{value}"
+  
+  # Help text
+  help-list: "<gray><italic>Utilise: /quantum stats list pour voir par catégorie"
+  total-categories: "<gray><italic>Total: <white>{count} <gray>catégories"
+
+# ═══════════════════════════════════════════════════════════════
+#                           HELP MENUS
+# ═══════════════════════════════════════════════════════════════
+
+help:
+  separator: "<gray>────────────────────────────────"
+  title: "<gold><bold>COMMANDES QUANTUM</bold>"
+  admin-title: "<gold><bold>COMMANDES ADMIN ORDRES</bold>"
+  
+  # Commandes principales
+  reload: "<yellow>/quantum reload [type] <gray>- Recharger la configuration"
+  reload-types: "  <gray>Types: <yellow>all, price, config, menus, messages"
+  stats: "<yellow>/quantum stats [category] <gray>- Afficher les statistiques"
+  stats-help: "  <gray>Utilisez 'list' pour voir toutes les catégories"
+  storagestats: "<yellow>/quantum storagestats <gray>- Stats du storage global"
+  version: "<yellow>/quantum version <gray>- Afficher les infos de version"
+  help-cmd: "<yellow>/quantum help <gray>- Afficher cette aide"
+  storage: "<yellow>/storage <gray>- Ouvrir le stockage virtuel"
+  menu: "<yellow>/menu <nom> <gray>- Ouvrir un menu personnalisé"
+  
+  # Commandes admin
+  orders-create-category: "<yellow>/quantum orders button createcategorie <nom>"
+  orders-create-category-desc: "  <gray>- Créer une nouvelle catégorie d'ordres"
+  orders-delete-category: "<yellow>/quantum orders button deletecategorie <nom>"
+  orders-delete-category-desc: "  <gray>- Supprimer une catégorie d'ordres"
+
+# ═══════════════════════════════════════════════════════════════
+#                           VERSION INFO
+# ═══════════════════════════════════════════════════════════════
+
+version:
+  separator: "<gray>────────────────────────────"
+  title: "<gold><bold>QUANTUM</bold> <white>- Advanced Storage"
+  version: "<gray>Version: <yellow>1.0.0"
+  author: "<gray>Auteur: <yellow>Kazotaruu_"
+  menus: "<gray>Menus: <yellow>{count}"

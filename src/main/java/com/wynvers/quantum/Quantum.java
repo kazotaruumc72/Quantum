@@ -383,10 +383,10 @@ public final class Quantum extends JavaPlugin {
             logger.success("✓ Escrow data saved (" + escrowManager.getTotalEscrow() + "€)");
         }
         
-        // Save transaction history
+        // NOTE: TransactionHistoryManager saves transactions automatically in real-time
+        // No need to save on disable as transactions are persisted immediately to transactions.yml
         if (transactionHistoryManager != null) {
-            transactionHistoryManager.saveTransactions();
-            logger.success("✓ Transaction history saved");
+            logger.success("✓ Transaction history persisted (real-time saves)");
         }
         
         // Save statistics
@@ -426,7 +426,7 @@ public final class Quantum extends JavaPlugin {
         if (priceManager != null) priceManager.reload();
         if (orderManager != null) orderManager.loadItems();
         if (statisticsManager != null) statisticsManager.loadStatistics();
-        if (transactionHistoryManager != null) transactionHistoryManager.loadTransactions();
+        // NOTE: TransactionHistoryManager loads from file on-the-fly, no need to reload
         
         logger.success("Quantum reloaded successfully!");
     }

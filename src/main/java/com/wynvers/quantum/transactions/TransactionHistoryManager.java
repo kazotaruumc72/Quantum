@@ -1,7 +1,6 @@
 package com.wynvers.quantum.transactions;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.transactions.Transaction.TransactionRole;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -9,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Gère l'historique des transactions (achats et ventes)
@@ -102,35 +100,14 @@ public class TransactionHistoryManager {
     }
     
     /**
-     * Get all transactions for a player
-     */
-    public List<Transaction> getPlayerTransactions(UUID playerUUID) {
-        return getPlayerHistory(playerUUID, null, 0);
-    }
-    
-    /**
-     * Get buy transactions for a player
-     */
-    public List<Transaction> getPlayerBuyTransactions(UUID playerUUID) {
-        return getPlayerHistory(playerUUID, "BUY", 0);
-    }
-    
-    /**
-     * Get sell transactions for a player
-     */
-    public List<Transaction> getPlayerSellTransactions(UUID playerUUID) {
-        return getPlayerHistory(playerUUID, "SELL", 0);
-    }
-    
-    /**
      * Récupère l'historique des transactions pour un joueur
      * 
-     * @param playerUUID UUID du joueur
+     * @param player Joueur
      * @param type Type de transaction ("BUY", "SELL", ou null pour tout)
      * @param limit Nombre maximum de résultats (0 = illimité)
      * @return Liste des transactions triées par date (plus récent en premier)
      */
-    private List<Transaction> getPlayerHistory(UUID playerUUID, String type, int limit) {
+    public List<Transaction> getPlayerHistory(Player player, String type, int limit) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(transactionsFile);
         
         if (!config.contains("transactions")) {
@@ -146,8 +123,8 @@ public class TransactionHistoryManager {
             String buyerUUID = config.getString(path + ".buyer_uuid");
             String sellerUUID = config.getString(path + ".seller_uuid");
             
-            boolean isBuyer = buyerUUID != null && buyerUUID.equals(playerUUID.toString());
-            boolean isSeller = sellerUUID != null && sellerUUID.equals(playerUUID.toString());
+            boolean isBuyer = buyerUUID != null && buyerUUID.equals(player.getUniqueId().toString());
+            boolean isSeller = sellerUUID != null && sellerUUID.equals(player.getUniqueId().toString());
             
             // Filtrer par type si spécifié
             if (type != null) {
@@ -175,7 +152,7 @@ public class TransactionHistoryManager {
         }
         
         // Trier par timestamp (plus récent en premier)
-        transactions.sort((a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
+        transactions.sort((a, b) -> Long.compare(b.timestamp, a.timestamp));
         
         // Limiter les résultats si nécessaire
         if (limit > 0 && transactions.size() > limit) {
@@ -189,16 +166,16 @@ public class TransactionHistoryManager {
      * Calcule le total des achats d'un joueur
      */
     public double getTotalBuyAmount(Player player) {
-        List<Transaction> buyTransactions = getPlayerBuyTransactions(player.getUniqueId());
-        return buyTransactions.stream().mapToDouble(Transaction::getTotalPrice).sum();
+        List<Transaction> buyTransactions = getPlayerHistory(player, "BUY", 0);
+        return buyTransactions.stream().mapToDouble(t -> t.totalPrice).sum();
     }
     
     /**
      * Calcule le total des ventes d'un joueur
      */
     public double getTotalSellAmount(Player player) {
-        List<Transaction> sellTransactions = getPlayerSellTransactions(player.getUniqueId());
-        return sellTransactions.stream().mapToDouble(Transaction::getTotalPrice).sum();
+        List<Transaction> sellTransactions = getPlayerHistory(player, "SELL", 0);
+        return sellTransactions.stream().mapToDouble(t -> t.totalPrice).sum();
     }
     
     /**
@@ -212,14 +189,14 @@ public class TransactionHistoryManager {
      * Compte le nombre total de transactions pour un joueur
      */
     public int getTotalTransactionCount(Player player) {
-        return getPlayerTransactions(player.getUniqueId()).size();
+        return getPlayerHistory(player, null, 0).size();
     }
     
     /**
      * Récupère l'item le plus vendu par un joueur
      */
     public String getMostSoldItem(Player player) {
-        List<Transaction> sellTransactions = getPlayerSellTransactions(player.getUniqueId());
+        List<Transaction> sellTransactions = getPlayerHistory(player, "SELL", 0);
         
         if (sellTransactions.isEmpty()) {
             return "Aucun";
@@ -227,7 +204,7 @@ public class TransactionHistoryManager {
         
         Map<String, Integer> itemCounts = new HashMap<>();
         for (Transaction transaction : sellTransactions) {
-            itemCounts.put(transaction.getItemId(), itemCounts.getOrDefault(transaction.getItemId(), 0) + transaction.getQuantity());
+            itemCounts.put(transaction.itemId, itemCounts.getOrDefault(transaction.itemId, 0) + transaction.quantity);
         }
         
         return itemCounts.entrySet().stream()
@@ -240,7 +217,7 @@ public class TransactionHistoryManager {
      * Récupère l'item le plus acheté par un joueur
      */
     public String getMostBoughtItem(Player player) {
-        List<Transaction> buyTransactions = getPlayerBuyTransactions(player.getUniqueId());
+        List<Transaction> buyTransactions = getPlayerHistory(player, "BUY", 0);
         
         if (buyTransactions.isEmpty()) {
             return "Aucun";
@@ -248,12 +225,66 @@ public class TransactionHistoryManager {
         
         Map<String, Integer> itemCounts = new HashMap<>();
         for (Transaction transaction : buyTransactions) {
-            itemCounts.put(transaction.getItemId(), itemCounts.getOrDefault(transaction.getItemId(), 0) + transaction.getQuantity());
+            itemCounts.put(transaction.itemId, itemCounts.getOrDefault(transaction.itemId, 0) + transaction.quantity);
         }
         
         return itemCounts.entrySet().stream()
             .max(Map.Entry.comparingByValue())
             .map(Map.Entry::getKey)
             .orElse("Aucun");
+    }
+    
+    // ============================================================
+    // CLASSES INTERNES
+    // ============================================================
+    
+    /**
+     * Représente une transaction
+     */
+    public static class Transaction {
+        public final String transactionId;
+        public final String buyer;
+        public final String seller;
+        public final String itemId;
+        public final int quantity;
+        public final double pricePerUnit;
+        public final double totalPrice;
+        public final long timestamp;
+        public final String date;
+        public final TransactionRole playerRole;
+        
+        public Transaction(String transactionId, String buyer, String seller, String itemId, int quantity,
+                         double pricePerUnit, double totalPrice, long timestamp, String date, TransactionRole playerRole) {
+            this.transactionId = transactionId;
+            this.buyer = buyer;
+            this.seller = seller;
+            this.itemId = itemId;
+            this.quantity = quantity;
+            this.pricePerUnit = pricePerUnit;
+            this.totalPrice = totalPrice;
+            this.timestamp = timestamp;
+            this.date = date;
+            this.playerRole = playerRole;
+        }
+        
+        /**
+         * Formate l'item pour l'affichage
+         */
+        public String getFormattedItem() {
+            if (itemId.startsWith("nexo:")) {
+                return itemId.substring(5).replace("_", " ");
+            } else if (itemId.startsWith("minecraft:")) {
+                return itemId.substring(10).replace("_", " ");
+            }
+            return itemId.replace("_", " ");
+        }
+    }
+    
+    /**
+     * Rôle du joueur dans une transaction
+     */
+    public enum TransactionRole {
+        BUYER,
+        SELLER
     }
 }

@@ -312,4 +312,17 @@ public class TowerManager {
     public int getTowerCount() {
         return towers.size();
     }
+
+        /**
+     * Get the tower a player is currently in
+     * @param player The player
+     * @return TowerConfig or null if not in a tower
+     */
+    public TowerConfig getPlayerTower(Player player) {
+        TowerProgress progress = getProgress(player.getUniqueId());
+        if (progress != null && progress.getCurrentTower() != null) {
+            return getTower(progress.getCurrentTower());
+        }
+        return null;
+    }
 }

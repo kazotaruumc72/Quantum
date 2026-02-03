@@ -23,8 +23,10 @@ import java.util.UUID;
  * 6. Notification à l'acheteur
  * 7. Mise à jour de l'ordre (status = COMPLETED)
  * 
+ * PATCH: Utilise UUID complet comme clé d'ordre (orderId = UUID complet)
+ * 
  * @author Kazotaruu_
- * @version 1.0
+ * @version 1.1
  */
 public class OrderAcceptanceHandler {
     
@@ -38,11 +40,16 @@ public class OrderAcceptanceHandler {
      * Traite l'acceptation d'un ordre par un vendeur
      * 
      * @param seller Vendeur qui accepte l'ordre
-     * @param orderId ID court de l'ordre (ex: "a1b2c3d4")
+     * @param orderId UUID COMPLET de l'ordre (clé dans orders.yml)
      * @param category Catégorie de l'ordre
      * @return true si l'ordre a été accepté avec succès
      */
     public boolean acceptOrder(Player seller, String orderId, String category) {
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Processing order acceptance:");
+        plugin.getLogger().info("  - Seller: " + seller.getName());
+        plugin.getLogger().info("  - OrderID: " + orderId);
+        plugin.getLogger().info("  - Category: " + category);
+        
         // Charger l'ordre depuis orders.yml
         File ordersFile = new File(plugin.getDataFolder(), "orders.yml");
         if (!ordersFile.exists()) {
@@ -53,14 +60,19 @@ public class OrderAcceptanceHandler {
         YamlConfiguration ordersConfig = YamlConfiguration.loadConfiguration(ordersFile);
         String path = category + "." + orderId;
         
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Looking for order at path: " + path);
+        
         // Vérifier que l'ordre existe
         if (!ordersConfig.contains(path)) {
             seller.sendMessage("§c⚠ Ordre introuvable!");
+            plugin.getLogger().warning("[ORDER_ACCEPTANCE] Order not found at path: " + path);
             return false;
         }
         
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Order found! Validating order data...");
+        
         // Récupérer les infos de l'ordre
-        String orderUUIDStr = ordersConfig.getString(path + ".order_uuid");
+        // PATCH: orderId EST déjà l'UUID complet, pas besoin de order_uuid séparé
         String buyerName = ordersConfig.getString(path + ".orderer");
         String buyerUUIDStr = ordersConfig.getString(path + ".orderer_uuid");
         String itemId = ordersConfig.getString(path + ".item");
@@ -69,23 +81,28 @@ public class OrderAcceptanceHandler {
         double totalPrice = ordersConfig.getDouble(path + ".total_price");
         String status = ordersConfig.getString(path + ".status", "ACTIVE");
         
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Order data:");
+        plugin.getLogger().info("  - Buyer: " + buyerName);
+        plugin.getLogger().info("  - Item: " + itemId);
+        plugin.getLogger().info("  - Quantity: " + quantity);
+        plugin.getLogger().info("  - Total Price: " + totalPrice);
+        plugin.getLogger().info("  - Status: " + status);
+        
         // Vérifier que l'ordre est actif
         if (!"ACTIVE".equals(status)) {
             seller.sendMessage("§c⚠ Cet ordre n'est plus actif!");
+            plugin.getLogger().warning("[ORDER_ACCEPTANCE] Order status is not ACTIVE: " + status);
             return false;
         }
         
-        // Vérifier que l'UUID de l'ordre existe
-        if (orderUUIDStr == null) {
-            seller.sendMessage("§c⚠ Ordre invalide (UUID manquant)!");
-            return false;
-        }
-        
+        // Convertir l'orderId (UUID complet) en UUID
         UUID orderUUID;
         try {
-            orderUUID = UUID.fromString(orderUUIDStr);
+            orderUUID = UUID.fromString(orderId);
+            plugin.getLogger().info("[ORDER_ACCEPTANCE] UUID parsed successfully: " + orderUUID);
         } catch (IllegalArgumentException e) {
             seller.sendMessage("§c⚠ UUID d'ordre invalide!");
+            plugin.getLogger().severe("[ORDER_ACCEPTANCE] Invalid UUID: " + orderId);
             return false;
         }
         
@@ -96,8 +113,11 @@ public class OrderAcceptanceHandler {
         }
         
         // === ÉTAPE 1: VÉRIFIER LE STOCK ===
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Checking seller stock...");
         StorageData storage = plugin.getStorageManager().getStorage(seller.getUniqueId());
         int availableStock = storage.getAmount(itemId);
+        
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Seller stock: " + availableStock + "x (required: " + quantity + "x)");
         
         if (availableStock < quantity) {
             seller.sendMessage("§c⚠ Stock insuffisant!");
@@ -107,9 +127,12 @@ public class OrderAcceptanceHandler {
         }
         
         // === ÉTAPE 2: VÉRIFIER L'ESCROW ===
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Validating escrow...");
         if (!plugin.getEscrowManager().hasDeposit(orderUUID)) {
             seller.sendMessage("§c⚠ Aucun dépôt escrow trouvé pour cet ordre!");
             seller.sendMessage("§7L'ordre est invalide ou déjà traité.");
+            plugin.getLogger().warning("[ORDER_ACCEPTANCE] No escrow deposit found for UUID: " + orderUUID);
+            
             // Marquer l'ordre comme invalide
             ordersConfig.set(path + ".status", "INVALID");
             try {
@@ -121,23 +144,30 @@ public class OrderAcceptanceHandler {
         }
         
         double escrowAmount = plugin.getEscrowManager().getAmount(orderUUID);
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Escrow amount: " + escrowAmount + "€ (expected: " + totalPrice + "€)");
+        
         if (Math.abs(escrowAmount - totalPrice) > 0.01) {
             seller.sendMessage("§c⚠ Montant escrow incorrect!");
             seller.sendMessage("§7Attendu: " + totalPrice + "€, Trouvé: " + escrowAmount + "€");
+            plugin.getLogger().warning("[ORDER_ACCEPTANCE] Escrow amount mismatch!");
             return false;
         }
         
         // === ÉTAPE 3: RETIRER LES ITEMS DU STORAGE ===
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Removing items from seller storage...");
         boolean removed = storage.removeItem(itemId, quantity);
         if (!removed) {
             seller.sendMessage("§c⚠ Erreur lors du retrait des items!");
+            plugin.getLogger().severe("[ORDER_ACCEPTANCE] Failed to remove items from seller storage!");
             return false;
         }
         
         // Sauvegarder le storage
         plugin.getStorageManager().saveStorage(seller.getUniqueId());
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Items removed successfully");
         
         // === ÉTAPE 4: RÉCUPÉRER L'ARGENT DE L'ESCROW ===
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Retrieving money from escrow...");
         double withdrawnAmount = plugin.getEscrowManager().withdraw(orderUUID);
         if (withdrawnAmount <= 0) {
             // Erreur critique: les items ont été retirés mais pas d'argent
@@ -152,7 +182,10 @@ public class OrderAcceptanceHandler {
             return false;
         }
         
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Escrow withdrawn: " + withdrawnAmount + "€");
+        
         // === ÉTAPE 5: DONNER L'ARGENT AU VENDEUR ===
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Depositing money to seller...");
         if (plugin.getVaultManager().isEnabled()) {
             if (!plugin.getVaultManager().deposit(seller, withdrawnAmount)) {
                 // Erreur: argent retiré de l'escrow mais pas donné au vendeur
@@ -178,7 +211,24 @@ public class OrderAcceptanceHandler {
             return false;
         }
         
-        // === ÉTAPE 6: METTRE À JOUR L'ORDRE ===
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Money deposited to seller successfully");
+        
+        // === ÉTAPE 6: AJOUTER LES ITEMS AU STORAGE DE L'ACHETEUR ===
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Adding items to buyer storage...");
+        if (buyerUUIDStr != null) {
+            try {
+                UUID buyerUUID = UUID.fromString(buyerUUIDStr);
+                StorageData buyerStorage = plugin.getStorageManager().getStorage(buyerUUID);
+                buyerStorage.addItem(itemId, quantity);
+                plugin.getStorageManager().saveStorage(buyerUUID);
+                plugin.getLogger().info("[ORDER_ACCEPTANCE] Items added to buyer storage");
+            } catch (IllegalArgumentException e) {
+                plugin.getQuantumLogger().warning("Invalid buyer UUID: " + buyerUUIDStr);
+            }
+        }
+        
+        // === ÉTAPE 7: METTRE À JOUR L'ORDRE ===
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Updating order status...");
         ordersConfig.set(path + ".status", "COMPLETED");
         ordersConfig.set(path + ".seller", seller.getName());
         ordersConfig.set(path + ".seller_uuid", seller.getUniqueId().toString());
@@ -186,12 +236,13 @@ public class OrderAcceptanceHandler {
         
         try {
             ordersConfig.save(ordersFile);
+            plugin.getLogger().info("[ORDER_ACCEPTANCE] Order updated successfully");
         } catch (Exception e) {
             plugin.getQuantumLogger().error("Failed to save completed order " + orderId);
             e.printStackTrace();
         }
         
-        // === ÉTAPE 7: NOTIFICATIONS ===
+        // === ÉTAPE 8: NOTIFICATIONS ===
         
         // Message au vendeur
         seller.sendMessage("§a§l✓ Ordre accepté avec succès!");
@@ -210,11 +261,6 @@ public class OrderAcceptanceHandler {
                     buyer.sendMessage("§7§b" + seller.getName() + " §7vous a vendu §e" + quantity + "x §f" + formatItemName(itemId));
                     buyer.sendMessage("§7Coût total: §6" + String.format("%.2f", totalPrice) + "$");
                     buyer.sendMessage("§7Les items sont disponibles dans votre storage!");
-                    
-                    // Ajouter les items au storage de l'acheteur
-                    StorageData buyerStorage = plugin.getStorageManager().getStorage(buyerUUID);
-                    buyerStorage.addItem(itemId, quantity);
-                    plugin.getStorageManager().saveStorage(buyerUUID);
                 }
             } catch (IllegalArgumentException e) {
                 plugin.getQuantumLogger().warning("Invalid buyer UUID: " + buyerUUIDStr);
@@ -222,7 +268,7 @@ public class OrderAcceptanceHandler {
         }
         
         // Log de la transaction
-        plugin.getQuantumLogger().info("Order completed: " + orderId);
+        plugin.getQuantumLogger().info("[ORDER_ACCEPTANCE] Order accepted successfully!");
         plugin.getQuantumLogger().info("  Buyer: " + buyerName + ", Seller: " + seller.getName());
         plugin.getQuantumLogger().info("  Item: " + quantity + "x " + itemId);
         plugin.getQuantumLogger().info("  Price: " + totalPrice + "€");

@@ -282,6 +282,7 @@ public class MenuListener implements Listener {
     /**
      * NOUVEAU: Extrait l'orderId depuis la lore d'un item d'ordre
      * En cherchant dans orders.yml pour trouver l'ordre correspondant
+     * PATCH: Utilise maintenant BUYER + QUANTITÉ + PRIX pour différencier les ordres
      * 
      * @param orderItem L'ItemStack de l'ordre
      * @param category La catégorie de l'ordre
@@ -301,17 +302,33 @@ public class MenuListener implements Listener {
         
         // Extraire les infos depuis la lore
         String buyerName = null;
-        String itemName = null;
-        String quantity = null;
+        Integer quantity = null;
+        Double pricePerUnit = null;
         
         for (String line : lore) {
-            // Ex: "§e⚡ Commandé par: §fKazotaruu_"
-            if (line.contains("Commandé par:")) {
-                buyerName = line.split(":")[1].trim().replaceAll("§.", "");
+            String cleanLine = line.replaceAll("§.", "").trim();
+            
+            // Ex: "⚡ Commandé par: Kazotaruu_"
+            if (cleanLine.contains("Commandé par:")) {
+                buyerName = cleanLine.split(":")[1].trim();
             }
-            // Ex: "§e⚡ Quantité: §f64x"
-            else if (line.contains("Quantité:")) {
-                quantity = line.split(":")[1].trim().replaceAll("§.", "").replace("x", "");
+            // Ex: "⚡ Quantité recherchée: 201"
+            else if (cleanLine.contains("Quantité recherchée:")) {
+                try {
+                    String quantityStr = cleanLine.split(":")[1].trim();
+                    quantity = Integer.parseInt(quantityStr);
+                } catch (Exception e) {
+                    plugin.getLogger().warning("[EXTRACT_ORDER_ID] Erreur parsing quantité: " + e.getMessage());
+                }
+            }
+            // Ex: "⚡ Prix unitaire: 10.00$"
+            else if (cleanLine.contains("Prix unitaire:")) {
+                try {
+                    String priceStr = cleanLine.split(":")[1].trim().replace("$", "");
+                    pricePerUnit = Double.parseDouble(priceStr);
+                } catch (Exception e) {
+                    plugin.getLogger().warning("[EXTRACT_ORDER_ID] Erreur parsing prix: " + e.getMessage());
+                }
             }
         }
         
@@ -319,6 +336,18 @@ public class MenuListener implements Listener {
             plugin.getLogger().warning("[EXTRACT_ORDER_ID] Impossible de trouver le nom de l'acheteur dans la lore");
             return null;
         }
+        
+        if (quantity == null) {
+            plugin.getLogger().warning("[EXTRACT_ORDER_ID] Impossible de trouver la quantité dans la lore");
+            return null;
+        }
+        
+        if (pricePerUnit == null) {
+            plugin.getLogger().warning("[EXTRACT_ORDER_ID] Impossible de trouver le prix unitaire dans la lore");
+            return null;
+        }
+        
+        plugin.getLogger().info("[EXTRACT_ORDER_ID] Recherche d'ordre pour: " + buyerName + ", Quantité: " + quantity + ", Prix: " + pricePerUnit + "$");
         
         // Chercher dans orders.yml pour trouver l'ordre correspondant
         try {
@@ -339,15 +368,22 @@ public class MenuListener implements Listener {
             for (String orderId : ordersConfig.getConfigurationSection(category).getKeys(false)) {
                 String path = category + "." + orderId;
                 String storedBuyerName = ordersConfig.getString(path + ".orderer", "");
+                int storedQuantity = ordersConfig.getInt(path + ".quantity", 0);
+                double storedPrice = ordersConfig.getDouble(path + ".price_per_unit", 0.0);
                 
-                // Comparer les noms (insensible à la casse)
-                if (storedBuyerName.equalsIgnoreCase(buyerName)) {
-                    plugin.getLogger().info("[EXTRACT_ORDER_ID] Ordre trouvé: " + orderId + " pour " + buyerName);
+                plugin.getLogger().info("[EXTRACT_ORDER_ID] Comparaison avec ordre " + orderId + ": " + storedBuyerName + ", " + storedQuantity + ", " + storedPrice + "$");
+                
+                // Comparer BUYER + QUANTITÉ + PRIX (avec tolérance de 0.01 pour le prix)
+                if (storedBuyerName.equalsIgnoreCase(buyerName) && 
+                    storedQuantity == quantity &&
+                    Math.abs(storedPrice - pricePerUnit) < 0.01) {
+                    
+                    plugin.getLogger().info("[EXTRACT_ORDER_ID] ✓ Ordre trouvé: " + orderId);
                     return orderId;
                 }
             }
             
-            plugin.getLogger().warning("[EXTRACT_ORDER_ID] Aucun ordre trouvé pour l'acheteur: " + buyerName);
+            plugin.getLogger().warning("[EXTRACT_ORDER_ID] Aucun ordre trouvé correspondant aux critères");
             
         } catch (Exception e) {
             plugin.getLogger().severe("[EXTRACT_ORDER_ID] Erreur lors de la lecture de orders.yml: " + e.getMessage());

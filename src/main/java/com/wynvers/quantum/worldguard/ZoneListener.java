@@ -2,6 +2,7 @@ package com.wynvers.quantum.worldguard;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.towers.TowerManager;
+import com.wynvers.quantum.towers.TowerScoreboardHandler;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,19 +20,21 @@ import java.util.UUID;
  * Écoute les mouvements des joueurs pour gérer les zones restreintes et la progression des tours
  * 
  * @author Kazotaruu_
- * @version 2.0
+ * @version 2.1
  */
 public class ZoneListener implements Listener {
     
     private final Quantum plugin;
     private final ZoneManager zoneManager;
     private final TowerManager towerManager;
+    private final TowerScoreboardHandler scoreboardHandler;
     private final Map<UUID, String> lastZone = new HashMap<>();
     
     public ZoneListener(Quantum plugin) {
         this.plugin = plugin;
         this.zoneManager = plugin.getZoneManager();
         this.towerManager = plugin.getTowerManager();
+        this.scoreboardHandler = plugin.getScoreboardHandler();
     }
     
     @EventHandler(priority = EventPriority.HIGH)
@@ -95,8 +98,13 @@ public class ZoneListener implements Listener {
             zoneManager.onPlayerExitZone(player, fromZone);
             lastZone.remove(player.getUniqueId());
             
-            // Clear tower location
+            // Clear tower location and disable scoreboard
             if (towerManager != null) {
+                String towerId = towerManager.getTowerByRegion(fromZone);
+                if (towerId != null && scoreboardHandler != null) {
+                    // Désactiver le scoreboard et réactiver Oreo Essentials
+                    scoreboardHandler.disableTowerScoreboard(player);
+                }
                 towerManager.clearCurrentLocation(player);
             }
         }
@@ -105,12 +113,17 @@ public class ZoneListener implements Listener {
             zoneManager.onPlayerEnterZone(player, toZone);
             lastZone.put(player.getUniqueId(), toZone);
             
-            // Update tower location
+            // Update tower location and enable scoreboard
             if (towerManager != null) {
                 String towerId = towerManager.getTowerByRegion(toZone);
                 int floor = towerManager.getFloorByRegion(toZone);
                 if (towerId != null && floor != -1) {
                     towerManager.updateCurrentLocation(player, towerId, floor);
+                    
+                    // Activer le scoreboard de tour
+                    if (scoreboardHandler != null) {
+                        scoreboardHandler.enableTowerScoreboard(player, towerId);
+                    }
                 }
             }
         }
@@ -133,10 +146,18 @@ public class ZoneListener implements Listener {
             
             // Update tower location
             if (towerManager != null) {
-                String towerId = towerManager.getTowerByRegion(toZone);
+                String oldTowerId = towerManager.getTowerByRegion(fromZone);
+                String newTowerId = towerManager.getTowerByRegion(toZone);
                 int floor = towerManager.getFloorByRegion(toZone);
-                if (towerId != null && floor != -1) {
-                    towerManager.updateCurrentLocation(player, towerId, floor);
+                
+                if (newTowerId != null && floor != -1) {
+                    towerManager.updateCurrentLocation(player, newTowerId, floor);
+                    
+                    // Si changement de tour, pas besoin de changer le scoreboard (déjà actif)
+                    // Le scoreboard se met à jour automatiquement avec les placeholders
+                } else if (oldTowerId != null && scoreboardHandler != null) {
+                    // Sortie de tour
+                    scoreboardHandler.disableTowerScoreboard(player);
                 }
             }
         }
@@ -160,6 +181,10 @@ public class ZoneListener implements Listener {
             lastZone.remove(player.getUniqueId());
             
             if (towerManager != null) {
+                String towerId = towerManager.getTowerByRegion(fromZone);
+                if (towerId != null && scoreboardHandler != null) {
+                    scoreboardHandler.disableTowerScoreboard(player);
+                }
                 towerManager.clearCurrentLocation(player);
             }
         }
@@ -172,6 +197,10 @@ public class ZoneListener implements Listener {
                 int floor = towerManager.getFloorByRegion(toZone);
                 if (towerId != null && floor != -1) {
                     towerManager.updateCurrentLocation(player, towerId, floor);
+                    
+                    if (scoreboardHandler != null) {
+                        scoreboardHandler.enableTowerScoreboard(player, towerId);
+                    }
                 }
             }
         }
@@ -189,10 +218,14 @@ public class ZoneListener implements Listener {
             lastZone.put(player.getUniqueId(), toZone);
             
             if (towerManager != null) {
-                String towerId = towerManager.getTowerByRegion(toZone);
+                String oldTowerId = towerManager.getTowerByRegion(fromZone);
+                String newTowerId = towerManager.getTowerByRegion(toZone);
                 int floor = towerManager.getFloorByRegion(toZone);
-                if (towerId != null && floor != -1) {
-                    towerManager.updateCurrentLocation(player, towerId, floor);
+                
+                if (newTowerId != null && floor != -1) {
+                    towerManager.updateCurrentLocation(player, newTowerId, floor);
+                } else if (oldTowerId != null && scoreboardHandler != null) {
+                    scoreboardHandler.disableTowerScoreboard(player);
                 }
             }
         }
@@ -219,9 +252,13 @@ public class ZoneListener implements Listener {
         lastZone.remove(player.getUniqueId());
         zoneManager.onPlayerQuit(player);
         
-        // Clear tower location
+        // Clear tower location and scoreboard
         if (towerManager != null) {
             towerManager.clearCurrentLocation(player);
+        }
+        
+        if (scoreboardHandler != null) {
+            scoreboardHandler.onPlayerQuit(player);
         }
     }
     

@@ -1,337 +1,234 @@
-# ============================================================
-# QUANTUM - MENU STATISTIQUES DE TRADING
-# ============================================================
-# Menu pour consulter les statistiques de trading avancées
-# Affiche les performances, top items, top partenaires
-# ============================================================
+# Quantum - Trading Statistics Menu
+# Displays player's trading statistics with time period filters
 
-menu_title: '&8┃ &b&lStatistiques de Trading'
-size: 54
-open_command: stats
-
-# Animation du titre (optionnel)
-animated_title:
-  enabled: true
-  speed: 20
-  frames:
-    - '&8┃ &b&lStatistiques de Trading'
-    - '&8┃ &3&lStatistiques de Trading'
-
-# ============================================================
-# ITEMS DU MENU
-# ============================================================
+menu_settings:
+  name: "<gradient:#00FFFF:#0088FF>📈 Statistiques de trading</gradient>"
+  rows: 6
+  update_interval: 20
 
 items:
-  
-  # ========================================
-  # BORDURES ET DECORATION
-  # ========================================
-  
-  border:
-    material: BLUE_STAINED_GLASS_PANE
-    display_name: '&7'
-    slots:
-      - 0
-      - 1
-      - 2
-      - 6
-      - 7
-      - 8
-      - 9
-      - 17
-      - 18
-      - 26
-      - 27
-      - 35
-      - 36
-      - 44
-      - 45
-      - 46
-      - 47
-      - 51
-      - 52
-      - 53
-  
-  separator:
-    material: GRAY_STAINED_GLASS_PANE
-    display_name: '&7'
-    slots:
-      - 3
-      - 4
-      - 5
-  
-  # ========================================
-  # STATISTIQUES GLOBALES
-  # ========================================
-  
-  global_stats:
-    material: DIAMOND
-    display_name: '&b&lStatistiques Globales'
-    glow: true
-    lore:
-      - '&7'
-      - '&e◆ Achats:'
-      - '&7  Total: &a%quantum_stats_total_buy%€'
-      - '&7  Transactions: &f%quantum_stats_buy_count%'
-      - '&7'
-      - '&e◆ Ventes:'
-      - '&7  Total: &6%quantum_stats_total_sell%€'
-      - '&7  Transactions: &f%quantum_stats_sell_count%'
-      - '&7'
-      - '&e◆ Bilan:'
-      - '&7  Profit net: &e%quantum_stats_net_profit%€'
-      - '&7  Total transactions: &f%quantum_stats_transaction_count%'
-      - '&7'
-      - '&8Toutes vos performances depuis le début'
-    slots: [13]
-  
-  # ========================================
-  # STATISTIQUES PAR PÉRIODE
-  # ========================================
-  
-  today_stats:
-    material: CLOCK
-    display_name: '&e&lAujourd''hui'
-    lore:
-      - '&7'
-      - '&7Transactions: &f%quantum_stats_today_count%'
-      - '&7Achats: &a%quantum_stats_today_buy%€'
-      - '&7Ventes: &6%quantum_stats_today_sell%€'
-      - '&7Profit: &e%quantum_stats_today_profit%€'
-      - '&7'
-      - '&8Période: 24 dernières heures'
-    slots: [19]
-  
-  week_stats:
-    material: CALENDAR
-    display_name: '&e&lCette Semaine'
-    lore:
-      - '&7'
-      - '&7Transactions: &f%quantum_stats_week_count%'
-      - '&7Achats: &a%quantum_stats_week_buy%€'
-      - '&7Ventes: &6%quantum_stats_week_sell%€'
-      - '&7Profit: &e%quantum_stats_week_profit%€'
-      - '&7'
-      - '&8Période: 7 derniers jours'
-    slots: [20]
-  
-  month_stats:
-    material: WRITABLE_BOOK
-    display_name: '&e&lCe Mois'
-    lore:
-      - '&7'
-      - '&7Transactions: &f%quantum_stats_month_count%'
-      - '&7Achats: &a%quantum_stats_month_buy%€'
-      - '&7Ventes: &6%quantum_stats_month_sell%€'
-      - '&7Profit: &e%quantum_stats_month_profit%€'
-      - '&7'
-      - '&8Période: 30 derniers jours'
-    slots: [21]
-  
-  # ========================================
-  # TOP ITEMS ÉCHANGÉS
-  # ========================================
-  
-  top_items_title:
-    material: CHEST
-    display_name: '&6&lTop Items Échangés'
-    lore:
-      - '&7'
-      - '&7Les items que vous avez le plus'
-      - '&7achetés et vendus'
-    slots: [10]
-  
-  # Top item #1
-  top_item_1:
-    material: GOLD_BLOCK
-    display_name: '&6&l#1 - %quantum_top_item_1_name%'
-    lore:
-      - '&7'
-      - '&7Quantité totale: &f%quantum_top_item_1_quantity%'
-      - '&7Achats: &a%quantum_top_item_1_bought%'
-      - '&7Ventes: &6%quantum_top_item_1_sold%'
-      - '&7'
-      - '&7Valeur totale: &e%quantum_top_item_1_value%€'
-    slots: [28]
-  
-  # Top item #2
-  top_item_2:
-    material: IRON_BLOCK
-    display_name: '&f&l#2 - %quantum_top_item_2_name%'
-    lore:
-      - '&7'
-      - '&7Quantité totale: &f%quantum_top_item_2_quantity%'
-      - '&7Achats: &a%quantum_top_item_2_bought%'
-      - '&7Ventes: &6%quantum_top_item_2_sold%'
-      - '&7'
-      - '&7Valeur totale: &e%quantum_top_item_2_value%€'
-    slots: [29]
-  
-  # Top item #3
-  top_item_3:
-    material: COPPER_BLOCK
-    display_name: '&c&l#3 - %quantum_top_item_3_name%'
-    lore:
-      - '&7'
-      - '&7Quantité totale: &f%quantum_top_item_3_quantity%'
-      - '&7Achats: &a%quantum_top_item_3_bought%'
-      - '&7Ventes: &6%quantum_top_item_3_sold%'
-      - '&7'
-      - '&7Valeur totale: &e%quantum_top_item_3_value%€'
-    slots: [30]
-  
-  # Top item #4
-  top_item_4:
-    material: COAL_BLOCK
-    display_name: '&8&l#4 - %quantum_top_item_4_name%'
-    lore:
-      - '&7'
-      - '&7Quantité totale: &f%quantum_top_item_4_quantity%'
-      - '&7Achats: &a%quantum_top_item_4_bought%'
-      - '&7Ventes: &6%quantum_top_item_4_sold%'
-      - '&7'
-      - '&7Valeur totale: &e%quantum_top_item_4_value%€'
-    slots: [31]
-  
-  # Top item #5
-  top_item_5:
-    material: STONE
-    display_name: '&7&l#5 - %quantum_top_item_5_name%'
-    lore:
-      - '&7'
-      - '&7Quantité totale: &f%quantum_top_item_5_quantity%'
-      - '&7Achats: &a%quantum_top_item_5_bought%'
-      - '&7Ventes: &6%quantum_top_item_5_sold%'
-      - '&7'
-      - '&7Valeur totale: &e%quantum_top_item_5_value%€'
-    slots: [32]
-  
-  # ========================================
-  # TOP PARTENAIRES COMMERCIAUX
-  # ========================================
-  
-  top_partners_title:
-    material: PLAYER_HEAD
-    display_name: '&d&lTop Partenaires Commerciaux'
-    lore:
-      - '&7'
-      - '&7Les joueurs avec qui vous tradez'
-      - '&7le plus souvent'
-    slots: [16]
-  
-  # Top partenaire #1
-  top_partner_1:
-    material: PLAYER_HEAD
-    display_name: '&6&l#1 - %quantum_top_partner_1_name%'
-    lore:
-      - '&7'
-      - '&7Transactions: &f%quantum_top_partner_1_count%'
-      - '&7Volume échangé: &e%quantum_top_partner_1_volume%€'
-      - '&7'
-      - '&7Achats: &a%quantum_top_partner_1_bought_from%€'
-      - '&7Ventes: &6%quantum_top_partner_1_sold_to%€'
-    slots: [37]
-  
-  # Top partenaire #2
-  top_partner_2:
-    material: PLAYER_HEAD
-    display_name: '&f&l#2 - %quantum_top_partner_2_name%'
-    lore:
-      - '&7'
-      - '&7Transactions: &f%quantum_top_partner_2_count%'
-      - '&7Volume échangé: &e%quantum_top_partner_2_volume%€'
-      - '&7'
-      - '&7Achats: &a%quantum_top_partner_2_bought_from%€'
-      - '&7Ventes: &6%quantum_top_partner_2_sold_to%€'
-    slots: [38]
-  
-  # Top partenaire #3
-  top_partner_3:
-    material: PLAYER_HEAD
-    display_name: '&c&l#3 - %quantum_top_partner_3_name%'
-    lore:
-      - '&7'
-      - '&7Transactions: &f%quantum_top_partner_3_count%'
-      - '&7Volume échangé: &e%quantum_top_partner_3_volume%€'
-      - '&7'
-      - '&7Achats: &a%quantum_top_partner_3_bought_from%€'
-      - '&7Ventes: &6%quantum_top_partner_3_sold_to%€'
-    slots: [39]
-  
-  # Top partenaire #4
-  top_partner_4:
-    material: PLAYER_HEAD
-    display_name: '&8&l#4 - %quantum_top_partner_4_name%'
-    lore:
-      - '&7'
-      - '&7Transactions: &f%quantum_top_partner_4_count%'
-      - '&7Volume échangé: &e%quantum_top_partner_4_volume%€'
-      - '&7'
-      - '&7Achats: &a%quantum_top_partner_4_bought_from%€'
-      - '&7Ventes: &6%quantum_top_partner_4_sold_to%€'
-    slots: [40]
-  
-  # Top partenaire #5
-  top_partner_5:
-    material: PLAYER_HEAD
-    display_name: '&7&l#5 - %quantum_top_partner_5_name%'
-    lore:
-      - '&7'
-      - '&7Transactions: &f%quantum_top_partner_5_count%'
-      - '&7Volume échangé: &e%quantum_top_partner_5_volume%€'
-      - '&7'
-      - '&7Achats: &a%quantum_top_partner_5_bought_from%€'
-      - '&7Ventes: &6%quantum_top_partner_5_sold_to%€'
-    slots: [41]
-  
-  # ========================================
-  # ACTIONS
-  # ========================================
-  
-  view_history:
-    material: BOOK
-    display_name: '&e&lConsulter l''Historique'
-    lore:
-      - '&7'
-      - '&7Voir toutes vos transactions'
-      - '&7en détail'
-      - '&7'
-      - '&e▶ Cliquez pour ouvrir'
-    slots: [48]
-    left_click:
-      actions:
-        - '[menu] history'
-        - '[sound] BLOCK_NOTE_BLOCK_PLING:1.0:1.0'
-  
-  refresh:
-    material: LIME_DYE
-    display_name: '&a&lRafraîchir'
-    lore:
-      - '&7'
-      - '&7Met à jour les statistiques'
-      - '&7'
-      - '&e▶ Cliquez pour rafraîchir'
-    slots: [49]
-    left_click:
-      actions:
-        - '[console] quantum stats %player%'
-        - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP:1.0:1.0'
-  
-  close:
-    material: BARRIER
-    display_name: '&c&lFermer'
-    lore:
-      - '&7'
-      - '&7Ferme le menu'
-    slots: [50]
-    left_click:
-      actions:
-        - '[close]'
-        - '[sound] BLOCK_CHEST_CLOSE:1.0:1.0'
+  # === Background ===
+  background:
+    material: "BLACK_STAINED_GLASS_PANE"
+    display_name: " "
+    slots: [0,1,2,3,4,5,6,7,8,45,46,47,48,50,51,52,53]
 
-# ============================================================
-# PLACEHOLDERS PERSONNALISÉS
-# ============================================================
-# Les placeholders %quantum_stats_*% et %quantum_top_*%
-# sont fournis dynamiquement par TradingStatisticsManager
-# ============================================================
+  # === Time Filter: Today ===
+  filter_today:
+    material: "CLOCK"
+    display_name: "<gradient:#00FF00:#00AA00>🕒 Aujourd'hui</gradient>"
+    lore:
+      - ""
+      - "<gray>Affiche les statistiques</gray>"
+      - "<gray>d'aujourd'hui uniquement</gray>"
+      - ""
+      - "%quantum_stats_filter_today_status%"
+    slots: [36]
+    click_commands:
+      left:
+        - "[console] quantum stats today {player}"
+
+  # === Time Filter: This Week ===
+  filter_week:
+    material: "PAPER"
+    display_name: "<gradient:#00FF00:#00AA00>🗓 Cette semaine</gradient>"
+    lore:
+      - ""
+      - "<gray>Affiche les statistiques</gray>"
+      - "<gray>des 7 derniers jours</gray>"
+      - ""
+      - "%quantum_stats_filter_week_status%"
+    slots: [37]
+    click_commands:
+      left:
+        - "[console] quantum stats week {player}"
+
+  # === Time Filter: This Month ===
+  filter_month:
+    material: "BOOK"
+    display_name: "<gradient:#00FF00:#00AA00>📅 Ce mois-ci</gradient>"
+    lore:
+      - ""
+      - "<gray>Affiche les statistiques</gray>"
+      - "<gray>des 30 derniers jours</gray>"
+      - ""
+      - "%quantum_stats_filter_month_status%"
+    slots: [38]
+    click_commands:
+      left:
+        - "[console] quantum stats month {player}"
+
+  # === Time Filter: All Time ===
+  filter_all:
+    material: "BOOKSHELF"
+    display_name: "<gradient:#00FF00:#00AA00>♾ Tout le temps</gradient>"
+    lore:
+      - ""
+      - "<gray>Affiche toutes les statistiques</gray>"
+      - "<gray>depuis le début</gray>"
+      - ""
+      - "%quantum_stats_filter_all_status%"
+    slots: [39]
+    click_commands:
+      left:
+        - "[console] quantum stats all {player}"
+
+  # === Current Period Display ===
+  period_info:
+    material: "NAME_TAG"
+    display_name: "<gradient:#FFD700:#FFA500>📊 Période: %quantum_stats_period_name%</gradient>"
+    lore:
+      - ""
+      - "<gray>Début: <white>%quantum_stats_period_start%</white></gray>"
+      - "<gray>Fin: <white>%quantum_stats_period_end%</white></gray>"
+      - ""
+      - "<gray>Statistiques ci-dessous</gray>"
+    slots: [4]
+
+  # === Buy Statistics ===
+  buy_stats:
+    material: "EMERALD"
+    display_name: "<gradient:#00FF00:#00AA00>💰 Statistiques d'Achat</gradient>"
+    lore:
+      - ""
+      - "<gray>Nombre d'achats: <gold>%quantum_stats_buy_count%</gold></gray>"
+      - "<gray>Quantité totale: <gold>%quantum_stats_buy_quantity%</gold> items</gray>"
+      - ""
+      - "<gray>Montant total: <gold>%quantum_stats_buy_total%€</gold></gray>"
+      - "<gray>Dépense moyenne: <gold>%quantum_stats_buy_average%€</gold></gray>"
+      - ""
+      - "<gray>Plus gros achat: <gold>%quantum_stats_buy_biggest%€</gold></gray>"
+      - "<gray>Plus petit achat: <gold>%quantum_stats_buy_smallest%€</gold></gray>"
+    slots: [11]
+
+  # === Sell Statistics ===
+  sell_stats:
+    material: "GOLD_INGOT"
+    display_name: "<gradient:#FFD700:#FFA500>💎 Statistiques de Vente</gradient>"
+    lore:
+      - ""
+      - "<gray>Nombre de ventes: <gold>%quantum_stats_sell_count%</gold></gray>"
+      - "<gray>Quantité totale: <gold>%quantum_stats_sell_quantity%</gold> items</gray>"
+      - ""
+      - "<gray>Montant total: <gold>%quantum_stats_sell_total%€</gold></gray>"
+      - "<gray>Gain moyen: <gold>%quantum_stats_sell_average%€</gold></gray>"
+      - ""
+      - "<gray>Plus grosse vente: <gold>%quantum_stats_sell_biggest%€</gold></gray>"
+      - "<gray>Plus petite vente: <gold>%quantum_stats_sell_smallest%€</gold></gray>"
+    slots: [15]
+
+  # === Total Balance ===
+  balance:
+    material: "DIAMOND"
+    display_name: "<gradient:#00FFFF:#0088FF>💸 Bilan Total</gradient>"
+    lore:
+      - ""
+      - "<gray>Total transactions: <gold>%quantum_stats_total_count%</gold></gray>"
+      - ""
+      - "<gold>Dépenses: <red>-%quantum_stats_buy_total%€</red></gold>"
+      - "<gold>Revenus: <green>+%quantum_stats_sell_total%€</green></gold>"
+      - ""
+      - "%quantum_stats_balance_display%"
+      - ""
+      - "<gray>Marge bénéficiaire: <gold>%quantum_stats_profit_margin%%</gold></gray>"
+    slots: [13]
+
+  # === Top Bought Item ===
+  top_bought:
+    material: "%quantum_stats_top_bought_material%"
+    display_name: "<gradient:#00FF00:#00AA00>🏆 Item le plus acheté</gradient>"
+    lore:
+      - ""
+      - "<gold>%quantum_stats_top_bought_name%</gold>"
+      - ""
+      - "<gray>Achats: <gold>%quantum_stats_top_bought_count%</gold> fois</gray>"
+      - "<gray>Quantité: <gold>%quantum_stats_top_bought_quantity%</gold> items</gray>"
+      - "<gray>Dépensé: <gold>%quantum_stats_top_bought_total%€</gold></gray>"
+    slots: [20]
+    view_requirement: "%quantum_stats_top_bought_exists% == true"
+
+  # === Top Sold Item ===
+  top_sold:
+    material: "%quantum_stats_top_sold_material%"
+    display_name: "<gradient:#FFD700:#FFA500>🏆 Item le plus vendu</gradient>"
+    lore:
+      - ""
+      - "<gold>%quantum_stats_top_sold_name%</gold>"
+      - ""
+      - "<gray>Ventes: <gold>%quantum_stats_top_sold_count%</gold> fois</gray>"
+      - "<gray>Quantité: <gold>%quantum_stats_top_sold_quantity%</gold> items</gray>"
+      - "<gray>Gagné: <gold>%quantum_stats_top_sold_total%€</gold></gray>"
+    slots: [24]
+    view_requirement: "%quantum_stats_top_sold_exists% == true"
+
+  # === Most Profitable Trade ===
+  best_trade:
+    material: "NETHER_STAR"
+    display_name: "<gradient:#FFD700:#FFA500>⭐ Meilleur trade</gradient>"
+    lore:
+      - ""
+      - "<gray>Item: <gold>%quantum_stats_best_trade_item%</gold></gray>"
+      - "<gray>Type: %quantum_stats_best_trade_type%</gray>"
+      - ""
+      - "<gray>Quantité: <gold>%quantum_stats_best_trade_quantity%</gold></gray>"
+      - "<gray>Montant: <gold>%quantum_stats_best_trade_amount%€</gold></gray>"
+      - "<gray>Date: <white>%quantum_stats_best_trade_date%</white></gray>"
+    slots: [22]
+    view_requirement: "%quantum_stats_best_trade_exists% == true"
+
+  # === Trading Frequency ===
+  frequency:
+    material: "COMPARATOR"
+    display_name: "<gradient:#00FFFF:#0088FF>🔄 Fréquence de trading</gradient>"
+    lore:
+      - ""
+      - "<gray>Moyenne par jour: <gold>%quantum_stats_trades_per_day%</gold></gray>"
+      - "<gray>Jours actifs: <gold>%quantum_stats_active_days%</gold>/%quantum_stats_period_days%</gray>"
+      - ""
+      - "<gray>Jour le plus actif:</gray>"
+      - "<gold>%quantum_stats_busiest_day%</gold>"
+      - "<gray>(<gold>%quantum_stats_busiest_day_count%</gold> transactions)</gray>"
+    slots: [31]
+
+  # === Top 3 Trading Partners ===
+  top_partners:
+    material: "PLAYER_HEAD"
+    display_name: "<gradient:#00FF00:#00AA00>👥 Top partenaires</gradient>"
+    lore:
+      - ""
+      - "<gray>1. <gold>%quantum_stats_partner_1_name%</gold></gray>"
+      - "   <gray>Trades: <gold>%quantum_stats_partner_1_count%</gold></gray>"
+      - ""
+      - "<gray>2. <gold>%quantum_stats_partner_2_name%</gold></gray>"
+      - "   <gray>Trades: <gold>%quantum_stats_partner_2_count%</gold></gray>"
+      - ""
+      - "<gray>3. <gold>%quantum_stats_partner_3_name%</gold></gray>"
+      - "   <gray>Trades: <gold>%quantum_stats_partner_3_count%</gold></gray>"
+    slots: [29]
+    view_requirement: "%quantum_stats_has_partners% == true"
+
+  # === History Button ===
+  view_history:
+    material: "WRITABLE_BOOK"
+    display_name: "<gradient:#FFD700:#FFA500>📜 Voir l'historique</gradient>"
+    lore:
+      - ""
+      - "<gray>Cliquez pour accéder</gray>"
+      - "<gray>à l'historique complet</gray>"
+      - "<gray>de vos transactions</gray>"
+    slots: [49]
+    click_commands:
+      left:
+        - "[console] quantum history {player}"
+
+  # === Close Button ===
+  close:
+    material: "BARRIER"
+    display_name: "<gradient:#FF0000:#AA0000>✖ Fermer</gradient>"
+    lore:
+      - ""
+      - "<gray>Cliquez pour fermer le menu</gray>"
+    slots: [44]
+    click_commands:
+      left:
+        - "[close]"

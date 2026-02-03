@@ -8,6 +8,7 @@ import com.wynvers.quantum.placeholders.QuantumExpansion;
 import com.wynvers.quantum.statistics.StatisticsManager;
 import com.wynvers.quantum.statistics.StorageStatsManager;
 import com.wynvers.quantum.statistics.TradingStatisticsManager;
+import com.wynvers.quantum.towers.TowerManager;
 import com.wynvers.quantum.transactions.TransactionHistoryManager;
 import com.wynvers.quantum.worldguard.KillTracker;
 import com.wynvers.quantum.worldguard.ZoneListener;
@@ -50,6 +51,7 @@ import java.nio.file.StandardCopyOption;
  * - Trading statistics (performance analysis)
  * - Centralized message system (MiniMessage + Legacy support)
  * - WorldGuard zone restrictions with mob kill requirements
+ * - Tower progression system with 4 towers (25 floors + final boss each)
  */
 public final class Quantum extends JavaPlugin {
 
@@ -79,6 +81,7 @@ public final class Quantum extends JavaPlugin {
     private TradingStatisticsManager tradingStatisticsManager; // NEW: Trading statistics
     private ZoneManager zoneManager; // NEW: WorldGuard zone manager
     private KillTracker killTracker; // NEW: Kill tracking for zones
+    private TowerManager towerManager; // NEW: Tower progression system
     
     // Utils
     private ActionExecutor actionExecutor;
@@ -118,9 +121,11 @@ public final class Quantum extends JavaPlugin {
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
             this.killTracker = new KillTracker(this);
             this.zoneManager = new ZoneManager(this);
+            this.towerManager = new TowerManager(this);
             logger.success("✓ WorldGuard integration enabled!");
+            logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
         } else {
-            logger.warning("⚠ WorldGuard not found - zone restriction features disabled");
+            logger.warning("⚠ WorldGuard not found - zone restriction and tower features disabled");
         }
         
         // Initialize managers
@@ -333,7 +338,7 @@ public final class Quantum extends JavaPlugin {
                 logger.info("  - %quantum_amt_minecraft-<id>%");
             }
             
-            // Register new expansion (order creation + mode + stats + kills)
+            // Register new expansion (order creation + mode + stats + kills + towers)
             this.quantumExpansion = new QuantumExpansion(this);
             if (quantumExpansion.register()) {
                 logger.success("✓ QuantumExpansion registered");
@@ -344,6 +349,7 @@ public final class Quantum extends JavaPlugin {
                 logger.info("  - %quantum_history_*% (history placeholders)");
                 logger.info("  - %quantum_top_*% (top rankings placeholders)");
                 logger.info("  - %quantum_killed_<mob>_<amount>% (kill tracking)");
+                logger.info("  - %quantum_tower_*% (tower progression placeholders)");
             }
         }
     }
@@ -382,6 +388,12 @@ public final class Quantum extends JavaPlugin {
         if (zoneManager != null) {
             getCommand("zoneexit").setExecutor(new ZoneExitCommand(this));
             logger.success("✓ Zone Exit Command");
+        }
+        
+        // Tower command
+        if (towerManager != null) {
+            getCommand("tower").setExecutor(new TowerCommand(this));
+            logger.success("✓ Tower Command");
         }
 
         // Register TabCompleters
@@ -422,6 +434,12 @@ public final class Quantum extends JavaPlugin {
         if (escrowManager != null) {
             escrowManager.saveEscrow();
             logger.success("✓ Escrow data saved (" + escrowManager.getTotalEscrow() + "€");
+        }
+        
+        // Save tower progress
+        if (towerManager != null) {
+            towerManager.saveProgress();
+            logger.success("✓ Tower progress saved");
         }
         
         // NOTE: TransactionHistoryManager saves transactions automatically in real-time
@@ -468,6 +486,7 @@ public final class Quantum extends JavaPlugin {
         if (orderManager != null) orderManager.loadItems();
         if (statisticsManager != null) statisticsManager.loadStatistics();
         if (zoneManager != null) zoneManager.reloadConfig();
+        if (towerManager != null) towerManager.reload();
         // NOTE: TransactionHistoryManager loads from file on-the-fly, no need to reload
         // NOTE: KillTracker loads from file on-the-fly, no need to reload
         
@@ -607,5 +626,13 @@ public final class Quantum extends JavaPlugin {
      */
     public KillTracker getKillTracker() {
         return killTracker;
+    }
+    
+    /**
+     * Get the TowerManager for tower progression system
+     * @return TowerManager instance or null if WorldGuard not available
+     */
+    public TowerManager getTowerManager() {
+        return towerManager;
     }
 }

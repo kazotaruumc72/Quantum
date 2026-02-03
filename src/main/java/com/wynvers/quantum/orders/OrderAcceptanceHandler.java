@@ -21,13 +21,15 @@ import java.util.UUID;
  * 6. Ajout des items au storage de l'acheteur
  * 7. Notification à l'acheteur
  * 8. SUPPRESSION de l'ordre (FIX: Supprimé au lieu de marquer COMPLETED)
+ * 9. ENREGISTREMENT de la transaction dans l'historique
  * 
  * PATCH: Utilise UUID complet comme clé d'ordre (orderId = UUID complet)
  * PATCH: Double vérification du stock avant transaction
  * PATCH: Suppression de l'ordre après complétion pour ne plus apparaître dans la liste
+ * PATCH: Enregistrement automatique dans l'historique des transactions
  * 
  * @author Kazotaruu_
- * @version 1.3
+ * @version 1.4
  */
 public class OrderAcceptanceHandler {
     
@@ -248,6 +250,7 @@ public class OrderAcceptanceHandler {
         
         // === ÉTAPE 7: AJOUTER LES ITEMS AU STORAGE DE L'ACHETEUR ===
         plugin.getLogger().info("[ORDER_ACCEPTANCE] Adding items to buyer storage...");
+        Player buyer = null;
         if (buyerUUIDStr != null) {
             try {
                 UUID buyerUUID = UUID.fromString(buyerUUIDStr);
@@ -255,6 +258,12 @@ public class OrderAcceptanceHandler {
                 buyerStorage.addItemById(itemId, quantity);
                 buyerStorage.save(plugin);
                 plugin.getLogger().info("[ORDER_ACCEPTANCE] Items added to buyer storage successfully");
+                
+                // Récupérer le joueur acheteur pour l'historique
+                buyer = Bukkit.getPlayer(buyerUUID);
+                if (buyer == null) {
+                    buyer = Bukkit.getOfflinePlayer(buyerUUID).getPlayer();
+                }
             } catch (IllegalArgumentException e) {
                 plugin.getQuantumLogger().warning("Invalid buyer UUID: " + buyerUUIDStr);
             }
@@ -275,7 +284,23 @@ public class OrderAcceptanceHandler {
             e.printStackTrace();
         }
         
-        // === ÉTAPE 9: NOTIFICATIONS ===
+        // === ÉTAPE 9: ENREGISTRER LA TRANSACTION DANS L'HISTORIQUE ===
+        if (buyer != null && plugin.getTransactionHistoryManager() != null) {
+            plugin.getLogger().info("[ORDER_ACCEPTANCE] Recording transaction in history...");
+            plugin.getTransactionHistoryManager().recordTransaction(
+                buyer,
+                seller,
+                itemId,
+                quantity,
+                pricePerUnit,
+                totalPrice
+            );
+            plugin.getLogger().info("[ORDER_ACCEPTANCE] Transaction recorded successfully");
+        } else {
+            plugin.getLogger().warning("[ORDER_ACCEPTANCE] Transaction history not recorded (buyer or manager null)");
+        }
+        
+        // === ÉTAPE 10: NOTIFICATIONS ===
         
         // Message au vendeur
         seller.sendMessage("§a§l✓ Ordre accepté avec succès!");
@@ -284,21 +309,12 @@ public class OrderAcceptanceHandler {
         seller.sendMessage("§8[§6Quantum§8] §a+" + String.format("%.2f", withdrawnAmount) + "$");
         
         // Notification à l'acheteur (si en ligne)
-        if (buyerUUIDStr != null) {
-            try {
-                UUID buyerUUID = UUID.fromString(buyerUUIDStr);
-                Player buyer = Bukkit.getPlayer(buyerUUID);
-                
-                if (buyer != null && buyer.isOnline()) {
-                    buyer.sendMessage("§a§l✓ Votre ordre a été rempli!");
-                    buyer.sendMessage("§7§b" + seller.getName() + " §7vous a vendu §e" + quantity + "x §f" + formatItemName(itemId));
-                    buyer.sendMessage("§7Coût total: §6" + String.format("%.2f", totalPrice) + "$");
-                    buyer.sendMessage("§7Les items sont disponibles dans votre storage!");
-                    buyer.playSound(buyer.getLocation(), org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
-                }
-            } catch (IllegalArgumentException e) {
-                plugin.getQuantumLogger().warning("Invalid buyer UUID: " + buyerUUIDStr);
-            }
+        if (buyer != null && buyer.isOnline()) {
+            buyer.sendMessage("§a§l✓ Votre ordre a été rempli!");
+            buyer.sendMessage("§7§b" + seller.getName() + " §7vous a vendu §e" + quantity + "x §f" + formatItemName(itemId));
+            buyer.sendMessage("§7Coût total: §6" + String.format("%.2f", totalPrice) + "$");
+            buyer.sendMessage("§7Les items sont disponibles dans votre storage!");
+            buyer.playSound(buyer.getLocation(), org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
         }
         
         // Log de la transaction

@@ -58,6 +58,11 @@ commands:
   zoneexit:
     description: Force a player to exit a restricted zone (console only)
     usage: /zoneexit <player>
+  
+  tower:
+    description: Tower progression system commands
+    usage: /tower <progress|reset|tp|reload> [args]
+    aliases: [towers, tour, tours]
 
 permissions:
   quantum.*:
@@ -72,6 +77,7 @@ permissions:
       quantum.menu.admin: true
       quantum.orders.*: true
       quantum.zone.bypass: true
+      quantum.tower.*: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -137,4 +143,35 @@ permissions:
   # Permissions pour les zones WorldGuard
   quantum.zone.bypass:
     description: Bypass zone restrictions (can enter and exit freely)
+    default: op
+  
+  # Permissions pour le système de tours
+  quantum.tower.*:
+    description: All tower permissions
+    default: op
+    children:
+      quantum.tower.progress: true
+      quantum.tower.progress.others: true
+      quantum.tower.reset: true
+      quantum.tower.teleport: true
+      quantum.tower.reload: true
+  
+  quantum.tower.progress:
+    description: View own tower progress
+    default: true
+  
+  quantum.tower.progress.others:
+    description: View other players' tower progress
+    default: op
+  
+  quantum.tower.reset:
+    description: Reset tower progress (admin)
+    default: op
+  
+  quantum.tower.teleport:
+    description: Teleport to tower floors (admin/debug)
+    default: op
+  
+  quantum.tower.reload:
+    description: Reload tower configurations
     default: op

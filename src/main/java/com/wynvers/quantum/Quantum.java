@@ -7,6 +7,8 @@ import com.wynvers.quantum.placeholder.QuantumPlaceholderExpansion;
 import com.wynvers.quantum.placeholders.QuantumExpansion;
 import com.wynvers.quantum.statistics.StatisticsManager;
 import com.wynvers.quantum.statistics.StorageStatsManager;
+import com.wynvers.quantum.statistics.TradingStatisticsManager;
+import com.wynvers.quantum.transactions.TransactionHistoryManager;
 import com.wynvers.quantum.tabcompleters.*;
 import com.wynvers.quantum.managers.*;
 import com.wynvers.quantum.orders.OrderAcceptanceHandler;
@@ -41,6 +43,8 @@ import java.nio.file.StandardCopyOption;
  * - Orders system (buy/sell orders)
  * - Escrow system (secure money storage)
  * - Statistics tracking (items stored, trades, storage stats)
+ * - Transaction history (all trades recorded)
+ * - Trading statistics (performance analysis)
  * - Centralized message system (MiniMessage + Legacy support)
  */
 public final class Quantum extends JavaPlugin {
@@ -67,6 +71,8 @@ public final class Quantum extends JavaPlugin {
     private OrderAcceptanceHandler orderAcceptanceHandler; // NEW: Order acceptance
     private StatisticsManager statisticsManager;
     private StorageStatsManager storageStatsManager;
+    private TransactionHistoryManager transactionHistoryManager; // NEW: Transaction history
+    private TradingStatisticsManager tradingStatisticsManager; // NEW: Trading statistics
     
     // Utils
     private ActionExecutor actionExecutor;
@@ -124,6 +130,7 @@ public final class Quantum extends JavaPlugin {
         }
         logger.success("✓ Orders system ready!");
         logger.success("✓ Statistics tracking enabled!");
+        logger.success("✓ Transaction history enabled!");
     }
     
     /**
@@ -249,6 +256,14 @@ public final class Quantum extends JavaPlugin {
         this.orderAcceptanceHandler = new OrderAcceptanceHandler(this);
         logger.success("✓ Order Acceptance Handler");
         
+        // Transaction History Manager (NEW)
+        this.transactionHistoryManager = new TransactionHistoryManager(this);
+        logger.success("✓ Transaction History Manager");
+        
+        // Trading Statistics Manager (NEW)
+        this.tradingStatisticsManager = new TradingStatisticsManager(this);
+        logger.success("✓ Trading Statistics Manager");
+        
         // Statistics Manager
         this.statisticsManager = new StatisticsManager(this);
         logger.success("✓ Statistics Manager");
@@ -368,6 +383,12 @@ public final class Quantum extends JavaPlugin {
             logger.success("✓ Escrow data saved (" + escrowManager.getTotalEscrow() + "€)");
         }
         
+        // Save transaction history
+        if (transactionHistoryManager != null) {
+            transactionHistoryManager.saveTransactions();
+            logger.success("✓ Transaction history saved");
+        }
+        
         // Save statistics
         if (statisticsManager != null) {
             statisticsManager.saveStatistics();
@@ -401,10 +422,11 @@ public final class Quantum extends JavaPlugin {
         if (messagesManager != null) messagesManager.reload();
         if (messageManager != null) messageManager.reload();
         if (guiMessageManager != null) guiMessageManager.reload();
-        if (escrowManager != null) escrowManager.reload(); // NEW
+        if (escrowManager != null) escrowManager.reload();
         if (priceManager != null) priceManager.reload();
         if (orderManager != null) orderManager.loadItems();
         if (statisticsManager != null) statisticsManager.loadStatistics();
+        if (transactionHistoryManager != null) transactionHistoryManager.loadTransactions();
         
         logger.success("Quantum reloaded successfully!");
     }
@@ -498,6 +520,22 @@ public final class Quantum extends JavaPlugin {
      */
     public OrderAcceptanceHandler getOrderAcceptanceHandler() {
         return orderAcceptanceHandler;
+    }
+    
+    /**
+     * Get the TransactionHistoryManager for transaction recording and history
+     * @return TransactionHistoryManager instance
+     */
+    public TransactionHistoryManager getTransactionHistoryManager() {
+        return transactionHistoryManager;
+    }
+    
+    /**
+     * Get the TradingStatisticsManager for trading performance analytics
+     * @return TradingStatisticsManager instance
+     */
+    public TradingStatisticsManager getTradingStatisticsManager() {
+        return tradingStatisticsManager;
     }
     
     public StatisticsManager getStatisticsManager() {

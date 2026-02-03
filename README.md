@@ -37,6 +37,8 @@
 - **Base de données** - Sauvegarde MySQL ou SQLite
 - **GUI Dynamique** - Menu storage avec placeholders temps réel
 - **PlaceholderAPI** - Placeholders pour afficher les quantités stockées
+- **✨ NEW: Filtres et recherche** - Recherchez et filtrez vos items par nom, type, quantité
+- **✨ NEW: Pagination** - Navigation fluide entre plusieurs pages de storage
 
 ### 📦 Système d'Ordres d'Achat
 
@@ -56,6 +58,24 @@
 - **Gestion des ordres**:
   - Shift + Clic Gauche (Admin): Supprimer n'importe quel ordre
   - Shift + Clic Droit (Propriétaire): Supprimer son propre ordre
+- **✨ NEW: Pagination des ordres** - Navigation entre plusieurs pages (21 ordres par page)
+- **✨ NEW: Historique des transactions** - Consultation complète de toutes vos transactions
+- **✨ NEW: Statistiques de trading** - Analysez vos performances commerciales
+
+### 📊 Système d'Historique et Statistiques
+
+- **📝 Historique des transactions**:
+  - Enregistrement automatique de toutes les transactions
+  - Filtrage par type (achats/ventes)
+  - Affichage détaillé (acheteur, vendeur, item, quantité, prix, date)
+  - Consultation illimitée dans le temps
+
+- **📊 Statistiques de trading**:
+  - Statistiques globales (total achats/ventes, profit net)
+  - Statistiques par période (aujourd'hui, semaine, mois)
+  - Top items les plus échangés
+  - Top partenaires commerciaux
+  - Prix moyens d'achat/vente par item
 
 ### 🎨 Constructeur de GUI
 
@@ -106,12 +126,15 @@
 plugins/Quantum/
 ├── config.yml              # Configuration principale
 ├── orders.yml              # Ordres d'achat en cours
+├── transactions.yml        # ✨ NEW: Historique des transactions
 ├── menus/                  # Dossier des menus
 │   ├── storage.yml         # Menu du storage (3 modes)
 │   ├── orders_cultures.yml # Menu ordres cultures
 │   ├── orders_minerais.yml # Menu ordres minerais
 │   ├── orders_autre.yml    # Menu ordres autres
-│   └── order_confirm.yml   # Menu confirmation transaction
+│   ├── order_confirm.yml   # Menu confirmation transaction
+│   ├── history.yml         # ✨ NEW: Menu historique
+│   └── statistics.yml      # ✨ NEW: Menu statistiques
 └── messages/               # Dossier des messages
     ├── messages_en.yml     # Messages anglais
     └── messages_fr.yml     # Messages français
@@ -153,6 +176,10 @@ language: fr  # en ou fr
 - ✅ Voir les quantités en temps réel
 - ✅ Consulter via placeholders
 - ✅ Changer de mode (VIEW/RECHERCHE/VENTE) avec permission
+- ✅ **NEW: Rechercher des items** par nom
+- ✅ **NEW: Filtrer** par type (Nexo/Minecraft)
+- ✅ **NEW: Trier** par quantité ou ordre alphabétique
+- ✅ **NEW: Naviguer** entre plusieurs pages
 
 **Ne peuvent PAS:**
 - ❌ Déposer des items (sauf admins)
@@ -216,6 +243,8 @@ Le menu storage possède **3 modes** accessibles via bouton:
 - Affichage du contenu du storage
 - Lecture seule pour joueurs
 - Gestion complète pour admins
+- **NEW: Recherche et filtres** disponibles
+- **NEW: Pagination automatique** (28 items par page)
 
 #### **MODE RECHERCHE**
 - Créer des ordres d'achat depuis le storage
@@ -230,11 +259,62 @@ Le menu storage possède **3 modes** accessibles via bouton:
 
 ---
 
+### ✨ Nouvelles Fonctionnalités de Filtrage
+
+#### **Recherche d'Items**
+
+1. Ouvrir `/storage`
+2. Cliquer sur le bouton **RECHERCHE** (🔍)
+3. Taper le nom de l'item dans le chat
+4. Les résultats s'affichent instantanément
+
+**Exemple:**
+```
+Recherche: "diamond"
+Résultats: Diamond, Diamond Sword, Diamond Pickaxe, etc.
+```
+
+#### **Filtres par Type**
+
+Bouton **FILTRE TYPE**:
+- **Tous** - Afficher tous les items
+- **Nexo uniquement** - Items custom Nexo seulement
+- **Minecraft uniquement** - Items vanilla seulement
+
+#### **Modes de Tri**
+
+Bouton **TRI**:
+- **Récent** - Ordre d'ajout (par défaut)
+- **Quantité (↓)** - Plus grande quantité d'abord
+- **Quantité (↑)** - Plus petite quantité d'abord
+- **Alphabétique** - Ordre A-Z
+
+#### **Réinitialiser**
+
+Bouton **RÉINITIALISER** - Efface tous les filtres actifs
+
+---
+
 ## 📦 Système d'Ordres
 
 ### Vue d'ensemble
 
 Le système d'ordres permet aux joueurs d'acheter et vendre des items entre eux avec une économie intégrée.
+
+### ✨ Pagination des Ordres
+
+Lorsqu'il y a plus de 21 ordres dans une catégorie:
+
+- **Navigation automatique** - Boutons Précédent/Suivant
+- **21 ordres par page** - 3 rangées de 7 items
+- **Indicateur de page** - "Page X/Y" en temps réel
+- **Tri automatique** - Par date (plus récents en premier)
+
+**Boutons de navigation:**
+- **◀ Précédent** - Page précédente (slot 48)
+- **Suivant ▶** - Page suivante (slot 50)
+
+---
 
 ### Workflow Complet
 
@@ -251,6 +331,7 @@ Le système d'ordres permet aux joueurs d'acheter et vendre des items entre eux 
 5. Entrer le **prix par unité** dans le chat
 6. **Argent retiré immédiatement** du compte
 7. Ordre publié dans la catégorie appropriée
+8. **Transaction enregistrée dans l'historique**
 
 **Exemple:**
 ```
@@ -258,6 +339,7 @@ Joueur A cherche: 64 Diamonds à 10$/unité
 Coût total: 640$
 → 640$ retirés immédiatement
 → Ordre créé dans "Ordres - Minerais"
+→ Transaction enregistrée
 ```
 
 ---
@@ -270,11 +352,13 @@ Coût total: 640$
 
 **Via menu orders:**
 1. Ouvrir `/quantum orders cultures` (ou minerais/autre)
-2. Voir tous les ordres disponibles
-3. Cliquer sur un ordre
-4. Menu de confirmation s'ouvre
-5. Vérifier les détails (quantité, prix, votre stock)
-6. Cliquer sur **VENDRE** (lime dye)
+2. **Naviguer entre les pages** si nécessaire
+3. Voir tous les ordres disponibles
+4. Cliquer sur un ordre
+5. Menu de confirmation s'ouvre
+6. Vérifier les détails (quantité, prix, votre stock)
+7. Cliquer sur **VENDRE** (lime dye)
+8. **Transaction enregistrée automatiquement**
 
 **Via mode VENTE:**
 1. Ouvrir `/storage`
@@ -282,6 +366,7 @@ Coût total: 640$
 3. Shift-clic sur item dans votre inventaire
 4. Choisir l'ordre parmi les disponibles
 5. Transaction automatique
+6. **Transaction enregistrée automatiquement**
 
 ---
 
@@ -301,7 +386,8 @@ Lors de la vente:
 3. **Finalisation**:
    - 🗑️ Ordre supprimé de `orders.yml`
    - 📨 Notifications envoyées aux deux joueurs
-   - 📝 Transaction loggée dans la console
+   - 📝 **Transaction enregistrée dans transactions.yml**
+   - 📊 **Statistiques mises à jour**
 
 **Exemple de transaction:**
 ```
@@ -313,70 +399,145 @@ Vendeur B: 64 Diamonds en storage
 → 640$ transférés à Vendeur B
 → 64 Diamonds retirés du storage de B
 → 64 Diamonds ajoutés à l'inventaire de A
+→ Transaction enregistrée: ID, date, prix, items
 
-[APRÈS]
+[📦 APRÈS]
 Acheteur A: Reçoit 64 Diamonds
 Vendeur B: Reçoit 640$
 Ordre: Supprimé
+Historique: Transaction #1234 enregistrée
 ```
 
 ---
 
-#### **4. Gestion des Ordres**
+## 📝 Historique des Transactions
 
-**Supprimer un ordre:**
+### Accéder à l'Historique
 
-- **Shift + Clic Gauche** (Admin): Supprimer n'importe quel ordre
-- **Shift + Clic Droit** (Propriétaire): Supprimer son propre ordre
-
-**Note**: L'argent n'est **PAS remboursé** lors de la suppression. Prévoir un système de remboursement admin si nécessaire.
-
----
-
-### Catégories d'Ordres
-
-Les ordres sont organisés par catégories:
-
-- **Cultures** (`/quantum orders cultures`) - Blé, carottes, pommes de terre, etc.
-- **Minerais** (`/quantum orders minerais`) - Diamants, fer, or, etc.
-- **Autre** (`/quantum orders autre`) - Autres items
-
-**Configuration:** Voir `menus/orders_*.yml` pour personnaliser.
-
----
-
-### Menu de Confirmation (order_confirm)
-
-Avant chaque transaction, un menu apparaît:
-
-```
-┌─────────────────────────────┐
-│ [VENDRE] [ITEM] [REFUSER]  │
-└─────────────────────────────┘
+```bash
+/quantum history              # Ouvrir l'historique complet
+/quantum history buy          # Filtrer: achats uniquement
+/quantum history sell         # Filtrer: ventes uniquement
 ```
 
-**Slot 1 - VENDRE (LIME_DYE)**
-- Clic → Exécute la transaction
-- Affiche: Argent à recevoir, items requis
+### Informations Affichées
 
-**Slot 2 - ITEM (Display)**
-- Affichage de l'item concerné
-- Lore: Détails complets de la transaction
+Chaque transaction affiche:
+- **Date et heure** - Timestamp précis
+- **Type** - Achat ou Vente
+- **Partenaire** - Nom de l'autre joueur
+- **Item** - Nom et quantité
+- **Prix unitaire** - Prix par item
+- **Prix total** - Coût total de la transaction
+- **Rôle** - Votre rôle (acheteur/vendeur)
 
-**Slot 3 - REFUSER (RED_DYE)**
-- Clic → Retour au menu de catégorie
-- Annule la transaction
+### Navigation
+
+- **Pagination automatique** - 21 transactions par page
+- **Filtres disponibles**:
+  - **TOUT** - Toutes les transactions
+  - **ACHATS** - Vos achats uniquement
+  - **VENTES** - Vos ventes uniquement
+- **Tri chronologique** - Plus récentes en premier
+
+### Exemple d'Affichage
+
+```
+────────────────────────
+✨ HISTORIQUE DES TRANSACTIONS
+────────────────────────
+
+📘 #1 - ACHAT
+  Date: 2026-02-03 10:30:15
+  Vendeur: Steve
+  Item: 64x Diamond
+  Prix: 10.00$/u (640.00$ total)
+  
+📗 #2 - VENTE
+  Date: 2026-02-03 09:15:42
+  Acheteur: Notch
+  Item: 32x Iron Ingot
+  Prix: 2.50$/u (80.00$ total)
+  
+Page 1/3 - Total: 52 transactions
+```
 
 ---
 
-### Sécurité
+## 📊 Statistiques de Trading
 
-- ✅ **Argent retiré à la création** (pas de fraude)
-- ✅ **Vérifications doubles** (avant et pendant transaction)
-- ✅ **Rollback automatique** en cas d'échec
-- ✅ **Prevention auto-vente** (seller != buyer)
-- ✅ **Matching exact items** (custom model data inclus)
-- ✅ **Logs détaillés** dans la console
+### Accéder aux Statistiques
+
+```bash
+/quantum stats                # Statistiques globales
+/quantum stats today          # Statistiques du jour
+/quantum stats week           # Statistiques de la semaine
+/quantum stats month          # Statistiques du mois
+```
+
+### Statistiques Disponibles
+
+#### **🌐 Statistiques Globales**
+
+```
+────────────────────────
+📊 STATISTIQUES DE TRADING
+────────────────────────
+
+💰 GLOBAL:
+  Achats: 15,640.00$ (124 transactions)
+  Ventes: 28,920.00$ (186 transactions)
+  Profit net: +13,280.00$
+  
+🗓️ AUJOURD'HUI:
+  Transactions: 8
+  Profit net: +420.00$
+  
+🏆 TOP ITEMS:
+  1. Diamond (2,048x)
+  2. Iron Ingot (1,536x)
+  3. Gold Ingot (892x)
+  
+🤝 TOP PARTENAIRES:
+  1. Steve (45 transactions)
+  2. Notch (32 transactions)
+  3. Herobrine (28 transactions)
+```
+
+#### **📈 Statistiques Par Période**
+
+- **Aujourd'hui** - Transactions du jour
+- **Cette Semaine** - 7 derniers jours
+- **Ce Mois** - 30 derniers jours
+
+Chaque période affiche:
+- Nombre de transactions
+- Total acheté
+- Total vendu
+- Profit net
+
+#### **👑 Classements**
+
+**Items les plus échangés:**
+- Top 10 items par quantité totale
+- Détail achats vs ventes
+
+**Partenaires commerciaux:**
+- Top 10 joueurs par nombre de transactions
+- Volume total échangé
+
+**Prix moyens:**
+- Prix moyen d'achat par item
+- Prix moyen de vente par item
+- Marge bénéficiaire
+
+### Menu Statistiques (GUI)
+
+Menu interactif avec:
+- **Vue d'ensemble** - Résumé global
+- **Périodes** - Boutons pour changer de période
+- **Détails** - Items cliquables pour détails
+- **Graphiques** - Visualisation des tendances
 
 ---
 
@@ -391,6 +552,9 @@ Avant chaque transaction, un menu apparaît:
 
 Au sein du GUI, utilisez les boutons pour:
 - Changer de mode (VIEW/RECHERCHE/VENTE)
+- **NEW: Rechercher** des items
+- **NEW: Filtrer** par type
+- **NEW: Trier** les items
 - Créer des ordres (mode RECHERCHE)
 - Vendre des items (mode VENTE)
 
@@ -399,6 +563,21 @@ Au sein du GUI, utilisez les boutons pour:
 /quantum orders cultures      # Ordres de cultures
 /quantum orders minerais      # Ordres de minerais
 /quantum orders autre         # Autres ordres
+```
+
+#### **✨ NEW: Commandes Historique & Statistiques**
+
+```bash
+# Historique
+/quantum history              # Historique complet
+/quantum history buy          # Achats uniquement
+/quantum history sell         # Ventes uniquement
+
+# Statistiques
+/quantum stats                # Statistiques globales
+/quantum stats today          # Stats du jour
+/quantum stats week           # Stats de la semaine
+/quantum stats month          # Stats du mois
 ```
 
 ---
@@ -440,6 +619,8 @@ Au sein du GUI, utilisez les boutons pour:
 /quantum reload              # Recharger la configuration
 /storage <player>           # Ouvrir le storage d'un joueur
 /menu <menu> [player]       # Ouvrir un menu custom
+/quantum history <player>   # Voir l'historique d'un joueur
+/quantum stats <player>     # Voir les stats d'un joueur
 ```
 
 ---
@@ -453,6 +634,7 @@ quantum.admin              # Accès admin complet (GUI interactif + commandes)
 quantum.storage.use        # Ouvrir /storage (lecture seule) - DEFAULT
 quantum.storage.transfer   # Commande /qstorage transfer (admin-only)
 quantum.storage.remove     # Commande /qstorage remove (admin-only)
+quantum.storage.filter     # Utiliser les filtres de storage - DEFAULT
 ```
 
 ### Permissions Ordres
@@ -464,6 +646,15 @@ quantum.orders.sell        # Vendre aux ordres (mode VENTE) - DEFAULT
 quantum.orders.admin       # Supprimer n'importe quel ordre (shift+clic gauche)
 ```
 
+### **✨ NEW: Permissions Historique & Statistiques**
+
+```yaml
+quantum.history.view       # Consulter son historique - DEFAULT
+quantum.history.others     # Voir l'historique des autres (admin)
+quantum.stats.view         # Consulter ses statistiques - DEFAULT
+quantum.stats.others       # Voir les stats des autres (admin)
+```
+
 ### Permissions Menus
 
 ```yaml
@@ -472,8 +663,8 @@ quantum.menu.admin         # Ouvrir menus d'autres joueurs (admin-only)
 ```
 
 **Résumé:**
-- **Joueurs normaux:** `/storage` (view + modes), créer/accepter ordres
-- **Admins:** Gestion storage + suppression ordres + menus admin
+- **Joueurs normaux:** `/storage` (view + modes + filtres), créer/accepter ordres, historique, stats
+- **Admins:** Gestion storage + suppression ordres + menus admin + historique/stats autres
 - **Console:** Accès complet avec ciblage joueur
 
 ---
@@ -512,6 +703,25 @@ quantum.menu.admin         # Ouvrir menus d'autres joueurs (admin-only)
 %quantum_amt_minecraft-gold_block%
 ```
 
+#### **✨ NEW: Placeholders Statistiques**
+
+```
+# Statistiques globales
+%quantum_stats_total_buy%          # Total acheté
+%quantum_stats_total_sell%         # Total vendu
+%quantum_stats_net_profit%         # Profit net
+%quantum_stats_transaction_count%  # Nombre de transactions
+
+# Statistiques période
+%quantum_stats_today_profit%       # Profit du jour
+%quantum_stats_week_profit%        # Profit de la semaine
+%quantum_stats_month_profit%       # Profit du mois
+
+# Items
+%quantum_stats_most_sold_item%     # Item le plus vendu
+%quantum_stats_most_bought_item%   # Item le plus acheté
+```
+
 #### **Auto-détection (sans préfixe)**
 ```
 %quantum_amt_custom_sword%    → Cherche Nexo d'abord, puis Minecraft
@@ -527,6 +737,7 @@ items:
     display_name: '&b&lDiamond Storage'
     lore:
       - '&7Amount in storage: &f%quantum_amt_minecraft-diamond%'
+      - '&7Total sold: &a%quantum_stats_total_sell%$'
       - '&7'
       - '&7Click to create an order'
     slots: [10]
@@ -631,70 +842,6 @@ click_requirements:
   - 'permission: quantum.admin'
 ```
 
-### Exemple Complet
-
-```yaml
-menu_title: '&6&lCustom Shop'
-size: 27
-open_command: shop
-
-animated_title:
-  enabled: true
-  speed: 10
-  frames:
-    - '&6&l>> &e&lShop &6&l<<'
-    - '&e&l>> &6&lShop &e&l<<'
-
-items:
-  # Item custom avec modèle
-  premium_sword:
-    slot: 11
-    material: DIAMOND_SWORD
-    custom_model_data: 1001
-    display_name: '&b&lPremium Sword'
-    lore:
-      - '&7A legendary weapon!'
-      - '&7Price: &e1000 coins'
-    glow: true
-    hide_flags:
-      - HIDE_ENCHANTS
-      - HIDE_ATTRIBUTES
-    click_requirements:
-      - 'money >= 1000'
-    left_click:
-      actions:
-        - '[console] eco take %player% 1000'
-        - '[console] give %player% diamond_sword{CustomModelData:1001} 1'
-        - '[message] &aPurchased Premium Sword!'
-        - '[sound] ENTITY_PLAYER_LEVELUP:1.0:1.0'
-  
-  # Item Nexo
-  magic_staff:
-    slot: 13
-    nexo_item: magic_staff
-    display_name: '&5&lMagic Staff'
-    lore:
-      - '&7Powerful magical weapon'
-      - '&7Price: &e5000 coins'
-    glow: true
-    click_requirements:
-      - 'money >= 5000'
-    left_click:
-      actions:
-        - '[console] eco take %player% 5000'
-        - '[console] nexo give %player% magic_staff 1'
-        - '[message] &aPurchased Magic Staff!'
-  
-  # Bouton fermer
-  close:
-    slot: 22
-    material: BARRIER
-    display_name: '&c&lClose'
-    left_click:
-      actions:
-        - '[close]'
-```
-
 ---
 
 ## 👨‍💻 API Développeur
@@ -723,6 +870,7 @@ compileOnly 'com.wynvers:quantum:1.0.0'
 ```java
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.storage.PlayerStorage;
+import com.wynvers.quantum.storage.StorageFilterHandler;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -745,8 +893,63 @@ public class ExampleStorageAPI {
         int diamonds = storage.getItemAmount(Material.DIAMOND);
         player.sendMessage("You have " + diamonds + " diamonds");
         
+        // NEW: Utiliser les filtres
+        StorageFilterHandler filterHandler = quantum.getStorageFilterHandler();
+        filterHandler.setSearchQuery(player, "diamond");
+        List<StorageFilterHandler.StorageEntry> filtered = filterHandler.applyFilters(storage, player);
+        
         // Sauvegarder
         storage.save(quantum);
+    }
+}
+```
+
+#### **✨ NEW: Historique & Statistiques API**
+
+```java
+import com.wynvers.quantum.transactions.TransactionHistoryManager;
+import com.wynvers.quantum.statistics.TradingStatisticsManager;
+
+public class ExampleHistoryStatsAPI {
+    
+    public void useHistoryAndStats(Player player) {
+        Quantum quantum = Quantum.getInstance();
+        
+        // Historique
+        TransactionHistoryManager historyManager = quantum.getTransactionHistoryManager();
+        
+        // Obtenir les transactions
+        List<Transaction> allTransactions = historyManager.getPlayerHistory(player, null, 0);
+        List<Transaction> buyTransactions = historyManager.getPlayerHistory(player, "BUY", 10);
+        
+        // Statistiques basiques
+        double totalBuy = historyManager.getTotalBuyAmount(player);
+        double totalSell = historyManager.getTotalSellAmount(player);
+        double netProfit = historyManager.getNetProfit(player);
+        
+        // Statistiques avancées
+        TradingStatisticsManager statsManager = quantum.getTradingStatisticsManager();
+        
+        // Stats globales
+        PlayerStatistics globalStats = statsManager.getGlobalStatistics(player);
+        player.sendMessage("Net profit: " + globalStats.netProfit + "$");
+        
+        // Stats par période
+        PlayerStatistics todayStats = statsManager.getPeriodStatistics(player, TimePeriod.TODAY);
+        PlayerStatistics weekStats = statsManager.getPeriodStatistics(player, TimePeriod.WEEK);
+        
+        // Top items
+        List<ItemStatistic> topItems = statsManager.getMostTradedItems(player, 5);
+        for (ItemStatistic item : topItems) {
+            player.sendMessage(item.getFormattedName() + ": " + item.totalQuantity + "x");
+        }
+        
+        // Top partenaires
+        List<PartnerStatistic> topPartners = statsManager.getTopTradingPartners(player, 5);
+        
+        // Générer un résumé
+        List<String> summary = statsManager.generateStatisticsSummary(player);
+        summary.forEach(player::sendMessage);
     }
 }
 ```
@@ -756,6 +959,7 @@ public class ExampleStorageAPI {
 ```java
 import com.wynvers.quantum.orders.OrderManager;
 import com.wynvers.quantum.orders.Order;
+import com.wynvers.quantum.orders.OrderPaginationHandler;
 
 public class ExampleOrdersAPI {
     
@@ -765,6 +969,12 @@ public class ExampleOrdersAPI {
         
         // Obtenir tous les ordres d'une catégorie
         List<Order> orders = orderManager.getOrdersByCategory("cultures");
+        
+        // NEW: Utiliser la pagination
+        OrderPaginationHandler paginationHandler = quantum.getOrderPaginationHandler();
+        int currentPage = paginationHandler.getCurrentPage(player, "cultures");
+        int totalPages = paginationHandler.getTotalPages("cultures");
+        List<String> ordersForPage = paginationHandler.getOrdersForPage("cultures", currentPage);
         
         // Créer un ordre programmatiquement
         orderManager.createOrder(
@@ -841,6 +1051,13 @@ public class QuantumListener implements Listener {
         Menu menu = event.getMenu();
         // Faire quelque chose...
     }
+    
+    // NEW: Events historique
+    @EventHandler
+    public void onTransactionRecord(TransactionRecordEvent event) {
+        Transaction transaction = event.getTransaction();
+        // Faire quelque chose...
+    }
 }
 ```
 
@@ -870,23 +1087,25 @@ Utilisez les [GitHub Discussions](https://github.com/kazotaruumc72/Quantum/discu
 **Activer les logs détaillés:**
 
 1. Vérifier les logs dans `logs/latest.log`
-2. Chercher les lignes avec `[Quantum]` ou `[ORDERS]` ou `[STORAGE]`
+2. Chercher les lignes avec `[Quantum]` ou `[ORDERS]` ou `[STORAGE]` ou `[TRANSACTIONS]`
 3. Les logs incluent:
    - Actions de storage (add/remove)
    - Création d'ordres
    - Transactions
    - Erreurs de matching items
+   - Enregistrements d'historique
 
 **Logs exemple:**
 ```
 [Quantum] [STORAGE] Added 64x DIAMOND to Notch's storage
 [Quantum] [ORDERS] Order created: cultures-1234567890 by Steve
 [Quantum] [TRANSACTION] Successful: Buyer=Steve, Seller=Notch, Item=DIAMOND, Qty=64, Price=640.0
+[Quantum] [TRANSACTIONS] Recorded transaction #1234
 ```
 
 ---
 
-## 📜 Licence
+## 📋 Licence
 
 © 2026 Wynvers Studios - Tous droits réservés
 
@@ -912,12 +1131,10 @@ Développé par [Kazotaruu_](https://github.com/kazotaruumc72)
 - [x] Gestion des ordres (suppression)
 - [x] Menu de confirmation transactions
 - [x] Système de cache optimisé
-
-### 🚧 En Développement
-- [ ] Système de pages pour menus ordres
-- [ ] Filtres et recherche d'items dans storage
-- [ ] Historique des transactions
-- [ ] Statistiques de trading
+- [x] **✨ Système de pages pour menus ordres**
+- [x] **✨ Filtres et recherche d'items dans storage**
+- [x] **✨ Historique des transactions**
+- [x] **✨ Statistiques de trading**
 
 ### 📅 Prévu
 - [ ] Backup automatique du storage
@@ -928,6 +1145,8 @@ Développé par [Kazotaruu_](https://github.com/kazotaruumc72)
 - [ ] Notifications in-game pour ordres complétés
 - [ ] Multi-monnaie support
 - [ ] Intégration Discord (notifications)
+- [ ] Graphiques de tendances (prix historiques)
+- [ ] Système d'alertes (prix cibles)
 
 ---
 

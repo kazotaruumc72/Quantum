@@ -24,6 +24,8 @@ import java.util.UUID;
  * 6. Offre créée et placée dans la bonne catégorie
  * 7. ARGENT RETIRÉ ET STOCKÉ EN ESCROW
  * 8. Quand vendeur accepte → Argent transféré de l'escrow au vendeur
+ * 
+ * PATCH: Utilise UUID COMPLET comme clé pour éviter collisions de prix
  */
 public class OrderCreationManager {
     
@@ -75,6 +77,7 @@ public class OrderCreationManager {
     /**
      * Finalise l'ordre avec la session actuelle
      * NOUVEAU: Retire l'argent du joueur et le stocke en ESCROW
+     * PATCH: Utilise UUID COMPLET comme clé pour garantir unicité
      */
     public boolean finalizeOrder(Player player) {
         OrderCreationSession session = sessions.get(player.getUniqueId());
@@ -119,12 +122,12 @@ public class OrderCreationManager {
             ordersConfig = new YamlConfiguration();
         }
         
-        // Générer un ID unique pour l'offre (UUID complet pour l'escrow)
+        // PATCH: Générer un UUID unique et l'utiliser COMPLET comme clé
         UUID orderUUID = UUID.randomUUID();
-        String orderId = orderUUID.toString().substring(0, 8); // Short ID pour display
+        String orderId = orderUUID.toString(); // UUID complet pour éviter collisions
         String path = category + "." + orderId;
         
-        ordersConfig.set(path + ".order_uuid", orderUUID.toString()); // UUID complet pour escrow
+        // Stocker les infos de l'ordre
         ordersConfig.set(path + ".orderer", player.getName());
         ordersConfig.set(path + ".orderer_uuid", player.getUniqueId().toString());
         ordersConfig.set(path + ".item", session.getItemId()); // Format: minecraft:stone ou nexo:custom_item
@@ -159,9 +162,19 @@ public class OrderCreationManager {
             }
             
             // === SUCCÈS ===
+            plugin.getLogger().info("[ORDER_CREATION] Order created successfully:");
+            plugin.getLogger().info("  - OrderID: " + orderId);
+            plugin.getLogger().info("  - Buyer: " + player.getName());
+            plugin.getLogger().info("  - Item: " + session.getItemId());
+            plugin.getLogger().info("  - Quantity: " + session.getQuantity());
+            plugin.getLogger().info("  - Total Price: " + totalPrice);
+            plugin.getLogger().info("  - Escrow Deposit: SUCCESS");
+            
+            player.sendMessage("§8[§6Quantum§8] §a✓ Offre créée avec succès!");
             player.sendMessage("§8[§6Quantum§8] §c-" + String.format("%.2f", totalPrice) + "$");
             player.sendMessage("§7Argent sécurisé en dépôt fiduciaire.");
             player.sendMessage("§7Il sera transféré au vendeur une fois l'ordre rempli.");
+            player.sendMessage("§7ID de l'ordre: §e" + orderId.substring(0, 8) + "...");
             
             // Nettoyer la session
             sessions.remove(player.getUniqueId());
@@ -170,6 +183,7 @@ public class OrderCreationManager {
             
         } catch (Exception e) {
             player.sendMessage("§c⚠ Erreur lors de la sauvegarde de l'offre!");
+            plugin.getLogger().severe("[ORDER_CREATION] Error saving order:");
             e.printStackTrace();
             return false;
         }

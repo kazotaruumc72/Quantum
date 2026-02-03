@@ -39,6 +39,7 @@ import java.nio.file.StandardCopyOption;
  * - Selling system
  * - Orders system (buy/sell orders)
  * - Statistics tracking (items stored, trades, storage stats)
+ * - Centralized message system (MiniMessage + Legacy support)
  */
 public final class Quantum extends JavaPlugin {
 
@@ -51,7 +52,9 @@ public final class Quantum extends JavaPlugin {
     private MenuManager menuManager;
     private PlaceholderManager placeholderManager;
     private AnimationManager animationManager;
-    private MessagesManager messagesManager;
+    private MessagesManager messagesManager; // Legacy
+    private MessageManager messageManager; // NEW: System messages
+    private GuiMessageManager guiMessageManager; // NEW: GUI messages
     private PriceManager priceManager;
     private VaultManager vaultManager;
     private SellManager sellManager;
@@ -76,7 +79,7 @@ public final class Quantum extends JavaPlugin {
         this.logger = new Logger("Quantum");
         logger.info("┌───────────────────────────────────┐");
         logger.info("│  §6§lQUANTUM §f- Advanced Storage │");
-        logger.info("│       §7v1.0.0 by Kazotaruu_      │");
+        logger.info("│       §7v2.0.0 by Kazotaruu_      │");
         logger.info("└───────────────────────────────────┘");
         
         // Extract default resources
@@ -85,7 +88,11 @@ public final class Quantum extends JavaPlugin {
         // Save default config
         saveDefaultConfig();
 
-        // Initialize MessagesManager first
+        // Initialize NEW message managers FIRST
+        this.messageManager = new MessageManager(this);
+        this.guiMessageManager = new GuiMessageManager(this);
+        
+        // Initialize legacy MessagesManager for compatibility
         this.messagesManager = new MessagesManager(this);
         
         // Initialize managers
@@ -103,6 +110,7 @@ public final class Quantum extends JavaPlugin {
         logger.success("✓ Quantum enabled successfully!");
         logger.info("Dynamic GUI system loaded!");
         logger.info("Storage system ready!");
+        logger.success("✓ Message system ready! (MiniMessage + Legacy)");
         if (vaultManager.isEnabled()) {
             logger.success("✓ Economy system ready!");
         }
@@ -128,6 +136,7 @@ public final class Quantum extends JavaPlugin {
         // Extract order creation menus
         extractResource("menus/order_quantity.yml");
         extractResource("menus/order_price.yml");
+        extractResource("menus/order_confirm.yml");
         
         // Extract orders menu files
         extractResource("menus/orders_categories.yml");
@@ -141,6 +150,10 @@ public final class Quantum extends JavaPlugin {
         
         // Extract orders template
         extractResource("orders_template.yml");
+        
+        // Extract message files
+        extractResource("messages.yml");
+        extractResource("messages_gui.yml");
         
         logger.success("✓ Default resources extracted");
     }
@@ -368,6 +381,8 @@ public final class Quantum extends JavaPlugin {
         if (menuManager != null) menuManager.reload();
         if (animationManager != null) animationManager.reload();
         if (messagesManager != null) messagesManager.reload();
+        if (messageManager != null) messageManager.reload(); // NEW
+        if (guiMessageManager != null) guiMessageManager.reload(); // NEW
         if (priceManager != null) priceManager.reload();
         if (orderManager != null) orderManager.loadItems();
         if (statisticsManager != null) statisticsManager.loadStatistics();
@@ -405,8 +420,25 @@ public final class Quantum extends JavaPlugin {
         return animationManager;
     }
 
+    @Deprecated
     public MessagesManager getMessagesManager() {
         return messagesManager;
+    }
+    
+    /**
+     * Get the NEW MessageManager for system messages (messages.yml)
+     * @return MessageManager instance
+     */
+    public MessageManager getMessageManager() {
+        return messageManager;
+    }
+    
+    /**
+     * Get the NEW GuiMessageManager for GUI messages (messages_gui.yml)
+     * @return GuiMessageManager instance
+     */
+    public GuiMessageManager getGuiMessageManager() {
+        return guiMessageManager;
     }
 
     public PriceManager getPriceManager() {

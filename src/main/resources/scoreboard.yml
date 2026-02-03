@@ -1,0 +1,21 @@
+# ===================================================================
+# QUANTUM - SCOREBOARD CONFIGURATION
+# ===================================================================
+# Configuration du système de scoreboard pour les tours
+# ===================================================================
+
+scoreboard:
+  enabled: true
+  update-interval: 20  # Mise à jour toutes les secondes (20 ticks)
+  hide-numbers: true   # Cache les numéros rouges sur le côté droit
+  
+  # Titre du scoreboard (au-dessus)
+  title: "&6&lTOURS"
+  
+  # Restaure le scoreboard d'origine quand le joueur quitte
+  restore-on-leave: true
+  
+  # Priorité élevée pour remplacer les autres scoreboards
+  priority: HIGH
+
+# Les lignes du scoreboard sont définies dans zones.yml pour chaque tour

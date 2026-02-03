@@ -40,6 +40,14 @@ public class TowerConfig {
         return totalFloors;
     }
     
+    /**
+     * Alias for getTotalFloors() for compatibility
+     * @return Total number of regular floors
+     */
+    public int getFloors() {
+        return totalFloors;
+    }
+    
     public List<Integer> getBossFloors() {
         return bossFloors;
     }

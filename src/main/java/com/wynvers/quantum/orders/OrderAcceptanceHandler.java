@@ -20,13 +20,14 @@ import java.util.UUID;
  * 5. Transfert de l'argent au vendeur
  * 6. Ajout des items au storage de l'acheteur
  * 7. Notification à l'acheteur
- * 8. Mise à jour de l'ordre (status = COMPLETED)
+ * 8. SUPPRESSION de l'ordre (FIX: Supprimé au lieu de marquer COMPLETED)
  * 
  * PATCH: Utilise UUID complet comme clé d'ordre (orderId = UUID complet)
  * PATCH: Double vérification du stock avant transaction
+ * PATCH: Suppression de l'ordre après complétion pour ne plus apparaître dans la liste
  * 
  * @author Kazotaruu_
- * @version 1.2
+ * @version 1.3
  */
 public class OrderAcceptanceHandler {
     
@@ -259,18 +260,18 @@ public class OrderAcceptanceHandler {
             }
         }
         
-        // === ÉTAPE 8: METTRE À JOUR L'ORDRE ===
-        plugin.getLogger().info("[ORDER_ACCEPTANCE] Updating order status...");
-        ordersConfig.set(path + ".status", "COMPLETED");
-        ordersConfig.set(path + ".seller", seller.getName());
-        ordersConfig.set(path + ".seller_uuid", seller.getUniqueId().toString());
-        ordersConfig.set(path + ".completed_at", System.currentTimeMillis());
+        // === ÉTAPE 8: SUPPRIMER L'ORDRE (FIX: Ne plus apparaître dans la liste) ===
+        plugin.getLogger().info("[ORDER_ACCEPTANCE] Deleting completed order from orders.yml...");
+        
+        // ANCIEN (bug): ordersConfig.set(path + ".status", "COMPLETED");
+        // NOUVEAU (fix): Supprimer complètement l'ordre
+        ordersConfig.set(path, null);
         
         try {
             ordersConfig.save(ordersFile);
-            plugin.getLogger().info("[ORDER_ACCEPTANCE] Order updated successfully");
+            plugin.getLogger().info("[ORDER_ACCEPTANCE] Order deleted successfully from orders.yml");
         } catch (Exception e) {
-            plugin.getQuantumLogger().error("Failed to save completed order " + orderId);
+            plugin.getQuantumLogger().error("Failed to delete completed order " + orderId);
             e.printStackTrace();
         }
         

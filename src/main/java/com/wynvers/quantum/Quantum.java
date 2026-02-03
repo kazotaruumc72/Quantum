@@ -207,6 +207,9 @@ public final class Quantum extends JavaPlugin {
         // Extract zones config
         extractResource("zones.yml");
         
+        // Extract scoreboard config
+        extractResource("scoreboard.yml");
+        
         logger.success("✓ Default resources extracted");
     }
     

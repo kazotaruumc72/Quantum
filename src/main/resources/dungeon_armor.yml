@@ -2,133 +2,65 @@
 #  QUANTUM - Dungeon Armor Configuration
 # ========================================
 #
-# Configuration de l'armure de donjon unique avec ses IDs Nexo
+# Configuration de l'armure de donjon avec API Nexo
 # Cette armure est nécessaire pour accéder aux coffres de TOUTES les tours
-#
-# Structure:
-# armor:
-#   helmet: "nexo_id_casque"
-#   chestplate: "nexo_id_plastron"
-#   leggings: "nexo_id_jambieres"
-#   boots: "nexo_id_bottes"
-
-armor:
-  # IDs Nexo des pièces d'armure de donjon
-  helmet: "dungeon_helmet"
-  chestplate: "dungeon_chestplate"
-  leggings: "dungeon_leggings"
-  boots: "dungeon_boots"
 
 # ========================================
-#  Configuration des slots de runes
+#  Pièces d'armure avec Nexo
 # ========================================
-#
-# Nombre de slots de runes par pièce d'armure
-# Un slot vide peut recevoir une rune
-# Les runes sont des items physiques à appliquer sur l'armure
 
-rune_slots:
-  # Nombre de slots par type de pièce
-  helmet: 2      # Casque: 2 slots
-  chestplate: 3  # Plastron: 3 slots
-  leggings: 2    # Jambières: 2 slots
-  boots: 1       # Bottes: 1 slot
-  
-  # Total: 8 slots de runes par armure complète
+armor_pieces:
+  helmet:
+    nexo_id: "dungeon_helmet"
+    max_rune_slots: 2
+    
+  chestplate:
+    nexo_id: "dungeon_chestplate"
+    max_rune_slots: 3
+    
+  leggings:
+    nexo_id: "dungeon_leggings"
+    max_rune_slots: 2
+    
+  boots:
+    nexo_id: "dungeon_boots"
+    max_rune_slots: 2
 
 # ========================================
 #  Messages et affichage
 # ========================================
 
 messages:
-  # Message quand un joueur n'a pas l'armure de donjon complète
   not_full_armor: "&c&l✖ &cVous devez porter l'armure de donjon complète !"
-  
-  # Message quand un joueur ouvre un coffre sans armure
   chest_locked: "&c&l✖ &cCe coffre nécessite l'armure de donjon complète !"
-  
-  # Message de succès lors de l'application d'une rune
   rune_applied: "&a&l✔ &aRune %rune_type% niveau %rune_level% appliquée avec succès !"
-  
-  # Message d'erreur si aucun slot disponible
   no_slots: "&c&l✖ &cCette pièce d'armure n'a plus de slots disponibles !"
-  
-  # Message d'erreur si ce n'est pas une armure de donjon
   not_dungeon_armor: "&c&l✖ &cCette armure n'est pas l'armure de donjon !"
-  
-  # Message de succès lors de la récupération d'une rune
   rune_removed: "&a&l✔ &aRune %rune_type% niveau %rune_level% récupérée !"
-  
-  # Message d'info pour voir les bonus
   view_bonuses: "&e&l⚡ &eUtilisez &6/armor &epour voir vos bonus de runes !"
 
 # ========================================
 #  Lore des armures
 # ========================================
-#
-# Lore automatiquement ajoutée aux pièces d'armure de donjon
-# %runes% sera remplacé par la liste des runes appliquées
 
 lore:
-  # Ligne de séparation
   separator: "&7&m-------------------"
-  
-  # En-tête des runes
   runes_header: "&6&lRunes:"
-  
-  # Format d'une rune appliquée
   rune_format: "&8▪ &e%rune_name% &7(Niv. %rune_level%)"
-  
-  # Slot vide
   empty_slot: "&8▪ &7Slot vide"
-  
-  # Pied de page
   footer: "&7Armure de Donjon"
-  
-  # Message rappel
   hint: "&8Clic droit avec une rune pour l'appliquer"
 
 # ========================================
 #  Configuration des particules
 # ========================================
-#
-# Particules émises par l'armure de donjon complète
 
 particles:
   enabled: true
-  
-  # Type de particules (quand armure complète)
   type: "ENCHANTMENT_TABLE"
-  
-  # Fréquence des particules (en ticks, 20 ticks = 1 seconde)
   frequency: 40
-  
-  # Nombre de particules par émission
   amount: 2
-  
-  # Offset (dispersion)
   offset:
     x: 0.5
     y: 0.5
     z: 0.5
-
-# ========================================
-#  Craft de l'armure (optionnel)
-# ========================================
-#
-# Configuration pour le craft de l'armure de donjon
-# Nécessite des matériaux obtenus dans les tours
-
-craft:
-  enabled: false
-  
-  # Matériaux requis (ID Nexo)
-  materials:
-    - "dungeon_fragment:64"  # 64 fragments de donjon
-    - "fire_essence:16"      # 16 essences de feu
-    - "water_essence:16"     # 16 essences d'eau
-    - "earth_essence:16"     # 16 essences de terre
-    - "air_essence:16"       # 16 essences d'air
-  
-  # Commande à exécuter pour craft (ou false pour craft vanilla)
-  command: "customcrafting open dungeon_armor_craft %player%"

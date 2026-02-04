@@ -241,8 +241,8 @@ public class DungeonArmor {
                     RuneType rune = RuneType.valueOf(parts[0].trim());
                     int level = Integer.parseInt(parts[1].trim());
                     result.put(rune, level);
-                } catch (IllegalArgumentException | NumberFormatException e) {
-                    // Ignorer les entrées invalides
+                } catch (IllegalArgumentException e) {
+                    // Ignorer les entrées invalides (inclut NumberFormatException)
                 }
             }
         }

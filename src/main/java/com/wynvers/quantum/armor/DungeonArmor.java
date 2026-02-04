@@ -85,6 +85,10 @@ public class DungeonArmor {
         
         ItemMeta meta = armor.getItemMeta();
         if (meta != null) {
+            try {
+                // ✅ C'EST CETTE LIGNE QUI FAIT LE LIEN
+                meta.setTooltipStyle(rarity.getTooltipKey());
+            } catch (Exception e) { /* ... */ }
 
             // --- 2. Display Name ---
             String displayName = armorConfig.getString("armor_pieces." + armorType + ".display_name");

@@ -1,6 +1,7 @@
 package com.wynvers.quantum.armor;
 
 import com.nexomc.nexo.api.NexoItems;
+import com.nexomc.nexo.items.ItemBuilder;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -43,7 +44,7 @@ public class DungeonArmor {
             }
             armorConfig = YamlConfiguration.loadConfiguration(configFile);
         } catch (Exception e) {
-            plugin.getLogger().warning("Erreur lors du chargement de dungeon_armor.yml: " + e.getMessage());
+            plugin.getLogger().warning("Érreur lors du chargement de dungeon_armor.yml: " + e.getMessage());
         }
     }
     
@@ -59,14 +60,23 @@ public class DungeonArmor {
         String nexoId = armorConfig.getString("armor_pieces." + armorType + ".nexo_id");
         
         if (nexoId == null) {
-            plugin.getLogger().warning("Nexo ID non trouvé pour: " + armorType);
+            plugin.getLogger().warning("⚠️ Nexo ID non trouvé dans dungeon_armor.yml pour: " + armorType);
             return null;
         }
         
-        ItemStack armor = NexoItems.itemFromId(nexoId).build();
+        // Protection: vérifier si ItemBuilder existe
+        ItemBuilder builder = NexoItems.itemFromId(nexoId);
+        if (builder == null) {
+            plugin.getLogger().severe("❌ L'item Nexo '" + nexoId + "' n'existe pas !");
+            plugin.getLogger().severe("➜ Vérifiez que l'item est bien défini dans Nexo");
+            plugin.getLogger().severe("➜ Vérifiez que Nexo est bien chargé avant Quantum");
+            return null;
+        }
+        
+        ItemStack armor = builder.build();
         
         if (armor == null) {
-            plugin.getLogger().warning("Impossible de créer l'item Nexo: " + nexoId);
+            plugin.getLogger().warning("⚠️ Impossible de build l'item Nexo: " + nexoId);
             return null;
         }
         

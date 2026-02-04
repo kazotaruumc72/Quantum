@@ -139,39 +139,6 @@ public class ArmorManager {
     }
     
     /**
-     * Récupère le pourcentage de retour de dégâts (thorns) pour un joueur
-     */
-    public double getThornsPercent(Player player) {
-        Map<RuneType, Integer> runes = playerRunes.getOrDefault(player, new HashMap<>());
-        if (runes.containsKey(RuneType.THORNS)) {
-            return RuneType.THORNS.getThornsPercent(runes.get(RuneType.THORNS));
-        }
-        return 0.0;
-    }
-    
-    /**
-     * Récupère le multiplicateur d'XP pour un joueur
-     */
-    public double getXpMultiplier(Player player) {
-        Map<RuneType, Integer> runes = playerRunes.getOrDefault(player, new HashMap<>());
-        if (runes.containsKey(RuneType.WISDOM)) {
-            return RuneType.WISDOM.getXpMultiplier(runes.get(RuneType.WISDOM));
-        }
-        return 1.0;
-    }
-    
-    /**
-     * Récupère la chance de loot rare pour un joueur
-     */
-    public double getRareLootChance(Player player) {
-        Map<RuneType, Integer> runes = playerRunes.getOrDefault(player, new HashMap<>());
-        if (runes.containsKey(RuneType.LUCK)) {
-            return RuneType.LUCK.getRareLootChance(runes.get(RuneType.LUCK));
-        }
-        return 0.0;
-    }
-    
-    /**
      * Initialise le compteur de ticks pour la régén
      */
     private void initializeRegenTicks(Player player) {

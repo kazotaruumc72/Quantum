@@ -23,12 +23,14 @@ public class TowerScoreboardHandler {
     
     private final Quantum plugin;
     private final Map<UUID, Scoreboard> playerScoreboards;
+    private final Map<UUID, Scoreboard> originalScoreboards; // Sauvegarde du scoreboard d'origine
     private final Map<UUID, BukkitRunnable> updateTasks;
     private final Set<UUID> playersInTower;
     
     public TowerScoreboardHandler(Quantum plugin) {
         this.plugin = plugin;
         this.playerScoreboards = new HashMap<>();
+        this.originalScoreboards = new HashMap<>();
         this.updateTasks = new HashMap<>();
         this.playersInTower = new HashSet<>();
     }
@@ -39,6 +41,9 @@ public class TowerScoreboardHandler {
      * @param towerId ID de la tour
      */
     public void enableTowerScoreboard(Player player, String towerId) {
+        // Sauvegarder le scoreboard d'origine
+        originalScoreboards.put(player.getUniqueId(), player.getScoreboard());
+        
         // Désactiver Oreo Essentials scoreboard
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sb " + player.getName());
         
@@ -63,7 +68,7 @@ public class TowerScoreboardHandler {
     }
     
     /**
-     * Désactive le scoreboard de tour et restaure Oreo Essentials
+     * Désactive le scoreboard de tour et restaure le scoreboard d'origine
      * @param player Joueur
      */
     public void disableTowerScoreboard(Player player) {
@@ -79,8 +84,14 @@ public class TowerScoreboardHandler {
         playerScoreboards.remove(uuid);
         playersInTower.remove(uuid);
         
-        // Réactiver Oreo Essentials scoreboard
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sb " + player.getName());
+        // Restaurer le scoreboard d'origine
+        Scoreboard originalScoreboard = originalScoreboards.remove(uuid);
+        if (originalScoreboard != null) {
+            player.setScoreboard(originalScoreboard);
+        } else {
+            // Si pas de scoreboard sauvegardé, réactiver Oreo Essentials
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "sb " + player.getName());
+        }
         
         plugin.getQuantumLogger().info("Tower scoreboard disabled for " + player.getName());
     }
@@ -138,7 +149,7 @@ public class TowerScoreboardHandler {
             line = ChatColor.translateAlternateColorCodes('&', line);
             
             // Créer une entrée invisible unique
-            String entry = getInvisibleString(lineNumber);
+            String entry = ChatColor.values()[Math.min(lineNumber, 15)].toString() + ChatColor.RESET;
             
             // Créer une Team pour cette ligne
             Team team = scoreboard.registerNewTeam("line_" + lineNumber);
@@ -162,18 +173,6 @@ public class TowerScoreboardHandler {
             
             lineNumber--;
         }
-    }
-    
-    /**
-     * Génère une chaîne invisible unique pour chaque ligne
-     */
-    private String getInvisibleString(int index) {
-        // Utiliser des codes couleur ChatColor.RESET répétés
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < index; i++) {
-            sb.append(ChatColor.RESET);
-        }
-        return sb.toString();
     }
     
     /**
@@ -234,6 +233,7 @@ public class TowerScoreboardHandler {
         }
         
         playerScoreboards.remove(uuid);
+        originalScoreboards.remove(uuid);
         playersInTower.remove(uuid);
     }
     
@@ -246,6 +246,7 @@ public class TowerScoreboardHandler {
         }
         updateTasks.clear();
         playerScoreboards.clear();
+        originalScoreboards.clear();
         playersInTower.clear();
     }
     

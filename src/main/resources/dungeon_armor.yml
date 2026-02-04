@@ -11,19 +11,15 @@
 
 armor_pieces:
   helmet:
-    nexo_id: "dungeon_helmet"
     display_name: "&6Casque de Donjon"
     
   chestplate:
-    nexo_id: "dungeon_chestplate"
     display_name: "&6Plastron de Donjon"
     
   leggings:
-    nexo_id: "dungeon_leggings"
     display_name: "&6Jambières de Donjon"
     
   boots:
-    nexo_id: "dungeon_boots"
     display_name: "&6Bottes de Donjon"
 
 # ========================================
@@ -33,7 +29,11 @@ armor_pieces:
 #   - display_name: Nom affiché
 #   - color: Couleur (GRAY, GREEN, BLUE, DARK_PURPLE, GOLD, etc.)
 #   - max_rune_slots: Nombre d'emplacements de runes
+#   - nexo_ids: IDs Nexo pour chaque pièce d'armure (optionnel, utilise default si absent)
 #   - enchantments: Liste des enchantements avec niveaux min/max
+#
+# Si nexo_ids n'est pas spécifié, utilise les IDs par défaut:
+#   - dungeon_helmet_common, dungeon_helmet_uncommon, etc.
 #
 # Noms d'enchantements disponibles (1.21+):
 #   PROTECTION, FIRE_PROTECTION, BLAST_PROTECTION, PROJECTILE_PROTECTION
@@ -46,6 +46,11 @@ rarities:
     display_name: "Commun"
     color: "GRAY"
     max_rune_slots: 1
+    nexo_ids:
+      helmet: "dungeon_helmet_common"
+      chestplate: "dungeon_chestplate_common"
+      leggings: "dungeon_leggings_common"
+      boots: "dungeon_boots_common"
     enchantments:
       - enchant: "PROTECTION"
         min_level: 1
@@ -58,6 +63,11 @@ rarities:
     display_name: "Peu Commun"
     color: "GREEN"
     max_rune_slots: 2
+    nexo_ids:
+      helmet: "dungeon_helmet_uncommon"
+      chestplate: "dungeon_chestplate_uncommon"
+      leggings: "dungeon_leggings_uncommon"
+      boots: "dungeon_boots_uncommon"
     enchantments:
       - enchant: "PROTECTION"
         min_level: 2
@@ -73,6 +83,11 @@ rarities:
     display_name: "Rare"
     color: "BLUE"
     max_rune_slots: 3
+    nexo_ids:
+      helmet: "dungeon_helmet_rare"
+      chestplate: "dungeon_chestplate_rare"
+      leggings: "dungeon_leggings_rare"
+      boots: "dungeon_boots_rare"
     enchantments:
       - enchant: "PROTECTION"
         min_level: 3
@@ -91,6 +106,11 @@ rarities:
     display_name: "Épique"
     color: "DARK_PURPLE"
     max_rune_slots: 4
+    nexo_ids:
+      helmet: "dungeon_helmet_epic"
+      chestplate: "dungeon_chestplate_epic"
+      leggings: "dungeon_leggings_epic"
+      boots: "dungeon_boots_epic"
     enchantments:
       - enchant: "PROTECTION"
         min_level: 4
@@ -112,6 +132,11 @@ rarities:
     display_name: "Légendaire"
     color: "GOLD"
     max_rune_slots: 5
+    nexo_ids:
+      helmet: "dungeon_helmet_legendary"
+      chestplate: "dungeon_chestplate_legendary"
+      leggings: "dungeon_leggings_legendary"
+      boots: "dungeon_boots_legendary"
     enchantments:
       - enchant: "PROTECTION"
         min_level: 5

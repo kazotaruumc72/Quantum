@@ -2,7 +2,7 @@ package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.armor.RuneType;
-import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -15,213 +15,180 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Commande pour donner des runes physiques (items)
- * /rune give <joueur> <type> <niveau> [quantité]
- * /rune list - Liste toutes les runes disponibles
- * 
- * @author Kazotaruu_
- * @version 1.0
+ * Command handler for /rune
+ * Allows players to obtain physical rune items and manage rune equipment
  */
 public class RuneCommand implements CommandExecutor {
-    
+
     private final Quantum plugin;
-    
+
     public RuneCommand(Quantum plugin) {
         this.plugin = plugin;
     }
-    
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (args.length == 0) {
-            sendHelp(sender);
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(ChatColor.RED + "This command can only be used by players!");
             return true;
         }
-        
-        switch (args[0].toLowerCase()) {
-            case "give":
-                return handleGive(sender, args);
-            
-            case "list":
-                return handleList(sender);
-            
-            default:
-                sendHelp(sender);
+
+        Player player = (Player) sender;
+
+        // /rune equip - Open rune equipment menu
+        if (args.length == 1 && args[0].equalsIgnoreCase("equip")) {
+            plugin.getMenuManager().openMenu(player, "rune_equipment");
+            return true;
+        }
+
+        // /rune give <type> <level> [player] - Give physical rune item
+        if (args.length >= 3 && args[0].equalsIgnoreCase("give")) {
+            if (!player.hasPermission("quantum.rune.give")) {
+                player.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
                 return true;
-        }
-    }
-    
-    /**
-     * Donne une rune physique à un joueur
-     */
-    private boolean handleGive(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("quantum.rune.give")) {
-            sender.sendMessage("§cVous n'avez pas la permission d'utiliser cette commande.");
-            return true;
-        }
-        
-        if (args.length < 4) {
-            sender.sendMessage("§cUsage: /rune give <joueur> <type> <niveau> [quantité]");
-            sender.sendMessage("§7Types: FORCE, SPEED, RESISTANCE, CRITICAL, REGENERATION, VAMPIRISM, THORNS, WISDOM, LUCK");
-            sender.sendMessage(§7Niveaux: 1, 2, 3");
-            return true;
-        }
-        
-        // Récupérer le joueur cible
-        Player target = Bukkit.getPlayer(args[1]);
-        if (target == null) {
-            sender.sendMessage("§cJoueur introuvable: " + args[1]);
-            return true;
-        }
-        
-        // Récupérer le type de rune
-        RuneType runeType;
-        try {
-            runeType = RuneType.valueOf(args[2].toUpperCase());
-        } catch (IllegalArgumentException e) {
-            sender.sendMessage("§cType de rune invalide: " + args[2]);
-            sender.sendMessage("§7Types disponibles: FORCE, SPEED, RESISTANCE, CRITICAL, REGENERATION, VAMPIRISM, THORNS, WISDOM, LUCK");
-            return true;
-        }
-        
-        // Récupérer le niveau
-        int level;
-        try {
-            level = Integer.parseInt(args[3]);
-        } catch (NumberFormatException e) {
-            sender.sendMessage("§cNiveau invalide. Utilisez 1, 2 ou 3.");
-            return true;
-        }
-        
-        if (level < 1 || level > 3) {
-            sender.sendMessage("§cNiveau invalide. Utilisez 1, 2 ou 3.");
-            return true;
-        }
-        
-        // Récupérer la quantité
-        int amount = 1;
-        if (args.length >= 5) {
+            }
+
+            String typeStr = args[1].toUpperCase();
+            String levelStr = args[2];
+
+            RuneType type;
             try {
-                amount = Integer.parseInt(args[4]);
-                if (amount < 1 || amount > 64) {
-                    sender.sendMessage("§cQuantité invalide (1-64).");
+                type = RuneType.valueOf(typeStr);
+            } catch (IllegalArgumentException e) {
+                player.sendMessage(ChatColor.RED + "Invalid rune type! Available types:");
+                player.sendMessage(ChatColor.GRAY + "HEALTH, DAMAGE, DEFENSE, SPEED, CRIT_CHANCE, CRIT_DAMAGE, MAGIC_FIND, HEALTH_REGEN, MANA_REGEN");
+                return true;
+            }
+
+            int level;
+            try {
+                level = Integer.parseInt(levelStr);
+                if (level < 1 || level > 3) {
+                    player.sendMessage(ChatColor.RED + "Invalid level! Must be between 1 and 3.");
                     return true;
                 }
             } catch (NumberFormatException e) {
-                sender.sendMessage("§cQuantité invalide.");
+                player.sendMessage(ChatColor.RED + "Invalid level! Must be a number between 1 and 3.");
                 return true;
             }
+
+            // Determine target player
+            Player target = player;
+            if (args.length >= 4) {
+                target = plugin.getServer().getPlayer(args[3]);
+                if (target == null) {
+                    player.sendMessage(ChatColor.RED + "Player not found: " + args[3]);
+                    return true;
+                }
+            }
+
+            // Create and give rune item
+            ItemStack runeItem = createRuneItem(type, level);
+            target.getInventory().addItem(runeItem);
+
+            String runeName = type.getDisplayName() + " " + getRomanNumeral(level);
+            if (target.equals(player)) {
+                player.sendMessage(ChatColor.GREEN + "You received: " + ChatColor.GOLD + runeName);
+            } else {
+                player.sendMessage(ChatColor.GREEN + "Gave " + ChatColor.GOLD + runeName + ChatColor.GREEN + " to " + target.getName());
+                target.sendMessage(ChatColor.GREEN + "You received: " + ChatColor.GOLD + runeName);
+            }
+
+            return true;
         }
-        
-        // Créer l'item de rune
-        ItemStack runeItem = createRuneItem(runeType, level, amount);
-        
-        // Donner au joueur
-        target.getInventory().addItem(runeItem);
-        
-        // Messages
-        sender.sendMessage("§a§l✓ §aVous avez donné " + amount + "x " + runeType.getDisplay() + " §7" + toRoman(level) + " §aà " + target.getName());
-        target.sendMessage("§a§l✓ §aVous avez reçu " + amount + "x " + runeType.getDisplay() + " §7" + toRoman(level));
-        
+
+        // Show usage
+        player.sendMessage(ChatColor.GOLD + "===== Rune Commands =====");
+        player.sendMessage(ChatColor.YELLOW + "/rune equip" + ChatColor.GRAY + " - Open rune equipment menu");
+        if (player.hasPermission("quantum.rune.give")) {
+            player.sendMessage(ChatColor.YELLOW + "/rune give <type> <level> [player]" + ChatColor.GRAY + " - Give a physical rune item");
+            player.sendMessage(ChatColor.GRAY + "Types: HEALTH, DAMAGE, DEFENSE, SPEED, CRIT_CHANCE, CRIT_DAMAGE, MAGIC_FIND, HEALTH_REGEN, MANA_REGEN");
+            player.sendMessage(ChatColor.GRAY + "Levels: 1, 2, 3 (I, II, III)");
+        }
         return true;
     }
-    
+
     /**
-     * Liste toutes les runes disponibles
+     * Create a physical rune item
      */
-    private boolean handleList(CommandSender sender) {
-        sender.sendMessage("§6§l─────────────────────────────");
-        sender.sendMessage("§6§lRUNES DISPONIBLES");
-        sender.sendMessage("§6§l─────────────────────────────");
-        
-        for (RuneType rune : RuneType.values()) {
-            sender.sendMessage("§7• " + rune.getDisplay() + " §8(I, II, III)");
-            sender.sendMessage(§7  " + plugin.getConfig().getString("runes." + rune.name() + ".description", ""));
-        }
-        
-        sender.sendMessage("§6§l─────────────────────────────");
-        sender.sendMessage("§7Utilisez §e/rune give <joueur> <type> <niveau>");
-        
-        return true;
-    }
-    
-    /**
-     * Crée un item de rune physique
-     */
-    private ItemStack createRuneItem(RuneType runeType, int level, int amount) {
-        // Essayer de récupérer l'ID Nexo depuis la config
-        String nexoId = plugin.getConfig().getString("runes." + runeType.name() + ".item_nexo_ids." + level);
-        
-        if (nexoId != null && Bukkit.getPluginManager().getPlugin("Nexo") != null) {
-            // TODO: Intégration Nexo
-            // ItemStack nexoItem = NexoItems.itemFromId(nexoId);
-            // if (nexoItem != null) {
-            //     nexoItem.setAmount(amount);
-            //     return nexoItem;
-            // }
-        }
-        
-        // Fallback: créer un item vanilla avec NBT et lore
-        Material material = Material.getMaterial(
-            plugin.getConfig().getString("runes." + runeType.name() + ".icon", "PAPER"));
-        
-        if (material == null) {
-            material = Material.PAPER;
-        }
-        
-        ItemStack item = new ItemStack(material, amount);
+    private ItemStack createRuneItem(RuneType type, int level) {
+        ItemStack item = new ItemStack(Material.ECHO_SHARD); // Éclat d'écho comme item de base
         ItemMeta meta = item.getItemMeta();
-        
+
         if (meta != null) {
-            // Nom de l'item
-            meta.setDisplayName(runeType.getDisplay() + " §7" + toRoman(level));
-            
-            // Lore
+            // Display name
+            String romanLevel = getRomanNumeral(level);
+            meta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + type.getDisplayName() + " " + romanLevel);
+
+            // Lore with stats
             List<String> lore = new ArrayList<>();
-            lore.add("§8────────────────────");
-            lore.add("§7Clic droit sur une pièce");
-            lore.add("§7d'armure pour appliquer");
             lore.add("");
-            
-            // Ajouter les bonus depuis la config
-            List<String> bonusLore = plugin.getConfig().getStringList("runes." + runeType.name() + ".lore." + level);
-            lore.addAll(bonusLore);
-            
+            lore.add(ChatColor.GRAY + "Rune Type: " + ChatColor.YELLOW + type.getDisplayName());
+            lore.add(ChatColor.GRAY + "Level: " + ChatColor.YELLOW + romanLevel);
             lore.add("");
-            lore.add("§8Rune de niveau " + toRoman(level));
-            lore.add("§8────────────────────");
-            
+
+            // Add bonus info
+            double bonus = plugin.getDungeonArmor().getRuneBonus(type, level);
+            String bonusStr = formatBonus(type, bonus);
+            lore.add(ChatColor.GREEN + "Bonus: " + bonusStr);
+            lore.add("");
+            lore.add(ChatColor.DARK_GRAY + "Drag this rune onto a dungeon");
+            lore.add(ChatColor.DARK_GRAY + "armor piece to apply its bonus.");
+            lore.add("");
+            lore.add(ChatColor.GOLD + "" + ChatColor.ITALIC + "Mythical Rune");
+
             meta.setLore(lore);
-            
-            // NBT pour identifier la rune
-            // TODO: Ajouter PDC (PersistentDataContainer) pour stocker type et niveau
-            
+
+            // Add custom model data if configured
+            String configPath = "runes." + type.name().toLowerCase() + ".levels." + level + ".custom_model_data";
+            if (plugin.getConfig().contains(configPath)) {
+                int customModelData = plugin.getConfig().getInt(configPath);
+                meta.setCustomModelData(customModelData);
+            }
+
             item.setItemMeta(meta);
         }
-        
+
         return item;
     }
-    
+
     /**
-     * Affiche l'aide de la commande
+     * Format bonus value based on rune type
      */
-    private void sendHelp(CommandSender sender) {
-        sender.sendMessage("§6§l─────────────────────────────");
-        sender.sendMessage("§6§lCOMMANDES RUNES");
-        sender.sendMessage("§6§l─────────────────────────────");
-        sender.sendMessage("§e/rune give <joueur> <type> <niveau> [qte] §7- Donne une rune");
-        sender.sendMessage("§e/rune list §7- Liste toutes les runes");
-        sender.sendMessage("§6§l─────────────────────────────");
+    private String formatBonus(RuneType type, double bonus) {
+        switch (type) {
+            case HEALTH:
+                return ChatColor.RED + "+" + (int)bonus + " ❤ Health";
+            case DAMAGE:
+                return ChatColor.RED + "+" + (int)bonus + " ⚔ Damage";
+            case DEFENSE:
+                return ChatColor.GREEN + "+" + (int)bonus + " 🛡 Defense";
+            case SPEED:
+                return ChatColor.AQUA + "+" + (int)bonus + "% ⚡ Speed";
+            case CRIT_CHANCE:
+                return ChatColor.BLUE + "+" + (int)bonus + "% ☄ Crit Chance";
+            case CRIT_DAMAGE:
+                return ChatColor.BLUE + "+" + (int)bonus + "% ✦ Crit Damage";
+            case MAGIC_FIND:
+                return ChatColor.LIGHT_PURPLE + "+" + (int)bonus + "% ✪ Magic Find";
+            case HEALTH_REGEN:
+                return ChatColor.RED + "+" + (int)bonus + " ❤ Health Regen";
+            case MANA_REGEN:
+                return ChatColor.AQUA + "+" + (int)bonus + " ✎ Mana Regen";
+            default:
+                return ChatColor.YELLOW + "+" + bonus;
+        }
     }
-    
+
     /**
-     * Convertit un nombre en chiffres romains
+     * Convert level to Roman numeral
      */
-    private String toRoman(int number) {
-        switch (number) {
+    private String getRomanNumeral(int level) {
+        switch (level) {
             case 1: return "I";
             case 2: return "II";
             case 3: return "III";
-            default: return String.valueOf(number);
+            default: return String.valueOf(level);
         }
     }
 }

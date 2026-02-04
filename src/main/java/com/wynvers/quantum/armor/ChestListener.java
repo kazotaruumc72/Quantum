@@ -66,8 +66,11 @@ public class ChestListener implements Listener {
             return;
         }
         
-        // Vérifier le nombre de kills
-        int totalKills = progress.getTotalKills();
+        // Calculer le nombre total de kills sur l'étage actuel
+        int totalKills = progress.getCurrentKills().values().stream()
+            .mapToInt(Integer::intValue)
+            .sum();
+        
         if (totalKills < minKillsToOpen) {
             event.setCancelled(true);
             player.sendMessage("§c§l⚠ §cVous devez tuer au moins §6" + minKillsToOpen + " §cmonstres avant d'ouvrir ce coffre !");

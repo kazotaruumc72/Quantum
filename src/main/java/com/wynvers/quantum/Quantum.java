@@ -1,5 +1,8 @@
 package com.wynvers.quantum;
 
+import com.wynvers.quantum.armor.ArmorManager;
+import com.wynvers.quantum.armor.DungeonArmor;
+import com.wynvers.quantum.armor.RuneType;
 import com.wynvers.quantum.commands.*;
 import com.wynvers.quantum.listeners.MenuListener;
 import com.wynvers.quantum.listeners.ScoreboardListener;
@@ -55,6 +58,7 @@ import java.nio.file.StandardCopyOption;
  * - WorldGuard zone restrictions with mob kill requirements
  * - Tower progression system with 4 towers (25 floors + final boss each)
  * - Integrated tower scoreboard system (auto-disable Oreo Essentials)
+ * - Dungeon armor system with runes (9 types, 3 levels each)
  */
 public final class Quantum extends JavaPlugin {
 
@@ -87,6 +91,8 @@ public final class Quantum extends JavaPlugin {
     private KillTracker killTracker; // NEW: Kill tracking for zones
     private TowerManager towerManager; // NEW: Tower progression system
     private TowerScoreboardHandler scoreboardHandler; // NEW: Integrated tower scoreboard
+    private DungeonArmor dungeonArmor; // NEW: Dungeon armor system
+    private ArmorManager armorManager; // NEW: Armor manager
     
     // Utils
     private ActionExecutor actionExecutor;
@@ -125,6 +131,12 @@ public final class Quantum extends JavaPlugin {
         // Initialize scoreboard manager (always available)
         this.scoreboardManager = new ScoreboardManager(this);
         logger.success("✓ Scoreboard Manager initialized!");
+        
+        // Initialize Dungeon Armor system
+        this.dungeonArmor = new DungeonArmor(this);
+        RuneType.init(this); // Initialize rune config
+        this.armorManager = new ArmorManager(this, dungeonArmor);
+        logger.success("✓ Dungeon Armor system initialized! (9 runes with 3 levels)");
         
         // Initialize WorldGuard zone system
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
@@ -213,6 +225,9 @@ public final class Quantum extends JavaPlugin {
         
         // Extract scoreboard config
         extractResource("scoreboard.yml");
+        
+        // Extract dungeon config
+        extractResource("dungeon.yml");
         
         logger.success("✓ Default resources extracted");
     }
@@ -682,5 +697,21 @@ public final class Quantum extends JavaPlugin {
      */
     public TowerScoreboardHandler getScoreboardHandler() {
         return scoreboardHandler;
+    }
+    
+    /**
+     * Get the DungeonArmor system for dungeon armor management
+     * @return DungeonArmor instance
+     */
+    public DungeonArmor getDungeonArmor() {
+        return dungeonArmor;
+    }
+    
+    /**
+     * Get the ArmorManager for applying rune bonuses to players
+     * @return ArmorManager instance
+     */
+    public ArmorManager getArmorManager() {
+        return armorManager;
     }
 }

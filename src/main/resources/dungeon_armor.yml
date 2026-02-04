@@ -2,52 +2,22 @@
 #  QUANTUM - Dungeon Armor Configuration
 # ========================================
 #
-# Configuration des armures de donjon avec leurs IDs Nexo
-# Chaque armure doit avoir 4 pièces : casque, plastron, jambières, bottes
+# Configuration de l'armure de donjon unique avec ses IDs Nexo
+# Cette armure est nécessaire pour accéder aux coffres de TOUTES les tours
 #
 # Structure:
-# armors:
-#   nom_armure:
-#     helmet: "nexo_id_casque"
-#     chestplate: "nexo_id_plastron"
-#     leggings: "nexo_id_jambieres"
-#     boots: "nexo_id_bottes"
+# armor:
+#   helmet: "nexo_id_casque"
+#   chestplate: "nexo_id_plastron"
+#   leggings: "nexo_id_jambieres"
+#   boots: "nexo_id_bottes"
 
-armors:
-  # Armure de la Tour de Feu (Fire Tower)
-  fire_armor:
-    helmet: "fire_helmet"
-    chestplate: "fire_chestplate"
-    leggings: "fire_leggings"
-    boots: "fire_boots"
-  
-  # Armure de la Tour d'Eau (Water Tower)
-  water_armor:
-    helmet: "water_helmet"
-    chestplate: "water_chestplate"
-    leggings: "water_leggings"
-    boots: "water_boots"
-  
-  # Armure de la Tour de Terre (Earth Tower)
-  earth_armor:
-    helmet: "earth_helmet"
-    chestplate: "earth_chestplate"
-    leggings: "earth_leggings"
-    boots: "earth_boots"
-  
-  # Armure de la Tour d'Air (Air Tower)
-  air_armor:
-    helmet: "air_helmet"
-    chestplate: "air_chestplate"
-    leggings: "air_leggings"
-    boots: "air_boots"
-  
-  # Armure Légendaire (Boss final)
-  legendary_armor:
-    helmet: "legendary_helmet"
-    chestplate: "legendary_chestplate"
-    leggings: "legendary_leggings"
-    boots: "legendary_boots"
+armor:
+  # IDs Nexo des pièces d'armure de donjon
+  helmet: "dungeon_helmet"
+  chestplate: "dungeon_chestplate"
+  leggings: "dungeon_leggings"
+  boots: "dungeon_boots"
 
 # ========================================
 #  Configuration des slots de runes
@@ -72,10 +42,10 @@ rune_slots:
 
 messages:
   # Message quand un joueur n'a pas l'armure de donjon complète
-  not_full_armor: "&c&l✖ &cVous devez porter une armure de donjon complète !"
+  not_full_armor: "&c&l✖ &cVous devez porter l'armure de donjon complète !"
   
   # Message quand un joueur ouvre un coffre sans armure
-  chest_locked: "&c&l✖ &cCe coffre nécessite une armure de donjon complète !"
+  chest_locked: "&c&l✖ &cCe coffre nécessite l'armure de donjon complète !"
   
   # Message de succès lors de l'application d'une rune
   rune_applied: "&a&l✔ &aRune %rune_type% niveau %rune_level% appliquée avec succès !"
@@ -84,16 +54,19 @@ messages:
   no_slots: "&c&l✖ &cCette pièce d'armure n'a plus de slots disponibles !"
   
   # Message d'erreur si ce n'est pas une armure de donjon
-  not_dungeon_armor: "&c&l✖ &cCette armure n'est pas une armure de donjon !"
+  not_dungeon_armor: "&c&l✖ &cCette armure n'est pas l'armure de donjon !"
   
   # Message de succès lors de la récupération d'une rune
   rune_removed: "&a&l✔ &aRune %rune_type% niveau %rune_level% récupérée !"
+  
+  # Message d'info pour voir les bonus
+  view_bonuses: "&e&l⚡ &eUtilisez &6/armor &epour voir vos bonus de runes !"
 
 # ========================================
 #  Lore des armures
 # ========================================
 #
-# Lore automatiquement ajoutée aux armures de donjon
+# Lore automatiquement ajoutée aux pièces d'armure de donjon
 # %runes% sera remplacé par la liste des runes appliquées
 
 lore:
@@ -111,25 +84,51 @@ lore:
   
   # Pied de page
   footer: "&7Armure de Donjon"
+  
+  # Message rappel
+  hint: "&8Clic droit avec une rune pour l'appliquer"
 
 # ========================================
 #  Configuration des particules
 # ========================================
 #
-# Particules émises par les armures de donjon
+# Particules émises par l'armure de donjon complète
 
 particles:
   enabled: true
   
-  # Particules par type d'armure
-  fire_armor: "FLAME"
-  water_armor: "WATER_BUBBLE"
-  earth_armor: "VILLAGER_HAPPY"
-  air_armor: "CLOUD"
-  legendary_armor: "END_ROD"
+  # Type de particules (quand armure complète)
+  type: "ENCHANTMENT_TABLE"
   
   # Fréquence des particules (en ticks, 20 ticks = 1 seconde)
-  frequency: 20
+  frequency: 40
   
-  # Nombre de particules
-  amount: 3
+  # Nombre de particules par émission
+  amount: 2
+  
+  # Offset (dispersion)
+  offset:
+    x: 0.5
+    y: 0.5
+    z: 0.5
+
+# ========================================
+#  Craft de l'armure (optionnel)
+# ========================================
+#
+# Configuration pour le craft de l'armure de donjon
+# Nécessite des matériaux obtenus dans les tours
+
+craft:
+  enabled: false
+  
+  # Matériaux requis (ID Nexo)
+  materials:
+    - "dungeon_fragment:64"  # 64 fragments de donjon
+    - "fire_essence:16"      # 16 essences de feu
+    - "water_essence:16"     # 16 essences d'eau
+    - "earth_essence:16"     # 16 essences de terre
+    - "air_essence:16"       # 16 essences d'air
+  
+  # Commande à exécuter pour craft (ou false pour craft vanilla)
+  command: "customcrafting open dungeon_armor_craft %player%"

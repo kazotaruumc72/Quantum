@@ -1,0 +1,135 @@
+# ========================================
+#  QUANTUM - Dungeon Armor Configuration
+# ========================================
+#
+# Configuration des armures de donjon avec leurs IDs Nexo
+# Chaque armure doit avoir 4 pièces : casque, plastron, jambières, bottes
+#
+# Structure:
+# armors:
+#   nom_armure:
+#     helmet: "nexo_id_casque"
+#     chestplate: "nexo_id_plastron"
+#     leggings: "nexo_id_jambieres"
+#     boots: "nexo_id_bottes"
+
+armors:
+  # Armure de la Tour de Feu (Fire Tower)
+  fire_armor:
+    helmet: "fire_helmet"
+    chestplate: "fire_chestplate"
+    leggings: "fire_leggings"
+    boots: "fire_boots"
+  
+  # Armure de la Tour d'Eau (Water Tower)
+  water_armor:
+    helmet: "water_helmet"
+    chestplate: "water_chestplate"
+    leggings: "water_leggings"
+    boots: "water_boots"
+  
+  # Armure de la Tour de Terre (Earth Tower)
+  earth_armor:
+    helmet: "earth_helmet"
+    chestplate: "earth_chestplate"
+    leggings: "earth_leggings"
+    boots: "earth_boots"
+  
+  # Armure de la Tour d'Air (Air Tower)
+  air_armor:
+    helmet: "air_helmet"
+    chestplate: "air_chestplate"
+    leggings: "air_leggings"
+    boots: "air_boots"
+  
+  # Armure Légendaire (Boss final)
+  legendary_armor:
+    helmet: "legendary_helmet"
+    chestplate: "legendary_chestplate"
+    leggings: "legendary_leggings"
+    boots: "legendary_boots"
+
+# ========================================
+#  Configuration des slots de runes
+# ========================================
+#
+# Nombre de slots de runes par pièce d'armure
+# Un slot vide peut recevoir une rune
+# Les runes sont des items physiques à appliquer sur l'armure
+
+rune_slots:
+  # Nombre de slots par type de pièce
+  helmet: 2      # Casque: 2 slots
+  chestplate: 3  # Plastron: 3 slots
+  leggings: 2    # Jambières: 2 slots
+  boots: 1       # Bottes: 1 slot
+  
+  # Total: 8 slots de runes par armure complète
+
+# ========================================
+#  Messages et affichage
+# ========================================
+
+messages:
+  # Message quand un joueur n'a pas l'armure de donjon complète
+  not_full_armor: "&c&l✖ &cVous devez porter une armure de donjon complète !"
+  
+  # Message quand un joueur ouvre un coffre sans armure
+  chest_locked: "&c&l✖ &cCe coffre nécessite une armure de donjon complète !"
+  
+  # Message de succès lors de l'application d'une rune
+  rune_applied: "&a&l✔ &aRune %rune_type% niveau %rune_level% appliquée avec succès !"
+  
+  # Message d'erreur si aucun slot disponible
+  no_slots: "&c&l✖ &cCette pièce d'armure n'a plus de slots disponibles !"
+  
+  # Message d'erreur si ce n'est pas une armure de donjon
+  not_dungeon_armor: "&c&l✖ &cCette armure n'est pas une armure de donjon !"
+  
+  # Message de succès lors de la récupération d'une rune
+  rune_removed: "&a&l✔ &aRune %rune_type% niveau %rune_level% récupérée !"
+
+# ========================================
+#  Lore des armures
+# ========================================
+#
+# Lore automatiquement ajoutée aux armures de donjon
+# %runes% sera remplacé par la liste des runes appliquées
+
+lore:
+  # Ligne de séparation
+  separator: "&7&m-------------------"
+  
+  # En-tête des runes
+  runes_header: "&6&lRunes:"
+  
+  # Format d'une rune appliquée
+  rune_format: "&8▪ &e%rune_name% &7(Niv. %rune_level%)"
+  
+  # Slot vide
+  empty_slot: "&8▪ &7Slot vide"
+  
+  # Pied de page
+  footer: "&7Armure de Donjon"
+
+# ========================================
+#  Configuration des particules
+# ========================================
+#
+# Particules émises par les armures de donjon
+
+particles:
+  enabled: true
+  
+  # Particules par type d'armure
+  fire_armor: "FLAME"
+  water_armor: "WATER_BUBBLE"
+  earth_armor: "VILLAGER_HAPPY"
+  air_armor: "CLOUD"
+  legendary_armor: "END_ROD"
+  
+  # Fréquence des particules (en ticks, 20 ticks = 1 seconde)
+  frequency: 20
+  
+  # Nombre de particules
+  amount: 3

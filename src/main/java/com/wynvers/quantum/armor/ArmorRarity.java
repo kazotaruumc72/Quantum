@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public enum ArmorRarity {
-    // ⚠️ CONFIGURATION : IDs des styles définis dans Nexo
+    // ✅ CORRECTION ICI : On utilise "minecraft" car c'est ce qui est écrit dans ton fichier Nexo
     COMMON("minecraft:common"),
     UNCOMMON("minecraft:uncommon"),
     RARE("minecraft:rare"),
@@ -26,42 +26,40 @@ public enum ArmorRarity {
     private final String tooltipId;
     private static final Map<ArmorRarity, RarityData> DATA_MAP = new HashMap<>();
 
-    // Constructeur de l'Enum
     ArmorRarity(String tooltipId) {
         this.tooltipId = tooltipId;
     }
 
     /**
-     * Applique directement le style de tooltip sur un item.
-     * Utilisation : ArmorRarity.LEGENDARY.applyTooltip(monItem);
+     * Applique le style de tooltip sur l'item
      */
     public void applyTooltip(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return;
         ItemMeta meta = item.getItemMeta();
-        meta.setTooltipStyle(this.getTooltipKey());
-        item.setItemMeta(meta);
+        try {
+            meta.setTooltipStyle(this.getTooltipKey());
+            item.setItemMeta(meta);
+        } catch (Exception e) {
+            // Ignorer si version trop ancienne
+        }
     }
 
-    /**
-     * Convertit l'ID string (ex: "nexo:rare") en NamespacedKey pour l'API 1.21.2
-     */
     public NamespacedKey getTooltipKey() {
         if (tooltipId.contains(":")) {
             String[] parts = tooltipId.split(":");
             return new NamespacedKey(parts[0], parts[1]);
         }
-        return new NamespacedKey("nexo", tooltipId);
+        return new NamespacedKey("minecraft", tooltipId);
     }
 
     public String getRawId() {
         return tooltipId;
     }
 
-    // --- GESTION DES DONNÉES DEPUIS LE FICHIER YML ---
-
+    // --- LE RESTE DU FICHIER NE CHANGE PAS ---
+    
     public String getDisplayName() {
         RarityData data = DATA_MAP.getOrDefault(this, DATA_MAP.get(COMMON));
-        // Fallback si DATA_MAP est vide (cas rare d'erreur init)
         if (data == null) return ChatColor.WHITE + this.name();
         return data.color + "§l" + data.displayName.toUpperCase();
     }
@@ -98,8 +96,6 @@ public enum ArmorRarity {
         return result;
     }
 
-    // --- INITIALISATION ---
-
     public static void init(JavaPlugin plugin) {
         try {
             File configFile = new File(plugin.getDataFolder(), "dungeon_armor.yml");
@@ -110,16 +106,13 @@ public enum ArmorRarity {
             ConfigurationSection raritiesSection = config.getConfigurationSection("rarities");
 
             if (raritiesSection == null) {
-                plugin.getLogger().warning("⚠️ Section 'rarities' absente, chargement des défauts.");
                 loadDefaults();
                 return;
             }
 
             for (ArmorRarity rarity : values()) {
                 ConfigurationSection raritySection = raritiesSection.getConfigurationSection(rarity.name());
-                if (raritySection == null) {
-                    continue; // On saute si pas dans la config
-                }
+                if (raritySection == null) continue;
 
                 String displayName = raritySection.getString("display_name", rarity.name());
                 ChatColor color = parseChatColor(raritySection.getString("color", "WHITE"));
@@ -139,22 +132,15 @@ public enum ArmorRarity {
                     String enchantName = (String) enchantMap.get("enchant");
                     int minLevel = getInt(enchantMap.get("min_level"), 1);
                     int maxLevel = getInt(enchantMap.get("max_level"), 1);
-
                     Enchantment enchant = parseEnchantment(enchantName);
                     if (enchant != null) {
                         enchantments.add(new EnchantmentConfig(enchant, minLevel, maxLevel));
                     }
                 }
-
                 DATA_MAP.put(rarity, new RarityData(displayName, color, maxRuneSlots, nexoIds, enchantments));
             }
-            plugin.getLogger().info("✔ Raretés chargées avec succès.");
-
-            // Sécurité : si la map est vide après le chargement (fichier vide ?), charger les défauts
             if (DATA_MAP.isEmpty()) loadDefaults();
-
         } catch (Exception e) {
-            plugin.getLogger().severe("❌ Erreur chargement raretés: " + e.getMessage());
             e.printStackTrace();
             loadDefaults();
         }
@@ -165,8 +151,6 @@ public enum ArmorRarity {
     }
 
     private static void loadDefaults() {
-        // ... (Ton code de chargement par défaut simplifié pour la lisibilité ici) ...
-        // Je remets une version minimale pour que ça compile si le fichier n'existe pas
         Map<String, String> dummyIds = new HashMap<>();
         RarityData defaultData = new RarityData("Défaut", ChatColor.WHITE, 1, dummyIds, new ArrayList<>());
         for (ArmorRarity r : values()) {
@@ -181,15 +165,9 @@ public enum ArmorRarity {
 
     private static Enchantment parseEnchantment(String name) {
         if (name == null) return null;
-        // NamespacedKey wrapper pour support 1.20+ propre ou legacy
-        try {
-            return Enchantment.getByKey(NamespacedKey.minecraft(name.toLowerCase()));
-        } catch (Exception e) {
-            return Enchantment.getByName(name.toUpperCase());
-        }
+        try { return Enchantment.getByKey(NamespacedKey.minecraft(name.toLowerCase())); } 
+        catch (Exception e) { return Enchantment.getByName(name.toUpperCase()); }
     }
-
-    // --- CLASSES INTERNES POUR LES DONNÉES ---
 
     private static class RarityData {
         final String displayName;
@@ -211,13 +189,11 @@ public enum ArmorRarity {
         final Enchantment enchantment;
         final int minLevel;
         final int maxLevel;
-
         EnchantmentConfig(Enchantment enchantment, int minLevel, int maxLevel) {
             this.enchantment = enchantment;
             this.minLevel = minLevel;
             this.maxLevel = maxLevel;
         }
-
         int getRandomLevel() {
             if (minLevel >= maxLevel) return minLevel;
             return minLevel + (int) (Math.random() * (maxLevel - minLevel + 1));

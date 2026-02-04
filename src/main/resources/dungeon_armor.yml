@@ -12,19 +12,125 @@
 armor_pieces:
   helmet:
     nexo_id: "dungeon_helmet"
-    max_rune_slots: 2
+    display_name: "&6Casque de Donjon"
     
   chestplate:
     nexo_id: "dungeon_chestplate"
-    max_rune_slots: 3
+    display_name: "&6Plastron de Donjon"
     
   leggings:
     nexo_id: "dungeon_leggings"
-    max_rune_slots: 2
+    display_name: "&6Jambières de Donjon"
     
   boots:
     nexo_id: "dungeon_boots"
+    display_name: "&6Bottes de Donjon"
+
+# ========================================
+#  Système de Raretés
+# ========================================
+# Chaque rareté définit:
+#   - display_name: Nom affiché
+#   - color: Couleur (GRAY, GREEN, BLUE, DARK_PURPLE, GOLD, etc.)
+#   - max_rune_slots: Nombre d'emplacements de runes
+#   - enchantments: Liste des enchantements avec niveaux min/max
+#
+# Noms d'enchantements disponibles (1.21+):
+#   PROTECTION, FIRE_PROTECTION, BLAST_PROTECTION, PROJECTILE_PROTECTION
+#   FEATHER_FALLING, THORNS, RESPIRATION, AQUA_AFFINITY
+#   DEPTH_STRIDER, FROST_WALKER, SOUL_SPEED, SWIFT_SNEAK
+#   UNBREAKING, MENDING
+
+rarities:
+  COMMON:
+    display_name: "Commun"
+    color: "GRAY"
+    max_rune_slots: 1
+    enchantments:
+      - enchant: "PROTECTION"
+        min_level: 1
+        max_level: 2
+      - enchant: "UNBREAKING"
+        min_level: 1
+        max_level: 1
+  
+  UNCOMMON:
+    display_name: "Peu Commun"
+    color: "GREEN"
     max_rune_slots: 2
+    enchantments:
+      - enchant: "PROTECTION"
+        min_level: 2
+        max_level: 3
+      - enchant: "UNBREAKING"
+        min_level: 2
+        max_level: 2
+      - enchant: "THORNS"
+        min_level: 1
+        max_level: 1
+  
+  RARE:
+    display_name: "Rare"
+    color: "BLUE"
+    max_rune_slots: 3
+    enchantments:
+      - enchant: "PROTECTION"
+        min_level: 3
+        max_level: 4
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "THORNS"
+        min_level: 1
+        max_level: 2
+      - enchant: "FIRE_PROTECTION"
+        min_level: 1
+        max_level: 2
+  
+  EPIC:
+    display_name: "Épique"
+    color: "DARK_PURPLE"
+    max_rune_slots: 4
+    enchantments:
+      - enchant: "PROTECTION"
+        min_level: 4
+        max_level: 5
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "THORNS"
+        min_level: 2
+        max_level: 3
+      - enchant: "FIRE_PROTECTION"
+        min_level: 2
+        max_level: 3
+      - enchant: "BLAST_PROTECTION"
+        min_level: 2
+        max_level: 3
+  
+  LEGENDARY:
+    display_name: "Légendaire"
+    color: "GOLD"
+    max_rune_slots: 5
+    enchantments:
+      - enchant: "PROTECTION"
+        min_level: 5
+        max_level: 6
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "THORNS"
+        min_level: 3
+        max_level: 3
+      - enchant: "FIRE_PROTECTION"
+        min_level: 3
+        max_level: 4
+      - enchant: "BLAST_PROTECTION"
+        min_level: 3
+        max_level: 4
+      - enchant: "PROJECTILE_PROTECTION"
+        min_level: 2
+        max_level: 3
 
 # ========================================
 #  Messages et affichage

@@ -1,137 +1,107 @@
 package com.wynvers.quantum.armor;
 
 import com.nexomc.nexo.api.NexoItems;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
- * Gestion des runes physiques (items) avec API Nexo
- * Chaque rune peut avoir un niveau 1-3
+ * Gestion des items runes avec taux de réussite aléatoire stocké en NBT
  */
 public class RuneItem {
     
     private final JavaPlugin plugin;
-    private final NamespacedKey runeTypeKey;
-    private final NamespacedKey runeLevelKey;
+    private final NamespacedKey successChanceKey;
+    private static final Random RANDOM = new Random();
     
     public RuneItem(JavaPlugin plugin) {
         this.plugin = plugin;
-        this.runeTypeKey = new NamespacedKey(plugin, "rune_type");
-        this.runeLevelKey = new NamespacedKey(plugin, "rune_level");
+        this.successChanceKey = new NamespacedKey(plugin, "rune_success_chance");
     }
     
     /**
-     * Crée une rune depuis Nexo
+     * Crée une rune avec un taux de réussite aléatoire (0-100%)
+     * @param rune Type de rune
+     * @param level Niveau (1-3)
+     * @return ItemStack de la rune avec son taux en NBT
      */
-    public ItemStack createRune(RuneType runeType, int level) {
-        if (level < 1 || level > runeType.getMaxLevel()) {
-            level = 1;
-        }
-        
-        String nexoId = runeType.getNexoId(level);
-        
+    public ItemStack createRune(RuneType rune, int level) {
+        String nexoId = rune.getNexoId(level);
         if (nexoId == null) {
-            plugin.getLogger().warning("Nexo ID non trouvé pour rune: " + runeType.name() + " niveau " + level);
+            plugin.getLogger().warning("⚠️ Nexo ID non trouvé pour rune: " + rune.name() + " niveau " + level);
             return null;
         }
         
-        ItemStack rune = NexoItems.itemFromId(nexoId).build();
-        
-        if (rune == null) {
-            plugin.getLogger().warning("Impossible de créer la rune Nexo: " + nexoId);
+        ItemStack item = NexoItems.itemFromId(nexoId).build();
+        if (item == null) {
+            plugin.getLogger().warning("⚠️ Impossible de créer la rune Nexo: " + nexoId);
             return null;
         }
         
-        ItemMeta meta = rune.getItemMeta();
+        // Générer un taux aléatoire entre 0 et 100
+        int successChance = RANDOM.nextInt(101); // 0 à 100 inclus
+        
+        // Stocker le taux en NBT
+        ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            PersistentDataContainer data = meta.getPersistentDataContainer();
-            data.set(runeTypeKey, PersistentDataType.STRING, runeType.name());
-            data.set(runeLevelKey, PersistentDataType.INTEGER, level);
+            meta.getPersistentDataContainer().set(successChanceKey, PersistentDataType.INTEGER, successChance);
             
-            List<String> lore = meta.getLore();
-            if (lore == null) lore = new ArrayList<>();
+            // Ajouter le taux dans le lore
+            List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
+            lore.add("");
             
+            String color = getChanceColor(successChance);
+            lore.add(color + "§l✦ Taux de réussite: " + successChance + "%");
             lore.add("");
-            lore.add("§7Niveau: §e" + toRoman(level));
+            lore.add("§7" + rune.getDescription(level));
             lore.add("");
-            lore.add("§7Effets:");
-            lore.add(runeType.getDescription(level));
-            lore.add("");
-            lore.add("§8[Rune de Donjon]");
+            lore.add("§c⚠ Si la rune échoue, elle sera détruite");
+            lore.add("§a✔ Si elle réussit, elle sera permanente");
             
             meta.setLore(lore);
-            rune.setItemMeta(meta);
+            item.setItemMeta(meta);
         }
         
-        return rune;
+        return item;
     }
     
     /**
-     * Vérifie si un item est une rune
+     * Récupère le taux de réussite stocké dans une rune
+     * @param item ItemStack de la rune
+     * @return Taux de réussite (0-100), ou -1 si non trouvé
+     */
+    public int getSuccessChance(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return -1;
+        
+        ItemMeta meta = item.getItemMeta();
+        if (!meta.getPersistentDataContainer().has(successChanceKey, PersistentDataType.INTEGER)) {
+            return -1;
+        }
+        
+        return meta.getPersistentDataContainer().get(successChanceKey, PersistentDataType.INTEGER);
+    }
+    
+    /**
+     * Vérifie si un item est une rune valide
      */
     public boolean isRune(ItemStack item) {
-        if (item == null || !item.hasItemMeta()) return false;
-        
-        ItemMeta meta = item.getItemMeta();
-        PersistentDataContainer data = meta.getPersistentDataContainer();
-        
-        if (!data.has(runeTypeKey, PersistentDataType.STRING)) {
-            return false;
-        }
-        
-        String nexoId = NexoItems.idFromItem(item);
-        return nexoId != null;
+        return getSuccessChance(item) != -1;
     }
     
     /**
-     * Récupère le type de rune
+     * Retourne la couleur selon le taux de réussite
      */
-    public RuneType getRuneType(ItemStack item) {
-        if (!isRune(item)) return null;
-        
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null) return null;
-        
-        PersistentDataContainer data = meta.getPersistentDataContainer();
-        String typeStr = data.get(runeTypeKey, PersistentDataType.STRING);
-        
-        if (typeStr == null) return null;
-        
-        try {
-            return RuneType.valueOf(typeStr);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-    
-    /**
-     * Récupère le niveau de la rune
-     */
-    public int getRuneLevel(ItemStack item) {
-        if (!isRune(item)) return 0;
-        
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null) return 0;
-        
-        PersistentDataContainer data = meta.getPersistentDataContainer();
-        return data.getOrDefault(runeLevelKey, PersistentDataType.INTEGER, 1);
-    }
-    
-    private String toRoman(int number) {
-        switch (number) {
-            case 1: return "I";
-            case 2: return "II";
-            case 3: return "III";
-            case 4: return "IV";
-            case 5: return "V";
-            default: return String.valueOf(number);
-        }
+    private String getChanceColor(int chance) {
+        if (chance >= 80) return "§a"; // Vert
+        if (chance >= 60) return "§e"; // Jaune
+        if (chance >= 40) return "§6"; // Orange
+        if (chance >= 20) return "§c"; // Rouge
+        return "§4"; // Rouge foncé
     }
 }

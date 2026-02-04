@@ -85,19 +85,29 @@ public class DungeonArmor {
         
         ItemMeta meta = armor.getItemMeta();
         if (meta != null) {
-            // Display name avec rareté
+            // --- 1. Gestion du Tooltip Style (CORRECTIF ICI) ---
+            try {
+                // Applique le style défini dans ArmorRarity (ex: nexo:legendary)
+                meta.setTooltipStyle(rarity.getTooltipKey());
+            } catch (NoSuchMethodError e) {
+                plugin.getLogger().warning("⚠️ Erreur Tooltip: Votre version de Spigot/Paper est trop ancienne (< 1.21.2).");
+            } catch (Exception e) {
+                plugin.getLogger().warning("⚠️ Erreur lors de l'application du tooltip: " + e.getMessage());
+            }
+
+            // --- 2. Display Name ---
             String displayName = armorConfig.getString("armor_pieces." + armorType + ".display_name");
             if (displayName != null) {
                 meta.setDisplayName(rarity.getColor() + displayName.replace('&', '§'));
             }
             
-            // Appliquer les enchantements de la rareté
+            // --- 3. Enchantements ---
             Map<Enchantment, Integer> enchants = rarity.getEnchantments();
             for (Map.Entry<Enchantment, Integer> entry : enchants.entrySet()) {
                 meta.addEnchant(entry.getKey(), entry.getValue(), true);
             }
             
-            // PDC data
+            // --- 4. Données Persistantes (PDC) ---
             PersistentDataContainer data = meta.getPersistentDataContainer();
             data.set(armorKey, PersistentDataType.BYTE, (byte) 1);
             data.set(levelKey, PersistentDataType.INTEGER, 0);

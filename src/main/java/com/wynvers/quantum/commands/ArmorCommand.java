@@ -1,6 +1,7 @@
 package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.armor.ArmorRarity; // IMPORTANT : Import de l'enum
 import com.wynvers.quantum.armor.DungeonArmor;
 import com.wynvers.quantum.armor.RuneType;
 import org.bukkit.command.Command;
@@ -12,9 +13,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Map;
 
-/**
- * Commande pour gérer l'armure de donjon
- */
 public class ArmorCommand implements CommandExecutor {
     
     private final Quantum plugin;
@@ -42,26 +40,64 @@ public class ArmorCommand implements CommandExecutor {
         switch (args[0].toLowerCase()) {
             case "give":
                 return handleGive(player, args);
-            
             case "info":
                 return handleInfo(player);
-            
             case "apply":
                 return handleApply(player, args);
-
-            // ✅ AJOUT DE LA CASE DEBUG ICI (au bon endroit)
             case "debug":
                 return handleDebug(player);
-            
             default:
                 sendHelp(player);
                 return true;
         }
     }
 
-    /**
-     * ✅ Nouvelle méthode dédiée au debug pour trouver l'ID
-     */
+    // --- C'EST ICI QUE J'AI FAIT LA MODIFICATION ---
+    private boolean handleGive(Player player, String[] args) {
+        if (!player.hasPermission("quantum.armor.give")) {
+            player.sendMessage("§cVous n'avez pas la permission d'utiliser cette commande.");
+            return true;
+        }
+        
+        // On vérifie qu'il y a au moins le type d'armure
+        if (args.length < 2) {
+            player.sendMessage("§cUsage: /armor give <helmet|chestplate|leggings|boots> [rareté]");
+            return true;
+        }
+        
+        String armorType = args[1].toLowerCase();
+        if (!armorType.matches("helmet|chestplate|leggings|boots")) {
+            player.sendMessage("§cType invalide. Utilisez: helmet, chestplate, leggings, boots");
+            return true;
+        }
+
+        // 1. On définit la rareté par défaut (COMMON)
+        ArmorRarity rarity = ArmorRarity.COMMON;
+
+        // 2. Si le joueur a tapé un 3ème mot (ex: /armor give helmet LEGENDARY)
+        if (args.length >= 3) {
+            try {
+                rarity = ArmorRarity.valueOf(args[2].toUpperCase());
+            } catch (IllegalArgumentException e) {
+                player.sendMessage("§cRareté inconnue ! Choix: COMMON, UNCOMMON, RARE, EPIC, LEGENDARY");
+                return true;
+            }
+        }
+        
+        // 3. On crée l'armure AVEC la rareté demandée
+        ItemStack armor = dungeonArmor.createArmorPiece(armorType, rarity);
+        
+        if (armor == null) {
+            player.sendMessage("§cErreur lors de la création de l'armure (Vérifiez la config Nexo).");
+            return true;
+        }
+        
+        player.getInventory().addItem(armor);
+        player.sendMessage("§a§l✓ §aReçu : " + armorType + " §7(" + rarity.getColoredName() + "§7)");
+        return true;
+    }
+    // ------------------------------------------------
+
     private boolean handleDebug(Player player) {
         ItemStack item = player.getInventory().getItemInMainHand();
         
@@ -72,48 +108,17 @@ public class ArmorCommand implements CommandExecutor {
 
         ItemMeta meta = item.getItemMeta();
         
-        // Vérification du tooltip style (Paper 1.21.2+)
         try {
             if (meta.hasTooltipStyle()) {
                 String idTrouve = meta.getTooltipStyle().getKey().toString();
                 plugin.getLogger().info(">>> ID TOOLTIP TROUVÉ : " + idTrouve);
-                player.sendMessage("§a§lID TROUVÉ ! §r§aRegarde ta console serveur (fenêtre noire) !");
-                player.sendMessage("§7Valeur: " + idTrouve); // Tente de l'afficher aussi dans le chat
+                player.sendMessage("§aID TROUVÉ : " + idTrouve);
             } else {
-                plugin.getLogger().info(">>> CET ITEM N'A PAS DE TOOLTIP STYLE DÉFINI.");
                 player.sendMessage("§cCet item n'a pas de style de tooltip actif.");
             }
         } catch (NoSuchMethodError e) {
-            player.sendMessage("§cErreur: Ton serveur n'est pas en 1.21.2+ ou Spigot/Paper n'est pas à jour.");
+            player.sendMessage("§cErreur: Serveur pas en 1.21.2+.");
         }
-        return true;
-    }
-    
-    private boolean handleGive(Player player, String[] args) {
-        if (!player.hasPermission("quantum.armor.give")) {
-            player.sendMessage("§cVous n'avez pas la permission d'utiliser cette commande.");
-            return true;
-        }
-        
-        if (args.length < 2) {
-            player.sendMessage("§cUsage: /armor give <helmet|chestplate|leggings|boots>");
-            return true;
-        }
-        
-        String armorType = args[1].toLowerCase();
-        if (!armorType.matches("helmet|chestplate|leggings|boots")) {
-            player.sendMessage("§cType invalide. Utilisez: helmet, chestplate, leggings, boots");
-            return true;
-        }
-        
-        ItemStack armor = dungeonArmor.createArmorPiece(armorType);
-        if (armor == null) {
-            player.sendMessage("§cErreur lors de la création de l'armure.");
-            return true;
-        }
-        
-        player.getInventory().addItem(armor);
-        player.sendMessage("§a§l✓ §aVous avez reçu une pièce d'armure de donjon !");
         return true;
     }
     
@@ -216,10 +221,10 @@ public class ArmorCommand implements CommandExecutor {
         player.sendMessage("§6§l─────────────────────────────");
         player.sendMessage("§6§lCOMMANDES ARMURE DE DONJON");
         player.sendMessage("§6§l─────────────────────────────");
-        player.sendMessage("§e/armor give <pièce> §7- Donne une pièce d'armure");
+        player.sendMessage("§e/armor give <pièce> [rareté] §7- Donne une pièce d'armure");
         player.sendMessage("§e/armor info §7- Affiche les infos de l'armure");
         player.sendMessage("§e/armor apply <rune> <niveau> §7- Applique une rune");
-        player.sendMessage("§e/armor debug §7- Affiche l'ID du tooltip (pour dev)");
+        player.sendMessage("§e/armor debug §7- Affiche l'ID du tooltip");
         player.sendMessage("§6§l─────────────────────────────");
     }
     

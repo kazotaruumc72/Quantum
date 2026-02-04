@@ -1,281 +1,152 @@
 package com.wynvers.quantum.armor;
 
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import java.io.File;
 import java.util.*;
 
 /**
- * Types de runes disponibles pour l'armure de donjon
- * Chaque rune a un niveau maximum et donne des bonus chargés depuis dungeon.yml
- * 
- * @author Kazotaruu_
- * @version 1.0
+ * Enum des types de runes avec chargement depuis dungeon.yml
  */
 public enum RuneType {
+    FORCE,
+    SPEED,
+    RESISTANCE,
+    CRITICAL,
+    VAMPIRISM,
+    REGENERATION,
+    STRENGTH,
+    DEFENSE,
+    AGILITY;
     
-    FORCE("Force", 3),
-    SPEED("Vitesse", 3),
-    RESISTANCE("Résistance", 3),
-    CRITICAL("Critique", 3),
-    REGENERATION("Régénération", 3),
-    VAMPIRISM("Vampirisme", 3),
-    THORNS("Épines", 3),
-    WISDOM("Sagesse", 3),
-    LUCK("Chance", 3);
+    private static final Map<RuneType, RuneConfig> configs = new EnumMap<>(RuneType.class);
     
-    private final String display;
-    private final int maxLevel;
-    private static JavaPlugin plugin;
-    private static YamlConfiguration dungeonConfig;
-    private static Map<RuneType, ConfigurationSection> runeConfigs = new HashMap<>();
-    
-    RuneType(String display, int maxLevel) {
-        this.display = display;
-        this.maxLevel = maxLevel;
-    }
-    
-    /**
-     * Initialise les configs depuis dungeon.yml
-     */
-    public static void init(JavaPlugin pluginInstance) {
-        plugin = pluginInstance;
-        loadConfig();
-    }
-    
-    /**
-     * Charge la config dungeon.yml
-     */
-    private static void loadConfig() {
+    public static void init(JavaPlugin plugin) {
         try {
             File configFile = new File(plugin.getDataFolder(), "dungeon.yml");
             if (!configFile.exists()) {
                 plugin.saveResource("dungeon.yml", false);
             }
-            dungeonConfig = YamlConfiguration.loadConfiguration(configFile);
             
-            // Charger les configs de chaque rune
-            ConfigurationSection runesSection = dungeonConfig.getConfigurationSection("runes");
-            if (runesSection != null) {
-                for (RuneType rune : values()) {
-                    ConfigurationSection runeConfig = runesSection.getConfigurationSection(rune.name());
-                    if (runeConfig != null) {
-                        runeConfigs.put(rune, runeConfig);
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
+            ConfigurationSection runesSection = config.getConfigurationSection("runes");
+            
+            if (runesSection == null) {
+                plugin.getLogger().warning("Section 'runes' non trouvée dans dungeon.yml");
+                return;
+            }
+            
+            for (String key : runesSection.getKeys(false)) {
+                try {
+                    RuneType type = RuneType.valueOf(key.toUpperCase());
+                    ConfigurationSection runeSection = runesSection.getConfigurationSection(key);
+                    
+                    if (runeSection != null) {
+                        RuneConfig runeConfig = new RuneConfig(runeSection);
+                        configs.put(type, runeConfig);
+                    }
+                } catch (IllegalArgumentException e) {
+                    plugin.getLogger().warning("Type de rune inconnu: " + key);
+                }
+            }
+            
+            plugin.getLogger().info("✓ " + configs.size() + " types de runes chargés depuis dungeon.yml");
+            
+        } catch (Exception e) {
+            plugin.getLogger().severe("Erreur lors du chargement de dungeon.yml: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    public String getDisplay() {
+        RuneConfig config = configs.get(this);
+        return config != null ? config.displayName : "§c" + name();
+    }
+    
+    public String getDescription(int level) {
+        RuneConfig config = configs.get(this);
+        if (config == null) return "§7???";
+        
+        String desc = config.descriptions.getOrDefault(level, "§7Niveau " + level);
+        return desc;
+    }
+    
+    public int getMaxLevel() {
+        RuneConfig config = configs.get(this);
+        return config != null ? config.maxLevel : 3;
+    }
+    
+    public String getNexoId(int level) {
+        RuneConfig config = configs.get(this);
+        return config != null ? config.nexoIds.get(level) : null;
+    }
+    
+    public double getDamageBonus(int level) {
+        if (this != FORCE) return 1.0;
+        RuneConfig config = configs.get(this);
+        if (config == null) return 1.0;
+        
+        return config.values.getOrDefault(level, 0.0);
+    }
+    
+    public double getCriticalChance(int level) {
+        if (this != CRITICAL) return 0.0;
+        RuneConfig config = configs.get(this);
+        if (config == null) return 0.0;
+        
+        return config.values.getOrDefault(level, 0.0);
+    }
+    
+    public double getVampirismPercent(int level) {
+        if (this != VAMPIRISM) return 0.0;
+        RuneConfig config = configs.get(this);
+        if (config == null) return 0.0;
+        
+        return config.values.getOrDefault(level, 0.0);
+    }
+    
+    private static class RuneConfig {
+        String displayName;
+        int maxLevel;
+        Map<Integer, String> descriptions;
+        Map<Integer, String> nexoIds;
+        Map<Integer, Double> values;
+        
+        RuneConfig(ConfigurationSection section) {
+            this.displayName = section.getString("display_name", "§cUnknown");
+            this.maxLevel = section.getInt("max_level", 3);
+            this.descriptions = new HashMap<>();
+            this.nexoIds = new HashMap<>();
+            this.values = new HashMap<>();
+            
+            ConfigurationSection levelsSection = section.getConfigurationSection("levels");
+            if (levelsSection != null) {
+                for (String levelKey : levelsSection.getKeys(false)) {
+                    try {
+                        int level = Integer.parseInt(levelKey);
+                        ConfigurationSection levelSection = levelsSection.getConfigurationSection(levelKey);
+                        
+                        if (levelSection != null) {
+                            descriptions.put(level, levelSection.getString("description", ""));
+                            nexoIds.put(level, levelSection.getString("nexo_id"));
+                            
+                            if (levelSection.contains("damage_bonus")) {
+                                values.put(level, levelSection.getDouble("damage_bonus"));
+                            }
+                            if (levelSection.contains("critical_chance")) {
+                                values.put(level, levelSection.getDouble("critical_chance"));
+                            }
+                            if (levelSection.contains("vampirism_percent")) {
+                                values.put(level, levelSection.getDouble("vampirism_percent"));
+                            }
+                        }
+                    } catch (NumberFormatException e) {
+                        // Ignorer
                     }
                 }
             }
-        } catch (Exception e) {
-            plugin.getLogger().warning("Erreur lors du chargement de dungeon.yml: " + e.getMessage());
         }
-    }
-    
-    /**
-     * Nom d'affichage de la rune
-     */
-    public String getDisplay() {
-        ConfigurationSection config = runeConfigs.get(this);
-        if (config != null && config.contains("display")) {
-            return config.getString("display");
-        }
-        return display;
-    }
-    
-    /**
-     * Description de la rune
-     */
-    public String getDescription() {
-        ConfigurationSection config = runeConfigs.get(this);
-        if (config != null && config.contains("description")) {
-            return config.getString("description");
-        }
-        return "";
-    }
-    
-    /**
-     * Niveau maximum de la rune
-     */
-    public int getMaxLevel() {
-        ConfigurationSection config = runeConfigs.get(this);
-        if (config != null && config.contains("max_level")) {
-            return config.getInt("max_level");
-        }
-        return maxLevel;
-    }
-    
-    /**
-     * Lore dynamique selon le niveau
-     */
-    public List<String> getLore(int level) {
-        ConfigurationSection config = runeConfigs.get(this);
-        if (config == null) return new ArrayList<>();
-        
-        ConfigurationSection loreSection = config.getConfigurationSection("lore");
-        if (loreSection == null) return new ArrayList<>();
-        
-        ConfigurationSection levelSection = loreSection.getConfigurationSection(String.valueOf(level));
-        if (levelSection == null) {
-            return loreSection.getStringList(String.valueOf(level));
-        }
-        
-        return loreSection.getStringList(String.valueOf(level));
-    }
-    
-    /**
-     * ID Nexo de la rune pour un niveau donné
-     */
-    public String getNexoId(int level) {
-        ConfigurationSection config = runeConfigs.get(this);
-        if (config == null) return null;
-        
-        ConfigurationSection nexoIds = config.getConfigurationSection("nexo_ids");
-        if (nexoIds == null) return null;
-        
-        return nexoIds.getString(String.valueOf(level));
-    }
-    
-    /**
-     * Récupère les bonus pour un niveau spécifique
-     */
-    public Map<String, Object> getBonuses(int level) {
-        ConfigurationSection config = runeConfigs.get(this);
-        if (config == null) return new HashMap<>();
-        
-        ConfigurationSection bonusesSection = config.getConfigurationSection("bonuses");
-        if (bonusesSection == null) return new HashMap<>();
-        
-        ConfigurationSection levelBonuses = bonusesSection.getConfigurationSection(String.valueOf(level));
-        if (levelBonuses == null) return new HashMap<>();
-        
-        return levelBonuses.getValues(false);
-    }
-    
-    /**
-     * Bonus de dégâts (FORCE rune)
-     */
-    public double getDamageBonus(int level) {
-        if (this != FORCE) return 1.0;
-        
-        Map<String, Object> bonuses = getBonuses(level);
-        if (bonuses.containsKey("damage_multiplier")) {
-            return ((Number) bonuses.get("damage_multiplier")).doubleValue();
-        }
-        return 1.0;
-    }
-    
-    /**
-     * Bonus de vitesse (SPEED rune)
-     */
-    public double getSpeedBonus(int level) {
-        if (this != SPEED) return 1.0;
-        
-        Map<String, Object> bonuses = getBonuses(level);
-        if (bonuses.containsKey("speed_multiplier")) {
-            return ((Number) bonuses.get("speed_multiplier")).doubleValue();
-        }
-        return 1.0;
-    }
-    
-    /**
-     * Réduction de dégâts (RESISTANCE rune)
-     */
-    public double getDamageReduction(int level) {
-        if (this != RESISTANCE) return 0.0;
-        
-        Map<String, Object> bonuses = getBonuses(level);
-        if (bonuses.containsKey("damage_reduction")) {
-            return ((Number) bonuses.get("damage_reduction")).doubleValue();
-        }
-        return 0.0;
-    }
-    
-    /**
-     * Chance de critique (CRITICAL rune)
-     */
-    public double getCriticalChance(int level) {
-        if (this != CRITICAL) return 0.0;
-        
-        Map<String, Object> bonuses = getBonuses(level);
-        if (bonuses.containsKey("critical_chance")) {
-            return ((Number) bonuses.get("critical_chance")).doubleValue();
-        }
-        return 0.0;
-    }
-    
-    /**
-     * Régénération par seconde (REGENERATION rune)
-     */
-    public double getRegeneration(int level) {
-        if (this != REGENERATION) return 0.0;
-        
-        Map<String, Object> bonuses = getBonuses(level);
-        if (bonuses.containsKey("regeneration_per_second")) {
-            return ((Number) bonuses.get("regeneration_per_second")).doubleValue();
-        }
-        return 0.0;
-    }
-    
-    /**
-     * Pourcentage de vampirisme (VAMPIRISM rune)
-     */
-    public double getVampirismPercent(int level) {
-        if (this != VAMPIRISM) return 0.0;
-        
-        Map<String, Object> bonuses = getBonuses(level);
-        if (bonuses.containsKey("vampirism_percent")) {
-            return ((Number) bonuses.get("vampirism_percent")).doubleValue();
-        }
-        return 0.0;
-    }
-    
-    /**
-     * Pourcentage de retour de dégâts (THORNS rune)
-     */
-    public double getThornsPercent(int level) {
-        if (this != THORNS) return 0.0;
-        
-        Map<String, Object> bonuses = getBonuses(level);
-        if (bonuses.containsKey("thorns_percent")) {
-            return ((Number) bonuses.get("thorns_percent")).doubleValue();
-        }
-        return 0.0;
-    }
-    
-    /**
-     * Multiplicateur d'XP (WISDOM rune)
-     */
-    public double getXpMultiplier(int level) {
-        if (this != WISDOM) return 1.0;
-        
-        Map<String, Object> bonuses = getBonuses(level);
-        if (bonuses.containsKey("xp_multiplier")) {
-            return ((Number) bonuses.get("xp_multiplier")).doubleValue();
-        }
-        return 1.0;
-    }
-    
-    /**
-     * Chance de loot rare (LUCK rune)
-     */
-    public double getRareLootChance(int level) {
-        if (this != LUCK) return 0.0;
-        
-        Map<String, Object> bonuses = getBonuses(level);
-        if (bonuses.containsKey("rare_loot_chance")) {
-            return ((Number) bonuses.get("rare_loot_chance")).doubleValue();
-        }
-        return 0.0;
-    }
-    
-    /**
-     * Récupère une rune depuis son nom
-     */
-    public static RuneType fromString(String name) {
-        for (RuneType type : values()) {
-            if (type.name().equalsIgnoreCase(name)) {
-                return type;
-            }
-        }
-        return null;
     }
 }

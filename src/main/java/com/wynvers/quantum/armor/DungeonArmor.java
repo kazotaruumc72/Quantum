@@ -37,6 +37,9 @@ public class DungeonArmor {
         this.rarityKey = new NamespacedKey(plugin, "armor_rarity");
         this.creationDateKey = new NamespacedKey(plugin, "creation_date");
         loadConfig();
+        
+        // Initialiser les raretés depuis la config
+        ArmorRarity.init(plugin);
     }
     
     private void loadConfig() {
@@ -53,6 +56,7 @@ public class DungeonArmor {
     
     public void reload() {
         loadConfig();
+        ArmorRarity.init(plugin);
     }
     
     /**

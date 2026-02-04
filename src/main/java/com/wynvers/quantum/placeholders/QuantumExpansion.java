@@ -25,6 +25,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
     
     private final Quantum plugin;
     private final DecimalFormat priceFormat = new DecimalFormat("0.00");
+    private final DecimalFormat percentFormat = new DecimalFormat("0.0");
     
     public QuantumExpansion(Quantum plugin) {
         this.plugin = plugin;
@@ -232,7 +233,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return "§aEn cours";
         }
         
-        // %quantum_tower_<id>_progress% - Specific tower progress
+        // %quantum_tower_<id>_progress% - Specific tower progress (5/25)
         if (params.matches("tower_[a-z_]+_progress")) {
             String towerId = params.substring(6, params.lastIndexOf("_progress"));
             TowerConfig tower = towerManager.getTower(towerId);
@@ -241,14 +242,56 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return completed + "/" + tower.getTotalFloors();
         }
         
-        // %quantum_towers_completed% - Number of completed towers
+        // %quantum_tower_<id>_percentage% - Specific tower completion percentage (20.5%)
+        if (params.matches("tower_[a-z_]+_percentage")) {
+            String towerId = params.substring(6, params.lastIndexOf("_percentage"));
+            TowerConfig tower = towerManager.getTower(towerId);
+            if (tower == null) return "0.0%";
+            int completed = progress.getFloorProgress(towerId);
+            int total = tower.getTotalFloors();
+            if (total == 0) return "100.0%";
+            double percentage = (completed * 100.0) / total;
+            return percentFormat.format(percentage) + "%";
+        }
+        
+        // %quantum_tower_<id>_completed% - Is specific tower completed? (true/false)
+        if (params.matches("tower_[a-z_]+_completed")) {
+            String towerId = params.substring(6, params.lastIndexOf("_completed"));
+            TowerConfig tower = towerManager.getTower(towerId);
+            if (tower == null) return "false";
+            int completed = progress.getFloorProgress(towerId);
+            boolean isCompleted = completed >= tower.getTotalFloors();
+            return isCompleted ? "true" : "false";
+        }
+        
+        // %quantum_towers_completed% - Number of completed towers (2/4)
         if (params.equals("towers_completed")) {
             Map<String, TowerConfig> towers = towerManager.getAllTowers();
             int completed = progress.getCompletedTowersCount(towers);
             return completed + "/" + towers.size();
         }
         
-        // %quantum_total_floors_completed% - Total floors across all towers
+        // %quantum_towers_percentage% - Overall towers completion percentage (50.0%)
+        if (params.equals("towers_percentage")) {
+            Map<String, TowerConfig> towers = towerManager.getAllTowers();
+            if (towers.isEmpty()) return "0.0%";
+            
+            int totalFloors = 0;
+            int completedFloors = 0;
+            
+            for (Map.Entry<String, TowerConfig> entry : towers.entrySet()) {
+                String towerId = entry.getKey();
+                TowerConfig tower = entry.getValue();
+                totalFloors += tower.getTotalFloors();
+                completedFloors += progress.getFloorProgress(towerId);
+            }
+            
+            if (totalFloors == 0) return "100.0%";
+            double percentage = (completedFloors * 100.0) / totalFloors;
+            return percentFormat.format(percentage) + "%";
+        }
+        
+        // %quantum_total_floors_completed% - Total floors across all towers (45/100)
         if (params.equals("total_floors_completed")) {
             int totalFloors = progress.getTotalFloorsCompleted();
             Map<String, TowerConfig> towers = towerManager.getAllTowers();

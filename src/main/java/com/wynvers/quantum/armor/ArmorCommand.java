@@ -10,15 +10,18 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ArmorCommand implements CommandExecutor, TabCompleter {
     
     private final DungeonArmor armorManager;
     private final ArmorGUI armorGUI;
+    private final RuneItem runeItemManager;
     
-    public ArmorCommand(DungeonArmor armorManager, ArmorGUI armorGUI) {
+    public ArmorCommand(DungeonArmor armorManager, ArmorGUI armorGUI, RuneItem runeItemManager) {
         this.armorManager = armorManager;
         this.armorGUI = armorGUI;
+        this.runeItemManager = runeItemManager;
     }
     
     @Override
@@ -59,6 +62,46 @@ public class ArmorCommand implements CommandExecutor, TabCompleter {
                     player.sendMessage("§c✖ Pièce d'armure invalide !");
                 }
                 break;
+            
+            case "giverune":
+                if (!player.hasPermission("quantum.armor.giverune")) {
+                    player.sendMessage("§c✖ Vous n'avez pas la permission.");
+                    return true;
+                }
+                
+                if (args.length < 3) {
+                    player.sendMessage("§c✖ Usage: /armure giverune <TYPE> <niveau>");
+                    player.sendMessage("§7Types: " + Arrays.stream(RuneType.values())
+                        .map(Enum::name)
+                        .collect(Collectors.joining(", ")));
+                    return true;
+                }
+                
+                try {
+                    RuneType runeType = RuneType.valueOf(args[1].toUpperCase());
+                    int level = Integer.parseInt(args[2]);
+                    
+                    if (level < 1 || level > runeType.getMaxLevel()) {
+                        player.sendMessage("§c✖ Niveau invalide ! (1-" + runeType.getMaxLevel() + ")");
+                        return true;
+                    }
+                    
+                    ItemStack rune = runeItemManager.createRune(runeType, level);
+                    if (rune != null) {
+                        int chance = runeItemManager.getSuccessChance(rune);
+                        player.getInventory().addItem(rune);
+                        player.sendMessage("§a✔ Rune créée avec succès !");
+                        player.sendMessage("§7Taux de réussite: §e" + chance + "%");
+                    } else {
+                        player.sendMessage("§c✖ Impossible de créer la rune !");
+                    }
+                } catch (IllegalArgumentException e) {
+                    player.sendMessage("§c✖ Type de rune invalide !");
+                    player.sendMessage("§7Types: " + Arrays.stream(RuneType.values())
+                        .map(Enum::name)
+                        .collect(Collectors.joining(", ")));
+                }
+                break;
                 
             case "reload":
                 if (!player.hasPermission("quantum.armor.reload")) {
@@ -85,6 +128,7 @@ public class ArmorCommand implements CommandExecutor, TabCompleter {
         player.sendMessage("");
         player.sendMessage("§e/armure gui §7- Ouvrir le GUI de gestion");
         player.sendMessage("§e/armure give <type> §7- Recevoir une pièce d'armure");
+        player.sendMessage("§e/armure giverune <TYPE> <niveau> §7- Recevoir une rune");
         player.sendMessage("§e/armure reload §7- Recharger la configuration");
         player.sendMessage("");
     }
@@ -94,9 +138,23 @@ public class ArmorCommand implements CommandExecutor, TabCompleter {
         List<String> completions = new ArrayList<>();
         
         if (args.length == 1) {
-            completions.addAll(Arrays.asList("gui", "give", "reload"));
-        } else if (args.length == 2 && args[0].equalsIgnoreCase("give")) {
-            completions.addAll(Arrays.asList("helmet", "chestplate", "leggings", "boots"));
+            completions.addAll(Arrays.asList("gui", "give", "giverune", "reload"));
+        } else if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("give")) {
+                completions.addAll(Arrays.asList("helmet", "chestplate", "leggings", "boots"));
+            } else if (args[0].equalsIgnoreCase("giverune")) {
+                completions.addAll(Arrays.stream(RuneType.values())
+                    .map(Enum::name)
+                    .collect(Collectors.toList()));
+            }
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("giverune")) {
+            try {
+                RuneType type = RuneType.valueOf(args[1].toUpperCase());
+                for (int i = 1; i <= type.getMaxLevel(); i++) {
+                    completions.add(String.valueOf(i));
+                }
+            } catch (IllegalArgumentException ignored) {
+            }
         }
         
         return completions;

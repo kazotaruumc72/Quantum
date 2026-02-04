@@ -44,42 +44,46 @@ public class ItemBuilder {
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             boolean modified = false;
-            
-            // Display name - only override if explicitly set
-            if (menuItem.getDisplayName() != null) {
-                String displayName = parsePlaceholders(player, menuItem.getDisplayName());
-                meta.setDisplayName(displayName);
-                modified = true;
-            }
-            
-            // Lore - only override if explicitly set
-            // For Nexo items, this preserves the custom tooltip unless we want to override it
-            if (menuItem.getLore() != null && !menuItem.getLore().isEmpty()) {
-                List<String> lore = new ArrayList<>();
-                for (String line : menuItem.getLore()) {
-                    lore.add(parsePlaceholders(player, line));
+        
+            // Pour les items Nexo : on laisse Nexo gérer le displayName et le lore (tooltip components)
+            if (!menuItem.isNexoItem()) {
+        
+                // Display name - seulement pour les items vanilla
+                if (menuItem.getDisplayName() != null) {
+                    String displayName = parsePlaceholders(player, menuItem.getDisplayName());
+                    meta.setDisplayName(displayName);
+                    modified = true;
                 }
-                meta.setLore(lore);
-                modified = true;
+        
+                // Lore - seulement pour les items vanilla
+                if (menuItem.getLore() != null && !menuItem.getLore().isEmpty()) {
+                    List<String> lore = new ArrayList<>();
+                    for (String line : menuItem.getLore()) {
+                        lore.add(parsePlaceholders(player, line));
+                    }
+                    meta.setLore(lore);
+                    modified = true;
+                }
+        
+                // Custom model data - seulement pour les items vanilla
+                if (menuItem.getCustomModelData() > 0) {
+                    meta.setCustomModelData(menuItem.getCustomModelData());
+                    modified = true;
+                }
             }
-            
-            // Custom model data - only set if not a Nexo item or explicitly defined
-            if (!menuItem.isNexoItem() && menuItem.getCustomModelData() > 0) {
-                meta.setCustomModelData(menuItem.getCustomModelData());
-                modified = true;
-            }
-            
-            // Skull owner
+        
+            // Skull owner : OK pour tous les items
             if (meta instanceof SkullMeta && menuItem.getSkullOwner() != null) {
                 String owner = parsePlaceholders(player, menuItem.getSkullOwner());
                 ((SkullMeta) meta).setOwner(owner);
                 modified = true;
             }
-            
+        
             if (modified) {
                 item.setItemMeta(meta);
             }
         }
+
         
         return item;
     }

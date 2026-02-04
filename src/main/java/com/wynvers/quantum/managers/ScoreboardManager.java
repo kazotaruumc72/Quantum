@@ -3,6 +3,7 @@ package com.wynvers.quantum.managers;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.utils.ScoreboardUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
@@ -30,30 +31,37 @@ public class ScoreboardManager {
         Scoreboard board = manager.getNewScoreboard();
         
         Objective objective = board.registerNewObjective(
-            "quantum_tower",
+            "quantum_board",
             "dummy",
             ScoreboardUtils.color(title)
         );
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         
-        // SOLUTION: Cacher les numéros rouges avec NumberFormat (1.20.3+)
-        try {
-            // Tenter d'utiliser NumberFormat.blank() si disponible
-            objective.setNumberFormat(org.bukkit.scoreboard.NumberFormat.blank());
-        } catch (Exception e) {
-            // Méthode non disponible, utiliser l'ancienne méthode avec caractères invisibles
-            plugin.getQuantumLogger().warning("⚠ NumberFormat.blank() not available, using legacy method");
-        }
-        
+        // Utiliser des Teams pour afficher le texte sans les numéros rouges
         int lineNumber = lines.size();
         for (String line : lines) {
-            String invisibleChar = ScoreboardUtils.getInvisibleChar(lineNumber);
+            // Créer une entrée invisible unique pour chaque ligne
+            String entry = getInvisibleString(lineNumber);
             
+            // Créer une Team pour cette ligne
             Team team = board.registerNewTeam("line_" + lineNumber);
-            team.addEntry(invisibleChar);
-            team.setPrefix(ScoreboardUtils.color(line));
+            team.addEntry(entry);
             
-            Score score = objective.getScore(invisibleChar);
+            // Le texte est dans le prefix/suffix de la Team (max 64 chars chacun)
+            String colored = ScoreboardUtils.color(line);
+            if (colored.length() <= 64) {
+                team.setPrefix(colored);
+            } else {
+                // Si trop long, couper en prefix + suffix
+                team.setPrefix(colored.substring(0, 64));
+                if (colored.length() > 64) {
+                    String suffix = colored.substring(64, Math.min(colored.length(), 128));
+                    team.setSuffix(suffix);
+                }
+            }
+            
+            // Ajouter le score (l'entrée invisible)
+            Score score = objective.getScore(entry);
             score.setScore(lineNumber);
             
             lineNumber--;
@@ -63,13 +71,37 @@ public class ScoreboardManager {
         playerBoards.put(player.getUniqueId(), board);
     }
     
+    /**
+     * Génère une chaîne invisible unique pour chaque ligne
+     * Utilise des codes couleur répétés qui sont invisibles
+     */
+    private String getInvisibleString(int index) {
+        // Utiliser des codes couleur ChatColor.RESET répétés
+        // Chaque ligne aura un nombre différent de reset pour être unique
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < index; i++) {
+            sb.append(ChatColor.RESET);
+        }
+        return sb.toString();
+    }
+    
     public void updateLine(Player player, int lineIndex, String newText) {
         Scoreboard board = playerBoards.get(player.getUniqueId());
         if (board == null) return;
         
         Team team = board.getTeam("line_" + lineIndex);
         if (team != null) {
-            team.setPrefix(ScoreboardUtils.color(newText));
+            String colored = ScoreboardUtils.color(newText);
+            if (colored.length() <= 64) {
+                team.setPrefix(colored);
+                team.setSuffix("");
+            } else {
+                team.setPrefix(colored.substring(0, 64));
+                if (colored.length() > 64) {
+                    String suffix = colored.substring(64, Math.min(colored.length(), 128));
+                    team.setSuffix(suffix);
+                }
+            }
         }
     }
     
@@ -81,7 +113,17 @@ public class ScoreboardManager {
         for (String line : lines) {
             Team team = board.getTeam("line_" + lineNumber);
             if (team != null) {
-                team.setPrefix(ScoreboardUtils.color(line));
+                String colored = ScoreboardUtils.color(line);
+                if (colored.length() <= 64) {
+                    team.setPrefix(colored);
+                    team.setSuffix("");
+                } else {
+                    team.setPrefix(colored.substring(0, 64));
+                    if (colored.length() > 64) {
+                        String suffix = colored.substring(64, Math.min(colored.length(), 128));
+                        team.setSuffix(suffix);
+                    }
+                }
             }
             lineNumber--;
         }
@@ -90,13 +132,11 @@ public class ScoreboardManager {
     public void removeScoreboard(Player player) {
         UUID uuid = player.getUniqueId();
         
-        if (plugin.getConfig().getBoolean("scoreboard.restore-on-leave", true)) {
-            Scoreboard previous = previousBoards.remove(uuid);
-            if (previous != null) {
-                player.setScoreboard(previous);
-            } else {
-                player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
-            }
+        Scoreboard previous = previousBoards.remove(uuid);
+        if (previous != null) {
+            player.setScoreboard(previous);
+        } else {
+            player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
         }
         
         playerBoards.remove(uuid);

@@ -55,7 +55,7 @@ public enum RuneType {
             plugin.getLogger().info("✓ " + configs.size() + " types de runes chargés depuis dungeon.yml");
             
         } catch (Exception e) {
-            plugin.getLogger().severe("Erreur lors du chargement de dungeon.yml: " + e.getMessage());
+            plugin.getLogger().severe("Érreur lors du chargement de dungeon.yml: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -79,6 +79,17 @@ public enum RuneType {
     public String getNexoId(int level) {
         RuneConfig config = configs.get(this);
         return config != null ? config.nexoIds.get(level) : null;
+    }
+    
+    /**
+     * Récupère le taux de réussite pour appliquer cette rune
+     * @param level Niveau de la rune (1-3)
+     * @return Pourcentage de réussite (0-100)
+     */
+    public int getSuccessChance(int level) {
+        RuneConfig config = configs.get(this);
+        if (config == null) return 50; // Défaut 50%
+        return config.successChances.getOrDefault(level, 50);
     }
     
     public double getDamageBonus(int level) {
@@ -123,6 +134,7 @@ public enum RuneType {
         Map<Integer, String> descriptions;
         Map<Integer, String> nexoIds;
         Map<Integer, Double> values;
+        Map<Integer, Integer> successChances;
         
         RuneConfig(ConfigurationSection section) {
             this.displayName = section.getString("display_name", "§cUnknown");
@@ -130,6 +142,7 @@ public enum RuneType {
             this.descriptions = new HashMap<>();
             this.nexoIds = new HashMap<>();
             this.values = new HashMap<>();
+            this.successChances = new HashMap<>();
             
             ConfigurationSection levelsSection = section.getConfigurationSection("levels");
             if (levelsSection != null) {
@@ -141,6 +154,7 @@ public enum RuneType {
                         if (levelSection != null) {
                             descriptions.put(level, levelSection.getString("description", ""));
                             nexoIds.put(level, levelSection.getString("nexo_id"));
+                            successChances.put(level, levelSection.getInt("success_chance", 50));
                             
                             // Charger toutes les valeurs possibles
                             if (levelSection.contains("damage_bonus")) {

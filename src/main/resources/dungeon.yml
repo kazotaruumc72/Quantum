@@ -1,55 +1,83 @@
 # Configuration du système de donjon et runes Quantum
 # Ce fichier configure les runes, leurs bonus et les loots
 
+# =====================================
+# CONFIGURATION DES PIÈCES D'ARMURE
+# =====================================
+armor_pieces:
+  helmet:
+    nexo_id: "dungeon_helmet"
+    display_name: "§6§lCasque de Donjon"
+    base_material: "DIAMOND_HELMET"
+  
+  chestplate:
+    nexo_id: "dungeon_chestplate"
+    display_name: "§6§lPlastron de Donjon"
+    base_material: "DIAMOND_CHESTPLATE"
+  
+  leggings:
+    nexo_id: "dungeon_leggings"
+    display_name: "§6§lJambières de Donjon"
+    base_material: "DIAMOND_LEGGINGS"
+  
+  boots:
+    nexo_id: "dungeon_boots"
+    display_name: "§6§lBottes de Donjon"
+    base_material: "DIAMOND_BOOTS"
+
+# =====================================
+# CONFIGURATION DES RUNES
+# =====================================
 runes:
   FORCE:
     display: "§cForce"
     description: "Augmente les dégâts"
     max_level: 3
     icon: "REDSTONE"
-    nexo_ids:
+    # IDs Nexo pour les items physiques de runes (craft/drop)
+    item_nexo_ids:
       1: "force_rune_i"
       2: "force_rune_ii"
       3: "force_rune_iii"
     bonuses:
       1:
-        damage_multiplier: 1.1
-      2:
         damage_multiplier: 1.2
+      2:
+        damage_multiplier: 1.4
       3:
-        damage_multiplier: 1.3
+        damage_multiplier: 1.6
     lore:
-      1: ["§7+10% dégâts"]
-      2: ["§7+20% dégâts"]
-      3: ["§7+30% dégâts"]
+      1: ["§7+20% dégâts"]
+      2: ["§7+40% dégâts"]
+      3: ["§7+60% dégâts"]
 
   SPEED:
     display: "§9Vitesse"
     description: "Augmente la vitesse de mouvement"
     max_level: 3
     icon: "SUGAR"
-    nexo_ids:
+    item_nexo_ids:
       1: "speed_rune_i"
       2: "speed_rune_ii"
       3: "speed_rune_iii"
     bonuses:
       1:
-        speed_multiplier: 1.2
+        speed_multiplier: 1.1
       2:
-        speed_multiplier: 1.4
+        speed_multiplier: 1.2
       3:
-        speed_multiplier: 1.6
+        speed_multiplier: 1.3
     lore:
-      1: ["§7+20% vitesse"]
-      2: ["§7+40% vitesse"]
-      3: ["§7+60% vitesse"]
+      1: ["§7+10% vitesse"]
+      2: ["§7+20% vitesse"]
+      3: ["§7+30% vitesse"]
 
   RESISTANCE:
     display: "§6Résistance"
     description: "Réduit les dégâts subis"
     max_level: 3
     icon: "IRON_INGOT"
-    nexo_ids:
+    item_nexo_ids:
       1: "resistance_rune_i"
       2: "resistance_rune_ii"
       3: "resistance_rune_iii"
@@ -70,145 +98,152 @@ runes:
     description: "Augmente la chance de coup critique"
     max_level: 3
     icon: "DIAMOND"
-    nexo_ids:
+    item_nexo_ids:
       1: "critical_rune_i"
       2: "critical_rune_ii"
       3: "critical_rune_iii"
     bonuses:
       1:
-        critical_chance: 0.15
+        critical_chance: 0.05
       2:
-        critical_chance: 0.30
+        critical_chance: 0.10
       3:
-        critical_chance: 0.45
+        critical_chance: 0.15
     lore:
-      1: ["§7+15% chance de crit"]
-      2: ["§7+30% chance de crit"]
-      3: ["§7+45% chance de crit"]
+      1: ["§7+5% chance de crit"]
+      2: ["§7+10% chance de crit"]
+      3: ["§7+15% chance de crit"]
 
   REGENERATION:
     display: "§aRégénération"
     description: "Régénère la vie progressivement"
     max_level: 3
     icon: "NETHER_WART"
-    nexo_ids:
+    item_nexo_ids:
       1: "regeneration_rune_i"
       2: "regeneration_rune_ii"
       3: "regeneration_rune_iii"
     bonuses:
       1:
-        regeneration_per_second: 0.5
+        regeneration_hearts: 1
       2:
-        regeneration_per_second: 1.0
+        regeneration_hearts: 2
       3:
-        regeneration_per_second: 1.5
+        regeneration_hearts: 3
     lore:
-      1: ["§7+0.5 HP/s"]
-      2: ["§7+1.0 HP/s"]
-      3: ["§7+1.5 HP/s"]
+      1: ["§7+1 ❤/5s"]
+      2: ["§7+2 ❤/5s"]
+      3: ["§7+3 ❤/5s"]
 
   VAMPIRISM:
     display: "§cVampirisme"
     description: "Vol de vie lors des attaques"
     max_level: 3
     icon: "REDSTONE_BLOCK"
-    nexo_ids:
+    item_nexo_ids:
       1: "vampirism_rune_i"
       2: "vampirism_rune_ii"
       3: "vampirism_rune_iii"
     bonuses:
       1:
-        vampirism_percent: 0.1
+        lifesteal_percent: 0.05
       2:
-        vampirism_percent: 0.2
+        lifesteal_percent: 0.10
       3:
-        vampirism_percent: 0.3
+        lifesteal_percent: 0.15
     lore:
-      1: ["§7Vol de 10% des dégâts"]
-      2: ["§7Vol de 20% des dégâts"]
-      3: ["§7Vol de 30% des dégâts"]
+      1: ["§7Vol de 5% des dégâts"]
+      2: ["§7Vol de 10% des dégâts"]
+      3: ["§7Vol de 15% des dégâts"]
 
   THORNS:
     display: "§eÉpines"
     description: "Retour de dégâts aux attaquants"
     max_level: 3
     icon: "ROSE_BUSH"
-    nexo_ids:
+    item_nexo_ids:
       1: "thorns_rune_i"
       2: "thorns_rune_ii"
       3: "thorns_rune_iii"
     bonuses:
       1:
-        thorns_percent: 0.2
+        thorns_percent: 0.10
       2:
-        thorns_percent: 0.4
+        thorns_percent: 0.20
       3:
-        thorns_percent: 0.6
+        thorns_percent: 0.30
     lore:
-      1: ["§7Retour de 20% dégâts"]
-      2: ["§7Retour de 40% dégâts"]
-      3: ["§7Retour de 60% dégâts"]
+      1: ["§7Retour de 10% dégâts"]
+      2: ["§7Retour de 20% dégâts"]
+      3: ["§7Retour de 30% dégâts"]
 
   WISDOM:
     display: "§bSagesse"
     description: "Augmente l'expérience gagnée"
     max_level: 3
     icon: "EMERALD"
-    nexo_ids:
+    item_nexo_ids:
       1: "wisdom_rune_i"
       2: "wisdom_rune_ii"
       3: "wisdom_rune_iii"
     bonuses:
       1:
-        xp_multiplier: 1.5
+        xp_multiplier: 1.2
       2:
-        xp_multiplier: 2.0
+        xp_multiplier: 1.4
       3:
-        xp_multiplier: 2.5
+        xp_multiplier: 1.6
     lore:
-      1: ["§7+50% XP gagnée"]
-      2: ["§7+100% XP gagnée"]
-      3: ["§7+150% XP gagnée"]
+      1: ["§7+20% XP gagnée"]
+      2: ["§7+40% XP gagnée"]
+      3: ["§7+60% XP gagnée"]
 
   LUCK:
     display: "§fChance"
     description: "Augmente les loots rares"
     max_level: 3
     icon: "GLOWSTONE"
-    nexo_ids:
+    item_nexo_ids:
       1: "luck_rune_i"
       2: "luck_rune_ii"
       3: "luck_rune_iii"
     bonuses:
       1:
-        rare_loot_chance: 0.1
+        luck_level: 1
       2:
-        rare_loot_chance: 0.2
+        luck_level: 2
       3:
-        rare_loot_chance: 0.3
+        luck_level: 3
     lore:
-      1: ["§7+10% loots rares"]
-      2: ["§7+20% loots rares"]
-      3: ["§7+30% loots rares"]
+      1: ["§7+1 niveau Luck"]
+      2: ["§7+2 niveaux Luck"]
+      3: ["§7+3 niveaux Luck"]
 
-# Configuration des coffres de donjon
+# =====================================
+# CONFIGURATION DES COFFRES
+# =====================================
 chests:
+  # Nombre minimum de kills pour ouvrir un coffre
   min_kills_to_open: 5
-  chest_items:
-    RUNE:
-      chance: 0.3
-      amount: 1
-    RARE_LOOT:
-      chance: 0.2
-      amount: 1
-    COMMON_LOOT:
-      chance: 0.5
-      amount: 2
+  
+  # Armure complète requise pour ouvrir
+  require_full_armor: true
 
-# Configuration des améliorations d'armure
+# =====================================
+# CONFIGURATION DES AMÉLIORATIONS
+# =====================================
 armor:
+  # Niveau maximum de l'armure
   base_level_max: 200
+  
+  # Niveau requis pour débloquer les enchantements
   enchantment_unlock_level: 50
+  
+  # Nombre maximum de runes par pièce
   max_runes_per_piece: 9
+  
+  # Progression par kill
   progression_per_kill: 1
+  
+  # Réinitialisation de progression à
   progression_reset_at: 50

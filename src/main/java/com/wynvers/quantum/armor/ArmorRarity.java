@@ -51,6 +51,15 @@ public enum ArmorRarity {
                 ChatColor color = parseChatColor(colorStr);
                 int maxRuneSlots = raritySection.getInt("max_rune_slots", 1);
                 
+                // Charger les Nexo IDs
+                Map<String, String> nexoIds = new HashMap<>();
+                ConfigurationSection nexoIdsSection = raritySection.getConfigurationSection("nexo_ids");
+                if (nexoIdsSection != null) {
+                    for (String key : nexoIdsSection.getKeys(false)) {
+                        nexoIds.put(key, nexoIdsSection.getString(key));
+                    }
+                }
+                
                 List<EnchantmentConfig> enchantments = new ArrayList<>();
                 List<Map<?, ?>> enchantList = raritySection.getMapList("enchantments");
                 for (Map<?, ?> enchantMap : enchantList) {
@@ -66,7 +75,7 @@ public enum ArmorRarity {
                     }
                 }
                 
-                DATA_MAP.put(rarity, new RarityData(displayName, color, maxRuneSlots, enchantments));
+                DATA_MAP.put(rarity, new RarityData(displayName, color, maxRuneSlots, nexoIds, enchantments));
             }
             
             plugin.getLogger().info("✔ Raretés d'armure chargées depuis dungeon_armor.yml");
@@ -79,20 +88,41 @@ public enum ArmorRarity {
     }
     
     private static void loadDefaults() {
-        DATA_MAP.put(COMMON, new RarityData("Commun", ChatColor.GRAY, 1, 
+        Map<String, String> commonIds = Map.of(
+            "helmet", "dungeon_helmet_common",
+            "chestplate", "dungeon_chestplate_common",
+            "leggings", "dungeon_leggings_common",
+            "boots", "dungeon_boots_common"
+        );
+        
+        DATA_MAP.put(COMMON, new RarityData("Commun", ChatColor.GRAY, 1, commonIds,
             List.of(
                 new EnchantmentConfig(Enchantment.PROTECTION, 1, 2),
                 new EnchantmentConfig(Enchantment.UNBREAKING, 1, 1)
             )));
         
-        DATA_MAP.put(UNCOMMON, new RarityData("Peu Commun", ChatColor.GREEN, 2,
+        Map<String, String> uncommonIds = Map.of(
+            "helmet", "dungeon_helmet_uncommon",
+            "chestplate", "dungeon_chestplate_uncommon",
+            "leggings", "dungeon_leggings_uncommon",
+            "boots", "dungeon_boots_uncommon"
+        );
+        
+        DATA_MAP.put(UNCOMMON, new RarityData("Peu Commun", ChatColor.GREEN, 2, uncommonIds,
             List.of(
                 new EnchantmentConfig(Enchantment.PROTECTION, 2, 3),
                 new EnchantmentConfig(Enchantment.UNBREAKING, 2, 2),
                 new EnchantmentConfig(Enchantment.THORNS, 1, 1)
             )));
         
-        DATA_MAP.put(RARE, new RarityData("Rare", ChatColor.BLUE, 3,
+        Map<String, String> rareIds = Map.of(
+            "helmet", "dungeon_helmet_rare",
+            "chestplate", "dungeon_chestplate_rare",
+            "leggings", "dungeon_leggings_rare",
+            "boots", "dungeon_boots_rare"
+        );
+        
+        DATA_MAP.put(RARE, new RarityData("Rare", ChatColor.BLUE, 3, rareIds,
             List.of(
                 new EnchantmentConfig(Enchantment.PROTECTION, 3, 4),
                 new EnchantmentConfig(Enchantment.UNBREAKING, 3, 3),
@@ -100,7 +130,14 @@ public enum ArmorRarity {
                 new EnchantmentConfig(Enchantment.FIRE_PROTECTION, 1, 2)
             )));
         
-        DATA_MAP.put(EPIC, new RarityData("Épique", ChatColor.DARK_PURPLE, 4,
+        Map<String, String> epicIds = Map.of(
+            "helmet", "dungeon_helmet_epic",
+            "chestplate", "dungeon_chestplate_epic",
+            "leggings", "dungeon_leggings_epic",
+            "boots", "dungeon_boots_epic"
+        );
+        
+        DATA_MAP.put(EPIC, new RarityData("Épique", ChatColor.DARK_PURPLE, 4, epicIds,
             List.of(
                 new EnchantmentConfig(Enchantment.PROTECTION, 4, 5),
                 new EnchantmentConfig(Enchantment.UNBREAKING, 3, 3),
@@ -109,7 +146,14 @@ public enum ArmorRarity {
                 new EnchantmentConfig(Enchantment.BLAST_PROTECTION, 2, 3)
             )));
         
-        DATA_MAP.put(LEGENDARY, new RarityData("Légendaire", ChatColor.GOLD, 5,
+        Map<String, String> legendaryIds = Map.of(
+            "helmet", "dungeon_helmet_legendary",
+            "chestplate", "dungeon_chestplate_legendary",
+            "leggings", "dungeon_leggings_legendary",
+            "boots", "dungeon_boots_legendary"
+        );
+        
+        DATA_MAP.put(LEGENDARY, new RarityData("Légendaire", ChatColor.GOLD, 5, legendaryIds,
             List.of(
                 new EnchantmentConfig(Enchantment.PROTECTION, 5, 6),
                 new EnchantmentConfig(Enchantment.UNBREAKING, 3, 3),
@@ -156,6 +200,11 @@ public enum ArmorRarity {
         return data.maxRuneSlots;
     }
     
+    public String getNexoId(String armorType) {
+        RarityData data = DATA_MAP.getOrDefault(this, DATA_MAP.get(COMMON));
+        return data.nexoIds.get(armorType);
+    }
+    
     public Map<Enchantment, Integer> getEnchantments() {
         RarityData data = DATA_MAP.getOrDefault(this, DATA_MAP.get(COMMON));
         Map<Enchantment, Integer> result = new HashMap<>();
@@ -169,12 +218,14 @@ public enum ArmorRarity {
         final String displayName;
         final ChatColor color;
         final int maxRuneSlots;
+        final Map<String, String> nexoIds;
         final List<EnchantmentConfig> enchantments;
         
-        RarityData(String displayName, ChatColor color, int maxRuneSlots, List<EnchantmentConfig> enchantments) {
+        RarityData(String displayName, ChatColor color, int maxRuneSlots, Map<String, String> nexoIds, List<EnchantmentConfig> enchantments) {
             this.displayName = displayName;
             this.color = color;
             this.maxRuneSlots = maxRuneSlots;
+            this.nexoIds = nexoIds;
             this.enchantments = enchantments;
         }
     }

@@ -3,7 +3,7 @@ package com.wynvers.quantum.listeners;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.towers.TowerManager;
 import com.wynvers.quantum.towers.TowerProgress;
-import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -28,7 +28,7 @@ public class TowerMobListener implements Listener {
     
     @EventHandler(priority = EventPriority.MONITOR)
     public void onEntityDeath(EntityDeathEvent event) {
-        Entity entity = event.getEntity();
+        LivingEntity entity = event.getEntity();
         Player killer = entity.getKiller();
         
         // Vérifier que c'est un joueur qui a tué

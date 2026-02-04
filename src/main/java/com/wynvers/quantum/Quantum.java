@@ -551,18 +551,32 @@ public final class Quantum extends JavaPlugin {
         
         reloadConfig();
         
+        // Reload core managers
         if (storageManager != null) storageManager.reload();
         if (menuManager != null) menuManager.reload();
         if (animationManager != null) animationManager.reload();
+        
+        // Reload message managers
         if (messagesManager != null) messagesManager.reload();
         if (messageManager != null) messageManager.reload();
         if (guiMessageManager != null) guiMessageManager.reload();
+        
+        // Reload economy & orders
         if (escrowManager != null) escrowManager.reload();
         if (priceManager != null) priceManager.reload();
         if (orderManager != null) orderManager.loadItems();
+        
+        // Reload statistics
         if (statisticsManager != null) statisticsManager.loadStatistics();
+        
+        // Reload WorldGuard features
         if (zoneManager != null) zoneManager.reloadConfig();
         if (towerManager != null) towerManager.reload();
+        
+        // Reload dungeon armor & rune system
+        RuneType.init(this); // Recharge dungeon.yml
+        logger.success("✓ Dungeon armor & rune configs reloaded");
+        
         // NOTE: TransactionHistoryManager loads from file on-the-fly, no need to reload
         // NOTE: KillTracker loads from file on-the-fly, no need to reload
         

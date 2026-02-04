@@ -1,0 +1,286 @@
+# ========================================
+#  QUANTUM - Rune Equipment Menu
+# ========================================
+#
+# Menu d'équipement des runes
+# Permet au joueur de glisser-déposer ses runes sur son armure
+#
+# Commande: /rune equip
+
+menu_title: "&6&lÉquipement des Runes"
+size: 54  # 6 lignes
+
+# ========================================
+#  Items du menu
+# ========================================
+
+items:
+  # Bordure décorative
+  border:
+    material: BLACK_STAINED_GLASS_PANE
+    display_name: " "
+    slots:
+      - 0-8
+      - 9
+      - 17
+      - 18
+      - 26
+      - 27
+      - 35
+      - 36
+      - 44
+      - 45-53
+
+  # ========================================
+  #  CASQUE - 2 slots de runes
+  # ========================================
+  
+  helmet_display:
+    material: PLAYER_HEAD
+    display_name: "&e&lCasque de Donjon"
+    lore:
+      - "&7Slots de runes: &e2"
+      - " "
+      - "&7Runes équipées:"
+      - "%helmet_rune_1%"
+      - "%helmet_rune_2%"
+      - " "
+      - "&8Glissez une rune dans les slots ci-dessous"
+    slots:
+      - 10
+    update: 10
+
+  helmet_slot_1:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: "&7Slot de Rune #1"
+    lore:
+      - "&8Glissez une rune ici pour l'équiper"
+      - " "
+      - "&e► Clic gauche avec une rune"
+      - "&c► Shift + Clic droit pour retirer"
+    slots:
+      - 19
+    actions:
+      all:
+        - "[rune-slot] helmet 1"
+    update: 10
+
+  helmet_slot_2:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: "&7Slot de Rune #2"
+    lore:
+      - "&8Glissez une rune ici pour l'équiper"
+      - " "
+      - "&e► Clic gauche avec une rune"
+      - "&c► Shift + Clic droit pour retirer"
+    slots:
+      - 28
+    actions:
+      all:
+        - "[rune-slot] helmet 2"
+    update: 10
+
+  # ========================================
+  #  PLASTRON - 3 slots de runes
+  # ========================================
+  
+  chestplate_display:
+    material: NETHERITE_CHESTPLATE
+    display_name: "&e&lPlastron de Donjon"
+    lore:
+      - "&7Slots de runes: &e3"
+      - " "
+      - "&7Runes équipées:"
+      - "%chestplate_rune_1%"
+      - "%chestplate_rune_2%"
+      - "%chestplate_rune_3%"
+      - " "
+      - "&8Glissez une rune dans les slots ci-dessous"
+    slots:
+      - 12
+    update: 10
+
+  chestplate_slot_1:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: "&7Slot de Rune #1"
+    lore:
+      - "&8Glissez une rune ici pour l'équiper"
+      - " "
+      - "&e► Clic gauche avec une rune"
+      - "&c► Shift + Clic droit pour retirer"
+    slots:
+      - 21
+    actions:
+      all:
+        - "[rune-slot] chestplate 1"
+    update: 10
+
+  chestplate_slot_2:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: "&7Slot de Rune #2"
+    lore:
+      - "&8Glissez une rune ici pour l'équiper"
+      - " "
+      - "&e► Clic gauche avec une rune"
+      - "&c► Shift + Clic droit pour retirer"
+    slots:
+      - 30
+    actions:
+      all:
+        - "[rune-slot] chestplate 2"
+    update: 10
+
+  chestplate_slot_3:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: "&7Slot de Rune #3"
+    lore:
+      - "&8Glissez une rune ici pour l'équiper"
+      - " "
+      - "&e► Clic gauche avec une rune"
+      - "&c► Shift + Clic droit pour retirer"
+    slots:
+      - 39
+    actions:
+      all:
+        - "[rune-slot] chestplate 3"
+    update: 10
+
+  # ========================================
+  #  JAMBIÈRES - 2 slots de runes
+  # ========================================
+  
+  leggings_display:
+    material: NETHERITE_LEGGINGS
+    display_name: "&e&lJambières de Donjon"
+    lore:
+      - "&7Slots de runes: &e2"
+      - " "
+      - "&7Runes équipées:"
+      - "%leggings_rune_1%"
+      - "%leggings_rune_2%"
+      - " "
+      - "&8Glissez une rune dans les slots ci-dessous"
+    slots:
+      - 14
+    update: 10
+
+  leggings_slot_1:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: "&7Slot de Rune #1"
+    lore:
+      - "&8Glissez une rune ici pour l'équiper"
+      - " "
+      - "&e► Clic gauche avec une rune"
+      - "&c► Shift + Clic droit pour retirer"
+    slots:
+      - 23
+    actions:
+      all:
+        - "[rune-slot] leggings 1"
+    update: 10
+
+  leggings_slot_2:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: "&7Slot de Rune #2"
+    lore:
+      - "&8Glissez une rune ici pour l'équiper"
+      - " "
+      - "&e► Clic gauche avec une rune"
+      - "&c► Shift + Clic droit pour retirer"
+    slots:
+      - 32
+    actions:
+      all:
+        - "[rune-slot] leggings 2"
+    update: 10
+
+  # ========================================
+  #  BOTTES - 1 slot de rune
+  # ========================================
+  
+  boots_display:
+    material: NETHERITE_BOOTS
+    display_name: "&e&lBottes de Donjon"
+    lore:
+      - "&7Slots de runes: &e1"
+      - " "
+      - "&7Runes équipées:"
+      - "%boots_rune_1%"
+      - " "
+      - "&8Glissez une rune dans le slot ci-dessous"
+    slots:
+      - 16
+    update: 10
+
+  boots_slot_1:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: "&7Slot de Rune #1"
+    lore:
+      - "&8Glissez une rune ici pour l'équiper"
+      - " "
+      - "&e► Clic gauche avec une rune"
+      - "&c► Shift + Clic droit pour retirer"
+    slots:
+      - 25
+    actions:
+      all:
+        - "[rune-slot] boots 1"
+    update: 10
+
+  # ========================================
+  #  INFORMATIONS
+  # ========================================
+  
+  info:
+    material: BOOK
+    display_name: "&6&lInformations"
+    lore:
+      - "&7Comment équiper des runes:"
+      - " "
+      - "&e1. &fAyez l'armure de donjon équipée"
+      - "&e2. &fClic gauche sur un slot avec une rune"
+      - "&e3. &fLa rune sera appliquée sur la pièce"
+      - " "
+      - "&7Comment retirer une rune:"
+      - " "
+      - "&c► &fShift + Clic droit sur un slot occupé"
+      - "&c► &fLa rune sera retournée dans votre inventaire"
+      - " "
+      - "&8Total: 8 slots de runes par armure complète"
+    slots:
+      - 49
+
+  # Statistiques actuelles
+  stats:
+    material: ENCHANTED_BOOK
+    display_name: "&a&lBonus Actuels"
+    lore:
+      - "&7Bonus de vos runes équipées:"
+      - " "
+      - "&c❤ Vie: &f%bonus_health%"
+      - "&9⚔ Dégâts: &f%bonus_damage%"
+      - "&7🛡 Défense: &f%bonus_defense%"
+      - "&e⚡ Vitesse: &f%bonus_speed%"
+      - "&b✦ Régénération: &f%bonus_regen%"
+      - "&d⭐ Chance: &f%bonus_luck%"
+      - "&6☄ Critique: &f%bonus_crit%"
+      - "&3💧 Résistance: &f%bonus_resistance%"
+      - "&2🌿 Vie Max: &f%bonus_max_health%"
+      - " "
+      - "&8Ces bonus sont actifs tant que vous"
+      - "&8portez l'armure de donjon complète"
+    slots:
+      - 48
+    update: 10
+
+  # Bouton fermer
+  close:
+    material: BARRIER
+    display_name: "&c&lFermer"
+    lore:
+      - "&7Cliquez pour fermer ce menu"
+    slots:
+      - 50
+    actions:
+      all:
+        - "[close]"

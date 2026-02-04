@@ -62,6 +62,7 @@ import java.nio.file.StandardCopyOption;
  * - Integrated tower scoreboard system (auto-disable Oreo Essentials)
  * - Dungeon armor system with runes (9 types, 3 levels each)
  * - Configurable chest loots per tower and floor
+ * - Configurable dungeon armor IDs (Nexo items)
  */
 public final class Quantum extends JavaPlugin {
 
@@ -234,6 +235,9 @@ public final class Quantum extends JavaPlugin {
         
         // Extract tower loots config (NEW)
         extractResource("tower_loots.yml");
+        
+        // Extract dungeon armor config (NEW)
+        extractResource("dungeon_armor.yml");
         
         logger.success("✓ Default resources extracted");
     }

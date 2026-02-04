@@ -73,6 +73,11 @@ commands:
     description: Dungeon armor management commands
     usage: /armor <give|info|apply|upgrade> [args]
     aliases: [armure, armour, darmor]
+  
+  rune:
+    description: Rune item management commands
+    usage: /rune <give|list> [args]
+    aliases: [runes]
 
 permissions:
   quantum.*:
@@ -89,6 +94,7 @@ permissions:
       quantum.zone.bypass: true
       quantum.tower.*: true
       quantum.armor.*: true
+      quantum.rune.*: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -206,4 +212,15 @@ permissions:
   
   quantum.armor.upgrade:
     description: Upgrade runes on armor
+    default: op
+  
+  # Permissions pour les runes physiques
+  quantum.rune.*:
+    description: All rune permissions
+    default: op
+    children:
+      quantum.rune.give: true
+  
+  quantum.rune.give:
+    description: Give rune items to players
     default: op

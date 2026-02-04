@@ -14,9 +14,11 @@ import java.util.*;
 public class ArmorGUI {
     
     private final DungeonArmor armorManager;
+    private final RuneItem runeItemManager;
     
-    public ArmorGUI(DungeonArmor armorManager) {
+    public ArmorGUI(DungeonArmor armorManager, RuneItem runeItemManager) {
         this.armorManager = armorManager;
+        this.runeItemManager = runeItemManager;
     }
     
     /**
@@ -25,7 +27,6 @@ public class ArmorGUI {
     public void openMainGUI(Player player) {
         Inventory inv = Bukkit.createInventory(null, 54, "§6§l⚔ ARMURE DE DONJON ⚔");
         
-        // Bordures décoratives
         ItemStack border = createItem(Material.GRAY_STAINED_GLASS_PANE, "§r", Collections.emptyList());
         for (int i = 0; i < 9; i++) {
             inv.setItem(i, border);
@@ -36,41 +37,35 @@ public class ArmorGUI {
             inv.setItem(i + 8, border);
         }
         
-        // Récupérer l'armure du joueur
         ItemStack helmet = player.getInventory().getHelmet();
         ItemStack chestplate = player.getInventory().getChestplate();
         ItemStack leggings = player.getInventory().getLeggings();
         ItemStack boots = player.getInventory().getBoots();
         
-        // Slot 20: Casque
         if (helmet != null && armorManager.isDungeonArmor(helmet)) {
             inv.setItem(20, createArmorDisplay(helmet, "CASQUE"));
         } else {
             inv.setItem(20, createEmptySlot(Material.IRON_HELMET, "§c§lCASQUE", "§7Aucun casque équipé"));
         }
         
-        // Slot 22: Plastron
         if (chestplate != null && armorManager.isDungeonArmor(chestplate)) {
             inv.setItem(22, createArmorDisplay(chestplate, "PLASTRON"));
         } else {
             inv.setItem(22, createEmptySlot(Material.IRON_CHESTPLATE, "§c§lPLASTRON", "§7Aucun plastron équipé"));
         }
         
-        // Slot 24: Jambières
         if (leggings != null && armorManager.isDungeonArmor(leggings)) {
             inv.setItem(24, createArmorDisplay(leggings, "JAMBIÈRES"));
         } else {
             inv.setItem(24, createEmptySlot(Material.IRON_LEGGINGS, "§c§lJAMBIÈRES", "§7Aucunes jambières équipées"));
         }
         
-        // Slot 29: Bottes
         if (boots != null && armorManager.isDungeonArmor(boots)) {
             inv.setItem(29, createArmorDisplay(boots, "BOTTES"));
         } else {
             inv.setItem(29, createEmptySlot(Material.IRON_BOOTS, "§c§lBOTTES", "§7Aucunes bottes équipées"));
         }
         
-        // Info centrale
         ItemStack info = createItem(Material.BOOK, "§e§lINFORMATIONS", Arrays.asList(
             "",
             "§7Cliquez sur une pièce d'armure",
@@ -91,7 +86,6 @@ public class ArmorGUI {
     public void openRuneSelectionGUI(Player player, String armorSlot) {
         Inventory inv = Bukkit.createInventory(null, 54, "§d§l⚔ RUNES - " + armorSlot.toUpperCase() + " ⚔");
         
-        // Bordures
         ItemStack border = createItem(Material.PURPLE_STAINED_GLASS_PANE, "§r", Collections.emptyList());
         for (int i = 0; i < 9; i++) {
             inv.setItem(i, border);
@@ -102,34 +96,29 @@ public class ArmorGUI {
             inv.setItem(i + 8, border);
         }
         
-        // Récupérer la pièce d'armure
         ItemStack armor = getArmorPiece(player, armorSlot);
         if (armor == null || !armorManager.isDungeonArmor(armor)) {
             player.sendMessage("§c✖ Vous devez équiper cette pièce d'armure !");
             return;
         }
         
-        // Afficher l'armure en haut
         inv.setItem(4, armor.clone());
         
-        // Runes déjà appliquées
         Map<RuneType, Integer> appliedRunes = armorManager.getAppliedRunesWithLevels(armor);
         int maxSlots = armorManager.getMaxRuneSlots(armor);
         
-        // Afficher toutes les runes disponibles
         int slot = 19;
         for (RuneType rune : RuneType.values()) {
-            if (slot == 26) slot = 28; // Sauter les bordures
+            if (slot == 26) slot = 28;
             if (slot >= 35) break;
             
             boolean isApplied = appliedRunes.containsKey(rune);
             int currentLevel = appliedRunes.getOrDefault(rune, 0);
             
-            inv.setItem(slot, createRuneItem(rune, currentLevel, isApplied, maxSlots, appliedRunes.size()));
+            inv.setItem(slot, createRuneItem(player, rune, currentLevel, isApplied, maxSlots, appliedRunes.size()));
             slot++;
         }
         
-        // Bouton retour
         ItemStack back = createItem(Material.ARROW, "§c§l← RETOUR", Collections.singletonList("§7Retour au menu principal"));
         inv.setItem(49, back);
         
@@ -142,20 +131,17 @@ public class ArmorGUI {
     public void openRuneLevelGUI(Player player, String armorSlot, RuneType rune) {
         Inventory inv = Bukkit.createInventory(null, 27, "§d§l" + rune.getDisplay() + " - NIVEAU");
         
-        // Bordures
         ItemStack border = createItem(Material.PURPLE_STAINED_GLASS_PANE, "§r", Collections.emptyList());
         for (int i = 0; i < 9; i++) {
             inv.setItem(i, border);
             inv.setItem(i + 18, border);
         }
         
-        // Niveaux disponibles (1 à 3)
         int[] slots = {11, 13, 15};
         for (int level = 1; level <= rune.getMaxLevel(); level++) {
-            inv.setItem(slots[level - 1], createRuneLevelItem(rune, level));
+            inv.setItem(slots[level - 1], createRuneLevelItem(player, rune, level));
         }
         
-        // Bouton retour
         ItemStack back = createItem(Material.ARROW, "§c§l← RETOUR", Collections.singletonList("§7Retour aux runes"));
         inv.setItem(22, back);
         
@@ -174,7 +160,6 @@ public class ArmorGUI {
             return;
         }
         
-        // Vérifier si le joueur a la rune dans son inventaire
         String nexoId = rune.getNexoId(level);
         if (nexoId == null) {
             player.sendMessage("§c✖ Cette rune n'existe pas !");
@@ -188,8 +173,13 @@ public class ArmorGUI {
             return;
         }
         
-        // Système de chance
-        int successChance = rune.getSuccessChance(level);
+        // Récupérer le taux stocké en NBT
+        int successChance = runeItemManager.getSuccessChance(runeItem);
+        if (successChance == -1) {
+            player.sendMessage("§c✖ Cette rune n'a pas de taux de réussite valide !");
+            return;
+        }
+        
         Random random = new Random();
         int roll = random.nextInt(100) + 1;
         
@@ -224,10 +214,9 @@ public class ArmorGUI {
             player.playSound(player.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.5f, 1.5f);
         }
         
-        // Rafraîchir le GUI
         Bukkit.getScheduler().runTaskLater(armorManager.plugin, () -> {
             openRuneSelectionGUI(player, armorSlot);
-        }, 20L); // Attendre 1 seconde
+        }, 20L);
     }
     
     // ==================== UTILITAIRES ====================
@@ -249,7 +238,7 @@ public class ArmorGUI {
         return createItem(material, name, Arrays.asList("", description));
     }
     
-    private ItemStack createRuneItem(RuneType rune, int currentLevel, boolean isApplied, int maxSlots, int usedSlots) {
+    private ItemStack createRuneItem(Player player, RuneType rune, int currentLevel, boolean isApplied, int maxSlots, int usedSlots) {
         Material material = isApplied ? Material.LIME_DYE : (usedSlots >= maxSlots ? Material.GRAY_DYE : Material.PAPER);
         
         List<String> lore = new ArrayList<>();
@@ -267,12 +256,22 @@ public class ArmorGUI {
         } else {
             lore.add("§e§l✦ DISPONIBLE");
             lore.add("");
+            lore.add("§7Runes dans votre inventaire:");
+            lore.add("");
+            
+            // Afficher les runes que le joueur possède
             for (int level = 1; level <= rune.getMaxLevel(); level++) {
-                int chance = rune.getSuccessChance(level);
-                String color = chance >= 70 ? "§a" : (chance >= 40 ? "§e" : "§c");
-                lore.add("§7• Niveau " + toRoman(level) + " " + color + "(" + chance + "% réussite)");
-                lore.add("  §7" + rune.getDescription(level));
+                String nexoId = rune.getNexoId(level);
+                ItemStack found = findRuneInInventory(player, nexoId);
+                
+                if (found != null) {
+                    int chance = runeItemManager.getSuccessChance(found);
+                    String color = getChanceColor(chance);
+                    lore.add("§f• Niveau " + toRoman(level) + " " + color + "(" + chance + "% réussite)");
+                    lore.add("  §7" + rune.getDescription(level));
+                }
             }
+            
             lore.add("");
             lore.add("§e§l» Cliquez pour choisir le niveau");
         }
@@ -280,9 +279,17 @@ public class ArmorGUI {
         return createItem(material, rune.getDisplay(), lore);
     }
     
-    private ItemStack createRuneLevelItem(RuneType rune, int level) {
-        int chance = rune.getSuccessChance(level);
-        String color = chance >= 70 ? "§a" : (chance >= 40 ? "§e" : "§c");
+    private ItemStack createRuneLevelItem(Player player, RuneType rune, int level) {
+        String nexoId = rune.getNexoId(level);
+        ItemStack runeItem = findRuneInInventory(player, nexoId);
+        
+        if (runeItem == null) {
+            return createItem(Material.BARRIER, "§c" + rune.getDisplay() + " §7" + toRoman(level), 
+                Arrays.asList("", "§c✖ Vous ne possédez pas cette rune !"));
+        }
+        
+        int chance = runeItemManager.getSuccessChance(runeItem);
+        String color = getChanceColor(chance);
         
         List<String> lore = new ArrayList<>();
         lore.add("");
@@ -292,13 +299,21 @@ public class ArmorGUI {
         lore.add(color + "§lTaux de réussite: " + chance + "%");
         lore.add("");
         lore.add("§c⚠ Si la rune échoue, elle sera détruite");
-        lore.add("§c⚠ Si elle réussit, elle sera permanente");
+        lore.add("§a✔ Si elle réussit, elle sera permanente");
         lore.add("");
         lore.add("§e§l» Cliquez pour appliquer");
         
         Material material = chance >= 70 ? Material.EMERALD : (chance >= 40 ? Material.GOLD_INGOT : Material.REDSTONE);
         
         return createItem(material, rune.getDisplay() + " §7" + toRoman(level), lore);
+    }
+    
+    private String getChanceColor(int chance) {
+        if (chance >= 80) return "§a";
+        if (chance >= 60) return "§e";
+        if (chance >= 40) return "§6";
+        if (chance >= 20) return "§c";
+        return "§4";
     }
     
     private ItemStack createItem(Material material, String name, List<String> lore) {
@@ -332,6 +347,8 @@ public class ArmorGUI {
     }
     
     private ItemStack findRuneInInventory(Player player, String nexoId) {
+        if (nexoId == null) return null;
+        
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null) {
                 String itemNexoId = NexoItems.idFromItem(item);

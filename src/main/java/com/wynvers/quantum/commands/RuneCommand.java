@@ -2,6 +2,7 @@ package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.armor.RuneType;
+import com.wynvers.quantum.menu.Menu;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -12,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -37,7 +39,12 @@ public class RuneCommand implements CommandExecutor {
 
         // /rune equip - Open rune equipment menu
         if (args.length == 1 && args[0].equalsIgnoreCase("equip")) {
-            plugin.getMenuManager().openMenu(player, "rune_equipment");
+            Menu menu = plugin.getMenuManager().getMenu("rune_equipment");
+            if (menu != null) {
+                menu.open(player, plugin, new HashMap<>());
+            } else {
+                player.sendMessage(ChatColor.RED + "Rune equipment menu not found!");
+            }
             return true;
         }
 
@@ -56,19 +63,19 @@ public class RuneCommand implements CommandExecutor {
                 type = RuneType.valueOf(typeStr);
             } catch (IllegalArgumentException e) {
                 player.sendMessage(ChatColor.RED + "Invalid rune type! Available types:");
-                player.sendMessage(ChatColor.GRAY + "HEALTH, DAMAGE, DEFENSE, SPEED, CRIT_CHANCE, CRIT_DAMAGE, MAGIC_FIND, HEALTH_REGEN, MANA_REGEN");
+                player.sendMessage(ChatColor.GRAY + "FORCE, SPEED, RESISTANCE, CRITICAL, REGENERATION, VAMPIRISM, THORNS, WISDOM, LUCK");
                 return true;
             }
 
             int level;
             try {
                 level = Integer.parseInt(levelStr);
-                if (level < 1 || level > 3) {
-                    player.sendMessage(ChatColor.RED + "Invalid level! Must be between 1 and 3.");
+                if (level < 1 || level > type.getMaxLevel()) {
+                    player.sendMessage(ChatColor.RED + "Invalid level! Must be between 1 and " + type.getMaxLevel() + ".");
                     return true;
                 }
             } catch (NumberFormatException e) {
-                player.sendMessage(ChatColor.RED + "Invalid level! Must be a number between 1 and 3.");
+                player.sendMessage(ChatColor.RED + "Invalid level! Must be a number.");
                 return true;
             }
 
@@ -86,7 +93,7 @@ public class RuneCommand implements CommandExecutor {
             ItemStack runeItem = createRuneItem(type, level);
             target.getInventory().addItem(runeItem);
 
-            String runeName = type.getDisplayName() + " " + getRomanNumeral(level);
+            String runeName = type.getDisplay() + " " + getRomanNumeral(level);
             if (target.equals(player)) {
                 player.sendMessage(ChatColor.GREEN + "You received: " + ChatColor.GOLD + runeName);
             } else {
@@ -102,8 +109,8 @@ public class RuneCommand implements CommandExecutor {
         player.sendMessage(ChatColor.YELLOW + "/rune equip" + ChatColor.GRAY + " - Open rune equipment menu");
         if (player.hasPermission("quantum.rune.give")) {
             player.sendMessage(ChatColor.YELLOW + "/rune give <type> <level> [player]" + ChatColor.GRAY + " - Give a physical rune item");
-            player.sendMessage(ChatColor.GRAY + "Types: HEALTH, DAMAGE, DEFENSE, SPEED, CRIT_CHANCE, CRIT_DAMAGE, MAGIC_FIND, HEALTH_REGEN, MANA_REGEN");
-            player.sendMessage(ChatColor.GRAY + "Levels: 1, 2, 3 (I, II, III)");
+            player.sendMessage(ChatColor.GRAY + "Types: FORCE, SPEED, RESISTANCE, CRITICAL, REGENERATION, VAMPIRISM, THORNS, WISDOM, LUCK");
+            player.sendMessage(ChatColor.GRAY + "Levels: 1-3 (I, II, III)");
         }
         return true;
     }
@@ -112,25 +119,31 @@ public class RuneCommand implements CommandExecutor {
      * Create a physical rune item
      */
     private ItemStack createRuneItem(RuneType type, int level) {
-        ItemStack item = new ItemStack(Material.ECHO_SHARD); // Éclat d'écho comme item de base
+        ItemStack item = new ItemStack(Material.ECHO_SHARD);
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
             // Display name
             String romanLevel = getRomanNumeral(level);
-            meta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + type.getDisplayName() + " " + romanLevel);
+            meta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + type.getDisplay() + " " + romanLevel);
 
             // Lore with stats
             List<String> lore = new ArrayList<>();
             lore.add("");
-            lore.add(ChatColor.GRAY + "Rune Type: " + ChatColor.YELLOW + type.getDisplayName());
+            lore.add(ChatColor.GRAY + "Rune Type: " + ChatColor.YELLOW + type.getDisplay());
             lore.add(ChatColor.GRAY + "Level: " + ChatColor.YELLOW + romanLevel);
             lore.add("");
 
-            // Add bonus info
-            double bonus = plugin.getDungeonArmor().getRuneBonus(type, level);
-            String bonusStr = formatBonus(type, bonus);
-            lore.add(ChatColor.GREEN + "Bonus: " + bonusStr);
+            // Add description if available
+            String description = type.getDescription();
+            if (description != null && !description.isEmpty()) {
+                lore.add(ChatColor.GRAY + description);
+                lore.add("");
+            }
+
+            // Add bonus info based on rune type
+            lore.add(ChatColor.GREEN + "Bonus:");
+            lore.addAll(getRuneBonusLore(type, level));
             lore.add("");
             lore.add(ChatColor.DARK_GRAY + "Drag this rune onto a dungeon");
             lore.add(ChatColor.DARK_GRAY + "armor piece to apply its bonus.");
@@ -140,10 +153,10 @@ public class RuneCommand implements CommandExecutor {
             meta.setLore(lore);
 
             // Add custom model data if configured
-            String configPath = "runes." + type.name().toLowerCase() + ".levels." + level + ".custom_model_data";
-            if (plugin.getConfig().contains(configPath)) {
-                int customModelData = plugin.getConfig().getInt(configPath);
-                meta.setCustomModelData(customModelData);
+            String nexoId = type.getNexoId(level);
+            if (nexoId != null) {
+                // Si un nexo_id est configuré, on pourrait l'utiliser ici
+                // Pour l'instant on utilise juste custom_model_data si disponible
             }
 
             item.setItemMeta(meta);
@@ -153,31 +166,67 @@ public class RuneCommand implements CommandExecutor {
     }
 
     /**
-     * Format bonus value based on rune type
+     * Get bonus lore lines based on rune type and level
      */
-    private String formatBonus(RuneType type, double bonus) {
+    private List<String> getRuneBonusLore(RuneType type, int level) {
+        List<String> bonusLore = new ArrayList<>();
+
         switch (type) {
-            case HEALTH:
-                return ChatColor.RED + "+" + (int)bonus + " ❤ Health";
-            case DAMAGE:
-                return ChatColor.RED + "+" + (int)bonus + " ⚔ Damage";
-            case DEFENSE:
-                return ChatColor.GREEN + "+" + (int)bonus + " 🛡 Defense";
+            case FORCE:
+                double damageBonus = type.getDamageBonus(level);
+                int damagePercent = (int)((damageBonus - 1.0) * 100);
+                bonusLore.add(ChatColor.RED + "  +" + damagePercent + "% Damage");
+                break;
+
             case SPEED:
-                return ChatColor.AQUA + "+" + (int)bonus + "% ⚡ Speed";
-            case CRIT_CHANCE:
-                return ChatColor.BLUE + "+" + (int)bonus + "% ☄ Crit Chance";
-            case CRIT_DAMAGE:
-                return ChatColor.BLUE + "+" + (int)bonus + "% ✦ Crit Damage";
-            case MAGIC_FIND:
-                return ChatColor.LIGHT_PURPLE + "+" + (int)bonus + "% ✪ Magic Find";
-            case HEALTH_REGEN:
-                return ChatColor.RED + "+" + (int)bonus + " ❤ Health Regen";
-            case MANA_REGEN:
-                return ChatColor.AQUA + "+" + (int)bonus + " ✎ Mana Regen";
-            default:
-                return ChatColor.YELLOW + "+" + bonus;
+                double speedBonus = type.getSpeedBonus(level);
+                int speedPercent = (int)((speedBonus - 1.0) * 100);
+                bonusLore.add(ChatColor.AQUA + "  +" + speedPercent + "% Speed");
+                break;
+
+            case RESISTANCE:
+                double reduction = type.getDamageReduction(level);
+                int reductionPercent = (int)(reduction * 100);
+                bonusLore.add(ChatColor.GREEN + "  +" + reductionPercent + "% Damage Reduction");
+                break;
+
+            case CRITICAL:
+                double critChance = type.getCriticalChance(level);
+                int critPercent = (int)(critChance * 100);
+                bonusLore.add(ChatColor.BLUE + "  +" + critPercent + "% Crit Chance");
+                break;
+
+            case REGENERATION:
+                double regen = type.getRegeneration(level);
+                bonusLore.add(ChatColor.RED + "  +" + regen + " HP/s Regeneration");
+                break;
+
+            case VAMPIRISM:
+                double vampirism = type.getVampirismPercent(level);
+                int vampirismPercent = (int)(vampirism * 100);
+                bonusLore.add(ChatColor.DARK_RED + "  +" + vampirismPercent + "% Lifesteal");
+                break;
+
+            case THORNS:
+                double thorns = type.getThornsPercent(level);
+                int thornsPercent = (int)(thorns * 100);
+                bonusLore.add(ChatColor.DARK_GREEN + "  +" + thornsPercent + "% Thorns Damage");
+                break;
+
+            case WISDOM:
+                double xpMultiplier = type.getXpMultiplier(level);
+                int xpPercent = (int)((xpMultiplier - 1.0) * 100);
+                bonusLore.add(ChatColor.LIGHT_PURPLE + "  +" + xpPercent + "% XP Gain");
+                break;
+
+            case LUCK:
+                double luckChance = type.getRareLootChance(level);
+                int luckPercent = (int)(luckChance * 100);
+                bonusLore.add(ChatColor.YELLOW + "  +" + luckPercent + "% Rare Loot Chance");
+                break;
         }
+
+        return bonusLore;
     }
 
     /**
@@ -188,6 +237,8 @@ public class RuneCommand implements CommandExecutor {
             case 1: return "I";
             case 2: return "II";
             case 3: return "III";
+            case 4: return "IV";
+            case 5: return "V";
             default: return String.valueOf(level);
         }
     }

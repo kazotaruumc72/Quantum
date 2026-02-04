@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public enum ArmorRarity {
-    // ✅ CORRECTION ICI : On utilise "minecraft" car c'est ce qui est écrit dans ton fichier Nexo
+    // ✅ ON UTILISE LES IDS CONFIRMÉS PAR LE DEBUG ET TA CONFIG
     COMMON("minecraft:common"),
     UNCOMMON("minecraft:uncommon"),
     RARE("minecraft:rare"),
@@ -30,61 +30,40 @@ public enum ArmorRarity {
         this.tooltipId = tooltipId;
     }
 
-    /**
-     * Applique le style de tooltip sur l'item
-     */
-    public void applyTooltip(ItemStack item) {
-        if (item == null || !item.hasItemMeta()) return;
-        ItemMeta meta = item.getItemMeta();
-        try {
-            meta.setTooltipStyle(this.getTooltipKey());
-            item.setItemMeta(meta);
-        } catch (Exception e) {
-            // Ignorer si version trop ancienne
-        }
-    }
-
+    // --- Méthode pour récupérer la clé correcte ---
     public NamespacedKey getTooltipKey() {
-        if (tooltipId.contains(":")) {
-            String[] parts = tooltipId.split(":");
+        // On découpe "minecraft:common" pour avoir namespace="minecraft" et key="common"
+        String[] parts = tooltipId.split(":");
+        if (parts.length == 2) {
             return new NamespacedKey(parts[0], parts[1]);
         }
-        return new NamespacedKey("minecraft", tooltipId);
+        // Sécurité
+        return NamespacedKey.minecraft(tooltipId);
     }
 
-    public String getRawId() {
-        return tooltipId;
-    }
-
-    // --- LE RESTE DU FICHIER NE CHANGE PAS ---
-    
+    // --- LE RESTE DU FICHIER (NE CHANGE PAS) ---
     public String getDisplayName() {
         RarityData data = DATA_MAP.getOrDefault(this, DATA_MAP.get(COMMON));
         if (data == null) return ChatColor.WHITE + this.name();
         return data.color + "§l" + data.displayName.toUpperCase();
     }
-
     public String getColoredName() {
         RarityData data = DATA_MAP.getOrDefault(this, DATA_MAP.get(COMMON));
         if (data == null) return ChatColor.WHITE + this.name();
         return data.color + data.displayName;
     }
-
     public ChatColor getColor() {
         RarityData data = DATA_MAP.getOrDefault(this, DATA_MAP.get(COMMON));
         return data != null ? data.color : ChatColor.WHITE;
     }
-
     public int getMaxRuneSlots() {
         RarityData data = DATA_MAP.getOrDefault(this, DATA_MAP.get(COMMON));
         return data != null ? data.maxRuneSlots : 0;
     }
-
     public String getNexoId(String armorType) {
         RarityData data = DATA_MAP.getOrDefault(this, DATA_MAP.get(COMMON));
         return data != null ? data.nexoIds.get(armorType) : null;
     }
-
     public Map<Enchantment, Integer> getEnchantments() {
         RarityData data = DATA_MAP.getOrDefault(this, DATA_MAP.get(COMMON));
         Map<Enchantment, Integer> result = new HashMap<>();
@@ -95,7 +74,6 @@ public enum ArmorRarity {
         }
         return result;
     }
-
     public static void init(JavaPlugin plugin) {
         try {
             File configFile = new File(plugin.getDataFolder(), "dungeon_armor.yml");
@@ -104,20 +82,16 @@ public enum ArmorRarity {
             }
             YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
             ConfigurationSection raritiesSection = config.getConfigurationSection("rarities");
-
             if (raritiesSection == null) {
                 loadDefaults();
                 return;
             }
-
             for (ArmorRarity rarity : values()) {
                 ConfigurationSection raritySection = raritiesSection.getConfigurationSection(rarity.name());
                 if (raritySection == null) continue;
-
                 String displayName = raritySection.getString("display_name", rarity.name());
                 ChatColor color = parseChatColor(raritySection.getString("color", "WHITE"));
                 int maxRuneSlots = raritySection.getInt("max_rune_slots", 1);
-
                 Map<String, String> nexoIds = new HashMap<>();
                 ConfigurationSection nexoIdsSection = raritySection.getConfigurationSection("nexo_ids");
                 if (nexoIdsSection != null) {
@@ -125,7 +99,6 @@ public enum ArmorRarity {
                         nexoIds.put(key, nexoIdsSection.getString(key));
                     }
                 }
-
                 List<EnchantmentConfig> enchantments = new ArrayList<>();
                 List<Map<?, ?>> enchantList = raritySection.getMapList("enchantments");
                 for (Map<?, ?> enchantMap : enchantList) {
@@ -145,11 +118,9 @@ public enum ArmorRarity {
             loadDefaults();
         }
     }
-
     private static int getInt(Object obj, int def) {
         return (obj instanceof Number) ? ((Number) obj).intValue() : def;
     }
-
     private static void loadDefaults() {
         Map<String, String> dummyIds = new HashMap<>();
         RarityData defaultData = new RarityData("Défaut", ChatColor.WHITE, 1, dummyIds, new ArrayList<>());
@@ -157,25 +128,21 @@ public enum ArmorRarity {
             DATA_MAP.putIfAbsent(r, defaultData);
         }
     }
-
     private static ChatColor parseChatColor(String colorStr) {
         try { return ChatColor.valueOf(colorStr.toUpperCase()); } 
         catch (Exception e) { return ChatColor.WHITE; }
     }
-
     private static Enchantment parseEnchantment(String name) {
         if (name == null) return null;
         try { return Enchantment.getByKey(NamespacedKey.minecraft(name.toLowerCase())); } 
         catch (Exception e) { return Enchantment.getByName(name.toUpperCase()); }
     }
-
     private static class RarityData {
         final String displayName;
         final ChatColor color;
         final int maxRuneSlots;
         final Map<String, String> nexoIds;
         final List<EnchantmentConfig> enchantments;
-
         RarityData(String displayName, ChatColor color, int maxRuneSlots, Map<String, String> nexoIds, List<EnchantmentConfig> enchantments) {
             this.displayName = displayName;
             this.color = color;
@@ -184,7 +151,6 @@ public enum ArmorRarity {
             this.enchantments = enchantments;
         }
     }
-
     private static class EnchantmentConfig {
         final Enchantment enchantment;
         final int minLevel;

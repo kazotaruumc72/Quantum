@@ -13,6 +13,7 @@ public class ScoreboardManager {
     private final Quantum plugin;
     private final Map<UUID, Scoreboard> playerBoards = new HashMap<>();
     private final Map<UUID, Scoreboard> previousBoards = new HashMap<>();
+    private final Map<UUID, Boolean> scoreboardEnabled = new HashMap<>();
     
     public ScoreboardManager(Quantum plugin) {
         this.plugin = plugin;
@@ -34,6 +35,15 @@ public class ScoreboardManager {
             ScoreboardUtils.color(title)
         );
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        
+        // SOLUTION: Cacher les numéros rouges avec NumberFormat (1.20.3+)
+        try {
+            // Tenter d'utiliser NumberFormat.blank() si disponible
+            objective.setNumberFormat(org.bukkit.scoreboard.NumberFormat.blank());
+        } catch (Exception e) {
+            // Méthode non disponible, utiliser l'ancienne méthode avec caractères invisibles
+            plugin.getQuantumLogger().warning("⚠ NumberFormat.blank() not available, using legacy method");
+        }
         
         int lineNumber = lines.size();
         for (String line : lines) {
@@ -100,5 +110,28 @@ public class ScoreboardManager {
         UUID uuid = player.getUniqueId();
         playerBoards.remove(uuid);
         previousBoards.remove(uuid);
+        scoreboardEnabled.remove(uuid);
+    }
+    
+    /**
+     * Enable scoreboard for a player
+     */
+    public void enableScoreboard(Player player) {
+        scoreboardEnabled.put(player.getUniqueId(), true);
+    }
+    
+    /**
+     * Disable scoreboard for a player
+     */
+    public void disableScoreboard(Player player) {
+        scoreboardEnabled.put(player.getUniqueId(), false);
+        removeScoreboard(player);
+    }
+    
+    /**
+     * Check if scoreboard is enabled for a player
+     */
+    public boolean isScoreboardEnabled(Player player) {
+        return scoreboardEnabled.getOrDefault(player.getUniqueId(), true);
     }
 }

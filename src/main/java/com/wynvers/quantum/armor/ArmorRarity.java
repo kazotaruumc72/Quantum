@@ -17,11 +17,11 @@ import java.util.Map;
 
 public enum ArmorRarity {
     // ⚠️ CONFIGURATION : IDs des styles définis dans Nexo
-    COMMON("nexo:common"),
-    UNCOMMON("nexo:uncommon"),
-    RARE("nexo:rare"),
-    EPIC("nexo:epic"),
-    LEGENDARY("nexo:legendary");
+    COMMON("minecraft:common"),
+    UNCOMMON("minecraft:uncommon"),
+    RARE("minecraft:rare"),
+    EPIC("minecraft:epic"),
+    LEGENDARY("minecraft:legendary");
 
     private final String tooltipId;
     private static final Map<ArmorRarity, RarityData> DATA_MAP = new HashMap<>();

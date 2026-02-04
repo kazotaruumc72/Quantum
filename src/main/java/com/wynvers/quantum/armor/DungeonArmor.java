@@ -53,7 +53,7 @@ public class DungeonArmor {
     }
     
     /**
-     * Crée une pièce d'armure depuis Nexo
+     * Crée une pièce d'armure depuis Nexo avec display name et lore
      * @param armorType helmet, chestplate, leggings, boots
      */
     public ItemStack createArmorPiece(String armorType) {
@@ -64,7 +64,6 @@ public class DungeonArmor {
             return null;
         }
         
-        // Protection: vérifier si ItemBuilder existe
         ItemBuilder builder = NexoItems.itemFromId(nexoId);
         if (builder == null) {
             plugin.getLogger().severe("❌ L'item Nexo '" + nexoId + "' n'existe pas !");
@@ -74,7 +73,6 @@ public class DungeonArmor {
         }
         
         ItemStack armor = builder.build();
-        
         if (armor == null) {
             plugin.getLogger().warning("⚠️ Impossible de build l'item Nexo: " + nexoId);
             return null;
@@ -82,11 +80,22 @@ public class DungeonArmor {
         
         ItemMeta meta = armor.getItemMeta();
         if (meta != null) {
+            // Appliquer le display name custom
+            String displayName = armorConfig.getString("armor_pieces." + armorType + ".display_name");
+            if (displayName != null) {
+                meta.setDisplayName(displayName.replace('&', '§'));
+            }
+            
+            // PDC data
             PersistentDataContainer data = meta.getPersistentDataContainer();
             data.set(armorKey, PersistentDataType.BYTE, (byte) 1);
             data.set(levelKey, PersistentDataType.INTEGER, 0);
             data.set(creationDateKey, PersistentDataType.LONG, System.currentTimeMillis());
+            
             armor.setItemMeta(meta);
+            
+            // Initialiser le lore avec niveau 0
+            updateArmorLore(armor, 0);
         }
         
         return armor;
@@ -258,35 +267,37 @@ public class DungeonArmor {
         ItemMeta meta = armor.getItemMeta();
         if (meta == null) return;
         
-        List<String> lore = meta.getLore();
-        if (lore == null) lore = new ArrayList<>();
-        
         Map<RuneType, Integer> runes = getAppliedRunesWithLevels(armor);
         int maxSlots = getMaxRuneSlots(armor);
         
-        lore.removeIf(line -> line.contains("§7Niveau:") || 
-                              line.contains("§7Progression:") || 
-                              line.contains("§7Runes:") ||
-                              line.contains("§7Runes actives:") ||
-                              line.contains("§f  •"));
-        
+        List<String> lore = new ArrayList<>();
         lore.add("");
-        lore.add("§7Niveau: §f" + level);
+        lore.add("§8╭────────────────────────╮");
+        lore.add("§8│ §6§lNIVEAU §r§e" + level + " §8│ §b§lXP §r§3" + (level * 100) + "/" + ((level + 1) * 100) + " §8│");
+        lore.add("§8╰────────────────────────╯");
+        lore.add("");
         
-        int progression = (level % 50) * 2;
-        lore.add("§7Progression: §c" + progression + "%");
-        
-        lore.add("§7Runes: §e" + runes.size() + "/" + maxSlots);
-        
-        if (!runes.isEmpty()) {
+        if (runes.isEmpty()) {
+            lore.add("§7§o• Aucune rune appliquée");
+            lore.add("§7§o• Emplacements disponibles: §e" + maxSlots);
+        } else {
+            lore.add("§d✦ §l§nRUNES ACTIVES§r §d✦");
             lore.add("");
-            lore.add("§7Runes actives:");
             for (Map.Entry<RuneType, Integer> entry : runes.entrySet()) {
                 RuneType rune = entry.getKey();
                 int runeLevel = entry.getValue();
-                lore.add("§f  • " + rune.getDisplay() + " §7" + toRoman(runeLevel));
+                String desc = rune.getDescription(runeLevel);
+                lore.add("§f◆ " + rune.getDisplay() + " §7" + toRoman(runeLevel));
+                lore.add("  §7" + desc);
             }
+            lore.add("");
+            lore.add("§7Emplacements: §e" + runes.size() + "/" + maxSlots);
         }
+        
+        lore.add("");
+        lore.add("§8╭────────────────────────╮");
+        lore.add("§8│ §6✪ §e§lARMURE DE DONJON §6✪ §8│");
+        lore.add("§8╰────────────────────────╯");
         
         meta.setLore(lore);
         armor.setItemMeta(meta);

@@ -136,27 +136,50 @@ public class ArmorCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
+        String input = args.length > 0 ? args[args.length - 1].toLowerCase() : "";
         
         if (args.length == 1) {
-            completions.addAll(Arrays.asList("gui", "give", "giverune", "reload"));
+            // Sous-commandes principales
+            List<String> subcommands = Arrays.asList("gui", "give", "giverune", "reload");
+            completions.addAll(filterMatches(subcommands, input));
+            
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("give")) {
-                completions.addAll(Arrays.asList("helmet", "chestplate", "leggings", "boots"));
+                // Types d'armure
+                List<String> armorTypes = Arrays.asList("helmet", "chestplate", "leggings", "boots");
+                completions.addAll(filterMatches(armorTypes, input));
+                
             } else if (args[0].equalsIgnoreCase("giverune")) {
-                completions.addAll(Arrays.stream(RuneType.values())
-                    .map(Enum::name)
-                    .collect(Collectors.toList()));
+                // Types de runes
+                List<String> runeTypes = Arrays.stream(RuneType.values())
+                    .map(rune -> rune.name().toLowerCase())
+                    .collect(Collectors.toList());
+                completions.addAll(filterMatches(runeTypes, input));
             }
+            
         } else if (args.length == 3 && args[0].equalsIgnoreCase("giverune")) {
+            // Niveaux de runes
             try {
                 RuneType type = RuneType.valueOf(args[1].toUpperCase());
+                List<String> levels = new ArrayList<>();
                 for (int i = 1; i <= type.getMaxLevel(); i++) {
-                    completions.add(String.valueOf(i));
+                    levels.add(String.valueOf(i));
                 }
+                completions.addAll(filterMatches(levels, input));
             } catch (IllegalArgumentException ignored) {
+                // Type de rune invalide, pas de suggestions
             }
         }
         
         return completions;
+    }
+    
+    /**
+     * Filtre les suggestions qui commencent par l'input du joueur
+     */
+    private List<String> filterMatches(List<String> options, String input) {
+        return options.stream()
+            .filter(option -> option.toLowerCase().startsWith(input.toLowerCase()))
+            .collect(Collectors.toList());
     }
 }

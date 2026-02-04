@@ -42,6 +42,7 @@ public class ItemBuilder {
         // For Nexo items, preserve the original tooltip/lore from Nexo configuration
         // Only apply custom modifications if explicitly defined in MenuItem
         ItemMeta meta = item.getItemMeta();
+        meta.setTooltipStyle(NamespacedKey.fromString("minecraft:votre_style"));
         if (meta != null) {
             boolean modified = false;
         

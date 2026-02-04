@@ -3,6 +3,7 @@ package com.wynvers.quantum.armor;
 import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -15,15 +16,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Gestion de l'armure de donjon avec système de runes (niveaux 1-3)
+ * Gestion de l'armure de donjon avec système de runes (niveaux 1-3) et raretés
  * Utilise l'API Nexo pour créer les items d'armure personnalisés
  */
 public class DungeonArmor {
     
-    public final JavaPlugin plugin; // Public pour accès depuis ArmorGUI
+    public final JavaPlugin plugin;
     private final NamespacedKey armorKey;
     private final NamespacedKey levelKey;
     private final NamespacedKey runesKey;
+    private final NamespacedKey rarityKey;
     private final NamespacedKey creationDateKey;
     private YamlConfiguration armorConfig;
     
@@ -32,6 +34,7 @@ public class DungeonArmor {
         this.armorKey = new NamespacedKey(plugin, "dungeon_armor");
         this.levelKey = new NamespacedKey(plugin, "armor_level");
         this.runesKey = new NamespacedKey(plugin, "armor_runes");
+        this.rarityKey = new NamespacedKey(plugin, "armor_rarity");
         this.creationDateKey = new NamespacedKey(plugin, "creation_date");
         loadConfig();
     }
@@ -53,10 +56,9 @@ public class DungeonArmor {
     }
     
     /**
-     * Crée une pièce d'armure depuis Nexo avec display name et lore
-     * @param armorType helmet, chestplate, leggings, boots
+     * Crée une pièce d'armure avec une rareté spécifique
      */
-    public ItemStack createArmorPiece(String armorType) {
+    public ItemStack createArmorPiece(String armorType, ArmorRarity rarity) {
         String nexoId = armorConfig.getString("armor_pieces." + armorType + ".nexo_id");
         
         if (nexoId == null) {
@@ -67,8 +69,6 @@ public class DungeonArmor {
         ItemBuilder builder = NexoItems.itemFromId(nexoId);
         if (builder == null) {
             plugin.getLogger().severe("❌ L'item Nexo '" + nexoId + "' n'existe pas !");
-            plugin.getLogger().severe("➜ Vérifiez que l'item est bien défini dans Nexo");
-            plugin.getLogger().severe("➜ Vérifiez que Nexo est bien chargé avant Quantum");
             return null;
         }
         
@@ -80,25 +80,58 @@ public class DungeonArmor {
         
         ItemMeta meta = armor.getItemMeta();
         if (meta != null) {
-            // Appliquer le display name custom
+            // Display name avec rareté
             String displayName = armorConfig.getString("armor_pieces." + armorType + ".display_name");
             if (displayName != null) {
-                meta.setDisplayName(displayName.replace('&', '§'));
+                meta.setDisplayName(rarity.getColor() + displayName.replace('&', '§'));
+            }
+            
+            // Appliquer les enchantements de la rareté
+            Map<Enchantment, Integer> enchants = rarity.getEnchantments();
+            for (Map.Entry<Enchantment, Integer> entry : enchants.entrySet()) {
+                meta.addEnchant(entry.getKey(), entry.getValue(), true);
             }
             
             // PDC data
             PersistentDataContainer data = meta.getPersistentDataContainer();
             data.set(armorKey, PersistentDataType.BYTE, (byte) 1);
             data.set(levelKey, PersistentDataType.INTEGER, 0);
+            data.set(rarityKey, PersistentDataType.STRING, rarity.name());
             data.set(creationDateKey, PersistentDataType.LONG, System.currentTimeMillis());
             
             armor.setItemMeta(meta);
-            
-            // Initialiser le lore avec niveau 0
             updateArmorLore(armor, 0);
         }
         
         return armor;
+    }
+    
+    /**
+     * Crée une pièce d'armure avec rareté COMMON par défaut
+     */
+    public ItemStack createArmorPiece(String armorType) {
+        return createArmorPiece(armorType, ArmorRarity.COMMON);
+    }
+    
+    /**
+     * Récupère la rareté d'une armure
+     */
+    public ArmorRarity getArmorRarity(ItemStack armor) {
+        if (!isDungeonArmor(armor)) return ArmorRarity.COMMON;
+        
+        ItemMeta meta = armor.getItemMeta();
+        if (meta == null) return ArmorRarity.COMMON;
+        
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        String rarityStr = data.get(rarityKey, PersistentDataType.STRING);
+        
+        if (rarityStr == null) return ArmorRarity.COMMON;
+        
+        try {
+            return ArmorRarity.valueOf(rarityStr);
+        } catch (IllegalArgumentException e) {
+            return ArmorRarity.COMMON;
+        }
     }
     
     public boolean isDungeonArmor(ItemStack item) {
@@ -161,18 +194,7 @@ public class DungeonArmor {
     
     public int getMaxRuneSlots(ItemStack armor) {
         if (!isDungeonArmor(armor)) return 0;
-        
-        String nexoId = NexoItems.idFromItem(armor);
-        if (nexoId == null) return 0;
-        
-        for (String armorType : Arrays.asList("helmet", "chestplate", "leggings", "boots")) {
-            String configuredId = armorConfig.getString("armor_pieces." + armorType + ".nexo_id");
-            if (nexoId.equals(configuredId)) {
-                return armorConfig.getInt("armor_pieces." + armorType + ".max_rune_slots", 2);
-            }
-        }
-        
-        return 2;
+        return getArmorRarity(armor).getMaxRuneSlots();
     }
     
     public boolean applyRune(ItemStack armor, RuneType rune, int level) {
@@ -267,12 +289,14 @@ public class DungeonArmor {
         ItemMeta meta = armor.getItemMeta();
         if (meta == null) return;
         
+        ArmorRarity rarity = getArmorRarity(armor);
         Map<RuneType, Integer> runes = getAppliedRunesWithLevels(armor);
-        int maxSlots = getMaxRuneSlots(armor);
+        int maxSlots = rarity.getMaxRuneSlots();
         
         List<String> lore = new ArrayList<>();
         lore.add("");
         lore.add("§8╭────────────────────────╮");
+        lore.add("§8│ " + rarity.getDisplayName() + " §8│");
         lore.add("§8│ §6§lNIVEAU §r§e" + level + " §8│ §b§lXP §r§3" + (level * 100) + "/" + ((level + 1) * 100) + " §8│");
         lore.add("§8╰────────────────────────╯");
         lore.add("");

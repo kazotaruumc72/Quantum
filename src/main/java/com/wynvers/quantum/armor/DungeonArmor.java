@@ -63,10 +63,11 @@ public class DungeonArmor {
      * Crée une pièce d'armure avec une rareté spécifique
      */
     public ItemStack createArmorPiece(String armorType, ArmorRarity rarity) {
-        String nexoId = armorConfig.getString("armor_pieces." + armorType + ".nexo_id");
+        // Utiliser le Nexo ID de la rareté
+        String nexoId = rarity.getNexoId(armorType);
         
         if (nexoId == null) {
-            plugin.getLogger().warning("⚠️ Nexo ID non trouvé dans dungeon_armor.yml pour: " + armorType);
+            plugin.getLogger().warning("⚠️ Nexo ID non défini pour: " + armorType + " (rareté: " + rarity.name() + ")");
             return null;
         }
         
@@ -153,12 +154,15 @@ public class DungeonArmor {
     }
     
     private boolean isConfiguredArmorPiece(String nexoId) {
-        if (armorConfig == null || nexoId == null) return false;
+        if (nexoId == null) return false;
         
-        for (String armorType : Arrays.asList("helmet", "chestplate", "leggings", "boots")) {
-            String configuredId = armorConfig.getString("armor_pieces." + armorType + ".nexo_id");
-            if (nexoId.equals(configuredId)) {
-                return true;
+        // Vérifier si le Nexo ID correspond à une rareté
+        for (ArmorRarity rarity : ArmorRarity.values()) {
+            for (String armorType : Arrays.asList("helmet", "chestplate", "leggings", "boots")) {
+                String rarityNexoId = rarity.getNexoId(armorType);
+                if (nexoId.equals(rarityNexoId)) {
+                    return true;
+                }
             }
         }
         return false;

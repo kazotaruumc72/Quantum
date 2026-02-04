@@ -3,6 +3,9 @@ package com.wynvers.quantum.utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 public class Logger {
     
     private final String prefix;
@@ -26,6 +29,21 @@ public class Logger {
     
     public void error(String message) {
         Bukkit.getConsoleSender().sendMessage(prefix + ChatColor.RED + message);
+    }
+    
+    public void error(String message, Exception e) {
+        Bukkit.getConsoleSender().sendMessage(prefix + ChatColor.RED + message);
+        Bukkit.getConsoleSender().sendMessage(prefix + ChatColor.RED + "Exception: " + e.getMessage());
+        
+        // Print stack trace to console
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        String stackTrace = sw.toString();
+        
+        for (String line : stackTrace.split("\n")) {
+            Bukkit.getConsoleSender().sendMessage(prefix + ChatColor.DARK_RED + line);
+        }
     }
     
     public void debug(String message) {

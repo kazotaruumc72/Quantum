@@ -4,23 +4,23 @@ import org.bukkit.ChatColor;
 
 public class ScoreboardUtils {
     
-    // Caractères invisibles pour éviter les doublons et cacher les numéros
-    private static final String[] INVISIBLE_CHARS = {
-        "§0§r", "§1§r", "§2§r", "§3§r", "§4§r", "§5§r", "§6§r", "§7§r",
-        "§8§r", "§9§r", "§a§r", "§b§r", "§c§r", "§d§r", "§e§r", "§f§r"
-    };
-    
     /**
      * Génère un caractère invisible unique pour chaque ligne
+     * Utilise des caractères Unicode invisibles pour vraiment cacher les numéros rouges
      */
     public static String getInvisibleChar(int index) {
-        if (index < INVISIBLE_CHARS.length) {
-            return INVISIBLE_CHARS[index];
+        // Utilise des caractères Unicode invisibles pour éviter les doublons
+        // Ces caractères sont réellement invisibles et ne laissent pas de traces
+        StringBuilder sb = new StringBuilder();
+        
+        // Ajoute des espaces de largeur zéro Unicode pour rendre unique
+        int remaining = index;
+        while (remaining > 0) {
+            sb.append("\u200B"); // Zero Width Space
+            remaining--;
         }
-        // Pour plus de 16 lignes, on combine les caractères
-        int first = index % INVISIBLE_CHARS.length;
-        int second = index / INVISIBLE_CHARS.length;
-        return INVISIBLE_CHARS[first] + INVISIBLE_CHARS[second % INVISIBLE_CHARS.length];
+        
+        return sb.toString();
     }
     
     /**

@@ -37,34 +37,32 @@ public class ScoreboardManager {
         );
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         
-        // Utiliser des Teams pour afficher le texte sans les numéros rouges
-        int lineNumber = lines.size();
+        // Utiliser des strings BLANKS pour cacher les numéros rouges
+        // Cette méthode est compatible avec TAB et fonctionne sur toutes les versions
+        int score = lines.size();
         for (String line : lines) {
-            // Créer une entrée invisible unique pour chaque ligne
-            String entry = getInvisibleString(lineNumber);
+            String colored = ScoreboardUtils.color(line);
             
-            // Créer une Team pour cette ligne
-            Team team = board.registerNewTeam("line_" + lineNumber);
+            // Créer une entrée unique en utilisant des codes couleur invisibles
+            String entry = createInvisibleEntry(score);
+            
+            // Créer une team pour afficher le texte
+            Team team = board.registerNewTeam("line_" + score);
             team.addEntry(entry);
             
-            // Le texte est dans le prefix/suffix de la Team (max 64 chars chacun)
-            String colored = ScoreboardUtils.color(line);
+            // Gérer les lignes longues (prefix + suffix)
             if (colored.length() <= 64) {
                 team.setPrefix(colored);
+                team.setSuffix("");
             } else {
-                // Si trop long, couper en prefix + suffix
                 team.setPrefix(colored.substring(0, 64));
-                if (colored.length() > 64) {
-                    String suffix = colored.substring(64, Math.min(colored.length(), 128));
-                    team.setSuffix(suffix);
-                }
+                String suffix = colored.substring(64, Math.min(colored.length(), 128));
+                team.setSuffix(suffix);
             }
             
-            // Ajouter le score (l'entrée invisible)
-            Score score = objective.getScore(entry);
-            score.setScore(lineNumber);
-            
-            lineNumber--;
+            // Ajouter le score avec l'entrée invisible
+            objective.getScore(entry).setScore(score);
+            score--;
         }
         
         player.setScoreboard(board);
@@ -72,17 +70,19 @@ public class ScoreboardManager {
     }
     
     /**
-     * Génère une chaîne invisible unique pour chaque ligne
-     * Utilise des codes couleur répétés qui sont invisibles
+     * Crée une entrée invisible unique pour chaque ligne du scoreboard
+     * Utilise ChatColor.RESET répété qui ne s'affiche pas visuellement
+     * 
+     * @param index Index de la ligne (1-15)
+     * @return String invisible unique
      */
-    private String getInvisibleString(int index) {
-        // Utiliser des codes couleur ChatColor.RESET répétés
-        // Chaque ligne aura un nombre différent de reset pour être unique
-        StringBuilder sb = new StringBuilder();
+    private String createInvisibleEntry(int index) {
+        // Méthode 1: Codes couleur RESET répétés (compatible toutes versions)
+        StringBuilder invisible = new StringBuilder();
         for (int i = 0; i < index; i++) {
-            sb.append(ChatColor.RESET);
+            invisible.append(ChatColor.RESET);
         }
-        return sb.toString();
+        return invisible.toString();
     }
     
     public void updateLine(Player player, int lineIndex, String newText) {
@@ -97,10 +97,8 @@ public class ScoreboardManager {
                 team.setSuffix("");
             } else {
                 team.setPrefix(colored.substring(0, 64));
-                if (colored.length() > 64) {
-                    String suffix = colored.substring(64, Math.min(colored.length(), 128));
-                    team.setSuffix(suffix);
-                }
+                String suffix = colored.substring(64, Math.min(colored.length(), 128));
+                team.setSuffix(suffix);
             }
         }
     }
@@ -119,10 +117,8 @@ public class ScoreboardManager {
                     team.setSuffix("");
                 } else {
                     team.setPrefix(colored.substring(0, 64));
-                    if (colored.length() > 64) {
-                        String suffix = colored.substring(64, Math.min(colored.length(), 128));
-                        team.setSuffix(suffix);
-                    }
+                    String suffix = colored.substring(64, Math.min(colored.length(), 128));
+                    team.setSuffix(suffix);
                 }
             }
             lineNumber--;

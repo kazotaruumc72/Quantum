@@ -14,12 +14,6 @@ import java.util.Map;
 
 /**
  * Commande pour gérer l'armure de donjon
- * /armor give <helmet|chestplate|leggings|boots> - Donne une pièce d'armure
- * /armor info - Affiche les infos de l'armure équipée
- * /armor apply <rune> <niveau> - Applique une rune sur l'armure en main
- * 
- * @author Kazotaruu_
- * @version 1.0
  */
 public class ArmorCommand implements CommandExecutor {
     
@@ -54,16 +48,47 @@ public class ArmorCommand implements CommandExecutor {
             
             case "apply":
                 return handleApply(player, args);
+
+            // ✅ AJOUT DE LA CASE DEBUG ICI (au bon endroit)
+            case "debug":
+                return handleDebug(player);
             
             default:
                 sendHelp(player);
                 return true;
         }
     }
-    
+
     /**
-     * Donne une pièce d'armure au joueur
+     * ✅ Nouvelle méthode dédiée au debug pour trouver l'ID
      */
+    private boolean handleDebug(Player player) {
+        ItemStack item = player.getInventory().getItemInMainHand();
+        
+        if (item == null || !item.hasItemMeta()) {
+            player.sendMessage("§cPrends un item dans ta main !");
+            return true;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+        
+        // Vérification du tooltip style (Paper 1.21.2+)
+        try {
+            if (meta.hasTooltipStyle()) {
+                String idTrouve = meta.getTooltipStyle().getKey().toString();
+                plugin.getLogger().info(">>> ID TOOLTIP TROUVÉ : " + idTrouve);
+                player.sendMessage("§a§lID TROUVÉ ! §r§aRegarde ta console serveur (fenêtre noire) !");
+                player.sendMessage("§7Valeur: " + idTrouve); // Tente de l'afficher aussi dans le chat
+            } else {
+                plugin.getLogger().info(">>> CET ITEM N'A PAS DE TOOLTIP STYLE DÉFINI.");
+                player.sendMessage("§cCet item n'a pas de style de tooltip actif.");
+            }
+        } catch (NoSuchMethodError e) {
+            player.sendMessage("§cErreur: Ton serveur n'est pas en 1.21.2+ ou Spigot/Paper n'est pas à jour.");
+        }
+        return true;
+    }
+    
     private boolean handleGive(Player player, String[] args) {
         if (!player.hasPermission("quantum.armor.give")) {
             player.sendMessage("§cVous n'avez pas la permission d'utiliser cette commande.");
@@ -86,30 +111,12 @@ public class ArmorCommand implements CommandExecutor {
             player.sendMessage("§cErreur lors de la création de l'armure.");
             return true;
         }
-        if (args[0].equalsIgnoreCase("debug")) {
-            ItemStack item = player.getInventory().getItemInMainHand();
-            if (item != null && item.hasItemMeta()) {
-                ItemMeta meta = item.getItemMeta();
-                // On affiche l'info dans la console pour éviter le bug du chat
-                if (meta.hasTooltipStyle()) {
-                    plugin.getLogger().info(">>> ID TROUVÉ : " + meta.getTooltipStyle().getKey().toString());
-                    player.sendMessage("§aRegarde ta console serveur pour l'ID !");
-                } else {
-                    plugin.getLogger().info(">>> AUCUN STYLE SUR CET ITEM.");
-                    player.sendMessage("§cCet item n'a pas de style.");
-                }
-            }
-            return true;
-        }
         
         player.getInventory().addItem(armor);
         player.sendMessage("§a§l✓ §aVous avez reçu une pièce d'armure de donjon !");
         return true;
     }
     
-    /**
-     * Affiche les infos de l'armure équipée
-     */
     private boolean handleInfo(Player player) {
         ItemStack helmet = player.getInventory().getHelmet();
         ItemStack chestplate = player.getInventory().getChestplate();
@@ -137,9 +144,6 @@ public class ArmorCommand implements CommandExecutor {
         return true;
     }
     
-    /**
-     * Affiche les infos d'une pièce d'armure
-     */
     private void displayArmorInfo(Player player, String name, ItemStack armor) {
         if (!dungeonArmor.isDungeonArmor(armor)) {
             player.sendMessage("§7" + name + ": §c✗ Aucune");
@@ -159,9 +163,6 @@ public class ArmorCommand implements CommandExecutor {
         }
     }
     
-    /**
-     * Applique une rune sur l'armure en main
-     */
     private boolean handleApply(Player player, String[] args) {
         if (!player.hasPermission("quantum.armor.apply")) {
             player.sendMessage("§cVous n'avez pas la permission d'utiliser cette commande.");
@@ -184,8 +185,7 @@ public class ArmorCommand implements CommandExecutor {
         try {
             rune = RuneType.valueOf(args[1].toUpperCase());
         } catch (IllegalArgumentException e) {
-            player.sendMessage("§cRune invalide. Runes disponibles:");
-            player.sendMessage("§7FORCE, SPEED, RESISTANCE, CRITICAL, REGENERATION, VAMPIRISM");
+            player.sendMessage("§cRune invalide.");
             return true;
         }
         
@@ -193,12 +193,12 @@ public class ArmorCommand implements CommandExecutor {
         try {
             level = Integer.parseInt(args[2]);
         } catch (NumberFormatException e) {
-            player.sendMessage("§cNiveau invalide. Utilisez un nombre entre 1 et 3.");
+            player.sendMessage("§cNiveau invalide.");
             return true;
         }
         
         if (level < 1 || level > 3) {
-            player.sendMessage("§cNiveau invalide. Utilisez un nombre entre 1 et 3.");
+            player.sendMessage("§cNiveau invalide (1-3).");
             return true;
         }
         
@@ -206,15 +206,12 @@ public class ArmorCommand implements CommandExecutor {
         if (success) {
             player.sendMessage("§a§l✓ §aRune " + rune.getDisplay() + " §7" + toRoman(level) + "§a appliquée !");
         } else {
-            player.sendMessage("§c§l✗ §cImpossible d'appliquer la rune (déjà appliquée ou limite atteinte).");
+            player.sendMessage("§c§l✗ §cImpossible d'appliquer la rune.");
         }
         
         return true;
     }
     
-    /**
-     * Affiche l'aide de la commande
-     */
     private void sendHelp(Player player) {
         player.sendMessage("§6§l─────────────────────────────");
         player.sendMessage("§6§lCOMMANDES ARMURE DE DONJON");
@@ -222,12 +219,10 @@ public class ArmorCommand implements CommandExecutor {
         player.sendMessage("§e/armor give <pièce> §7- Donne une pièce d'armure");
         player.sendMessage("§e/armor info §7- Affiche les infos de l'armure");
         player.sendMessage("§e/armor apply <rune> <niveau> §7- Applique une rune");
+        player.sendMessage("§e/armor debug §7- Affiche l'ID du tooltip (pour dev)");
         player.sendMessage("§6§l─────────────────────────────");
     }
     
-    /**
-     * Convertit un nombre en chiffres romains
-     */
     private String toRoman(int number) {
         switch (number) {
             case 1: return "I";

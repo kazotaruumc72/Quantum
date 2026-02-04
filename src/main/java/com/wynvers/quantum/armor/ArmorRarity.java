@@ -12,12 +12,42 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bukkit.NamespacedKey;
+
 public enum ArmorRarity {
-    COMMON,
-    UNCOMMON,
-    RARE,
-    EPIC,
-    LEGENDARY;
+    // ⚠️ IMPORTANT : Remplace "nexo:rarity_common" par le VRAI nom défini dans ta config Nexo
+    // Si tu ne connais pas le nom, fais /data get entity @s SelectedItem sur un item Nexo en jeu
+    COMMON("nexo:common"),
+    UNCOMMON("nexo:uncommon"),
+    RARE("nexo:rare"),
+    EPIC("nexo:epic"),
+    LEGENDARY("nexo:legendary");
+
+    private final String tooltipId;
+
+    // Constructeur de l'enum
+    ArmorRarity(String tooltipId) {
+        this.tooltipId = tooltipId;
+    }
+
+    /**
+     * Récupère la NamespacedKey nécessaire pour meta.setTooltipStyle()
+     */
+    public NamespacedKey getTooltipKey() {
+        // Gestion du namespace (ex: "nexo:common" -> namespace="nexo", key="common")
+        if (tooltipId.contains(":")) {
+            String[] parts = tooltipId.split(":");
+            return new NamespacedKey(parts[0], parts[1]);
+        }
+        // Si aucun namespace n'est précisé, on suppose que c'est "nexo" ou "minecraft"
+        // Tu peux changer "nexo" par "minecraft" si tes styles sont enregistrés sous minecraft
+        return new NamespacedKey("nexo", tooltipId);
+    }
+    
+    public String getRawId() {
+        return tooltipId;
+    }
+}
     
     private static final Map<ArmorRarity, RarityData> DATA_MAP = new HashMap<>();
     

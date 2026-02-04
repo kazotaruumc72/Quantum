@@ -68,6 +68,11 @@ commands:
     description: Tower progression system commands
     usage: /tower <progress|reset|tp|reload> [args]
     aliases: [towers, tour, tours]
+  
+  armor:
+    description: Dungeon armor management commands
+    usage: /armor <give|info|apply|upgrade> [args]
+    aliases: [armure, armour, darmor]
 
 permissions:
   quantum.*:
@@ -83,6 +88,7 @@ permissions:
       quantum.orders.*: true
       quantum.zone.bypass: true
       quantum.tower.*: true
+      quantum.armor.*: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -179,4 +185,25 @@ permissions:
   
   quantum.tower.reload:
     description: Reload tower configurations
+    default: op
+  
+  # Permissions pour le système d'armure de donjon
+  quantum.armor.*:
+    description: All armor permissions
+    default: op
+    children:
+      quantum.armor.give: true
+      quantum.armor.apply: true
+      quantum.armor.upgrade: true
+  
+  quantum.armor.give:
+    description: Give dungeon armor pieces
+    default: op
+  
+  quantum.armor.apply:
+    description: Apply runes to armor
+    default: op
+  
+  quantum.armor.upgrade:
+    description: Upgrade runes on armor
     default: op

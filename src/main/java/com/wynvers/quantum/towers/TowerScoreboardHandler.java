@@ -51,6 +51,15 @@ public class TowerScoreboardHandler {
             ChatColor.translateAlternateColorCodes('&', "&6&lTOURS"));
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         
+        // SOLUTION: Cacher les numéros rouges avec NumberFormat (1.20.3+)
+        try {
+            // Tenter d'utiliser NumberFormat.blank() si disponible
+            objective.setNumberFormat(org.bukkit.scoreboard.NumberFormat.blank());
+        } catch (Exception e) {
+            // Méthode non disponible, utiliser l'ancienne méthode avec caractères invisibles
+            plugin.getQuantumLogger().warning("⚠ NumberFormat.blank() not available for tower scoreboard");
+        }
+        
         // Appliquer le scoreboard
         player.setScoreboard(scoreboard);
         playerScoreboards.put(player.getUniqueId(), scoreboard);

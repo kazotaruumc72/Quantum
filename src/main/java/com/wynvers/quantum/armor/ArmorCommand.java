@@ -50,14 +50,28 @@ public class ArmorCommand implements CommandExecutor, TabCompleter {
                 }
                 
                 if (args.length < 2) {
-                    player.sendMessage("§c✖ Usage: /armure give <helmet|chestplate|leggings|boots>");
+                    player.sendMessage("§c✖ Usage: /armure give <helmet|chestplate|leggings|boots> [rareté]");
+                    player.sendMessage("§7Raretés: " + Arrays.stream(ArmorRarity.values())
+                        .map(Enum::name)
+                        .collect(Collectors.joining(", ")));
                     return true;
                 }
                 
-                ItemStack armor = armorManager.createArmorPiece(args[1].toLowerCase());
+                ArmorRarity rarity = ArmorRarity.COMMON;
+                if (args.length >= 3) {
+                    try {
+                        rarity = ArmorRarity.valueOf(args[2].toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        player.sendMessage("§c✖ Rareté invalide ! Utilisation de COMMON par défaut.");
+                    }
+                }
+                
+                ItemStack armor = armorManager.createArmorPiece(args[1].toLowerCase(), rarity);
                 if (armor != null) {
                     player.getInventory().addItem(armor);
                     player.sendMessage("§a✔ Pièce d'armure reçue !");
+                    player.sendMessage("§7Rareté: " + rarity.getColoredName());
+                    player.sendMessage("§7Emplacements de runes: §e" + rarity.getMaxRuneSlots());
                 } else {
                     player.sendMessage("§c✖ Pièce d'armure invalide !");
                 }
@@ -127,9 +141,11 @@ public class ArmorCommand implements CommandExecutor, TabCompleter {
         player.sendMessage("§6§l⚔ ARMURE DE DONJON ⚔");
         player.sendMessage("");
         player.sendMessage("§e/armure gui §7- Ouvrir le GUI de gestion");
-        player.sendMessage("§e/armure give <type> §7- Recevoir une pièce d'armure");
+        player.sendMessage("§e/armure give <type> [rareté] §7- Recevoir une pièce d'armure");
         player.sendMessage("§e/armure giverune <TYPE> <niveau> §7- Recevoir une rune");
         player.sendMessage("§e/armure reload §7- Recharger la configuration");
+        player.sendMessage("");
+        player.sendMessage("§7Raretés: COMMON, UNCOMMON, RARE, EPIC, LEGENDARY");
         player.sendMessage("");
     }
     
@@ -157,17 +173,25 @@ public class ArmorCommand implements CommandExecutor, TabCompleter {
                 completions.addAll(filterMatches(runeTypes, input));
             }
             
-        } else if (args.length == 3 && args[0].equalsIgnoreCase("giverune")) {
-            // Niveaux de runes
-            try {
-                RuneType type = RuneType.valueOf(args[1].toUpperCase());
-                List<String> levels = new ArrayList<>();
-                for (int i = 1; i <= type.getMaxLevel(); i++) {
-                    levels.add(String.valueOf(i));
+        } else if (args.length == 3) {
+            if (args[0].equalsIgnoreCase("give")) {
+                // Raretés d'armure
+                List<String> rarities = Arrays.stream(ArmorRarity.values())
+                    .map(rarity -> rarity.name().toLowerCase())
+                    .collect(Collectors.toList());
+                completions.addAll(filterMatches(rarities, input));
+                
+            } else if (args[0].equalsIgnoreCase("giverune")) {
+                // Niveaux de runes
+                try {
+                    RuneType type = RuneType.valueOf(args[1].toUpperCase());
+                    List<String> levels = new ArrayList<>();
+                    for (int i = 1; i <= type.getMaxLevel(); i++) {
+                        levels.add(String.valueOf(i));
+                    }
+                    completions.addAll(filterMatches(levels, input));
+                } catch (IllegalArgumentException ignored) {
                 }
-                completions.addAll(filterMatches(levels, input));
-            } catch (IllegalArgumentException ignored) {
-                // Type de rune invalide, pas de suggestions
             }
         }
         

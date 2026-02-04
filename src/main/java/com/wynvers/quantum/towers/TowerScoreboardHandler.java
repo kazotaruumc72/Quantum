@@ -51,15 +51,6 @@ public class TowerScoreboardHandler {
             ChatColor.translateAlternateColorCodes('&', "&6&lTOURS"));
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         
-        // SOLUTION: Cacher les numéros rouges avec NumberFormat (1.20.3+)
-        try {
-            // Tenter d'utiliser NumberFormat.blank() si disponible
-            objective.setNumberFormat(org.bukkit.scoreboard.NumberFormat.blank());
-        } catch (Exception e) {
-            // Méthode non disponible, utiliser l'ancienne méthode avec caractères invisibles
-            plugin.getQuantumLogger().warning("⚠ NumberFormat.blank() not available for tower scoreboard");
-        }
-        
         // Appliquer le scoreboard
         player.setScoreboard(scoreboard);
         playerScoreboards.put(player.getUniqueId(), scoreboard);
@@ -126,31 +117,63 @@ public class TowerScoreboardHandler {
         Objective objective = scoreboard.getObjective("tower");
         if (objective == null) return;
         
+        // Supprimer toutes les anciennes teams
+        for (Team team : new HashSet<>(scoreboard.getTeams())) {
+            team.unregister();
+        }
+        
         // Effacer les anciennes lignes
-        for (String entry : scoreboard.getEntries()) {
+        for (String entry : new HashSet<>(scoreboard.getEntries())) {
             scoreboard.resetScores(entry);
         }
         
         // Récupérer les placeholders
         List<String> lines = getScoreboardLines(player);
         
-        // Ajouter les lignes (de bas en haut)
-        int score = lines.size();
+        // Ajouter les lignes avec Teams (de bas en haut)
+        int lineNumber = lines.size();
         for (String line : lines) {
             // Remplacer les placeholders
             line = PlaceholderAPI.setPlaceholders(player, line);
             line = ChatColor.translateAlternateColorCodes('&', line);
             
-            // Gérer les lignes dupliquées en ajoutant des espaces invisibles
-            String entry = line;
-            int duplicateCount = 0;
-            while (scoreboard.getEntries().contains(entry)) {
-                entry = line + " ".repeat(duplicateCount + 1);
-                duplicateCount++;
+            // Créer une entrée invisible unique
+            String entry = getInvisibleString(lineNumber);
+            
+            // Créer une Team pour cette ligne
+            Team team = scoreboard.registerNewTeam("line_" + lineNumber);
+            team.addEntry(entry);
+            
+            // Le texte est dans le prefix/suffix de la Team
+            if (line.length() <= 64) {
+                team.setPrefix(line);
+            } else {
+                // Si trop long, couper en prefix + suffix
+                team.setPrefix(line.substring(0, 64));
+                if (line.length() > 64) {
+                    String suffix = line.substring(64, Math.min(line.length(), 128));
+                    team.setSuffix(suffix);
+                }
             }
             
-            objective.getScore(entry).setScore(score--);
+            // Ajouter le score
+            Score score = objective.getScore(entry);
+            score.setScore(lineNumber);
+            
+            lineNumber--;
         }
+    }
+    
+    /**
+     * Génère une chaîne invisible unique pour chaque ligne
+     */
+    private String getInvisibleString(int index) {
+        // Utiliser des codes couleur ChatColor.RESET répétés
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < index; i++) {
+            sb.append(ChatColor.RESET);
+        }
+        return sb.toString();
     }
     
     /**

@@ -16,10 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-/**
- * Command handler for /rune
- * Allows players to obtain physical rune items and manage rune equipment
- */
 public class RuneCommand implements CommandExecutor {
 
     private final Quantum plugin;
@@ -37,7 +33,6 @@ public class RuneCommand implements CommandExecutor {
 
         Player player = (Player) sender;
 
-        // /rune equip - Open rune equipment menu
         if (args.length == 1 && args[0].equalsIgnoreCase("equip")) {
             Menu menu = plugin.getMenuManager().getMenu("rune_equipment");
             if (menu != null) {
@@ -48,7 +43,6 @@ public class RuneCommand implements CommandExecutor {
             return true;
         }
 
-        // /rune give <type> <level> [player] - Give physical rune item
         if (args.length >= 3 && args[0].equalsIgnoreCase("give")) {
             if (!player.hasPermission("quantum.rune.give")) {
                 player.sendMessage(ChatColor.RED + "You don't have permission to use this command!");
@@ -63,7 +57,7 @@ public class RuneCommand implements CommandExecutor {
                 type = RuneType.valueOf(typeStr);
             } catch (IllegalArgumentException e) {
                 player.sendMessage(ChatColor.RED + "Invalid rune type! Available types:");
-                player.sendMessage(ChatColor.GRAY + "FORCE, SPEED, RESISTANCE, CRITICAL, REGENERATION, VAMPIRISM, THORNS, WISDOM, LUCK");
+                player.sendMessage(ChatColor.GRAY + "FORCE, SPEED, RESISTANCE, CRITICAL, REGENERATION, VAMPIRISM");
                 return true;
             }
 
@@ -79,7 +73,6 @@ public class RuneCommand implements CommandExecutor {
                 return true;
             }
 
-            // Determine target player
             Player target = player;
             if (args.length >= 4) {
                 target = plugin.getServer().getPlayer(args[3]);
@@ -89,7 +82,6 @@ public class RuneCommand implements CommandExecutor {
                 }
             }
 
-            // Create and give rune item
             ItemStack runeItem = createRuneItem(type, level);
             target.getInventory().addItem(runeItem);
 
@@ -104,44 +96,36 @@ public class RuneCommand implements CommandExecutor {
             return true;
         }
 
-        // Show usage
         player.sendMessage(ChatColor.GOLD + "===== Rune Commands =====");
         player.sendMessage(ChatColor.YELLOW + "/rune equip" + ChatColor.GRAY + " - Open rune equipment menu");
         if (player.hasPermission("quantum.rune.give")) {
             player.sendMessage(ChatColor.YELLOW + "/rune give <type> <level> [player]" + ChatColor.GRAY + " - Give a physical rune item");
-            player.sendMessage(ChatColor.GRAY + "Types: FORCE, SPEED, RESISTANCE, CRITICAL, REGENERATION, VAMPIRISM, THORNS, WISDOM, LUCK");
+            player.sendMessage(ChatColor.GRAY + "Types: FORCE, SPEED, RESISTANCE, CRITICAL, REGENERATION, VAMPIRISM");
             player.sendMessage(ChatColor.GRAY + "Levels: 1-3 (I, II, III)");
         }
         return true;
     }
 
-    /**
-     * Create a physical rune item
-     */
     private ItemStack createRuneItem(RuneType type, int level) {
         ItemStack item = new ItemStack(Material.ECHO_SHARD);
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
-            // Display name
             String romanLevel = getRomanNumeral(level);
             meta.setDisplayName(ChatColor.GOLD + "" + ChatColor.BOLD + type.getDisplay() + " " + romanLevel);
 
-            // Lore with stats
             List<String> lore = new ArrayList<>();
             lore.add("");
             lore.add(ChatColor.GRAY + "Rune Type: " + ChatColor.YELLOW + type.getDisplay());
             lore.add(ChatColor.GRAY + "Level: " + ChatColor.YELLOW + romanLevel);
             lore.add("");
 
-            // Add description if available
-            String description = type.getDescription();
+            String description = type.getDescription(level);
             if (description != null && !description.isEmpty()) {
                 lore.add(ChatColor.GRAY + description);
                 lore.add("");
             }
 
-            // Add bonus info based on rune type
             lore.add(ChatColor.GREEN + "Bonus:");
             lore.addAll(getRuneBonusLore(type, level));
             lore.add("");
@@ -151,23 +135,12 @@ public class RuneCommand implements CommandExecutor {
             lore.add(ChatColor.GOLD + "" + ChatColor.ITALIC + "Mythical Rune");
 
             meta.setLore(lore);
-
-            // Add custom model data if configured
-            String nexoId = type.getNexoId(level);
-            if (nexoId != null) {
-                // Si un nexo_id est configuré, on pourrait l'utiliser ici
-                // Pour l'instant on utilise juste custom_model_data si disponible
-            }
-
             item.setItemMeta(meta);
         }
 
         return item;
     }
 
-    /**
-     * Get bonus lore lines based on rune type and level
-     */
     private List<String> getRuneBonusLore(RuneType type, int level) {
         List<String> bonusLore = new ArrayList<>();
 
@@ -206,32 +179,11 @@ public class RuneCommand implements CommandExecutor {
                 int vampirismPercent = (int)(vampirism * 100);
                 bonusLore.add(ChatColor.DARK_RED + "  +" + vampirismPercent + "% Lifesteal");
                 break;
-
-            case THORNS:
-                double thorns = type.getThornsPercent(level);
-                int thornsPercent = (int)(thorns * 100);
-                bonusLore.add(ChatColor.DARK_GREEN + "  +" + thornsPercent + "% Thorns Damage");
-                break;
-
-            case WISDOM:
-                double xpMultiplier = type.getXpMultiplier(level);
-                int xpPercent = (int)((xpMultiplier - 1.0) * 100);
-                bonusLore.add(ChatColor.LIGHT_PURPLE + "  +" + xpPercent + "% XP Gain");
-                break;
-
-            case LUCK:
-                double luckChance = type.getRareLootChance(level);
-                int luckPercent = (int)(luckChance * 100);
-                bonusLore.add(ChatColor.YELLOW + "  +" + luckPercent + "% Rare Loot Chance");
-                break;
         }
 
         return bonusLore;
     }
 
-    /**
-     * Convert level to Roman numeral
-     */
     private String getRomanNumeral(int level) {
         switch (level) {
             case 1: return "I";

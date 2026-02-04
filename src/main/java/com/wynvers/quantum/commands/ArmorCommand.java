@@ -85,6 +85,21 @@ public class ArmorCommand implements CommandExecutor {
             player.sendMessage("§cErreur lors de la création de l'armure.");
             return true;
         }
+        if (args[0].equalsIgnoreCase("debug")) {
+            ItemStack item = player.getInventory().getItemInMainHand();
+            if (item != null && item.hasItemMeta()) {
+                ItemMeta meta = item.getItemMeta();
+                // On affiche l'info dans la console pour éviter le bug du chat
+                if (meta.hasTooltipStyle()) {
+                    plugin.getLogger().info(">>> ID TROUVÉ : " + meta.getTooltipStyle().getKey().toString());
+                    player.sendMessage("§aRegarde ta console serveur pour l'ID !");
+                } else {
+                    plugin.getLogger().info(">>> AUCUN STYLE SUR CET ITEM.");
+                    player.sendMessage("§cCet item n'a pas de style.");
+                }
+            }
+            return true;
+        }
         
         player.getInventory().addItem(armor);
         player.sendMessage("§a§l✓ §aVous avez reçu une pièce d'armure de donjon !");

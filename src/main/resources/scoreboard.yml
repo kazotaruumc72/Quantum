@@ -1,44 +1,63 @@
-# ===================================================================
-# QUANTUM - SCOREBOARD CONFIGURATION
-# ===================================================================
-# Configuration du système de scoreboard pour les tours
-# ===================================================================
+# Configuration du scoreboard Quantum
+# Ce scoreboard s'affiche en dehors des tours/donjons
 
-scoreboard:
-  enabled: true
-  update-interval: 20  # Mise à jour toutes les secondes (20 ticks)
-  hide-numbers: true   # Cache les numéros rouges sur le côté droit
-  
-  # Titre du scoreboard (au-dessus)
-  title: "&6&lWYNVERS"
-  
-  # Restaure le scoreboard d'origine quand le joueur quitte la tour
-  restore-on-leave: true
-  
-  # Priorité élevée pour remplacer les autres scoreboards
-  priority: HIGH
-  
-  # Format des lignes du scoreboard (utilisé par défaut si non défini dans zones.yml)
-  default-lines:
-    - "&7&m                    "
-    - "&e&lTour Actuelle:"
-    - "&b%quantum_tower_name%"
-    - ""
-    - "&e&lÉtage: &f%quantum_tower_floor%"
-    - "&7Progression: &a%quantum_tower_progress_percent%%"
-    - ""
-    - "&c&lMonstres:"
-    - "&7Tués: &f%quantum_tower_killed%&7/&f%quantum_tower_required%"
-    - "&7Complétude: &a%quantum_tower_completion%"
-    - ""
-    - "&d&lProchain Boss:"
-    - "&7Étage &f%quantum_tower_next_boss%"
-    - ""
-    - "&6&lTours Complétées:"
-    - "&7%quantum_tower_completed_count% &7tours"
-    - ""
-    - "&7&m                    "
-    - "&6wynvers.fr"
+# Activé par défaut
+enabled: true
 
-# Les lignes du scoreboard peuvent aussi être définies dans zones.yml pour chaque tour
-# Si elles sont définies dans zones.yml, elles remplaceront les lignes par défaut ci-dessus
+# Titre du scoreboard (avec codes couleurs Minecraft)
+title: "&6&lQUANTUM"
+
+# Lignes du scoreboard (de haut en bas)
+# Supporte PlaceholderAPI avec %placeholder%
+lines:
+  - "&7&m                    "
+  - "&e&lVotre Progression:"
+  - ""
+  - "&6&lTours Complétées:"
+  - "  &f%quantum_towers_completed%"
+  - "  &7(%quantum_towers_percentage% total)"
+  - ""
+  - "&d&l✦ Tour du Feu:"
+  - "  &f%quantum_tower_fire_progress%"
+  - "  &7%quantum_tower_fire_percentage%"
+  - ""
+  - "&b&l❄ Tour de Glace:"
+  - "  &f%quantum_tower_ice_progress%"
+  - "  &7%quantum_tower_ice_percentage%"
+  - ""
+  - "&a&l☘ Tour de Nature:"
+  - "  &f%quantum_tower_nature_progress%"
+  - "  &7%quantum_tower_nature_percentage%"
+  - ""
+  - "&5&l☢ Tour d'Ombre:"
+  - "  &f%quantum_tower_shadow_progress%"
+  - "  &7%quantum_tower_shadow_percentage%"
+  - ""
+  - "&7&m                    "
+
+# Fréquence de mise à jour (en ticks, 20 ticks = 1 seconde)
+update-interval: 20
+
+# Messages de la commande /qscoreboard
+messages:
+  # Activation/Désactivation pour soi-même
+  scoreboard_enabled: "&a✓ Scoreboard activé !"
+  scoreboard_disabled: "&c✗ Scoreboard désactivé !"
+  
+  # Statut
+  status:
+    enabled: "&6· Statut du scoreboard: &a✓ Activé"
+    disabled: "&6· Statut du scoreboard: &c✗ Désactivé"
+  
+  # Messages admin (pour d'autres joueurs)
+  admin:
+    scoreboard_enabled: "&a✓ Scoreboard activé pour {player}"
+    scoreboard_disabled: "&c✗ Scoreboard désactivé pour {player}"
+  
+  # Erreurs
+  errors:
+    player_only: "&c· Cette commande est réservée aux joueurs."
+    no_permission: "&c· Vous n'avez pas la permission d'utiliser cette commande pour d'autres joueurs."
+    player_not_found: "&c· Joueur introuvable: {player}"
+    invalid_action: "&c· Action invalide. Utilisez: on, off, status"
+    invalid_usage: "&c· Utilisation: /qscoreboard [on|off|status] [joueur]"

@@ -68,9 +68,7 @@ public enum RuneType {
     public String getDescription(int level) {
         RuneConfig config = configs.get(this);
         if (config == null) return "§7???";
-        
-        String desc = config.descriptions.getOrDefault(level, "§7Niveau " + level);
-        return desc;
+        return config.descriptions.getOrDefault(level, "§7Niveau " + level);
     }
     
     public int getMaxLevel() {
@@ -85,26 +83,38 @@ public enum RuneType {
     
     public double getDamageBonus(int level) {
         if (this != FORCE) return 1.0;
-        RuneConfig config = configs.get(this);
-        if (config == null) return 1.0;
-        
-        return config.values.getOrDefault(level, 0.0);
+        return getValueOrDefault(level, 1.0);
+    }
+    
+    public double getSpeedBonus(int level) {
+        if (this != SPEED) return 1.0;
+        return getValueOrDefault(level, 1.0);
+    }
+    
+    public double getDamageReduction(int level) {
+        if (this != RESISTANCE) return 0.0;
+        return getValueOrDefault(level, 0.0);
     }
     
     public double getCriticalChance(int level) {
         if (this != CRITICAL) return 0.0;
-        RuneConfig config = configs.get(this);
-        if (config == null) return 0.0;
-        
-        return config.values.getOrDefault(level, 0.0);
+        return getValueOrDefault(level, 0.0);
     }
     
     public double getVampirismPercent(int level) {
         if (this != VAMPIRISM) return 0.0;
+        return getValueOrDefault(level, 0.0);
+    }
+    
+    public double getRegeneration(int level) {
+        if (this != REGENERATION) return 0.0;
+        return getValueOrDefault(level, 0.0);
+    }
+    
+    private double getValueOrDefault(int level, double defaultValue) {
         RuneConfig config = configs.get(this);
-        if (config == null) return 0.0;
-        
-        return config.values.getOrDefault(level, 0.0);
+        if (config == null) return defaultValue;
+        return config.values.getOrDefault(level, defaultValue);
     }
     
     private static class RuneConfig {
@@ -132,14 +142,24 @@ public enum RuneType {
                             descriptions.put(level, levelSection.getString("description", ""));
                             nexoIds.put(level, levelSection.getString("nexo_id"));
                             
+                            // Charger toutes les valeurs possibles
                             if (levelSection.contains("damage_bonus")) {
                                 values.put(level, levelSection.getDouble("damage_bonus"));
+                            }
+                            if (levelSection.contains("speed_bonus")) {
+                                values.put(level, levelSection.getDouble("speed_bonus"));
+                            }
+                            if (levelSection.contains("damage_reduction")) {
+                                values.put(level, levelSection.getDouble("damage_reduction"));
                             }
                             if (levelSection.contains("critical_chance")) {
                                 values.put(level, levelSection.getDouble("critical_chance"));
                             }
                             if (levelSection.contains("vampirism_percent")) {
                                 values.put(level, levelSection.getDouble("vampirism_percent"));
+                            }
+                            if (levelSection.contains("regeneration")) {
+                                values.put(level, levelSection.getDouble("regeneration"));
                             }
                         }
                     } catch (NumberFormatException e) {

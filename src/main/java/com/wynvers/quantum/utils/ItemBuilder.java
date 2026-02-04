@@ -3,6 +3,7 @@ package com.wynvers.quantum.utils;
 import com.nexomc.nexo.api.NexoItems;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.menu.MenuItem;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

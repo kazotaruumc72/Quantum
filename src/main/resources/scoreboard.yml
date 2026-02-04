@@ -10,12 +10,35 @@ scoreboard:
   hide-numbers: true   # Cache les numéros rouges sur le côté droit
   
   # Titre du scoreboard (au-dessus)
-  title: "&6&lTOURS"
+  title: "&6&lWYNVERS"
   
-  # Restaure le scoreboard d'origine quand le joueur quitte
+  # Restaure le scoreboard d'origine quand le joueur quitte la tour
   restore-on-leave: true
   
   # Priorité élevée pour remplacer les autres scoreboards
   priority: HIGH
+  
+  # Format des lignes du scoreboard (utilisé par défaut si non défini dans zones.yml)
+  default-lines:
+    - "&7&m                    "
+    - "&e&lTour Actuelle:"
+    - "&b%quantum_tower_name%"
+    - ""
+    - "&e&lÉtage: &f%quantum_tower_floor%"
+    - "&7Progression: &a%quantum_tower_progress_percent%%"
+    - ""
+    - "&c&lMonstres:"
+    - "&7Tués: &f%quantum_tower_killed%&7/&f%quantum_tower_required%"
+    - "&7Complétude: &a%quantum_tower_completion%"
+    - ""
+    - "&d&lProchain Boss:"
+    - "&7Étage &f%quantum_tower_next_boss%"
+    - ""
+    - "&6&lTours Complétées:"
+    - "&7%quantum_tower_completed_count% &7tours"
+    - ""
+    - "&7&m                    "
+    - "&6wynvers.fr"
 
-# Les lignes du scoreboard sont définies dans zones.yml pour chaque tour
+# Les lignes du scoreboard peuvent aussi être définies dans zones.yml pour chaque tour
+# Si elles sont définies dans zones.yml, elles remplaceront les lignes par défaut ci-dessus

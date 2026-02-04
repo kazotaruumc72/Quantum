@@ -1,6 +1,7 @@
 package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.towers.TowerConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -148,8 +149,10 @@ public class QScoreboardCommand implements CommandExecutor {
         
         // Si le joueur est dans une tour, réafficher le scoreboard
         if (plugin.getScoreboardHandler() != null && plugin.getTowerManager() != null) {
-            if (plugin.getTowerManager().isInTower(target)) {
-                plugin.getScoreboardHandler().updateScoreboard(target);
+            TowerConfig currentTower = plugin.getTowerManager().getPlayerTower(target);
+            if (currentTower != null) {
+                // Le joueur est dans une tour, activer le scoreboard de tour
+                plugin.getScoreboardHandler().enableTowerScoreboard(target, currentTower.getId());
             }
         }
     }
@@ -163,6 +166,13 @@ public class QScoreboardCommand implements CommandExecutor {
         } else {
             sender.sendMessage("§c✗ Scoreboard désactivé pour " + target.getName());
             target.sendMessage("§c✗ Votre scoreboard a été désactivé par un administrateur.");
+        }
+        
+        // Désactiver le scoreboard de tour si actif
+        if (plugin.getScoreboardHandler() != null) {
+            if (plugin.getScoreboardHandler().hasTowerScoreboard(target)) {
+                plugin.getScoreboardHandler().disableTowerScoreboard(target);
+            }
         }
         
         // Retirer le scoreboard actuel

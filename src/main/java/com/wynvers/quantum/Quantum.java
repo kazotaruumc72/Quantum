@@ -63,6 +63,7 @@ import java.nio.file.StandardCopyOption;
  * - Dungeon armor system with runes (9 types, 3 levels each)
  * - Configurable chest loots per tower and floor
  * - Configurable dungeon armor IDs (Nexo items)
+ * - Interactive rune equipment menu (drag & drop)
  */
 public final class Quantum extends JavaPlugin {
 
@@ -216,6 +217,9 @@ public final class Quantum extends JavaPlugin {
         // Extract history and statistics menus (NEW)
         extractResource("menus/history.yml");
         extractResource("menus/statistics.yml");
+        
+        // Extract rune equipment menu (NEW)
+        extractResource("menus/rune_equipment.yml");
         
         // Extract orders template
         extractResource("orders_template.yml");
@@ -460,7 +464,7 @@ public final class Quantum extends JavaPlugin {
         
         // Rune command (NEW)
         getCommand("rune").setExecutor(new RuneCommand(this));
-        logger.success("✓ Rune Command (physical rune items)");
+        logger.success("✓ Rune Command (physical rune items + equipment menu)");
 
         // Register TabCompleters
         getCommand("quantum").setTabCompleter(new QuantumTabCompleter(this));

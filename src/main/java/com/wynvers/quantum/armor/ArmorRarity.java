@@ -65,12 +65,20 @@ public enum ArmorRarity {
                 for (Map<?, ?> enchantMap : enchantList) {
                     String enchantName = (String) enchantMap.get("enchant");
                     
-                    // Correction du cast pour min_level et max_level
-                    Object minLevelObj = enchantMap.getOrDefault("min_level", Integer.valueOf(1));
-                    Object maxLevelObj = enchantMap.getOrDefault("max_level", Integer.valueOf(1));
+                    // Utiliser get() et vérifier si null
+                    Object minLevelObj = enchantMap.get("min_level");
+                    Object maxLevelObj = enchantMap.get("max_level");
                     
-                    int minLevel = (minLevelObj instanceof Number) ? ((Number) minLevelObj).intValue() : 1;
-                    int maxLevel = (maxLevelObj instanceof Number) ? ((Number) maxLevelObj).intValue() : 1;
+                    int minLevel = 1;
+                    int maxLevel = 1;
+                    
+                    if (minLevelObj instanceof Number) {
+                        minLevel = ((Number) minLevelObj).intValue();
+                    }
+                    
+                    if (maxLevelObj instanceof Number) {
+                        maxLevel = ((Number) maxLevelObj).intValue();
+                    }
                     
                     Enchantment enchant = parseEnchantment(enchantName);
                     if (enchant != null) {

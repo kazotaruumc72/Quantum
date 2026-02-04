@@ -61,6 +61,7 @@ import java.nio.file.StandardCopyOption;
  * - Tower progression system with 4 towers (25 floors + final boss each)
  * - Integrated tower scoreboard system (auto-disable Oreo Essentials)
  * - Dungeon armor system with runes (9 types, 3 levels each)
+ * - Configurable chest loots per tower and floor
  */
 public final class Quantum extends JavaPlugin {
 
@@ -230,6 +231,9 @@ public final class Quantum extends JavaPlugin {
         
         // Extract dungeon config
         extractResource("dungeon.yml");
+        
+        // Extract tower loots config (NEW)
+        extractResource("tower_loots.yml");
         
         logger.success("✓ Default resources extracted");
     }
@@ -411,7 +415,7 @@ public final class Quantum extends JavaPlugin {
         logger.success("✓ Armor Listener (bonus system)");
         
         Bukkit.getPluginManager().registerEvents(new ChestListener(this), this);
-        logger.success("✓ Chest Listener (dungeon requirements)");
+        logger.success("✓ Chest Listener (dungeon loots system)");
     }
     
     private void registerCommands() {
@@ -449,6 +453,10 @@ public final class Quantum extends JavaPlugin {
         // Armor command
         getCommand("armor").setExecutor(new ArmorCommand(this));
         logger.success("✓ Armor Command (dungeon system)");
+        
+        // Rune command (NEW)
+        getCommand("rune").setExecutor(new RuneCommand(this));
+        logger.success("✓ Rune Command (physical rune items)");
 
         // Register TabCompleters
         getCommand("quantum").setTabCompleter(new QuantumTabCompleter(this));

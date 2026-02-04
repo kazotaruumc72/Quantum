@@ -1,6 +1,8 @@
 package com.wynvers.quantum;
 
+import com.wynvers.quantum.armor.ArmorListener;
 import com.wynvers.quantum.armor.ArmorManager;
+import com.wynvers.quantum.armor.ChestListener;
 import com.wynvers.quantum.armor.DungeonArmor;
 import com.wynvers.quantum.armor.RuneType;
 import com.wynvers.quantum.commands.*;
@@ -403,6 +405,13 @@ public final class Quantum extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(new ZoneListener(this), this);
             logger.success("✓ Zone Listener");
         }
+        
+        // Register ArmorListener and ChestListener
+        Bukkit.getPluginManager().registerEvents(new ArmorListener(this), this);
+        logger.success("✓ Armor Listener (bonus system)");
+        
+        Bukkit.getPluginManager().registerEvents(new ChestListener(this), this);
+        logger.success("✓ Chest Listener (dungeon requirements)");
     }
     
     private void registerCommands() {
@@ -436,6 +445,10 @@ public final class Quantum extends JavaPlugin {
             getCommand("tower").setTabCompleter(new TowerTabCompleter(this));
             logger.success("✓ Tower Command + TabCompleter");
         }
+        
+        // Armor command
+        getCommand("armor").setExecutor(new ArmorCommand(this));
+        logger.success("✓ Armor Command (dungeon system)");
 
         // Register TabCompleters
         getCommand("quantum").setTabCompleter(new QuantumTabCompleter(this));

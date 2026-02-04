@@ -389,6 +389,11 @@ public final class Quantum extends JavaPlugin {
         getCommand("menu").setExecutor(new MenuCommand(this));
         getCommand("qstorage").setExecutor(new QuantumStorageCommand(this));
         
+        // Scoreboard toggle command
+        getCommand("qscoreboard").setExecutor(new QScoreboardCommand(this));
+        getCommand("qscoreboard").setTabCompleter(new QScoreboardTabCompleter(this));
+        logger.success("✓ Scoreboard Command + TabCompleter");
+        
         // Orders system commands
         getCommand("rechercher").setExecutor(new RechercherCommand(this));
         getCommand("recherche").setExecutor(new RechercheCommand(this));

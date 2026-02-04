@@ -1,0 +1,214 @@
+# Configuration du système de donjon et runes Quantum
+# Ce fichier configure les runes, leurs bonus et les loots
+
+runes:
+  FORCE:
+    display: "§cForce"
+    description: "Augmente les dégâts"
+    max_level: 3
+    icon: "REDSTONE"
+    nexo_ids:
+      1: "force_rune_i"
+      2: "force_rune_ii"
+      3: "force_rune_iii"
+    bonuses:
+      1:
+        damage_multiplier: 1.1
+      2:
+        damage_multiplier: 1.2
+      3:
+        damage_multiplier: 1.3
+    lore:
+      1: ["§7+10% dégâts"]
+      2: ["§7+20% dégâts"]
+      3: ["§7+30% dégâts"]
+
+  SPEED:
+    display: "§9Vitesse"
+    description: "Augmente la vitesse de mouvement"
+    max_level: 3
+    icon: "SUGAR"
+    nexo_ids:
+      1: "speed_rune_i"
+      2: "speed_rune_ii"
+      3: "speed_rune_iii"
+    bonuses:
+      1:
+        speed_multiplier: 1.2
+      2:
+        speed_multiplier: 1.4
+      3:
+        speed_multiplier: 1.6
+    lore:
+      1: ["§7+20% vitesse"]
+      2: ["§7+40% vitesse"]
+      3: ["§7+60% vitesse"]
+
+  RESISTANCE:
+    display: "§6Résistance"
+    description: "Réduit les dégâts subis"
+    max_level: 3
+    icon: "IRON_INGOT"
+    nexo_ids:
+      1: "resistance_rune_i"
+      2: "resistance_rune_ii"
+      3: "resistance_rune_iii"
+    bonuses:
+      1:
+        damage_reduction: 0.1
+      2:
+        damage_reduction: 0.2
+      3:
+        damage_reduction: 0.3
+    lore:
+      1: ["§7-10% dégâts reçus"]
+      2: ["§7-20% dégâts reçus"]
+      3: ["§7-30% dégâts reçus"]
+
+  CRITICAL:
+    display: "§dCritique"
+    description: "Augmente la chance de coup critique"
+    max_level: 3
+    icon: "DIAMOND"
+    nexo_ids:
+      1: "critical_rune_i"
+      2: "critical_rune_ii"
+      3: "critical_rune_iii"
+    bonuses:
+      1:
+        critical_chance: 0.15
+      2:
+        critical_chance: 0.30
+      3:
+        critical_chance: 0.45
+    lore:
+      1: ["§7+15% chance de crit"]
+      2: ["§7+30% chance de crit"]
+      3: ["§7+45% chance de crit"]
+
+  REGENERATION:
+    display: "§aRégénération"
+    description: "Régénère la vie progressivement"
+    max_level: 3
+    icon: "NETHER_WART"
+    nexo_ids:
+      1: "regeneration_rune_i"
+      2: "regeneration_rune_ii"
+      3: "regeneration_rune_iii"
+    bonuses:
+      1:
+        regeneration_per_second: 0.5
+      2:
+        regeneration_per_second: 1.0
+      3:
+        regeneration_per_second: 1.5
+    lore:
+      1: ["§7+0.5 HP/s"]
+      2: ["§7+1.0 HP/s"]
+      3: ["§7+1.5 HP/s"]
+
+  VAMPIRISM:
+    display: "§cVampirisme"
+    description: "Vol de vie lors des attaques"
+    max_level: 3
+    icon: "REDSTONE_BLOCK"
+    nexo_ids:
+      1: "vampirism_rune_i"
+      2: "vampirism_rune_ii"
+      3: "vampirism_rune_iii"
+    bonuses:
+      1:
+        vampirism_percent: 0.1
+      2:
+        vampirism_percent: 0.2
+      3:
+        vampirism_percent: 0.3
+    lore:
+      1: ["§7Vol de 10% des dégâts"]
+      2: ["§7Vol de 20% des dégâts"]
+      3: ["§7Vol de 30% des dégâts"]
+
+  THORNS:
+    display: "§eÉpines"
+    description: "Retour de dégâts aux attaquants"
+    max_level: 3
+    icon: "ROSE_BUSH"
+    nexo_ids:
+      1: "thorns_rune_i"
+      2: "thorns_rune_ii"
+      3: "thorns_rune_iii"
+    bonuses:
+      1:
+        thorns_percent: 0.2
+      2:
+        thorns_percent: 0.4
+      3:
+        thorns_percent: 0.6
+    lore:
+      1: ["§7Retour de 20% dégâts"]
+      2: ["§7Retour de 40% dégâts"]
+      3: ["§7Retour de 60% dégâts"]
+
+  WISDOM:
+    display: "§bSagesse"
+    description: "Augmente l'expérience gagnée"
+    max_level: 3
+    icon: "EMERALD"
+    nexo_ids:
+      1: "wisdom_rune_i"
+      2: "wisdom_rune_ii"
+      3: "wisdom_rune_iii"
+    bonuses:
+      1:
+        xp_multiplier: 1.5
+      2:
+        xp_multiplier: 2.0
+      3:
+        xp_multiplier: 2.5
+    lore:
+      1: ["§7+50% XP gagnée"]
+      2: ["§7+100% XP gagnée"]
+      3: ["§7+150% XP gagnée"]
+
+  LUCK:
+    display: "§fChance"
+    description: "Augmente les loots rares"
+    max_level: 3
+    icon: "GLOWSTONE"
+    nexo_ids:
+      1: "luck_rune_i"
+      2: "luck_rune_ii"
+      3: "luck_rune_iii"
+    bonuses:
+      1:
+        rare_loot_chance: 0.1
+      2:
+        rare_loot_chance: 0.2
+      3:
+        rare_loot_chance: 0.3
+    lore:
+      1: ["§7+10% loots rares"]
+      2: ["§7+20% loots rares"]
+      3: ["§7+30% loots rares"]
+
+# Configuration des coffres de donjon
+chests:
+  min_kills_to_open: 5
+  chest_items:
+    RUNE:
+      chance: 0.3
+      amount: 1
+    RARE_LOOT:
+      chance: 0.2
+      amount: 1
+    COMMON_LOOT:
+      chance: 0.5
+      amount: 2
+
+# Configuration des améliorations d'armure
+armor:
+  base_level_max: 200
+  enchantment_unlock_level: 50
+  max_runes_per_piece: 9
+  progression_per_kill: 1
+  progression_reset_at: 50

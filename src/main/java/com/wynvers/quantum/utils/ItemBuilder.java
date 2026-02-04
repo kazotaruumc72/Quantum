@@ -43,6 +43,7 @@ public class ItemBuilder {
         // Only apply custom modifications if explicitly defined in MenuItem
         ItemMeta meta = item.getItemMeta();
         meta.setTooltipStyle(NamespacedKey.fromString("minecraft:votre_style"));
+        item.setItemMeta(meta);
         if (meta != null) {
             boolean modified = false;
         

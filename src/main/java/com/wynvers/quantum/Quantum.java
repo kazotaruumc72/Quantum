@@ -2,6 +2,7 @@ package com.wynvers.quantum;
 
 import com.wynvers.quantum.commands.*;
 import com.wynvers.quantum.listeners.MenuListener;
+import com.wynvers.quantum.listeners.ScoreboardListener;
 import com.wynvers.quantum.listeners.StorageListener;
 import com.wynvers.quantum.placeholder.QuantumPlaceholderExpansion;
 import com.wynvers.quantum.placeholders.QuantumExpansion;
@@ -121,12 +122,15 @@ public final class Quantum extends JavaPlugin {
         // Initialize legacy MessagesManager for compatibility
         this.messagesManager = new MessagesManager(this);
         
+        // Initialize scoreboard manager (always available)
+        this.scoreboardManager = new ScoreboardManager(this);
+        logger.success("✓ Scoreboard Manager initialized!");
+        
         // Initialize WorldGuard zone system
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
             this.killTracker = new KillTracker(this);
             this.zoneManager = new ZoneManager(this);
             this.towerManager = new TowerManager(this);
-            this.scoreboardManager = new ScoreboardManager(this);
             this.scoreboardHandler = new TowerScoreboardHandler(this);
             logger.success("✓ WorldGuard integration enabled!");
             logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
@@ -372,6 +376,12 @@ public final class Quantum extends JavaPlugin {
         
         Bukkit.getPluginManager().registerEvents(new StorageListener(this), this);
         logger.success("✓ Storage Listener");
+        
+        // Register ScoreboardListener for auto-scoreboard on join
+        if (scoreboardManager != null) {
+            Bukkit.getPluginManager().registerEvents(new ScoreboardListener(this), this);
+            logger.success("✓ Scoreboard Listener (auto-enable on join)");
+        }
         
         // Register ZoneListener if WorldGuard is available
         if (zoneManager != null) {

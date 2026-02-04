@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  */
 public class DungeonArmor {
     
-    private final JavaPlugin plugin;
+    public final JavaPlugin plugin; // Public pour accès depuis ArmorGUI
     private final NamespacedKey armorKey;
     private final NamespacedKey levelKey;
     private final NamespacedKey runesKey;

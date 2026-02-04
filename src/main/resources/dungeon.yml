@@ -1,249 +1,142 @@
-# Configuration du système de donjon et runes Quantum
-# Ce fichier configure les runes, leurs bonus et les loots
+# ========================================
+#  QUANTUM - Dungeon Runes Configuration
+# ========================================
+#
+# Configuration des runes de donjon avec Nexo
+# Chaque rune a 3 niveaux avec des Nexo IDs différents
 
-# =====================================
-# CONFIGURATION DES PIÈCES D'ARMURE
-# =====================================
-armor_pieces:
-  helmet:
-    nexo_id: "dungeon_helmet"
-    display_name: "§6§lCasque de Donjon"
-    base_material: "DIAMOND_HELMET"
-  
-  chestplate:
-    nexo_id: "dungeon_chestplate"
-    display_name: "§6§lPlastron de Donjon"
-    base_material: "DIAMOND_CHESTPLATE"
-  
-  leggings:
-    nexo_id: "dungeon_leggings"
-    display_name: "§6§lJambières de Donjon"
-    base_material: "DIAMOND_LEGGINGS"
-  
-  boots:
-    nexo_id: "dungeon_boots"
-    display_name: "§6§lBottes de Donjon"
-    base_material: "DIAMOND_BOOTS"
-
-# =====================================
-# CONFIGURATION DES RUNES
-# =====================================
 runes:
-  FORCE:
-    display: "§cForce"
-    description: "Augmente les dégâts"
+  force:
+    display_name: "§c⚔ Force"
     max_level: 3
-    icon: "REDSTONE"
-    # IDs Nexo pour les items physiques de runes (craft/drop)
-    item_nexo_ids:
-      1: "force_rune_i"
-      2: "force_rune_ii"
-      3: "force_rune_iii"
-    bonuses:
+    levels:
       1:
-        damage_multiplier: 1.2
+        description: "§7+10% dégâts"
+        nexo_id: "rune_force_1"
+        damage_bonus: 1.1
       2:
-        damage_multiplier: 1.4
+        description: "§7+20% dégâts"
+        nexo_id: "rune_force_2"
+        damage_bonus: 1.2
       3:
-        damage_multiplier: 1.6
-    lore:
-      1: ["§7+20% dégâts"]
-      2: ["§7+40% dégâts"]
-      3: ["§7+60% dégâts"]
-
-  SPEED:
-    display: "§9Vitesse"
-    description: "Augmente la vitesse de mouvement"
+        description: "§7+30% dégâts"
+        nexo_id: "rune_force_3"
+        damage_bonus: 1.3
+  
+  speed:
+    display_name: "§b⚡ Vitesse"
     max_level: 3
-    icon: "SUGAR"
-    item_nexo_ids:
-      1: "speed_rune_i"
-      2: "speed_rune_ii"
-      3: "speed_rune_iii"
-    bonuses:
+    levels:
       1:
-        speed_multiplier: 1.1
+        description: "§7+10% vitesse"
+        nexo_id: "rune_speed_1"
       2:
-        speed_multiplier: 1.2
+        description: "§7+20% vitesse"
+        nexo_id: "rune_speed_2"
       3:
-        speed_multiplier: 1.3
-    lore:
-      1: ["§7+10% vitesse"]
-      2: ["§7+20% vitesse"]
-      3: ["§7+30% vitesse"]
-
-  RESISTANCE:
-    display: "§6Résistance"
-    description: "Réduit les dégâts subis"
+        description: "§7+30% vitesse"
+        nexo_id: "rune_speed_3"
+  
+  resistance:
+    display_name: "§a🛡 Résistance"
     max_level: 3
-    icon: "IRON_INGOT"
-    item_nexo_ids:
-      1: "resistance_rune_i"
-      2: "resistance_rune_ii"
-      3: "resistance_rune_iii"
-    bonuses:
+    levels:
       1:
-        damage_reduction: 0.1
+        description: "§7+5% réduction dégâts"
+        nexo_id: "rune_resistance_1"
       2:
-        damage_reduction: 0.2
+        description: "§7+10% réduction dégâts"
+        nexo_id: "rune_resistance_2"
       3:
-        damage_reduction: 0.3
-    lore:
-      1: ["§7-10% dégâts reçus"]
-      2: ["§7-20% dégâts reçus"]
-      3: ["§7-30% dégâts reçus"]
-
-  CRITICAL:
-    display: "§dCritique"
-    description: "Augmente la chance de coup critique"
+        description: "§7+15% réduction dégâts"
+        nexo_id: "rune_resistance_3"
+  
+  critical:
+    display_name: "§e✨ Critique"
     max_level: 3
-    icon: "DIAMOND"
-    item_nexo_ids:
-      1: "critical_rune_i"
-      2: "critical_rune_ii"
-      3: "critical_rune_iii"
-    bonuses:
+    levels:
       1:
-        critical_chance: 0.05
-      2:
-        critical_chance: 0.10
-      3:
+        description: "§7+15% chance coup critique"
+        nexo_id: "rune_critical_1"
         critical_chance: 0.15
-    lore:
-      1: ["§7+5% chance de crit"]
-      2: ["§7+10% chance de crit"]
-      3: ["§7+15% chance de crit"]
-
-  REGENERATION:
-    display: "§aRégénération"
-    description: "Régénère la vie progressivement"
-    max_level: 3
-    icon: "NETHER_WART"
-    item_nexo_ids:
-      1: "regeneration_rune_i"
-      2: "regeneration_rune_ii"
-      3: "regeneration_rune_iii"
-    bonuses:
-      1:
-        regeneration_hearts: 1
       2:
-        regeneration_hearts: 2
+        description: "§7+30% chance coup critique"
+        nexo_id: "rune_critical_2"
+        critical_chance: 0.30
       3:
-        regeneration_hearts: 3
-    lore:
-      1: ["§7+1 ❤/5s"]
-      2: ["§7+2 ❤/5s"]
-      3: ["§7+3 ❤/5s"]
-
-  VAMPIRISM:
-    display: "§cVampirisme"
-    description: "Vol de vie lors des attaques"
+        description: "§7+45% chance coup critique"
+        nexo_id: "rune_critical_3"
+        critical_chance: 0.45
+  
+  vampirism:
+    display_name: "§5🩸 Vampirisme"
     max_level: 3
-    icon: "REDSTONE_BLOCK"
-    item_nexo_ids:
-      1: "vampirism_rune_i"
-      2: "vampirism_rune_ii"
-      3: "vampirism_rune_iii"
-    bonuses:
+    levels:
       1:
-        lifesteal_percent: 0.05
+        description: "§7Vole 10% de vie"
+        nexo_id: "rune_vampirism_1"
+        vampirism_percent: 0.10
       2:
-        lifesteal_percent: 0.10
+        description: "§7Vole 20% de vie"
+        nexo_id: "rune_vampirism_2"
+        vampirism_percent: 0.20
       3:
-        lifesteal_percent: 0.15
-    lore:
-      1: ["§7Vol de 5% des dégâts"]
-      2: ["§7Vol de 10% des dégâts"]
-      3: ["§7Vol de 15% des dégâts"]
-
-  THORNS:
-    display: "§eÉpines"
-    description: "Retour de dégâts aux attaquants"
+        description: "§7Vole 30% de vie"
+        nexo_id: "rune_vampirism_3"
+        vampirism_percent: 0.30
+  
+  regeneration:
+    display_name: "§d💖 Régénération"
     max_level: 3
-    icon: "ROSE_BUSH"
-    item_nexo_ids:
-      1: "thorns_rune_i"
-      2: "thorns_rune_ii"
-      3: "thorns_rune_iii"
-    bonuses:
+    levels:
       1:
-        thorns_percent: 0.10
+        description: "§7+1❤/3s"
+        nexo_id: "rune_regeneration_1"
       2:
-        thorns_percent: 0.20
+        description: "§7+2❤/3s"
+        nexo_id: "rune_regeneration_2"
       3:
-        thorns_percent: 0.30
-    lore:
-      1: ["§7Retour de 10% dégâts"]
-      2: ["§7Retour de 20% dégâts"]
-      3: ["§7Retour de 30% dégâts"]
-
-  WISDOM:
-    display: "§bSagesse"
-    description: "Augmente l'expérience gagnée"
+        description: "§7+3❤/3s"
+        nexo_id: "rune_regeneration_3"
+  
+  strength:
+    display_name: "§6💪 Puissance"
     max_level: 3
-    icon: "EMERALD"
-    item_nexo_ids:
-      1: "wisdom_rune_i"
-      2: "wisdom_rune_ii"
-      3: "wisdom_rune_iii"
-    bonuses:
+    levels:
       1:
-        xp_multiplier: 1.2
+        description: "§7Force I permanent"
+        nexo_id: "rune_strength_1"
       2:
-        xp_multiplier: 1.4
+        description: "§7Force II permanent"
+        nexo_id: "rune_strength_2"
       3:
-        xp_multiplier: 1.6
-    lore:
-      1: ["§7+20% XP gagnée"]
-      2: ["§7+40% XP gagnée"]
-      3: ["§7+60% XP gagnée"]
-
-  LUCK:
-    display: "§fChance"
-    description: "Augmente les loots rares"
+        description: "§7Force III permanent"
+        nexo_id: "rune_strength_3"
+  
+  defense:
+    display_name: "§7🛡️ Défense"
     max_level: 3
-    icon: "GLOWSTONE"
-    item_nexo_ids:
-      1: "luck_rune_i"
-      2: "luck_rune_ii"
-      3: "luck_rune_iii"
-    bonuses:
+    levels:
       1:
-        luck_level: 1
+        description: "§7+2 armure"
+        nexo_id: "rune_defense_1"
       2:
-        luck_level: 2
+        description: "§7+4 armure"
+        nexo_id: "rune_defense_2"
       3:
-        luck_level: 3
-    lore:
-      1: ["§7+1 niveau Luck"]
-      2: ["§7+2 niveaux Luck"]
-      3: ["§7+3 niveaux Luck"]
-
-# =====================================
-# CONFIGURATION DES COFFRES
-# =====================================
-chests:
-  # Nombre minimum de kills pour ouvrir un coffre
-  min_kills_to_open: 5
+        description: "§7+6 armure"
+        nexo_id: "rune_defense_3"
   
-  # Armure complète requise pour ouvrir
-  require_full_armor: true
-
-# =====================================
-# CONFIGURATION DES AMÉLIORATIONS
-# =====================================
-armor:
-  # Niveau maximum de l'armure
-  base_level_max: 200
-  
-  # Niveau requis pour débloquer les enchantements
-  enchantment_unlock_level: 50
-  
-  # Nombre maximum de runes par pièce
-  max_runes_per_piece: 9
-  
-  # Progression par kill
-  progression_per_kill: 1
-  
-  # Réinitialisation de progression à
-  progression_reset_at: 50
+  agility:
+    display_name: "§f🏃 Agilité"
+    max_level: 3
+    levels:
+      1:
+        description: "§7+10% esquive"
+        nexo_id: "rune_agility_1"
+      2:
+        description: "§7+20% esquive"
+        nexo_id: "rune_agility_2"
+      3:
+        description: "§7+30% esquive"
+        nexo_id: "rune_agility_3"

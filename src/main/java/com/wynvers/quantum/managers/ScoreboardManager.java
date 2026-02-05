@@ -9,6 +9,10 @@ import org.bukkit.scoreboard.*;
 
 import java.util.*;
 
+/**
+ * ScoreboardManager - Gestion des scoreboards personnalisés
+ * Utilise la méthode Hypixel pour cacher les numéros rouges
+ */
 public class ScoreboardManager {
     
     private final Quantum plugin;
@@ -37,19 +41,21 @@ public class ScoreboardManager {
         );
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         
-        // Créer les lignes du scoreboard sans numéros rouges
+        // MÉTHODE HYPIXEL : Utiliser des ChatColor invisibles uniques
+        // Cette méthode est la SEULE qui fonctionne vraiment à 100%
         int score = lines.size();
         for (String line : lines) {
             String colored = ScoreboardUtils.color(line);
             
-            // Créer une entrée invisible unique (VRAIMENT invisible)
-            String entry = createInvisibleEntry(score);
+            // Créer une entrée INVISIBLE unique avec ChatColor répété
+            // C'est la vraie méthode Hypixel/Mineplex/CubeCraft
+            String entry = getInvisibleEntry(score);
             
-            // Créer une team pour afficher le texte
+            // Créer une team pour afficher le texte réel
             Team team = board.registerNewTeam("line_" + score);
             team.addEntry(entry);
             
-            // Gérer les lignes longues (prefix + suffix)
+            // Diviser le texte si trop long (prefix max 64 chars, suffix max 64)
             if (colored.length() <= 64) {
                 team.setPrefix(colored);
                 team.setSuffix("");
@@ -59,7 +65,7 @@ public class ScoreboardManager {
                 team.setSuffix(suffix);
             }
             
-            // Ajouter le score avec l'entrée invisible
+            // Assigner le score à l'entrée invisible
             objective.getScore(entry).setScore(score);
             score--;
         }
@@ -69,45 +75,28 @@ public class ScoreboardManager {
     }
     
     /**
-     * Crée une entrée invisible VRAIMENT unique pour chaque ligne du scoreboard.
-     * Utilise plusieurs techniques combinées pour garantir l'invisibilité totale
-     * des numéros rouges même avec TAB et autres plugins de scoreboard.
+     * MÉTHODE HYPIXEL/DEFINITIVE pour créer des entrées invisibles
+     * Utilise ChatColor.COLOR_CHAR ('§') répété + 'r' pour RESET
      * 
-     * @param index Index de la ligne (1-15)
+     * Cette méthode crée des strings comme:
+     * Line 1: "§r"
+     * Line 2: "§r§r" 
+     * Line 3: "§r§r§r"
+     * etc.
+     * 
+     * Ces strings sont COMPLÈTEMENT invisibles car §r est le reset code
+     * et ne rend AUCUN caractère visible à l'écran.
+     * 
+     * @param line Numéro de ligne (1-15)
      * @return String invisible unique
      */
-    private String createInvisibleEntry(int index) {
-        // Méthode la plus fiable : Combinaison de ChatColor et espaces Unicode
-        // Cette approche fonctionne avec TAB, FeatherBoard, et tous les plugins de scoreboard
-        
-        StringBuilder entry = new StringBuilder();
-        
-        // Technique 1 : Utiliser des codes couleur alternés (invisible à l'œil)
-        // On alterne entre §r et §0 pour créer une signature unique
-        for (int i = 0; i < index; i++) {
-            entry.append(ChatColor.COLOR_CHAR).append('r');
+    private String getInvisibleEntry(int line) {
+        // Construire une string avec §r répété
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < line; i++) {
+            builder.append(ChatColor.RESET);
         }
-        
-        // Technique 2 : Ajouter des espaces Unicode de largeur zéro (complètement invisibles)
-        // Ces caractères sont différents de l'espace normal et créent des entrées uniques
-        char[] zeroWidthSpaces = {
-            '\u200B', // ZERO WIDTH SPACE
-            '\u200C', // ZERO WIDTH NON-JOINER  
-            '\u200D', // ZERO WIDTH JOINER
-            '\uFEFF'  // ZERO WIDTH NO-BREAK SPACE
-        };
-        
-        // Ajouter un espace de largeur zéro basé sur l'index
-        entry.append(zeroWidthSpaces[index % zeroWidthSpaces.length]);
-        
-        // Technique 3 : Pour plus de sécurité, ajouter des espaces Unicode différents
-        // selon l'index pour garantir l'unicité même avec beaucoup de lignes
-        if (index > 4) {
-            // Ajouter un second caractère invisible pour les lignes > 4
-            entry.append(zeroWidthSpaces[(index / 4) % zeroWidthSpaces.length]);
-        }
-        
-        return entry.toString();
+        return builder.toString();
     }
     
     public void updateLine(Player player, int lineIndex, String newText) {

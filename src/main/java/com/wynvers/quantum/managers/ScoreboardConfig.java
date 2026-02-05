@@ -6,7 +6,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -73,30 +72,10 @@ public class ScoreboardConfig {
     
     /**
      * Récupère les lignes du scoreboard depuis la config
+     * Utilise uniquement les lignes définies dans scoreboard.yml
      */
     public List<String> getLines() {
-        List<String> configLines = config.getStringList("lines");
-        
-        // Si pas de config, utiliser les lignes par défaut
-        if (configLines.isEmpty()) {
-            List<String> defaultLines = new ArrayList<>();
-            defaultLines.add("&7&m                    ");
-            defaultLines.add("&6&lQUANTUM");
-            defaultLines.add("");
-            defaultLines.add("&7Joueurs: &f%server_online%/%server_max_players%");
-            defaultLines.add("&7Rang: %vault_rank%");
-            defaultLines.add("");
-            defaultLines.add("&e&lStatistiques:");
-            defaultLines.add("&7Items stockés: &a%quantum_stats_total_items%");
-            defaultLines.add("&7Trades: &a%quantum_stats_trades%");
-            defaultLines.add("");
-            defaultLines.add("&b&lTours:");
-            defaultLines.add("&7Tours complétées: &a%quantum_towers_completed%");
-            defaultLines.add("&7&m                    ");
-            return defaultLines;
-        }
-        
-        return configLines;
+        return config.getStringList("lines");
     }
     
     /**

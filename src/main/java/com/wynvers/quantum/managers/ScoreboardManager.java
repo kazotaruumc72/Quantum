@@ -2,8 +2,8 @@ package com.wynvers.quantum.managers;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.utils.ScoreboardUtils;
+import io.papermc.paper.scoreboard.numbers.NumberFormat;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
@@ -11,7 +11,8 @@ import java.util.*;
 
 /**
  * ScoreboardManager - Gestion des scoreboards personnalisés
- * Utilise la méthode Hypixel pour cacher les numéros rouges
+ * Utilise NumberFormat.blank() de Paper 1.20.3+ pour cacher les nombres rouges
+ * Compatible avec Minecraft 1.21.1+
  */
 public class ScoreboardManager {
     
@@ -41,21 +42,20 @@ public class ScoreboardManager {
         );
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         
-        // MÉTHODE HYPIXEL : Utiliser des ChatColor invisibles uniques
-        // Cette méthode est la SEULE qui fonctionne vraiment à 100%
+        // MÉTHODE MODERNE PAPER 1.20.3+ / 1.21+
+        // Utiliser NumberFormat.blank() pour supprimer complètement les nombres
         int score = lines.size();
         for (String line : lines) {
             String colored = ScoreboardUtils.color(line);
             
-            // Créer une entrée INVISIBLE unique avec ChatColor répété
-            // C'est la vraie méthode Hypixel/Mineplex/CubeCraft
-            String entry = getInvisibleEntry(score);
+            // Créer une entrée unique (utilise des espaces invisibles)
+            String entry = getUniqueEntry(score);
             
-            // Créer une team pour afficher le texte réel
+            // Créer une team pour afficher le texte
             Team team = board.registerNewTeam("line_" + score);
             team.addEntry(entry);
             
-            // Diviser le texte si trop long (prefix max 64 chars, suffix max 64)
+            // Diviser le texte si trop long
             if (colored.length() <= 64) {
                 team.setPrefix(colored);
                 team.setSuffix("");
@@ -65,8 +65,14 @@ public class ScoreboardManager {
                 team.setSuffix(suffix);
             }
             
-            // Assigner le score à l'entrée invisible
-            objective.getScore(entry).setScore(score);
+            // Assigner le score avec NumberFormat.blank() pour masquer le nombre rouge
+            Score scoreEntry = objective.getScore(entry);
+            scoreEntry.setScore(score);
+            
+            // ✨ LA CLÉ : NumberFormat.blank() de Paper API 1.20.3+
+            // Cela cache complètement le nombre rouge sur le scoreboard
+            scoreEntry.numberFormat(NumberFormat.blank());
+            
             score--;
         }
         
@@ -75,28 +81,16 @@ public class ScoreboardManager {
     }
     
     /**
-     * MÉTHODE HYPIXEL/DEFINITIVE pour créer des entrées invisibles
-     * Utilise ChatColor.COLOR_CHAR ('§') répété + 'r' pour RESET
+     * Crée une entrée unique pour chaque ligne du scoreboard
+     * Utilise des espaces (invisibles) pour rendre chaque ligne unique
      * 
-     * Cette méthode crée des strings comme:
-     * Line 1: "§r"
-     * Line 2: "§r§r" 
-     * Line 3: "§r§r§r"
-     * etc.
-     * 
-     * Ces strings sont COMPLÈTEMENT invisibles car §r est le reset code
-     * et ne rend AUCUN caractère visible à l'écran.
-     * 
-     * @param line Numéro de ligne (1-15)
-     * @return String invisible unique
+     * @param lineNumber Numéro de ligne (1-15)
+     * @return String unique pour cette ligne
      */
-    private String getInvisibleEntry(int line) {
-        // Construire une string avec §r répété
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < line; i++) {
-            builder.append(ChatColor.RESET);
-        }
-        return builder.toString();
+    private String getUniqueEntry(int lineNumber) {
+        // Utiliser des espaces pour créer des entrées uniques
+        // Chaque ligne aura un nombre différent d'espaces
+        return " ".repeat(lineNumber);
     }
     
     public void updateLine(Player player, int lineIndex, String newText) {

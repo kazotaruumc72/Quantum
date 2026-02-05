@@ -1,6 +1,7 @@
 package com.wynvers.quantum.listeners;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.managers.ScoreboardConfig;
 import com.wynvers.quantum.managers.ScoreboardManager;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
@@ -17,15 +18,18 @@ import java.util.List;
 
 /**
  * Listener qui gère l'affichage automatique du scoreboard
+ * Utilise maintenant ScoreboardConfig pour charger depuis scoreboard.yml
  */
 public class ScoreboardListener implements Listener {
     
     private final Quantum plugin;
     private final ScoreboardManager scoreboardManager;
+    private final ScoreboardConfig scoreboardConfig;
     
     public ScoreboardListener(Quantum plugin) {
         this.plugin = plugin;
         this.scoreboardManager = plugin.getScoreboardManager();
+        this.scoreboardConfig = plugin.getScoreboardConfig();
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -36,19 +40,24 @@ public class ScoreboardListener implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
+                // Vérifier si le scoreboard est activé globalement dans la config
+                if (!scoreboardConfig.isEnabled()) {
+                    return;
+                }
+                
                 // Vérifier si le joueur a le scoreboard activé
                 if (!scoreboardManager.isScoreboardEnabled(player)) {
                     return;
                 }
                 
                 // Charger les lignes depuis scoreboard.yml
-                List<String> lines = getScoreboardLines();
-                String title = plugin.getConfig().getString("scoreboard.title", "&6&lQUANTUM");
+                List<String> lines = scoreboardConfig.getLines();
+                String title = scoreboardConfig.getTitle();
                 
                 // Appliquer le scoreboard
                 scoreboardManager.setScoreboard(player, title, lines);
                 
-                // Démarrer la mise à jour automatique toutes les secondes
+                // Démarrer la mise à jour automatique
                 startScoreboardUpdate(player);
             }
         }.runTaskLater(plugin, 1L);
@@ -63,37 +72,12 @@ public class ScoreboardListener implements Listener {
     }
     
     /**
-     * Récupère les lignes du scoreboard depuis la config
-     */
-    private List<String> getScoreboardLines() {
-        List<String> configLines = plugin.getConfig().getStringList("scoreboard.lines");
-        
-        // Si pas de config, utiliser les lignes par défaut
-        if (configLines.isEmpty()) {
-            List<String> defaultLines = new ArrayList<>();
-            defaultLines.add("&7&m                    ");
-            defaultLines.add("&6&lQUANTUM");
-            defaultLines.add("");
-            defaultLines.add("&7Joueurs: &f%server_online%/%server_max_players%");
-            defaultLines.add("&7Rang: %vault_rank%");
-            defaultLines.add("");
-            defaultLines.add("&e&lStatistiques:");
-            defaultLines.add("&7Items stockés: &a%quantum_stats_total_items%");
-            defaultLines.add("&7Trades: &a%quantum_stats_trades%");
-            defaultLines.add("");
-            defaultLines.add("&b&lTours:");
-            defaultLines.add("&7Tours complétées: &a%quantum_towers_completed%");
-            defaultLines.add("&7&m                    ");
-            return defaultLines;
-        }
-        
-        return configLines;
-    }
-    
-    /**
      * Démarre la mise à jour automatique du scoreboard
+     * Utilise l'intervalle défini dans scoreboard.yml
      */
     private void startScoreboardUpdate(Player player) {
+        long updateInterval = scoreboardConfig.getUpdateInterval();
+        
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -103,7 +87,13 @@ public class ScoreboardListener implements Listener {
                     return;
                 }
                 
-                // Vérifier si le scoreboard est toujours activé
+                // Vérifier si le scoreboard est toujours activé globalement
+                if (!scoreboardConfig.isEnabled()) {
+                    cancel();
+                    return;
+                }
+                
+                // Vérifier si le scoreboard est toujours activé pour ce joueur
                 if (!scoreboardManager.isScoreboardEnabled(player)) {
                     cancel();
                     return;
@@ -116,7 +106,7 @@ public class ScoreboardListener implements Listener {
                 }
                 
                 // Mettre à jour les lignes avec les placeholders
-                List<String> lines = getScoreboardLines();
+                List<String> lines = scoreboardConfig.getLines();
                 List<String> processedLines = new ArrayList<>();
                 
                 for (String line : lines) {
@@ -130,6 +120,6 @@ public class ScoreboardListener implements Listener {
                 // Mettre à jour le scoreboard
                 scoreboardManager.updateAllLines(player, processedLines);
             }
-        }.runTaskTimer(plugin, 20L, 20L); // Toutes les secondes
+        }.runTaskTimer(plugin, updateInterval, updateInterval);
     }
 }

@@ -84,8 +84,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
         }
         
         // === TOWER SYSTEM ===
-        if (params.startsWith("tower_")) {
-            return handleTowerPlaceholder(player, params);
+        if (params.startsWith("tower_") || params.startsWith("towers_")) {            return handleTowerPlaceholder(player, params);
         }
         
         // === KILL TRACKING ===

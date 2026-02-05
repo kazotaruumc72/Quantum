@@ -72,6 +72,7 @@ public final class Quantum extends JavaPlugin {
     private static Quantum instance;
     private Logger logger;
     private ScoreboardManager scoreboardManager;
+    private ScoreboardConfig scoreboardConfig;
     
     // Managers
     private DatabaseManager databaseManager;
@@ -135,9 +136,10 @@ public final class Quantum extends JavaPlugin {
         // Initialize legacy MessagesManager for compatibility
         this.messagesManager = new MessagesManager(this);
         
-        // Initialize scoreboard manager (always available)
+        // Initialize scoreboard config and manager (always available)
+        this.scoreboardConfig = new ScoreboardConfig(this);
         this.scoreboardManager = new ScoreboardManager(this);
-        logger.success("✓ Scoreboard Manager initialized!");
+        logger.success("✓ Scoreboard Config & Manager initialized!");
         
         // Initialize Dungeon Armor system
         this.dungeonArmor = new DungeonArmor(this);
@@ -565,6 +567,9 @@ public final class Quantum extends JavaPlugin {
         if (messageManager != null) messageManager.reload();
         if (guiMessageManager != null) guiMessageManager.reload();
         
+        // Reload scoreboard config
+        if (scoreboardConfig != null) scoreboardConfig.reload();
+        
         // Reload economy & orders
         if (escrowManager != null) escrowManager.reload();
         if (priceManager != null) priceManager.reload();
@@ -736,6 +741,14 @@ public final class Quantum extends JavaPlugin {
      */
     public ScoreboardManager getScoreboardManager() {
         return scoreboardManager;
+    }
+    
+    /**
+     * Get the ScoreboardConfig for scoreboard configuration management
+     * @return ScoreboardConfig instance
+     */
+    public ScoreboardConfig getScoreboardConfig() {
+        return scoreboardConfig;
     }
     
     /**

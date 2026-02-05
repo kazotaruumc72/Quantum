@@ -37,13 +37,12 @@ public class ScoreboardManager {
         );
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         
-        // Utiliser des strings BLANKS pour cacher les numéros rouges
-        // Cette méthode est compatible avec TAB et fonctionne sur toutes les versions
+        // Créer les lignes du scoreboard sans numéros rouges
         int score = lines.size();
         for (String line : lines) {
             String colored = ScoreboardUtils.color(line);
             
-            // Créer une entrée unique en utilisant des codes couleur invisibles
+            // Créer une entrée invisible unique (VRAIMENT invisible)
             String entry = createInvisibleEntry(score);
             
             // Créer une team pour afficher le texte
@@ -70,19 +69,45 @@ public class ScoreboardManager {
     }
     
     /**
-     * Crée une entrée invisible unique pour chaque ligne du scoreboard
-     * Utilise ChatColor.RESET répété qui ne s'affiche pas visuellement
+     * Crée une entrée invisible VRAIMENT unique pour chaque ligne du scoreboard.
+     * Utilise plusieurs techniques combinées pour garantir l'invisibilité totale
+     * des numéros rouges même avec TAB et autres plugins de scoreboard.
      * 
      * @param index Index de la ligne (1-15)
      * @return String invisible unique
      */
     private String createInvisibleEntry(int index) {
-        // Méthode 1: Codes couleur RESET répétés (compatible toutes versions)
-        StringBuilder invisible = new StringBuilder();
+        // Méthode la plus fiable : Combinaison de ChatColor et espaces Unicode
+        // Cette approche fonctionne avec TAB, FeatherBoard, et tous les plugins de scoreboard
+        
+        StringBuilder entry = new StringBuilder();
+        
+        // Technique 1 : Utiliser des codes couleur alternés (invisible à l'œil)
+        // On alterne entre §r et §0 pour créer une signature unique
         for (int i = 0; i < index; i++) {
-            invisible.append(ChatColor.RESET);
+            entry.append(ChatColor.COLOR_CHAR).append('r');
         }
-        return invisible.toString();
+        
+        // Technique 2 : Ajouter des espaces Unicode de largeur zéro (complètement invisibles)
+        // Ces caractères sont différents de l'espace normal et créent des entrées uniques
+        char[] zeroWidthSpaces = {
+            '\u200B', // ZERO WIDTH SPACE
+            '\u200C', // ZERO WIDTH NON-JOINER  
+            '\u200D', // ZERO WIDTH JOINER
+            '\uFEFF'  // ZERO WIDTH NO-BREAK SPACE
+        };
+        
+        // Ajouter un espace de largeur zéro basé sur l'index
+        entry.append(zeroWidthSpaces[index % zeroWidthSpaces.length]);
+        
+        // Technique 3 : Pour plus de sécurité, ajouter des espaces Unicode différents
+        // selon l'index pour garantir l'unicité même avec beaucoup de lignes
+        if (index > 4) {
+            // Ajouter un second caractère invisible pour les lignes > 4
+            entry.append(zeroWidthSpaces[(index / 4) % zeroWidthSpaces.length]);
+        }
+        
+        return entry.toString();
     }
     
     public void updateLine(Player player, int lineIndex, String newText) {

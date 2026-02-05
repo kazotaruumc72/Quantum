@@ -6,6 +6,8 @@ import com.wynvers.quantum.armor.ChestListener;
 import com.wynvers.quantum.armor.DungeonArmor;
 import com.wynvers.quantum.armor.RuneType;
 import com.wynvers.quantum.commands.*;
+import com.wynvers.quantum.commands.ArmorTabCompleter;
+import com.wynvers.quantum.commands.ArmorCommand;
 import com.wynvers.quantum.listeners.MenuListener;
 import com.wynvers.quantum.listeners.ScoreboardListener;
 import com.wynvers.quantum.listeners.StorageListener;

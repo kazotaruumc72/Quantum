@@ -199,7 +199,8 @@ public class TowerScoreboardHandler {
         lines.add("&7%quantum_tower_next_boss%");
         lines.add("");
         lines.add("&b&lTours Complétées:");
-        lines.add("&7%quantum_towers_completed%");
+        lines.add("  &f%quantum_towers_completed%/%quantum_towers_total%");
+                lines.add("  &7(%quantum_towers_percentage%%)");
         lines.add("&7&m                    ");
         
         // Charger depuis la config si disponible

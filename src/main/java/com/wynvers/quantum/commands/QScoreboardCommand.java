@@ -1,24 +1,23 @@
 package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.managers.ScoreboardConfig;
 import com.wynvers.quantum.towers.TowerConfig;
+import com.wynvers.quantum.utils.ScoreboardUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
-
 public class QScoreboardCommand implements CommandExecutor {
     
     private final Quantum plugin;
-    private static final Set<UUID> disabledPlayers = new HashSet<>();
+    private final ScoreboardConfig scoreboardConfig;
     
     public QScoreboardCommand(Quantum plugin) {
         this.plugin = plugin;
+        this.scoreboardConfig = plugin.getScoreboardConfig();
     }
     
     @Override
@@ -26,7 +25,7 @@ public class QScoreboardCommand implements CommandExecutor {
         
         // Vérifier si c'est un joueur
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§c· Cette commande est réservée aux joueurs.");
+            sender.sendMessage(scoreboardConfig.getMessage("errors.player_only"));
             return true;
         }
         
@@ -69,13 +68,15 @@ public class QScoreboardCommand implements CommandExecutor {
                     if (player.hasPermission("quantum.admin")) {
                         Player target = Bukkit.getPlayer(arg);
                         if (target == null) {
-                            player.sendMessage("§c· Joueur introuvable: " + arg);
+                            String msg = scoreboardConfig.getMessage("errors.player_not_found")
+                                .replace("{player}", arg);
+                            player.sendMessage(ScoreboardUtils.color(msg));
                             return true;
                         }
                         toggleScoreboard(player, target);
                         return true;
                     } else {
-                        player.sendMessage("§c· Utilisation: /qscoreboard [on|off|status]");
+                        player.sendMessage(ScoreboardUtils.color(scoreboardConfig.getMessage("errors.invalid_usage")));
                         return true;
                     }
             }
@@ -84,13 +85,15 @@ public class QScoreboardCommand implements CommandExecutor {
         // Si 2 arguments (admin uniquement)
         if (args.length == 2) {
             if (!player.hasPermission("quantum.admin")) {
-                player.sendMessage("§c· Vous n'avez pas la permission d'utiliser cette commande pour d'autres joueurs.");
+                player.sendMessage(ScoreboardUtils.color(scoreboardConfig.getMessage("errors.no_permission")));
                 return true;
             }
             
             Player target = Bukkit.getPlayer(args[1]);
             if (target == null) {
-                player.sendMessage("§c· Joueur introuvable: " + args[1]);
+                String msg = scoreboardConfig.getMessage("errors.player_not_found")
+                    .replace("{player}", args[1]);
+                player.sendMessage(ScoreboardUtils.color(msg));
                 return true;
             }
             
@@ -117,34 +120,33 @@ public class QScoreboardCommand implements CommandExecutor {
                     return true;
                     
                 default:
-                    player.sendMessage("§c· Action invalide. Utilisez: on, off, status");
+                    player.sendMessage(ScoreboardUtils.color(scoreboardConfig.getMessage("errors.invalid_action")));
                     return true;
             }
         }
         
-        player.sendMessage("§c· Utilisation: /qscoreboard [on|off|status] [joueur]");
+        player.sendMessage(ScoreboardUtils.color(scoreboardConfig.getMessage("errors.invalid_usage")));
         return true;
     }
     
     private void toggleScoreboard(Player sender, Player target) {
-        UUID uuid = target.getUniqueId();
-        
-        if (disabledPlayers.contains(uuid)) {
-            enableScoreboard(sender, target);
-        } else {
+        if (plugin.getScoreboardManager().isScoreboardEnabled(target)) {
             disableScoreboard(sender, target);
+        } else {
+            enableScoreboard(sender, target);
         }
     }
     
     private void enableScoreboard(Player sender, Player target) {
-        UUID uuid = target.getUniqueId();
-        disabledPlayers.remove(uuid);
+        plugin.getScoreboardManager().enableScoreboard(target);
         
         if (sender.equals(target)) {
-            sender.sendMessage("§a✓ Scoreboard activé !");
+            sender.sendMessage(ScoreboardUtils.color(scoreboardConfig.getMessage("scoreboard_enabled")));
         } else {
-            sender.sendMessage("§a✓ Scoreboard activé pour " + target.getName());
-            target.sendMessage("§a✓ Votre scoreboard a été activé par un administrateur.");
+            String msg = scoreboardConfig.getMessage("admin.scoreboard_enabled")
+                .replace("{player}", target.getName());
+            sender.sendMessage(ScoreboardUtils.color(msg));
+            target.sendMessage(ScoreboardUtils.color(scoreboardConfig.getMessage("scoreboard_enabled")));
         }
         
         // Si le joueur est dans une tour, réafficher le scoreboard
@@ -158,14 +160,15 @@ public class QScoreboardCommand implements CommandExecutor {
     }
     
     private void disableScoreboard(Player sender, Player target) {
-        UUID uuid = target.getUniqueId();
-        disabledPlayers.add(uuid);
+        plugin.getScoreboardManager().disableScoreboard(target);
         
         if (sender.equals(target)) {
-            sender.sendMessage("§c✗ Scoreboard désactivé !");
+            sender.sendMessage(ScoreboardUtils.color(scoreboardConfig.getMessage("scoreboard_disabled")));
         } else {
-            sender.sendMessage("§c✗ Scoreboard désactivé pour " + target.getName());
-            target.sendMessage("§c✗ Votre scoreboard a été désactivé par un administrateur.");
+            String msg = scoreboardConfig.getMessage("admin.scoreboard_disabled")
+                .replace("{player}", target.getName());
+            sender.sendMessage(ScoreboardUtils.color(msg));
+            target.sendMessage(ScoreboardUtils.color(scoreboardConfig.getMessage("scoreboard_disabled")));
         }
         
         // Désactiver le scoreboard de tour si actif
@@ -182,27 +185,17 @@ public class QScoreboardCommand implements CommandExecutor {
     }
     
     private void showStatus(Player sender, Player target) {
-        UUID uuid = target.getUniqueId();
-        boolean enabled = !disabledPlayers.contains(uuid);
+        boolean enabled = plugin.getScoreboardManager().isScoreboardEnabled(target);
+        
+        String statusMsg = enabled ? 
+            scoreboardConfig.getMessage("status.enabled") : 
+            scoreboardConfig.getMessage("status.disabled");
         
         if (sender.equals(target)) {
-            sender.sendMessage("§6· Statut du scoreboard: " + (enabled ? "§a✓ Activé" : "§c✗ Désactivé"));
+            sender.sendMessage(ScoreboardUtils.color(statusMsg));
         } else {
-            sender.sendMessage("§6· Scoreboard de " + target.getName() + ": " + (enabled ? "§a✓ Activé" : "§c✗ Désactivé"));
+            String msg = statusMsg + " §7pour " + target.getName();
+            sender.sendMessage(ScoreboardUtils.color(msg));
         }
-    }
-    
-    /**
-     * Vérifie si le scoreboard est désactivé pour un joueur
-     */
-    public static boolean isDisabled(Player player) {
-        return disabledPlayers.contains(player.getUniqueId());
-    }
-    
-    /**
-     * Nettoie les données d'un joueur qui se déconnecte
-     */
-    public static void cleanup(Player player) {
-        disabledPlayers.remove(player.getUniqueId());
     }
 }

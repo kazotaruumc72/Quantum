@@ -1,39 +1,29 @@
 # Configuration du scoreboard Quantum
-# Ce scoreboard s'affiche en dehors des tours/donjons
+# Design inspiré des meilleurs serveurs (Hypixel, Mineplex, CubeCraft)
 
 # Activé par défaut
 enabled: true
 
 # Titre du scoreboard (avec codes couleurs Minecraft)
+# Supporte les codes &, les hex colors et les placeholders
 title: "&6&lQUANTUM"
 
 # Lignes du scoreboard (de haut en bas)
 # Supporte PlaceholderAPI avec %placeholder%
+# Utilise des lignes vides avec différents codes couleur pour l'espacement
 lines:
-  - "&7&m                    "
-  - "&e&lVotre Progression:"
-  - ""
-  - "&6&lTours Complétées:"
-  - "  &f%quantum_towers_completed%"
-  - "  &7(%quantum_towers_percentage% total)"
-  - ""
-  - "&d&l✦ Tour du Feu:"
-  - "  &f%quantum_tower_fire_progress%"
-  - "  &7%quantum_tower_fire_percentage%"
-  - ""
-  - "&b&l❄ Tour de Glace:"
-  - "  &f%quantum_tower_ice_progress%"
-  - "  &7%quantum_tower_ice_percentage%"
-  - ""
-  - "&a&l☘ Tour de Nature:"
-  - "  &f%quantum_tower_nature_progress%"
-  - "  &7%quantum_tower_nature_percentage%"
-  - ""
-  - "&5&l☢ Tour d'Ombre:"
-  - "  &f%quantum_tower_shadow_progress%"
-  - "  &7%quantum_tower_shadow_percentage%"
-  - ""
-  - "&7&m                    "
+  - "&7&m━━━━━━━━━━━━━━━━━"
+  - "&r"
+  - "&e⚡ &fVotre Progression"
+  - "&r "
+  - "&6⚔ Tours Complétées&7:"
+  - "  &f%quantum_towers_completed%/%quantum_towers_total%"
+  - "  &7(%quantum_towers_percentage%%)"
+  - "&0&r"
+  - "&7● Serveur&7:"
+  - "  &f%server_online% joueurs"
+  - "&1&r"
+  - "&7&m━━━━━━━━━━━━━━━━━"
 
 # Fréquence de mise à jour (en ticks, 20 ticks = 1 seconde)
 update-interval: 20
@@ -43,6 +33,9 @@ messages:
   # Activation/Désactivation pour soi-même
   scoreboard_enabled: "&a✓ Scoreboard activé !"
   scoreboard_disabled: "&c✗ Scoreboard désactivé !"
+  
+  # Config rechargée
+  config_reloaded: "&a✓ Configuration du scoreboard rechargée !"
   
   # Statut
   status:
@@ -59,5 +52,5 @@ messages:
     player_only: "&c· Cette commande est réservée aux joueurs."
     no_permission: "&c· Vous n'avez pas la permission d'utiliser cette commande pour d'autres joueurs."
     player_not_found: "&c· Joueur introuvable: {player}"
-    invalid_action: "&c· Action invalide. Utilisez: on, off, status"
-    invalid_usage: "&c· Utilisation: /qscoreboard [on|off|status] [joueur]"
+    invalid_action: "&c· Action invalide. Utilisez: on, off, status, reload"
+    invalid_usage: "&c· Utilisation: /qscoreboard [on|off|status|reload] [joueur]"

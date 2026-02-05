@@ -150,7 +150,32 @@ public class QuantumExpansion extends PlaceholderExpansion {
     private String handleTowerPlaceholder(Player player, String params) {
         TowerManager towerManager = plugin.getTowerManager();
         if (towerManager == null) {
+            // Pas de WorldGuard / Tours non configurées
+            if (params.equals("towers_completed")) {
+                return "Aucune tour configurée";
+            }
+            if (params.equals("towers_total")) {
+                return "0";
+            }
+            if (params.equals("towers_percentage")) {
+                return "0.0";
+            }
             return "";
+        }
+        
+        Map<String, TowerConfig> towers = towerManager.getAllTowers();
+        
+        // Cas spécial : Aucune tour configurée
+        if (towers.isEmpty()) {
+            if (params.equals("towers_completed")) {
+                return "Aucune tour configurée";
+            }
+            if (params.equals("towers_total")) {
+                return "0";
+            }
+            if (params.equals("towers_percentage")) {
+                return "0.0";
+            }
         }
         
         TowerProgress progress = towerManager.getProgress(player.getUniqueId());
@@ -264,17 +289,21 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return isCompleted ? "true" : "false";
         }
         
-        // %quantum_towers_completed% - Number of completed towers (2/4)
+        // %quantum_towers_completed% - Number of completed towers (format: "2" or "Aucune tour configurée")
         if (params.equals("towers_completed")) {
-            Map<String, TowerConfig> towers = towerManager.getAllTowers();
+            if (towers.isEmpty()) return "Aucune tour configurée";
             int completed = progress.getCompletedTowersCount(towers);
-            return completed + "/" + towers.size();
+            return String.valueOf(completed);
         }
         
-        // %quantum_towers_percentage% - Overall towers completion percentage (50.0%)
+        // %quantum_towers_total% - Total number of towers configured (format: "4")
+        if (params.equals("towers_total")) {
+            return String.valueOf(towers.size());
+        }
+        
+        // %quantum_towers_percentage% - Overall towers completion percentage (50.0 or 0.0)
         if (params.equals("towers_percentage")) {
-            Map<String, TowerConfig> towers = towerManager.getAllTowers();
-            if (towers.isEmpty()) return "0.0%";
+            if (towers.isEmpty()) return "0.0";
             
             int totalFloors = 0;
             int completedFloors = 0;
@@ -286,15 +315,14 @@ public class QuantumExpansion extends PlaceholderExpansion {
                 completedFloors += progress.getFloorProgress(towerId);
             }
             
-            if (totalFloors == 0) return "100.0%";
+            if (totalFloors == 0) return "100.0";
             double percentage = (completedFloors * 100.0) / totalFloors;
-            return percentFormat.format(percentage) + "%";
+            return percentFormat.format(percentage);
         }
         
         // %quantum_total_floors_completed% - Total floors across all towers (45/100)
         if (params.equals("total_floors_completed")) {
             int totalFloors = progress.getTotalFloorsCompleted();
-            Map<String, TowerConfig> towers = towerManager.getAllTowers();
             int maxFloors = towers.values().stream()
                     .mapToInt(TowerConfig::getTotalFloors)
                     .sum();

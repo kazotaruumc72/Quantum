@@ -2,7 +2,6 @@ package com.wynvers.quantum;
 
 import com.wynvers.quantum.armor.ArmorListener;
 import com.wynvers.quantum.armor.ArmorManager;
-import com.wynvers.quantum.armor.ChestListener;
 import com.wynvers.quantum.armor.DungeonArmor;
 import com.wynvers.quantum.armor.RuneType;
 import com.wynvers.quantum.commands.*;
@@ -63,7 +62,6 @@ import java.nio.file.StandardCopyOption;
  * - Tower progression system with 4 towers (25 floors + final boss each)
  * - Integrated tower scoreboard system (auto-disable Oreo Essentials)
  * - Dungeon armor system with runes (9 types, 3 levels each)
- * - Configurable chest loots per tower and floor
  * - Configurable dungeon armor IDs (Nexo items)
  * - Interactive rune equipment menu (drag & drop)
  */
@@ -240,9 +238,6 @@ public final class Quantum extends JavaPlugin {
         
         // Extract dungeon config
         extractResource("dungeon.yml");
-        
-        // Extract tower loots config (NEW)
-        extractResource("tower_loots.yml");
         
         // Extract dungeon armor config (NEW)
         extractResource("dungeon_armor.yml");
@@ -422,12 +417,9 @@ public final class Quantum extends JavaPlugin {
             logger.success("✓ Zone Listener");
         }
         
-        // Register ArmorListener and ChestListener
+        // Register ArmorListener
         Bukkit.getPluginManager().registerEvents(new ArmorListener(this), this);
         logger.success("✓ Armor Listener (bonus system)");
-        
-        Bukkit.getPluginManager().registerEvents(new ChestListener(this), this);
-        logger.success("✓ Chest Listener (dungeon loots system)");
     }
     
     private void registerCommands() {

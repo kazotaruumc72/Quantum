@@ -152,6 +152,14 @@ public class QuantumCommand implements CommandExecutor {
                             }
                             break;
                             
+                        case "dungeon":
+                        case "dungeon.yml":
+                            if (plugin.getDungeonManager() != null) {
+                                plugin.getDungeonManager().loadItems();
+                                sender.sendMessage("§a§l✓ §adungeon.yml rechargé!");
+                            }
+                            break;
+                            
                         case "stats":
                         case "statistics":
                         case "statistics.yml":

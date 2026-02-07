@@ -107,16 +107,16 @@ public class ArmorManager {
             amplifier = Math.max(0, amplifier - 1); // PotionEffect amplifier commence à 0
 
             player.addPotionEffect(new PotionEffect(
-                PotionEffectType.JUMP,
-                20 * 30,           // 30 secondes, réappliqué quand on réactualise les runes
+                PotionEffectType.JUMP_BOOST,
+                20 * 30,
                 amplifier,
-                true,              // ambient
-                false,             // particles
-                false              // icon
+                true,
+                false,
+                false
             ));
         } else {
             // Si plus de rune AGILITY, on retire l'effet
-            player.removePotionEffect(PotionEffectType.JUMP);
+            player.removePotionEffect(PotionEffectType.JUMP_BOOST);
         }
     }
     
@@ -222,6 +222,6 @@ public class ArmorManager {
         playerRunes.remove(player);
         playerRegenTicks.remove(player);
         player.setWalkSpeed(0.2f); // Vitesse par défaut
-        player.removePotionEffect(PotionEffectType.JUMP); // on retire aussi le jump
+        player.removePotionEffect(PotionEffectType.JUMP_BOOST); // on retire aussi le jump
     }
 }

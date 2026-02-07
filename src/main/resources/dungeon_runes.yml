@@ -1,0 +1,197 @@
+# ========================================
+#  QUANTUM - Dungeon Runes Configuration
+# ========================================
+#
+# Configuration des runes de donjon avec Nexo
+# Chaque rune a 3 niveaux avec des Nexo IDs différents
+
+runes:
+  force:
+    display_name: "§c⚔ Force"
+    max_level: 3
+    levels:
+      1:
+        description: "§7+10% dégâts"
+        nexo_id: "rune_force_1"
+        damage_bonus: 1.1
+      2:
+        description: "§7+20% dégâts"
+        nexo_id: "rune_force_2"
+        damage_bonus: 1.2
+      3:
+        description: "§7+30% dégâts"
+        nexo_id: "rune_force_3"
+        damage_bonus: 1.3
+  
+  speed:
+    display_name: "§b⚡ Vitesse"
+    max_level: 3
+    levels:
+      1:
+        description: "§7+10% vitesse"
+        nexo_id: "rune_speed_1"
+        speed_bonus: 1.1
+      2:
+        description: "§7+20% vitesse"
+        nexo_id: "rune_speed_2"
+        speed_bonus: 1.2
+      3:
+        description: "§7+30% vitesse"
+        nexo_id: "rune_speed_3"
+        speed_bonus: 1.3
+  
+  resistance:
+    display_name: "§a🛡 Résistance"
+    max_level: 3
+    levels:
+      1:
+        description: "§7+5% réduction dégâts"
+        nexo_id: "rune_resistance_1"
+        damage_reduction: 0.05
+      2:
+        description: "§7+10% réduction dégâts"
+        nexo_id: "rune_resistance_2"
+        damage_reduction: 0.10
+      3:
+        description: "§7+15% réduction dégâts"
+        nexo_id: "rune_resistance_3"
+        damage_reduction: 0.15
+  
+  critical:
+    display_name: "§e✨ Critique"
+    max_level: 3
+    levels:
+      1:
+        description: "§7+15% chance coup critique"
+        nexo_id: "rune_critical_1"
+        critical_chance: 0.15
+        critical_multiplier: 1.5
+      2:
+        description: "§7+30% chance coup critique"
+        nexo_id: "rune_critical_2"
+        critical_chance: 0.30
+        critical_multiplier: 1.75
+      3:
+        description: "§7+45% chance coup critique"
+        nexo_id: "rune_critical_3"
+        critical_chance: 0.45
+        critical_multiplier: 2.0
+  
+  vampirism:
+    display_name: "§5🩸 Vampirisme"
+    max_level: 3
+    levels:
+      1:
+        description: "§7Vole 10% de vie"
+        nexo_id: "rune_vampirism_1"
+        vampirism_percent: 0.10
+      2:
+        description: "§7Vole 20% de vie"
+        nexo_id: "rune_vampirism_2"
+        vampirism_percent: 0.20
+      3:
+        description: "§7Vole 30% de vie"
+        nexo_id: "rune_vampirism_3"
+        vampirism_percent: 0.30
+  
+  regeneration:
+    display_name: "§d💖 Régénération"
+    max_level: 3
+    levels:
+      1:
+        description: "§7+1❤/3s"
+        nexo_id: "rune_regeneration_1"
+        health_per_tick: 1.0
+        tick_interval: 60
+      2:
+        description: "§7+2❤/3s"
+        nexo_id: "rune_regeneration_2"
+        health_per_tick: 2.0
+        tick_interval: 60
+      3:
+        description: "§7+3❤/3s"
+        nexo_id: "rune_regeneration_3"
+        health_per_tick: 3.0
+        tick_interval: 60
+  
+  strength:
+    display_name: "§6💪 Puissance"
+    max_level: 3
+    levels:
+      1:
+        description: "§7Force I permanent"
+        nexo_id: "rune_strength_1"
+        potion_effect: "STRENGTH"
+        potion_amplifier: 0
+        potion_duration: -1
+      2:
+        description: "§7Force II permanent"
+        nexo_id: "rune_strength_2"
+        potion_effect: "STRENGTH"
+        potion_amplifier: 1
+        potion_duration: -1
+      3:
+        description: "§7Force III permanent"
+        nexo_id: "rune_strength_3"
+        potion_effect: "STRENGTH"
+        potion_amplifier: 2
+        potion_duration: -1
+  
+  defense:
+    display_name: "§7🛡️ Défense"
+    max_level: 3
+    levels:
+      1:
+        description: "§7+2 armure"
+        nexo_id: "rune_defense_1"
+        armor_points: 2
+      2:
+        description: "§7+4 armure"
+        nexo_id: "rune_defense_2"
+        armor_points: 4
+      3:
+        description: "§7+6 armure"
+        nexo_id: "rune_defense_3"
+        armor_points: 6
+  
+  agility:
+    display_name: "§f🏃 Agilité"
+    max_level: 3
+    levels:
+      1:
+        description: "§7+10% esquive"
+        nexo_id: "rune_agility_1"
+        dodge_chance: 0.10
+      2:
+        description: "§7+20% esquive"
+        nexo_id: "rune_agility_2"
+        dodge_chance: 0.20
+      3:
+        description: "§7+30% esquive"
+        nexo_id: "rune_agility_3"
+        dodge_chance: 0.30
+
+# Configuration globale des runes
+settings:
+  # Nombre maximum de runes équipables simultanément
+  max_equipped_runes: 3
+  
+  # Cooldown entre les changements de runes (en secondes)
+  rune_swap_cooldown: 10
+  
+  # Afficher les particules des runes actives
+  show_particles: true
+  
+  # Couleurs des particules par rareté
+  particle_colors:
+    level_1: "WHITE"
+    level_2: "YELLOW"
+    level_3: "GOLD"
+  
+  # Messages de confirmation
+  messages:
+    rune_equipped: "§a✓ Rune équipée : %rune_name% §7(Niveau %level%)"
+    rune_unequipped: "§c✗ Rune retirée : %rune_name%"
+    max_runes_reached: "§c✗ Vous avez déjà %max% runes équipées !"
+    cooldown_active: "§c✗ Attendez %time%s avant de changer de rune"
+    invalid_rune: "§c✗ Cette rune n'existe pas ou est invalide"

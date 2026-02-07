@@ -14,7 +14,15 @@ public class TowerProgress {
     private String currentTower;
     private int currentFloor;
     private final Map<String, Integer> currentKills; // mobId -> kills
+    private final Map<String, Integer> runsByTower = new HashMap<>();
+
+    public int getRuns(String towerId) {
+        return runsByTower.getOrDefault(towerId, 0);
+    }
     
+    public void incrementRuns(String towerId) {
+        runsByTower.put(towerId, getRuns(towerId) + 1);
+    }
     public TowerProgress(UUID playerUuid) {
         this.playerUuid = playerUuid;
         this.towerProgress = new HashMap<>();

@@ -4,6 +4,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
 
@@ -64,6 +66,7 @@ public class ArmorManager {
         // Appliquer les bonus
         applySpeedBonus(player, combinedRunes);
         applyResistanceBonus(player, combinedRunes);
+        applyJumpEffect(player); // <- nouveau : rune AGILITY = saut
         initializeRegenTicks(player);
     }
     
@@ -91,6 +94,29 @@ public class ArmorManager {
         if (runes.containsKey(RuneType.RESISTANCE)) {
             int level = runes.get(RuneType.RESISTANCE);
             // Le bonus est récupéré via getDamageReduction() quand nécessaire
+        }
+    }
+
+    /**
+     * Applique le bonus de saut (rune AGILITY)
+     */
+    private void applyJumpEffect(Player player) {
+        double jumpBonus = getJumpBonus(player);
+        if (jumpBonus > 0) {
+            int amplifier = (int) Math.round(jumpBonus * 5); // à ajuster selon ta courbe
+            amplifier = Math.max(0, amplifier - 1); // PotionEffect amplifier commence à 0
+
+            player.addPotionEffect(new PotionEffect(
+                PotionEffectType.JUMP,
+                20 * 30,           // 30 secondes, réappliqué quand on réactualise les runes
+                amplifier,
+                true,              // ambient
+                false,             // particles
+                false              // icon
+            ));
+        } else {
+            // Si plus de rune AGILITY, on retire l'effet
+            player.removePotionEffect(PotionEffectType.JUMP);
         }
     }
     
@@ -134,6 +160,17 @@ public class ArmorManager {
         Map<RuneType, Integer> runes = playerRunes.getOrDefault(player, new HashMap<>());
         if (runes.containsKey(RuneType.VAMPIRISM)) {
             return RuneType.VAMPIRISM.getVampirismPercent(runes.get(RuneType.VAMPIRISM));
+        }
+        return 0.0;
+    }
+
+    /**
+     * Récupère le bonus de saut (AGILITY) pour un joueur
+     */
+    public double getJumpBonus(Player player) {
+        Map<RuneType, Integer> runes = playerRunes.getOrDefault(player, new HashMap<>());
+        if (runes.containsKey(RuneType.AGILITY)) {
+            return RuneType.AGILITY.getJumpBonus(runes.get(RuneType.AGILITY));
         }
         return 0.0;
     }
@@ -185,5 +222,6 @@ public class ArmorManager {
         playerRunes.remove(player);
         playerRegenTicks.remove(player);
         player.setWalkSpeed(0.2f); // Vitesse par défaut
+        player.removePotionEffect(PotionEffectType.JUMP); // on retire aussi le jump
     }
 }

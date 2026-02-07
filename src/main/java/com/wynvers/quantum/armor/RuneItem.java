@@ -79,6 +79,40 @@ public class RuneItem {
 
         return item;
     }
+    public ItemStack createRuneWithChance(RuneType rune, int level, int forcedChance) {
+        String nexoId = rune.getNexoId(level);
+        if (nexoId == null) return null;
+    
+        com.nexomc.nexo.items.ItemBuilder builder = NexoItems.itemFromId(nexoId);
+        if (builder == null) return null;
+    
+        ItemStack item = builder.build();
+        if (item == null) return null;
+    
+        // Utiliser le pourcentage forcé
+        int successChance = Math.max(0, Math.min(100, forcedChance));
+    
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.getPersistentDataContainer().set(successChanceKey, PersistentDataType.INTEGER, successChance);
+            
+            List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
+            lore.add("");
+            
+            String color = getChanceColor(successChance);
+            lore.add(color + "§l✦ Taux de réussite: " + successChance + "%");
+            lore.add("");
+            lore.add("§7" + rune.getDescription(level));
+            lore.add("");
+            lore.add("§c⚠ Si la rune échoue, elle sera détruite");
+            lore.add("§a✔ Si elle réussit, elle sera permanente");
+            
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
+    
+        return item;
+    }
 
     /**
      * Récupère le taux de réussite stocké dans une rune

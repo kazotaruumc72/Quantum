@@ -22,6 +22,7 @@ import com.wynvers.quantum.worldguard.KillTracker;
 import com.wynvers.quantum.worldguard.ZoneListener;
 import com.wynvers.quantum.worldguard.ZoneManager;
 import com.wynvers.quantum.tabcompleters.*;
+import com.wynvers.quantum.tabcompleters.QuantumArmorRuneTabCompleter;
 import com.wynvers.quantum.managers.*;
 import com.wynvers.quantum.orders.OrderAcceptanceHandler;
 import com.wynvers.quantum.orders.OrderButtonHandler;

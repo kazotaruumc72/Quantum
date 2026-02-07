@@ -103,7 +103,7 @@ public final class Quantum extends JavaPlugin {
     private DungeonArmor dungeonArmor; // NEW: Dungeon armor system
     private ArmorManager armorManager; // NEW: Armor manager
     private RuneItem runeItem; // NEW: Rune item utility
-    
+    private DatabaseManager databaseManager;
     // Utils
     private ActionExecutor actionExecutor;
     
@@ -127,6 +127,8 @@ public final class Quantum extends JavaPlugin {
         
         // Save default config
         saveDefaultConfig();
+
+        this.databaseManager = new DatabaseManager(this);
 
         // Initialize NEW message managers FIRST
         this.messageManager = new MessageManager(this);
@@ -598,6 +600,10 @@ public final class Quantum extends JavaPlugin {
     }
 
     // === GETTERS ===
+
+    public DatabaseManager getDatabaseManager() {
+        return databaseManager;
+    }
     
     public static Quantum getInstance() {
         return instance;

@@ -76,6 +76,7 @@ public final class Quantum extends JavaPlugin {
     private ScoreboardConfig scoreboardConfig;
     
     // Managers
+    private PlayerLevelManager playerLevelManager;
     private DatabaseManager databaseManager;
     private StorageManager storageManager;
     private MenuManager menuManager;
@@ -129,7 +130,11 @@ public final class Quantum extends JavaPlugin {
         saveDefaultConfig();
 
         this.databaseManager = new DatabaseManager(this);
+        this.playerLevelManager = new PlayerLevelManager(this, databaseManager);
 
+        getServer().getPluginManager().registerEvents(
+                new PlayerLevelListener(this, playerLevelManager), this
+        );
         // Initialize NEW message managers FIRST
         this.messageManager = new MessageManager(this);
         this.guiMessageManager = new GuiMessageManager(this);
@@ -603,6 +608,10 @@ public final class Quantum extends JavaPlugin {
 
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
+    }
+
+    public PlayerLevelManager getPlayerLevelManager() {
+        return playerLevelManager;
     }
     
     public static Quantum getInstance() {

@@ -8,12 +8,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Random;
-
 public class RuneApplyListener implements Listener {
 
     private final RuneItem runeItem;
-    private final Random random = new Random();
 
     public RuneApplyListener(RuneItem runeItem) {
         this.runeItem = runeItem;
@@ -21,60 +18,38 @@ public class RuneApplyListener implements Listener {
 
     @EventHandler
     public void onRuneDragAndDrop(InventoryClickEvent event) {
-        // On ne gère que les clics d'un joueur
-        if (!(event.getWhoClicked() instanceof Player player)) {
-            return;
-        }
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (event.getClickedInventory() == null || event.getClickedInventory().getType() != InventoryType.PLAYER) return;
 
-        // On ne gère que l'inventaire du joueur (pas les GUIs custom, coffres, etc.)
-        if (event.getClickedInventory() == null
-                || event.getClickedInventory().getType() != InventoryType.PLAYER) {
-            return;
-        }
-
-        // Item sur le curseur (doit être une rune)
         ItemStack cursor = event.getCursor();
-        if (cursor == null || cursor.getType() == Material.AIR) {
-            return;
-        }
+        if (cursor == null || cursor.getType() == Material.AIR) return;
+        if (!runeItem.isRune(cursor)) return;
 
-        // On vérifie que c'est bien une rune via RuneItem
-        if (!runeItem.isRune(cursor)) {
-            return;
-        }
-
-        // Item cliqué (doit être une armure)
         ItemStack current = event.getCurrentItem();
-        if (current == null || current.getType() == Material.AIR) {
-            return;
-        }
+        if (current == null || current.getType() == Material.AIR) return;
 
-        // Vérifier que c'est une pièce d'armure
-        if (!isArmorPiece(current.getType())) {
-            return;
-        }
+        String name = current.getType().name();
+        if (!name.endsWith("_HELMET") && !name.endsWith("_CHESTPLATE") 
+            && !name.endsWith("_LEGGINGS") && !name.endsWith("_BOOTS")) return;
 
-        // À ce stade : curseur = rune, slot cliqué = armure => on applique
-        event.setCancelled(true); // empêche l'échange vanilla
+        event.setCancelled(true);
 
-        // Détecter le type et niveau de la rune
-        RuneType runeType = detectRuneType(cursor);
-        int level = detectRuneLevel(cursor);
+        RuneType runeType = RuneType.FORCE;
+        int level = 1;
 
         int result = runeItem.applyRuneOnArmor(cursor, current, runeType, level);
         
         if (result == -1) {
-            player.sendMessage("§cCette rune ne peut pas être appliquée ici (déjà runée ou invalide).");
+            player.sendMessage("§cArmure déjà runée ou rune invalide.");
             return;
         }
 
         if (result == 0) {
             player.sendMessage("§cLa rune a échoué et a été détruite.");
         } else {
-            player.sendMessage("§aLa rune a été appliquée avec succès sur ton armure !");
+            player.sendMessage("§aRune appliquée avec succès !");
         }
 
-        // Consommer la rune
         int amount = cursor.getAmount();
         if (amount <= 1) {
             event.setCursor(null);
@@ -82,25 +57,5 @@ public class RuneApplyListener implements Listener {
             cursor.setAmount(amount - 1);
             event.setCursor(cursor);
         }
-    }
-
-    private boolean isArmorPiece(Material type) {
-        String name = type.name();
-        return name.endsWith("_HELMET")
-                || name.endsWith("_CHESTPLATE")
-                || name.endsWith("_LEGGINGS")
-                || name.endsWith("_BOOTS");
-    }
-
-    private RuneType detectRuneType(ItemStack runeItem) {
-        // Détection du type de rune - à améliorer selon ton système
-        // Pour l'instant on retourne FORCE par défaut
-        return RuneType.FORCE;
-    }
-
-    private int detectRuneLevel(ItemStack runeItem) {
-        // Détection du niveau (1-3) - à améliorer selon ton système
-        // Pour l'instant on retourne 1 par défaut
-        return 1;
     }
 }

@@ -30,8 +30,15 @@ public class TowerManager {
         
         loadTowers();
         loadProgress();
+
+        this.spawnerManager = new TowerSpawnerManager(plugin, this);
+        this.spawnerManager.loadFromConfig(
+                YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "towers.yml"))
+        );
     }
-    
+    public TowerSpawnerManager getSpawnerManager() {
+        return spawnerManager;
+    }
     /**
      * Load tower configurations from zones.yml
      */
@@ -224,11 +231,15 @@ public class TowerManager {
         progress.setFloorProgress(towerId, floor);
         progress.resetKills();
         
-        // Save progress
-        saveProgress();
-        
         TowerConfig tower = getTower(towerId);
         if (tower == null) return;
+        
+        // Si final boss, incrémenter les runs
+        if (tower.isFinalBoss(floor)) {
+            progress.incrementRuns(towerId);
+        }
+        
+        saveProgress();
         
         // Send completion message
         if (tower.isFinalBoss(floor)) {
@@ -253,6 +264,11 @@ public class TowerManager {
         TowerProgress progress = getProgress(player.getUniqueId());
         progress.setCurrentTower(towerId);
         progress.setCurrentFloor(floor);
+        
+        // Démarrer les spawners
+        if (spawnerManager != null) {
+            spawnerManager.startFloorSpawners(player, towerId, floor);
+        }
     }
     
     /**
@@ -264,6 +280,11 @@ public class TowerManager {
         progress.setCurrentTower(null);
         progress.setCurrentFloor(0);
         progress.resetKills();
+        
+        // Arrêter les spawners
+        if (spawnerManager != null) {
+            spawnerManager.stopSpawners(player);
+        }
     }
     
     /**

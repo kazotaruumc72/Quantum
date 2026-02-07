@@ -5,46 +5,133 @@
 towers:
   tower_1:
     name: "Tour des Débutants"
-    worldguard_region: "tour_1"          # région WG principale de la tour
+    worldguard_region: "tour_1"    # Région WG principale de la tour
     min_level: 1
     max_level: 26
 
     floors:
       1:
         worldguard_region: "tour_1_floor_1"
+
         spawners:
-          - id: "t1_f1_s1"
-            mob: "slime_basic"
-            model: "slime_basic"         # id du modèle (Nexo / ModelEngine / autre)
-            base_health: 20.0
-            amount: 5
-            respawn_delay: 10            # secondes
+          slime_pack_1:
+            type: ZOMBIE              # type vanilla
+            model: "slime_basic"      # id du modèle (ModelEngine / autre)
+            base_health: 40.0         # HP de base d’un mob
+            damage: 4                 # dégâts en demi-cœurs (4 = 2 cœurs)
+            amount: 3                 # mobs par vague
+            interval: 60              # toutes les 60 secondes
+            max_alive: 10             # max de mobs vivants pour ce spawner
+
+            scaling:
+              health_per_run_percent: 5   # +5% HP par run
+              amount_per_run: 1          # +1 mob par run
+              max_extra_amount: 5        # max +5 mobs
+
             skills:
-              - "jump_at_player"
+              - id: summon               # fait apparaître des congénères
+                interval: 30
+                amount: 2
+              - id: healing              # se soigne régulièrement
+                interval: 30
+                amount: 4                # en demi-cœurs (4 = 2 cœurs)
+
             animations:
               spawn: "slime_spawn"
               idle: "slime_idle"
               attack: "slime_attack"
+              death: "slime_death"
 
       2:
         worldguard_region: "tour_1_floor_2"
-        spawners:
-          - id: "t1_f2_s1"
-            mob: "skeleton_archer"
-            model: "skeleton_archer"
-            base_health: 30.0
-            amount: 6
-            respawn_delay: 12
-            skills:
-              - "shoot_arrow"
-            animations:
-              spawn: "skeleton_spawn"
-              idle: "skeleton_idle"
-              attack: "skeleton_shoot"
 
-    # Scaling en fonction du nombre de runs du joueur
-    scaling:
-      # run_count = nombre de fois que le joueur a terminé cette tour
-      health_per_run_percent: 5      # +5% hp par run
-      amount_per_run: 1              # +1 mob par run (jusqu'à un max)
-      max_extra_amount: 10           # limite d'augmentation
+        spawners:
+          fire_knight:
+            type: ZOMBIE
+            model: "fire_knight"
+            base_health: 60.0
+            damage: 6                 # 6 demi-cœurs = 3 cœurs
+            amount: 2
+            interval: 45
+            max_alive: 6
+
+            scaling:
+              health_per_run_percent: 7
+              amount_per_run: 0
+              max_extra_amount: 0
+
+            skills:
+              - id: fire               # met le joueur en feu
+                interval: 30
+                duration: 5            # secondes
+              - id: fireprison         # flammes autour du joueur
+                interval: 30
+                duration: 4            # secondes
+
+            animations:
+              spawn: "knight_spawn"
+              idle: "knight_idle"
+              attack: "knight_attack"
+              death: "knight_death"
+
+          ice_mage:
+            type: SKELETON
+            model: "ice_mage"
+            base_health: 50.0
+            damage: 5                 # 2.5 cœurs
+            amount: 2
+            interval: 45
+            max_alive: 6
+
+            scaling:
+              health_per_run_percent: 7
+              amount_per_run: 0
+              max_extra_amount: 0
+
+            skills:
+              - id: iceberg           # schematic au centre du joueur
+                interval: 30
+                schematic: "ice_spike_1"
+              - id: ice               # effet de gel (snow_powder)
+                interval: 30
+                duration: 5
+              - id: thunder           # foudre sur le joueur
+                interval: 30
+
+            animations:
+              spawn: "mage_spawn"
+              idle: "mage_idle"
+              attack: "mage_cast"
+              death: "mage_death"
+
+      3:
+        worldguard_region: "tour_1_floor_3"
+
+        spawners:
+          toxic_spirit:
+            type: HUSK
+            model: "toxic_spirit"
+            base_health: 70.0
+            damage: 6
+            amount: 3
+            interval: 50
+            max_alive: 8
+
+            scaling:
+              health_per_run_percent: 8
+              amount_per_run: 1
+              max_extra_amount: 4
+
+            skills:
+              - id: poisonous         # poison sur le joueur
+                interval: 30
+                duration: 5
+              - id: wither            # wither sur le joueur
+                interval: 30
+                duration: 4
+
+            animations:
+              spawn: "toxic_spawn"
+              idle: "toxic_idle"
+              attack: "toxic_attack"
+              death: "toxic_death"

@@ -41,6 +41,29 @@ public class RuneCommand implements CommandExecutor {
 
         sendHelp(player);
         return true;
+
+        int successChance = -1; // -1 = aléatoire
+
+        if (args.length >= 4) {
+            String chanceArg = args[3];
+            if (chanceArg.equalsIgnoreCase("random")) {
+                successChance = -1; // Aléatoire 0-100
+            } else {
+                try {
+                    successChance = Integer.parseInt(chanceArg);
+                    if (successChance < 0 || successChance > 100) {
+                        sender.sendMessage("§cLe pourcentage doit être entre 0 et 100 !");
+                        return true;
+                    }
+                } catch (NumberFormatException e) {
+                    sender.sendMessage("§cPourcentage invalide ! Utilise un nombre (0-100) ou 'random'");
+                    return true;
+                }
+            }
+        }
+        
+        // Créer la rune avec le pourcentage spécifié ou aléatoire
+        ItemStack rune = runeItem.createRuneWithChance(runeType, level, successChance);
     }
 
     private boolean handleGiveRune(Player player, String[] args) {

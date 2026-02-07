@@ -122,20 +122,25 @@ public class PlayerLevelManager {
     public void addExp(UUID uuid, int amount) {
         PlayerLevelData data = cache.get(uuid);
         if (data == null) return;
-
+    
         int exp = data.getExp() + amount;
         int level = data.getLevel();
-
-        // Exemple de formule : besoin = level * 100
+    
         int needed = getRequiredExp(level);
         while (exp >= needed) {
             exp -= needed;
             level++;
             needed = getRequiredExp(level);
         }
-
+    
         data.setLevel(level);
         data.setExp(exp);
+    
+        // mettre à jour la barre si le joueur est en ligne
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            Bukkit.getScheduler().runTask(plugin, () -> applyToBar(player));
+        }
     }
 
     private int getRequiredExp(int level) {

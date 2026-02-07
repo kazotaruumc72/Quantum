@@ -9,7 +9,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class PlayerLevelManager {
 
@@ -42,6 +44,7 @@ public class PlayerLevelManager {
      */
     public void loadPlayer(UUID uuid) {
         try (Connection conn = databaseManager.getConnection()) {
+
             try (PreparedStatement ps = conn.prepareStatement(
                     "SELECT level, exp FROM quantum_player_levels WHERE uuid = ?")) {
                 ps.setString(1, uuid.toString());
@@ -55,7 +58,6 @@ public class PlayerLevelManager {
                 }
             }
 
-            // Pas trouvé → on insère un nouveau joueur par défaut
             try (PreparedStatement insert = conn.prepareStatement(
                     "INSERT INTO quantum_player_levels (uuid, level, exp) VALUES (?, ?, ?)")) {
                 insert.setString(1, uuid.toString());
@@ -71,21 +73,25 @@ public class PlayerLevelManager {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Applique le niveau/XP sur la barre d'XP vanilla.
+     */
     public void applyToBar(Player player) {
         PlayerLevelData data = cache.get(player.getUniqueId());
         if (data == null) return;
-    
+
         int level = data.getLevel();
         int exp = data.getExp();
         int needed = getRequiredExp(level);
-    
+
         player.setLevel(level);
-    
+
         float progress = 0f;
         if (needed > 0) {
             progress = Math.min(1f, (float) exp / (float) needed);
         }
-        player.setExp(progress); // entre 0.0 et 1.0[web:281][web:289]
+        player.setExp(progress);
     }
 
     /**
@@ -119,35 +125,36 @@ public class PlayerLevelManager {
     }
 
     /**
-     * Ajoute de l'XP et gère un level-up simple.
+     * Ajoute de l'XP et gère un level-up simple,
+     * puis met à jour la barre d'XP si le joueur est en ligne.
      */
     public void addExp(UUID uuid, int amount) {
         PlayerLevelData data = cache.get(uuid);
         if (data == null) return;
-    
+
         int exp = data.getExp() + amount;
         int level = data.getLevel();
-    
+
         int needed = getRequiredExp(level);
         while (exp >= needed) {
             exp -= needed;
             level++;
             needed = getRequiredExp(level);
         }
-    
+
         data.setLevel(level);
         data.setExp(exp);
-    
-        // mettre à jour la barre si le joueur est en ligne
+
         Player player = Bukkit.getPlayer(uuid);
         if (player != null && player.isOnline()) {
             Bukkit.getScheduler().runTask(plugin, () -> applyToBar(player));
         }
     }
 
+    /**
+     * Courbe d'XP : quadratique (arc de cercle).
+     */
     private int getRequiredExp(int level) {
-        // a * level^2 + b * level + c
-        // Ex: a = 25, b = 25, c = 0
         return 25 * level * level + 25 * level;
     }
 }

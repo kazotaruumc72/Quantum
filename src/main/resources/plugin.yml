@@ -3,7 +3,7 @@ version: '${project.version}'
 main: com.wynvers.quantum.Quantum
 api-version: '1.21'
 load: POSTWORLD
-author: Robie
+author: Kazotaruu_
 description: Advanced virtual storage with dynamic GUI builder and orders system
 
 depend:

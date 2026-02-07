@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -24,14 +25,10 @@ public class PlayerLevelListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-    
+
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             levelManager.loadPlayer(uuid);
-    
-            // Une fois chargé, on applique la barre en sync
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                levelManager.applyToBar(player);
-            });
+            Bukkit.getScheduler().runTask(plugin, () -> levelManager.applyToBar(player));
         });
     }
 
@@ -44,5 +41,11 @@ public class PlayerLevelListener implements Listener {
             levelManager.savePlayer(uuid);
             levelManager.unloadPlayer(uuid);
         });
+    }
+
+    @EventHandler
+    public void onExpChange(PlayerExpChangeEvent event) {
+        // bloque l'XP vanilla
+        event.setAmount(0);
     }
 }

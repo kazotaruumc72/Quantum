@@ -1,4 +1,4 @@
-ArmorGUIListener.javapackage com.wynvers.quantum.listeners;
+package com.wynvers.quantum.listeners;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.armor.DungeonArmor;

@@ -19,12 +19,16 @@ public class RuneItem {
     private final JavaPlugin plugin;
     private final NamespacedKey successChanceKey;
     private final NamespacedKey appliedRuneKey; // Rune appliquée sur l’armure
+    private final NamespacedKey runeTypeKey;
+    private final NamespacedKey runeLevelKey;
     private static final Random RANDOM = new Random();
 
     public RuneItem(JavaPlugin plugin) {
         this.plugin = plugin;
         this.successChanceKey = new NamespacedKey(plugin, "rune_success_chance");
         this.appliedRuneKey = new NamespacedKey(plugin, "armor_applied_rune");
+        this.runeTypeKey = new NamespacedKey(plugin, "rune_type");
+        this.runeLevelKey = new NamespacedKey(plugin, "rune_level");
     }
 
     /**
@@ -60,6 +64,8 @@ public class RuneItem {
         if (meta != null) {
             // Stocker le taux en NBT
             meta.getPersistentDataContainer().set(successChanceKey, PersistentDataType.INTEGER, successChance);
+            meta.getPersistentDataContainer().set(runeTypeKey, PersistentDataType.STRING, rune.name());
+            meta.getPersistentDataContainer().set(runeLevelKey, PersistentDataType.INTEGER, level);
 
             // Construire le lore
             List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
@@ -95,6 +101,8 @@ public class RuneItem {
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             meta.getPersistentDataContainer().set(successChanceKey, PersistentDataType.INTEGER, successChance);
+            meta.getPersistentDataContainer().set(runeTypeKey, PersistentDataType.STRING, rune.name());
+            meta.getPersistentDataContainer().set(runeLevelKey, PersistentDataType.INTEGER, level);
             
             List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
             lore.add("");
@@ -135,7 +143,25 @@ public class RuneItem {
      * Vérifie si un item est une rune valide
      */
     public boolean isRune(ItemStack item) {
-        return getSuccessChance(item) != -1;
+            return getSuccessChance(item) != -1;
+        }
+        public RuneType getRuneType(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return null;
+        ItemMeta meta = item.getItemMeta();
+        String name = meta.getPersistentDataContainer().get(runeTypeKey, PersistentDataType.STRING);
+        if (name == null) return null;
+        try {
+            return RuneType.valueOf(name);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+    
+    public int getRuneLevel(ItemStack item) {
+        if (item == null || !item.hasItemMeta()) return 1;
+        ItemMeta meta = item.getItemMeta();
+        Integer lvl = meta.getPersistentDataContainer().get(runeLevelKey, PersistentDataType.INTEGER);
+        return lvl == null ? 1 : lvl;
     }
 
     /**

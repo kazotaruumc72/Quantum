@@ -78,14 +78,15 @@ public class RuneApplyListener implements Listener {
         // Succès : on applique une rune sur l’armure de donjon via DungeonArmor
         // Pour l’instant, on applique FORCE niveau 1 en dur
         // (on pourra plus tard lire le type/niveau exact depuis le PDC de la rune)
-        RuneType runeType = RuneType.FORCE;
-        int level = 1;
-
-        boolean applied = dungeonArmor.applyRune(current, runeType, level);
-        if (!applied) {
-            player.sendMessage("§cImpossible d'appliquer la rune (slot plein ou déjà présente).");
+        RuneType runeType = runeItem.getRuneType(cursor);
+        int level = runeItem.getRuneLevel(cursor);
+        
+        if (runeType == null) {
+            player.sendMessage("§cImpossible de déterminer le type de la rune.");
             return;
         }
+
+        boolean applied = dungeonArmor.applyRune(current, runeType, level);
 
         player.sendMessage("§aLa rune a été appliquée avec succès sur ton armure de donjon !");
         consumeOneRune(event, cursor);

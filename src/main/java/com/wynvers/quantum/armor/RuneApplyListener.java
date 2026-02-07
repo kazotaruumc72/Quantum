@@ -5,7 +5,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
@@ -20,75 +19,80 @@ public class RuneApplyListener implements Listener {
 
     @EventHandler
     public void onRuneDragAndDrop(InventoryClickEvent event) {
-        // DEBUG : Affiche dans la console ce qui se passe
-        Bukkit.getConsoleSender().sendMessage("§7[DEBUG] Click détecté : " + event.getAction() + " | Curseur: " + event.getCursor() + " | Current: " + event.getCurrentItem());
+        Player player = (Player) event.getWhoClicked();
+        
+        // DEBUG 1 : On affiche TOUJOURS quand on clique
+        player.sendMessage("§7[DEBUG] Clic détecté !");
 
-        if (!(event.getWhoClicked() instanceof Player player)) return;
-
-        // IMPORTANT : Accepter plusieurs types d'actions (clic gauche, droit, etc.)
-        InventoryAction action = event.getAction();
-        if (action != InventoryAction.PLACE_ALL && 
-            action != InventoryAction.PLACE_ONE && 
-            action != InventoryAction.SWAP_WITH_CURSOR &&
-            action != InventoryAction.PICKUP_ALL) {
+        // Vérifier l'inventaire
+        if (event.getInventory().getType() != InventoryType.PLAYER) {
+            player.sendMessage("§c[DEBUG] Pas l'inventaire joueur : " + event.getInventory().getType());
             return;
         }
 
-        // Vérifier que c'est l'inventaire du joueur (pas un coffre, pas un menu)
-        if (event.getInventory().getType() != InventoryType.PLAYER && 
-            event.getInventory().getType() != InventoryType.CRAFTING) {
-            return;
-        }
-
-        // Récupérer l'item sur le curseur (la rune)
+        // Vérifier l'item sur le curseur
         ItemStack cursor = event.getCursor();
-        if (cursor == null || cursor.getType() == Material.AIR) return;
+        if (cursor == null || cursor.getType() == Material.AIR) {
+            player.sendMessage("§c[DEBUG] Curseur vide");
+            return;
+        }
+        
+        player.sendMessage("§7[DEBUG] Curseur : " + cursor.getType());
 
-        // Vérifier que c'est une rune
-        if (!runeItem.isRune(cursor)) {
+        // Vérifier si c'est une rune
+        boolean isRune = runeItem.isRune(cursor);
+        player.sendMessage("§7[DEBUG] Est-ce une rune ? " + isRune);
+        
+        if (!isRune) {
+            player.sendMessage("§c[DEBUG] Ce n'est PAS une rune valide !");
+            player.sendMessage("§c[DEBUG] Meta : " + (cursor.hasItemMeta() ? "OUI" : "NON"));
+            if (cursor.hasItemMeta()) {
+                player.sendMessage("§c[DEBUG] PDC check : " + runeItem.getSuccessChance(cursor));
+            }
             return;
         }
 
-        // Récupérer l'item cliqué (l'armure)
+        // Récupérer l'armure
         ItemStack current = event.getCurrentItem();
-        if (current == null || current.getType() == Material.AIR) return;
-
-        // Vérifier que c'est une armure
-        String name = current.getType().name();
-        if (!name.endsWith("_HELMET") && !name.endsWith("_CHESTPLATE") 
-            && !name.endsWith("_LEGGINGS") && !name.endsWith("_BOOTS")) {
+        if (current == null) {
+            player.sendMessage("§c[DEBUG] Pas d'item sous le clic");
             return;
         }
 
-        // DEBUG
-        Bukkit.getConsoleSender().sendMessage("§a[DEBUG] Rune détectée sur armure ! Application...");
+        // Vérifier si c'est une armure
+        String name = current.getType().name();
+        boolean isArmor = name.endsWith("_HELMET") || name.endsWith("_CHESTPLATE") 
+                       || name.endsWith("_LEGGINGS") || name.endsWith("_BOOTS");
+        
+        player.sendMessage("§7[DEBUG] Item cible : " + name + " | Armure ? " + isArmor);
+        
+        if (!isArmor) {
+            player.sendMessage("§c[DEBUG] Ce n'est pas une armure !");
+            return;
+        }
 
-        // Annuler l'action vanilla (pour pas que la rune soit juste posée dans le slot)
+        // Tout est bon, on applique !
+        player.sendMessage("§a[DEBUG] Application de la rune...");
         event.setCancelled(true);
 
-        // Appliquer la rune
-        RuneType runeType = RuneType.FORCE; // Par défaut, à améliorer
-        int level = 1; // Par défaut, à améliorer
+        RuneType runeType = RuneType.FORCE;
+        int level = 1;
 
         int result = runeItem.applyRuneOnArmor(cursor, current, runeType, level);
 
-        if (result == -1) {
-            player.sendMessage("§cCette armure a déjà une rune !");
-            return;
-        }
-
-        if (result == 0) {
-            player.sendMessage("§cLa rune a échoué et a été détruite !");
+        if (result == 1) {
+            player.sendMessage("§a✔ Rune appliquée !");
+        } else if (result == 0) {
+            player.sendMessage("§c✘ La rune a échoué !");
         } else {
-            player.sendMessage("§aLa rune a été appliquée avec succès !");
+            player.sendMessage("§c✘ Armure déjà runée !");
         }
 
-        // Consommer la rune (retirer du curseur)
-        int amount = cursor.getAmount();
-        if (amount <= 1) {
+        // Consommer la rune
+        if (cursor.getAmount() <= 1) {
             event.setCursor(null);
         } else {
-            cursor.setAmount(amount - 1);
+            cursor.setAmount(cursor.getAmount() - 1);
             event.setCursor(cursor);
         }
     }

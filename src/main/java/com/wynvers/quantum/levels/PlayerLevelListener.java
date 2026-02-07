@@ -24,11 +24,14 @@ public class PlayerLevelListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-
+    
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             levelManager.loadPlayer(uuid);
-            // Ici tu peux, si tu veux, envoyer un message ou logger en sync
-            // en utilisant runTask(...) après le load.
+    
+            // Une fois chargé, on applique la barre en sync
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                levelManager.applyToBar(player);
+            });
         });
     }
 

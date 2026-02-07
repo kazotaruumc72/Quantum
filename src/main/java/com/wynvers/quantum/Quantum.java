@@ -120,7 +120,7 @@ public final class Quantum extends JavaPlugin {
         this.logger = new Logger("Quantum");
         logger.info("┌───────────────────────────────────┐");
         logger.info("│  §6§lQUANTUM §f- Advanced Storage │");
-        logger.info("│       §7v2.0.0 by Kazotaruu_      │");
+        logger.info("│       §7v1.0.1 by Kazotaruu_      │");
         logger.info("└───────────────────────────────────┘");
         
         // Extract default resources
@@ -131,7 +131,7 @@ public final class Quantum extends JavaPlugin {
 
         this.databaseManager = new DatabaseManager(this);
         this.playerLevelManager = new PlayerLevelManager(this, databaseManager);
-
+    
         getServer().getPluginManager().registerEvents(
                 new PlayerLevelListener(this, playerLevelManager), this
         );

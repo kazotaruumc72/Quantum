@@ -3,10 +3,10 @@ package com.wynvers.quantum;
 import com.wynvers.quantum.armor.ArmorListener;
 import com.wynvers.quantum.armor.ArmorManager;
 import com.wynvers.quantum.armor.DungeonArmor;
+import com.wynvers.quantum.armor.RuneItem;
+import com.wynvers.quantum.armor.RuneApplyListener;
 import com.wynvers.quantum.armor.RuneType;
 import com.wynvers.quantum.commands.*;
-import com.wynvers.quantum.commands.ArmorTabCompleter;
-import com.wynvers.quantum.commands.ArmorCommand;
 import com.wynvers.quantum.listeners.MenuListener;
 import com.wynvers.quantum.listeners.ScoreboardListener;
 import com.wynvers.quantum.listeners.StorageListener;
@@ -99,6 +99,7 @@ public final class Quantum extends JavaPlugin {
     private TowerScoreboardHandler scoreboardHandler; // NEW: Integrated tower scoreboard
     private DungeonArmor dungeonArmor; // NEW: Dungeon armor system
     private ArmorManager armorManager; // NEW: Armor manager
+    private RuneItem runeItem; // NEW: Rune item utility
     
     // Utils
     private ActionExecutor actionExecutor;
@@ -139,11 +140,12 @@ public final class Quantum extends JavaPlugin {
         this.scoreboardManager = new ScoreboardManager(this);
         logger.success("✓ Scoreboard Config & Manager initialized!");
         
-        // Initialize Dungeon Armor system
+        // Initialize Dungeon Armor & Rune system
         this.dungeonArmor = new DungeonArmor(this);
         RuneType.init(this); // Initialize rune config
         this.armorManager = new ArmorManager(this, dungeonArmor);
-        logger.success("✓ Dungeon Armor system initialized! (9 runes with 3 levels)");
+        this.runeItem = new RuneItem(this);
+        logger.success("✓ Dungeon Armor & Rune system initialized! (9 runes with 3 levels)");
         
         // Initialize WorldGuard zone system
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
@@ -396,32 +398,6 @@ public final class Quantum extends JavaPlugin {
         }
     }
     
-    private void registerListeners() {
-        logger.info("Registering listeners...");
-        
-        Bukkit.getPluginManager().registerEvents(new MenuListener(this), this);
-        logger.success("✓ Menu Listener");
-        
-        Bukkit.getPluginManager().registerEvents(new StorageListener(this), this);
-        logger.success("✓ Storage Listener");
-        
-        // Register ScoreboardListener for auto-scoreboard on join
-        if (scoreboardManager != null) {
-            Bukkit.getPluginManager().registerEvents(new ScoreboardListener(this), this);
-            logger.success("✓ Scoreboard Listener (auto-enable on join)");
-        }
-        
-        // Register ZoneListener if WorldGuard is available
-        if (zoneManager != null) {
-            Bukkit.getPluginManager().registerEvents(new ZoneListener(this), this);
-            logger.success("✓ Zone Listener");
-        }
-        
-        // Register ArmorListener
-        Bukkit.getPluginManager().registerEvents(new ArmorListener(this), this);
-        logger.success("✓ Armor Listener (bonus system)");
-    }
-    
     private void registerCommands() {
         logger.info("Registering commands...");
         
@@ -516,8 +492,7 @@ public final class Quantum extends JavaPlugin {
             logger.success("✓ Tower progress saved");
         }
         
-        // NOTE: TransactionHistoryManager saves transactions automatically in real-time
-        // No need to save on disable as transactions are persisted immediately to transactions.yml
+        // Save transaction history
         if (transactionHistoryManager != null) {
             logger.success("✓ Transaction history persisted (real-time saves)");
         }
@@ -578,9 +553,6 @@ public final class Quantum extends JavaPlugin {
         RuneType.init(this); // Recharge dungeon.yml
         logger.success("✓ Dungeon armor & rune configs reloaded");
         
-        // NOTE: TransactionHistoryManager loads from file on-the-fly, no need to reload
-        // NOTE: KillTracker loads from file on-the-fly, no need to reload
-        
         logger.success("Quantum reloaded successfully!");
     }
 
@@ -619,26 +591,14 @@ public final class Quantum extends JavaPlugin {
         return messagesManager;
     }
     
-    /**
-     * Get the NEW MessageManager for system messages (messages.yml)
-     * @return MessageManager instance
-     */
     public MessageManager getMessageManager() {
         return messageManager;
     }
     
-    /**
-     * Get the NEW GuiMessageManager for GUI messages (messages_gui.yml)
-     * @return GuiMessageManager instance
-     */
     public GuiMessageManager getGuiMessageManager() {
         return guiMessageManager;
     }
     
-    /**
-     * Get the EscrowManager for order money storage
-     * @return EscrowManager instance
-     */
     public EscrowManager getEscrowManager() {
         return escrowManager;
     }
@@ -667,26 +627,14 @@ public final class Quantum extends JavaPlugin {
         return orderButtonHandler;
     }
     
-    /**
-     * Get the OrderAcceptanceHandler for processing seller order acceptance
-     * @return OrderAcceptanceHandler instance
-     */
     public OrderAcceptanceHandler getOrderAcceptanceHandler() {
         return orderAcceptanceHandler;
     }
     
-    /**
-     * Get the TransactionHistoryManager for transaction recording and history
-     * @return TransactionHistoryManager instance
-     */
     public TransactionHistoryManager getTransactionHistoryManager() {
         return transactionHistoryManager;
     }
     
-    /**
-     * Get the TradingStatisticsManager for trading performance analytics
-     * @return TradingStatisticsManager instance
-     */
     public TradingStatisticsManager getTradingStatisticsManager() {
         return tradingStatisticsManager;
     }
@@ -703,67 +651,39 @@ public final class Quantum extends JavaPlugin {
         return actionExecutor;
     }
     
-    /**
-     * Get the ZoneManager for WorldGuard zone restrictions
-     * @return ZoneManager instance or null if WorldGuard not available
-     */
     public ZoneManager getZoneManager() {
         return zoneManager;
     }
     
-    /**
-     * Get the KillTracker for mob kill tracking
-     * @return KillTracker instance or null if WorldGuard not available
-     */
     public KillTracker getKillTracker() {
         return killTracker;
     }
     
-    /**
-     * Get the TowerManager for tower progression system
-     * @return TowerManager instance or null if WorldGuard not available
-     */
     public TowerManager getTowerManager() {
         return towerManager;
     }
 
-    /**
-     * Get the ScoreboardManager for custom scoreboard system
-     * @return ScoreboardManager instance
-     */
     public ScoreboardManager getScoreboardManager() {
         return scoreboardManager;
     }
     
-    /**
-     * Get the ScoreboardConfig for scoreboard configuration management
-     * @return ScoreboardConfig instance
-     */
     public ScoreboardConfig getScoreboardConfig() {
         return scoreboardConfig;
     }
     
-    /**
-     * Get the TowerScoreboardHandler for integrated tower scoreboard
-     * @return TowerScoreboardHandler instance or null if WorldGuard not available
-     */
     public TowerScoreboardHandler getScoreboardHandler() {
         return scoreboardHandler;
     }
     
-    /**
-     * Get the DungeonArmor system for dungeon armor management
-     * @return DungeonArmor instance
-     */
     public DungeonArmor getDungeonArmor() {
         return dungeonArmor;
     }
     
-    /**
-     * Get the ArmorManager for applying rune bonuses to players
-     * @return ArmorManager instance
-     */
     public ArmorManager getArmorManager() {
         return armorManager;
+    }
+    
+    public RuneItem getRuneItem() {
+        return runeItem;
     }
 }

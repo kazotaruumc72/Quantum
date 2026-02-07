@@ -70,8 +70,7 @@ public class RuneApplyListener implements Listener {
         int roll = random.nextInt(100) + 1; // 1-100
 
         if (roll > successChance) {
-            // Échec : on détruit la rune, on ne touche pas à l’armure
-            player.sendMessage("§cLa rune a échoué (" + roll + "% / " + successChance + "%) et a été détruite.");
+            player.sendMessage("§cLa rune a échoué. §7(Taux de réussite : §a" + successChance + "%§7)");
             consumeOneRune(event, cursor);
             return;
         }

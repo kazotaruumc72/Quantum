@@ -45,7 +45,20 @@ public class PlayerLevelListener implements Listener {
 
     @EventHandler
     public void onExpChange(PlayerExpChangeEvent event) {
-        // bloque l'XP vanilla
+        int amount = event.getAmount();
+        if (amount <= 0) {
+            return;
+        }
+
+        // Empêcher Minecraft d'ajouter l'XP vanilla lui-même
         event.setAmount(0);
+
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+
+        // Rediriger l'XP vanilla vers le système custom
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            levelManager.addExp(uuid, amount);
+        });
     }
 }

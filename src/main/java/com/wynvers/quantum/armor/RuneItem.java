@@ -38,11 +38,7 @@ public class RuneItem {
             return null;
         }
         
-        ItemStack item = NexoItems.itemFromId(nexoId).build();
-        if (item == null) {
-            plugin.getLogger().warning("⚠️ Impossible de créer la rune Nexo: " + nexoId);
-            return null;
-        // Vérifier que Nexo peut créer l'item
+       if (item == null) {
         com.nexomc.nexo.items.ItemBuilder builder = NexoItems.itemFromId(nexoId);
         if (builder == null) {
             plugin.getLogger().severe("⚠️ ERREUR: Nexo ne trouve pas l'item '" + nexoId + "'");
@@ -58,6 +54,7 @@ public class RuneItem {
         
         // Générer un taux aléatoire entre 0 et 100
         // Stocker le taux en NBT
+                   int successChance = RANDOM.nextInt(101);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             meta.getPersistentDataContainer().set(successChanceKey, PersistentDataType.INTEGER, successChance);

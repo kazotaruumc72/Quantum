@@ -6,9 +6,11 @@ load: POSTWORLD
 author: Robie
 description: Advanced virtual storage with dynamic GUI builder and orders system
 
+depend:
+  - Nexo
+
 softdepend:
   - PlaceholderAPI
-  - Nexo
   - Vault
   - LuckPerms
   - WorldEdit

@@ -1,310 +1,215 @@
 package com.wynvers.quantum.worldguard;
 
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.wynvers.quantum.Quantum;
-import me.clip.placeholderapi.PlaceholderAPI;
-import org.bukkit.Bukkit;
+import com.wynvers.quantum.levels.PlayerLevelManager;
+import com.wynvers.quantum.towers.TowerConfig;
+import com.wynvers.quantum.towers.TowerManager;
+import com.wynvers.quantum.towers.TowerScoreboardHandler;
 import org.bukkit.Location;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 /**
- * Gère les zones WorldGuard avec restrictions de sortie basées sur les kills de mobs
- * 
- * Fonctionnalités:
- * - Empêche les joueurs de quitter une zone tant qu'ils n'ont pas tué assez de mobs
- * - Support de plusieurs types de mobs par zone
- * - Commande console pour forcer la sortie d'une zone
- * - Permission de bypass
- * - Reset automatique du placeholder après sortie
- * 
- * Structure zones.yml:
- * zones:
- *   zone_name:
- *     world: "world"
- *     region: "region_name"
- *     requirements:
- *       - mob: "zombie_boss"
- *         amount: 10
- *       - mob: "skeleton_king"
- *         amount: 5
- *     messages:
- *       enter: "§cVous entrez dans la zone dangereuse!"
- *       exit_denied: "§cVous devez tuer %requirements% avant de sortir!"
- *       exit_allowed: "§aVous avez complété les objectifs!"
- * 
- * @author Kazotaruu_
- * @version 1.0
+ * Gère l'entrée / sortie des régions WorldGuard liées aux tours.
+ *
+ * - Détecte quand un joueur entre / sort d'un étage de tour (region WorldGuard)
+ * - Vérifie les niveaux min/max de la tour (PlayerLevelManager)
+ * - Met à jour TowerManager (currentTower/currentFloor)
+ * - Active / désactive le TowerScoreboardHandler
+ *
+ * Convention de nom de région :
+ *   towerId_floor_<N>
+ * Ex : fire_tower_floor_3
  */
-public class ZoneManager {
-    
+public class ZoneManager implements Listener {
+
     private final Quantum plugin;
-    private final File zonesFile;
-    private YamlConfiguration zonesConfig;
-    private final Map<UUID, Set<String>> playerInZones = new HashMap<>();
-    private final String BYPASS_PERMISSION = "quantum.zone.bypass";
-    
+    private final TowerManager towerManager;
+    private final PlayerLevelManager levelManager;
+    private final TowerScoreboardHandler scoreboardHandler;
+
+    private final Map<UUID, String> currentRegion = new HashMap<>();
+    private static final String BYPASS_PERMISSION = "quantum.tower.bypass";
+
     public ZoneManager(Quantum plugin) {
         this.plugin = plugin;
-        this.zonesFile = new File(plugin.getDataFolder(), "zones.yml");
-        loadZonesConfig();
+        this.towerManager = plugin.getTowerManager();
+        this.levelManager = plugin.getPlayerLevelManager();
+        this.scoreboardHandler = plugin.getTowerScoreboardHandler();
+
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        plugin.getQuantumLogger().success("ZoneManager (tours) initialized");
     }
-    
-    /**
-     * Charge la configuration des zones
-     */
-    private void loadZonesConfig() {
-        if (!zonesFile.exists()) {
-            plugin.saveResource("zones.yml", false);
-        }
-        zonesConfig = YamlConfiguration.loadConfiguration(zonesFile);
-        plugin.getLogger().info("[ZONES] Loaded " + getZoneCount() + " zones");
-    }
-    
-    /**
-     * Recharge la configuration
-     */
-    public void reloadConfig() {
-        zonesConfig = YamlConfiguration.loadConfiguration(zonesFile);
-        plugin.getLogger().info("[ZONES] Reloaded " + getZoneCount() + " zones");
-    }
-    
-    /**
-     * Sauvegarde la configuration
-     */
-    public void saveConfig() {
-        try {
-            zonesConfig.save(zonesFile);
-        } catch (IOException e) {
-            plugin.getLogger().severe("[ZONES] Failed to save zones.yml: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Compte le nombre de zones configurées
-     */
-    public int getZoneCount() {
-        ConfigurationSection zonesSection = zonesConfig.getConfigurationSection("zones");
-        return zonesSection != null ? zonesSection.getKeys(false).size() : 0;
-    }
-    
-    /**
-     * Vérifie si un joueur est dans une zone restreinte
-     */
-    public boolean isPlayerInRestrictedZone(Player player, Location location) {
-        if (player.hasPermission(BYPASS_PERMISSION)) {
-            return false;
-        }
-        
-        ConfigurationSection zonesSection = zonesConfig.getConfigurationSection("zones");
-        if (zonesSection == null) return false;
-        
-        for (String zoneName : zonesSection.getKeys(false)) {
-            String worldName = zonesConfig.getString("zones." + zoneName + ".world");
-            String regionName = zonesConfig.getString("zones." + zoneName + ".region");
-            
-            if (worldName == null || regionName == null) continue;
-            
-            // Vérifier si le joueur est dans cette région
-            if (isInRegion(location, worldName, regionName)) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Vérifie si une location est dans une région WorldGuard
-     */
-    private boolean isInRegion(Location location, String worldName, String regionName) {
-        if (!location.getWorld().getName().equals(worldName)) {
-            return false;
-        }
-        
-        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-        RegionManager regions = container.get(BukkitAdapter.adapt(location.getWorld()));
-        
-        if (regions == null) return false;
-        
-        ProtectedRegion region = regions.getRegion(regionName);
-        if (region == null) return false;
-        
-        return region.contains(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-    }
-    
-    /**
-     * Gère l'entrée d'un joueur dans une zone
-     */
-    public void onPlayerEnterZone(Player player, String zoneName) {
-        if (player.hasPermission(BYPASS_PERMISSION)) {
+
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent event) {
+        Location from = event.getFrom();
+        Location to = event.getTo();
+        if (to == null) return;
+
+        // On ne traite que les changements de bloc (pour limiter le spam)
+        if (from.getWorld() == to.getWorld()
+                && from.getBlockX() == to.getBlockX()
+                && from.getBlockY() == to.getBlockY()
+                && from.getBlockZ() == to.getBlockZ()) {
             return;
         }
-        
-        // Ajouter le joueur dans la zone
-        playerInZones.computeIfAbsent(player.getUniqueId(), k -> new HashSet<>()).add(zoneName);
-        
-        // Message d'entrée
-        String enterMessage = zonesConfig.getString("zones." + zoneName + ".messages.enter");
-        if (enterMessage != null && !enterMessage.isEmpty()) {
-            player.sendMessage(enterMessage);
+
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+
+        String previousRegion = currentRegion.get(uuid);
+        String newRegion = getWorldGuardRegionAt(to);
+
+        if (Objects.equals(previousRegion, newRegion)) {
+            return; // pas de changement
         }
-        
-        plugin.getLogger().info("[ZONES] " + player.getName() + " entered zone: " + zoneName);
-    }
-    
-    /**
-     * Gère la sortie d'un joueur d'une zone
-     */
-    public void onPlayerExitZone(Player player, String zoneName) {
-        if (player.hasPermission(BYPASS_PERMISSION)) {
-            return;
+
+        // Sortie d'une région de tour
+        if (previousRegion != null && (newRegion == null || !isTowerRegion(newRegion))) {
+            handleLeaveTower(player);
+            currentRegion.remove(uuid);
         }
-        
-        Set<String> zones = playerInZones.get(player.getUniqueId());
-        if (zones != null) {
-            zones.remove(zoneName);
-            if (zones.isEmpty()) {
-                playerInZones.remove(player.getUniqueId());
+
+        // Entrée dans une nouvelle région de tour
+        if (newRegion != null && isTowerRegion(newRegion)) {
+            boolean ok = handleEnterTowerRegion(player, newRegion, from);
+            if (!ok) {
+                // Si refus (niveau insuffisant), on le renvoie à l'ancienne position
+                event.setTo(from);
+                return;
             }
+            currentRegion.put(uuid, newRegion);
         }
-        
-        // Reset les placeholders de cette zone
-        resetZonePlaceholders(player, zoneName);
-        
-        plugin.getLogger().info("[ZONES] " + player.getName() + " exited zone: " + zoneName);
     }
-    
-    /**
-     * Vérifie si un joueur peut quitter une zone
-     */
-    public boolean canPlayerLeaveZone(Player player, String zoneName) {
-        if (player.hasPermission(BYPASS_PERMISSION)) {
-            return true;
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+
+        if (currentRegion.containsKey(uuid)) {
+            handleLeaveTower(player);
+            currentRegion.remove(uuid);
         }
-        
-        // Vérifier si toutes les requirements sont remplies
-        List<Map<?, ?>> requirements = zonesConfig.getMapList("zones." + zoneName + ".requirements");
-        
-        for (Map<?, ?> requirement : requirements) {
-            String mobId = (String) requirement.get("mob");
-            int requiredAmount = (int) requirement.get("amount");
-            
-            // Vérifier le placeholder
-            String placeholder = "%quantum_killed_" + mobId + "_" + requiredAmount + "%";
-            String result = PlaceholderAPI.setPlaceholders(player, placeholder);
-            
-            // Si le placeholder ne retourne pas "true", le joueur ne peut pas sortir
-            if (!"true".equalsIgnoreCase(result)) {
-                return false;
-            }
-        }
-        
-        return true;
     }
-    
+
     /**
-     * Obtient le nom de la zone dans laquelle se trouve un joueur
+     * Retourne le nom d'une région WorldGuard à cette location
+     * (première trouvée), ou null s'il n'y en a pas.
      */
-    public String getPlayerZone(Player player, Location location) {
-        ConfigurationSection zonesSection = zonesConfig.getConfigurationSection("zones");
-        if (zonesSection == null) return null;
-        
-        for (String zoneName : zonesSection.getKeys(false)) {
-            String worldName = zonesConfig.getString("zones." + zoneName + ".world");
-            String regionName = zonesConfig.getString("zones." + zoneName + ".region");
-            
-            if (worldName == null || regionName == null) continue;
-            
-            if (isInRegion(location, worldName, regionName)) {
-                return zoneName;
-            }
+    private String getWorldGuardRegionAt(Location loc) {
+        World world = loc.getWorld();
+        if (world == null) return null;
+
+        RegionManager regions = WorldGuard.getInstance()
+                .getPlatform()
+                .getRegionContainer()
+                .get(BukkitAdapter.adapt(world));
+
+        if (regions == null) return null;
+
+        ApplicableRegionSet set = regions.getApplicableRegions(
+                BlockVector3.at(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ())
+        );
+
+        for (ProtectedRegion region : set) {
+            return region.getId(); // on prend la première
         }
-        
         return null;
     }
-    
+
     /**
-     * Force la sortie d'un joueur d'une zone (via commande console)
+     * Vérifie si le nom de région correspond à une région de tour
+     * via TowerManager.getTowerByRegion(...)
      */
-    public void forcePlayerExitZone(Player player) {
-        Set<String> zones = playerInZones.get(player.getUniqueId());
-        if (zones != null) {
-            for (String zoneName : new HashSet<>(zones)) {
-                resetZonePlaceholders(player, zoneName);
-                zones.remove(zoneName);
-            }
-            playerInZones.remove(player.getUniqueId());
-            
-            String exitMessage = "§aVous avez été autorisé à quitter la zone.";
-            player.sendMessage(exitMessage);
-            
-            plugin.getLogger().info("[ZONES] Forced exit for " + player.getName());
+    private boolean isTowerRegion(String regionName) {
+        String towerId = towerManager.getTowerByRegion(regionName);
+        int floor = towerManager.getFloorByRegion(regionName);
+        return towerId != null && floor > 0;
+    }
+
+    /**
+     * Gère l'entrée dans une région de tour (avec check niveau)
+     * @return true si le joueur est autorisé à entrer
+     */
+    private boolean handleEnterTowerRegion(Player player, String regionName, Location from) {
+        if (player.hasPermission(BYPASS_PERMISSION)) {
+            return enterWithoutLevelCheck(player, regionName);
         }
-    }
-    
-    /**
-     * Reset tous les placeholders d'une zone pour un joueur
-     */
-    private void resetZonePlaceholders(Player player, String zoneName) {
-        List<Map<?, ?>> requirements = zonesConfig.getMapList("zones." + zoneName + ".requirements");
-        
-        for (Map<?, ?> requirement : requirements) {
-            String mobId = (String) requirement.get("mob");
-            int amount = (int) requirement.get("amount");
-            
-            // Reset le compteur de kills pour ce mob
-            plugin.getKillTracker().resetKills(player, mobId, amount);
+
+        String towerId = towerManager.getTowerByRegion(regionName);
+        int floor = towerManager.getFloorByRegion(regionName);
+        if (towerId == null || floor <= 0) return true; // pas une tour
+
+        TowerConfig tower = towerManager.getTower(towerId);
+        if (tower == null) return true;
+
+        int level = levelManager.getLevel(player.getUniqueId());
+        int min = tower.getMinLevel();
+        int max = tower.getMaxLevel();
+
+        if (level < min || level > max) {
+            player.sendMessage("§cTu dois être niveau §f" + min + " §cà §f" + max +
+                    " §cpour entrer dans §f" + tower.getName() + "§c.");
+            return false;
         }
-        
-        plugin.getLogger().info("[ZONES] Reset placeholders for " + player.getName() + " in zone " + zoneName);
-    }
-    
-    /**
-     * Obtient le message d'erreur pour une zone
-     */
-    public String getDeniedMessage(Player player, String zoneName) {
-        String message = zonesConfig.getString("zones." + zoneName + ".messages.exit_denied", 
-            "§cVous devez compléter les objectifs avant de sortir!");
-        
-        // Remplacer %requirements% par la liste des requirements
-        StringBuilder requirements = new StringBuilder();
-        List<Map<?, ?>> requirementList = zonesConfig.getMapList("zones." + zoneName + ".requirements");
-        
-        for (int i = 0; i < requirementList.size(); i++) {
-            Map<?, ?> requirement = requirementList.get(i);
-            String mobId = (String) requirement.get("mob");
-            int amount = (int) requirement.get("amount");
-            
-            requirements.append(amount).append("x ").append(mobId);
-            if (i < requirementList.size() - 1) {
-                requirements.append(", ");
-            }
+
+        // OK : enregistrer la position, spawners + scoreboard
+        towerManager.updateCurrentLocation(player, towerId, floor);
+        if (!scoreboardHandler.hasTowerScoreboard(player)) {
+            scoreboardHandler.enableTowerScoreboard(player, towerId);
         }
-        
-        return message.replace("%requirements%", requirements.toString());
+
+        player.sendMessage("§aTu entres dans §f" + tower.getName() +
+                " §7(Étage §f" + floor + "§7)");
+        return true;
     }
-    
+
     /**
-     * Nettoie les données d'un joueur qui se déconnecte
+     * Entrée sans check de niveau (bypass)
      */
-    public void onPlayerQuit(Player player) {
-        playerInZones.remove(player.getUniqueId());
+    private boolean enterWithoutLevelCheck(Player player, String regionName) {
+        String towerId = towerManager.getTowerByRegion(regionName);
+        int floor = towerManager.getFloorByRegion(regionName);
+        if (towerId == null || floor <= 0) return true;
+
+        TowerConfig tower = towerManager.getTower(towerId);
+        if (tower == null) return true;
+
+        towerManager.updateCurrentLocation(player, towerId, floor);
+        if (!scoreboardHandler.hasTowerScoreboard(player)) {
+            scoreboardHandler.enableTowerScoreboard(player, towerId);
+        }
+
+        player.sendMessage("§e[Bypass] §aTu entres dans §f" + tower.getName() +
+                " §7(Étage §f" + floor + "§7)");
+        return true;
     }
-    
+
     /**
-     * Obtient les zones dans lesquelles se trouve un joueur
+     * Gère la sortie de tour (clear location + scoreboard)
      */
-    public Set<String> getPlayerZones(UUID playerUUID) {
-        return playerInZones.getOrDefault(playerUUID, Collections.emptySet());
+    private void handleLeaveTower(Player player) {
+        towerManager.clearCurrentLocation(player);
+        if (scoreboardHandler.hasTowerScoreboard(player)) {
+            scoreboardHandler.disableTowerScoreboard(player);
+        }
+        player.sendMessage("§7Tu quittes la tour.");
     }
 }

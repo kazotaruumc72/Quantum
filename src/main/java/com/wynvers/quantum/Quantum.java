@@ -149,12 +149,14 @@ public final class Quantum extends JavaPlugin {
         this.armorManager = new ArmorManager(this, dungeonArmor);
         this.runeItem = new RuneItem(this);
         logger.success("✓ Dungeon Armor & Rune system initialized! (9 runes with 3 levels)");
+
+        this.towerManager = new TowerManager(this);
+        getServer().getPluginManager().registerEvents(new TowerDamageListener(this), this);
         
         // Initialize WorldGuard zone system
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
             this.killTracker = new KillTracker(this);
             this.zoneManager = new ZoneManager(this);
-            this.towerManager = new TowerManager(this);
             this.scoreboardHandler = new TowerScoreboardHandler(this);
             logger.success("✓ WorldGuard integration enabled!");
             logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");

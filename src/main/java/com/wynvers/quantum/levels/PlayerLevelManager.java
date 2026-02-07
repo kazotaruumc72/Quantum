@@ -69,6 +69,22 @@ public class PlayerLevelManager {
             e.printStackTrace();
         }
     }
+    public void applyToBar(Player player) {
+        PlayerLevelData data = cache.get(player.getUniqueId());
+        if (data == null) return;
+    
+        int level = data.getLevel();
+        int exp = data.getExp();
+        int needed = getRequiredExp(level);
+    
+        player.setLevel(level);
+    
+        float progress = 0f;
+        if (needed > 0) {
+            progress = Math.min(1f, (float) exp / (float) needed);
+        }
+        player.setExp(progress); // entre 0.0 et 1.0[web:281][web:289]
+    }
 
     /**
      * Sauvegarde les données en DB (si en cache).

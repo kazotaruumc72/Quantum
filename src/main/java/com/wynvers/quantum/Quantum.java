@@ -29,6 +29,8 @@ import com.wynvers.quantum.orders.OrderCreationManager;
 import com.wynvers.quantum.sell.SellManager;
 import com.wynvers.quantum.utils.ActionExecutor;
 import com.wynvers.quantum.utils.Logger;
+import com.wynvers.quantum.commands.ArmorTabCompleter;
+import com.wynvers.quantum.commands.ArmorCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -291,6 +293,32 @@ public final class Quantum extends JavaPlugin {
         }
     }
     
+    private void registerListeners() {
+        logger.info("Registering listeners...");
+        
+        Bukkit.getPluginManager().registerEvents(new MenuListener(this), this);
+        logger.success("✓ Menu Listener");
+        
+        Bukkit.getPluginManager().registerEvents(new StorageListener(this), this);
+        logger.success("✓ Storage Listener");
+        
+        // Register ScoreboardListener for auto-scoreboard on join
+        if (scoreboardManager != null) {
+            Bukkit.getPluginManager().registerEvents(new ScoreboardListener(this), this);
+            logger.success("✓ Scoreboard Listener (auto-enable on join)");
+        }
+        
+        // Register ZoneListener if WorldGuard is available
+        if (zoneManager != null) {
+            Bukkit.getPluginManager().registerEvents(new ZoneListener(this), this);
+            logger.success("✓ Zone Listener");
+        }
+        
+        // Register ArmorListener
+        Bukkit.getPluginManager().registerEvents(new ArmorListener(this), this);
+        logger.success("✓ Armor Listener (bonus system)");
+    }
+   
     private void initializeManagers() {
         logger.info("Initializing managers...");
         

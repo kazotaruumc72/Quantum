@@ -460,11 +460,13 @@ public final class Quantum extends JavaPlugin {
         
         // Armor command
         getCommand("armor").setExecutor(new ArmorCommand(this));
-        logger.success("✓ Armor Command (dungeon system)");
+        getCommand("armor").setTabCompleter(new QuantumArmorRuneTabCompleter());
+        logger.success("✓ Armor Command + TabCompleter");
         
         // Rune command (NEW)
         getCommand("rune").setExecutor(new RuneCommand(this));
-        logger.success("✓ Rune Command (physical rune items + equipment menu)");
+        getCommand("rune").setTabCompleter(new QuantumArmorRuneTabCompleter());
+        logger.success("✓ Rune Command + TabCompleter");
 
         // Register TabCompleters
         getCommand("quantum").setTabCompleter(new QuantumTabCompleter(this));

@@ -18,7 +18,7 @@ public class RuneItem {
 
     private final JavaPlugin plugin;
     private final NamespacedKey successChanceKey;
-    private final NamespacedKey appliedRuneKey; // identifiant de la rune appliquée sur l’armure
+    private final NamespacedKey appliedRuneKey; // Rune appliquée sur l’armure
     private static final Random RANDOM = new Random();
 
     public RuneItem(JavaPlugin plugin) {
@@ -29,7 +29,7 @@ public class RuneItem {
 
     /**
      * Crée une rune avec un taux de réussite aléatoire (0-100%)
-     * @param rune Type de rune
+     * @param rune  Type de rune
      * @param level Niveau (1-3)
      * @return ItemStack de la rune avec son taux en NBT
      */
@@ -61,7 +61,7 @@ public class RuneItem {
             // Stocker le taux en NBT
             meta.getPersistentDataContainer().set(successChanceKey, PersistentDataType.INTEGER, successChance);
 
-            // Construire le lore proprement
+            // Construire le lore
             List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
             lore.add("");
 
@@ -105,8 +105,7 @@ public class RuneItem {
     }
 
     /**
-     * Vérifie si une armure possède déjà au moins une rune.
-     * Si tu veux gérer plusieurs runes, tu peux stocker une liste (String) ou un compteur ici.
+     * Vérifie si une armure possède déjà une rune (simple : 1 rune max).
      */
     public boolean hasRuneOnArmor(ItemStack armor) {
         if (armor == null || !armor.hasItemMeta()) return false;
@@ -117,11 +116,11 @@ public class RuneItem {
     /**
      * Applique une rune sur une armure.
      *
-     * @param runeItem  l'ItemStack de la rune (sera consommé par le caller)
+     * @param runeItem  l'ItemStack de la rune (consommé par le caller)
      * @param armorItem l'ItemStack de l'armure cible
-     * @param rune      le type de rune (pour l’affichage / tracking)
+     * @param rune      le type de rune
      * @param level     le niveau de la rune
-     * @return -1 si rune invalide, 0 si échec, 1 si réussite
+     * @return -1 si rune invalide ou armure non compatible, 0 si échec, 1 si réussite
      */
     public int applyRuneOnArmor(ItemStack runeItem, ItemStack armorItem, RuneType rune, int level) {
         int successChance = getSuccessChance(runeItem);
@@ -129,20 +128,19 @@ public class RuneItem {
             return -1; // pas une rune valide
         }
 
-        // Tu peux décider ici de limiter le nombre de runes par armure
-        // Exemple simple : 1 seule rune
+        // Exemple simple : 1 seule rune max par armure
         if (hasRuneOnArmor(armorItem)) {
-            return -1; // déjà runée, à toi d’envoyer le message côté listener
+            return -1;
         }
 
         int roll = RANDOM.nextInt(100) + 1; // 1–100
         boolean success = roll <= successChance;
 
         if (!success) {
-            return 0; // échec -> le caller détruira la rune
+            return 0; // échec
         }
 
-        // Réussite : marquer l’armure comme runée + ajouter une ligne de lore propre
+        // Réussite : marquer l’armure comme runée + ajouter une ligne de lore
         ItemMeta armorMeta = armorItem.getItemMeta();
         if (armorMeta != null) {
             armorMeta.getPersistentDataContainer().set(
@@ -153,13 +151,13 @@ public class RuneItem {
 
             List<String> lore = armorMeta.hasLore() ? new ArrayList<>(armorMeta.getLore()) : new ArrayList<>();
             lore.add("");
-            lore.add("§b✦ Rune appliquée: §f" + rune.getDisplayName(level));
+            lore.add("§b✦ Rune appliquée: §f" + rune.name() + " " + level);
             armorMeta.setLore(lore);
 
             armorItem.setItemMeta(armorMeta);
         }
 
-        return 1; // réussite
+        return 1;
     }
 
     /**

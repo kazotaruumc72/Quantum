@@ -57,8 +57,7 @@ public class RuneApplyListener implements Listener {
         // À ce stade : curseur = rune, slot cliqué = armure => on applique
         event.setCancelled(true); // empêche l'échange vanilla
 
-        // Détecter le type et niveau de la rune (à adapter selon ton système)
-        // Pour l'instant on utilise des valeurs par défaut
+        // Détecter le type et niveau de la rune
         RuneType runeType = detectRuneType(cursor);
         int level = detectRuneLevel(cursor);
 
@@ -94,14 +93,14 @@ public class RuneApplyListener implements Listener {
     }
 
     private RuneType detectRuneType(ItemStack runeItem) {
-        // À implémenter selon ton système (via PDC, nom, lore, etc.)
-        // Par défaut on retourne HEALTH
-        return RuneType.HEALTH;
+        // Détection du type de rune - à améliorer selon ton système
+        // Pour l'instant on retourne FORCE par défaut
+        return RuneType.FORCE;
     }
 
     private int detectRuneLevel(ItemStack runeItem) {
-        // À implémenter selon ton système
-        // Par défaut on retourne 1
+        // Détection du niveau (1-3) - à améliorer selon ton système
+        // Pour l'instant on retourne 1 par défaut
         return 1;
     }
 }

@@ -15,16 +15,18 @@ import java.util.Random;
  * Gestion des items runes avec taux de réussite aléatoire stocké en NBT
  */
 public class RuneItem {
-    
+
     private final JavaPlugin plugin;
     private final NamespacedKey successChanceKey;
+    private final NamespacedKey appliedRuneKey; // identifiant de la rune appliquée sur l’armure
     private static final Random RANDOM = new Random();
-    
+
     public RuneItem(JavaPlugin plugin) {
         this.plugin = plugin;
         this.successChanceKey = new NamespacedKey(plugin, "rune_success_chance");
+        this.appliedRuneKey = new NamespacedKey(plugin, "armor_applied_rune");
     }
-    
+
     /**
      * Crée une rune avec un taux de réussite aléatoire (0-100%)
      * @param rune Type de rune
@@ -37,31 +39,32 @@ public class RuneItem {
             plugin.getLogger().warning("⚠️ Nexo ID non trouvé pour rune: " + rune.name() + " niveau " + level);
             return null;
         }
-        
+
         com.nexomc.nexo.items.ItemBuilder builder = NexoItems.itemFromId(nexoId);
         if (builder == null) {
             plugin.getLogger().severe("⚠️ ERREUR: Nexo ne trouve pas l'item '" + nexoId + "'");
             plugin.getLogger().severe("⚠️ Vérifiez que cet item existe dans votre configuration Nexo !");
             return null;
         }
-        
+
         ItemStack item = builder.build();
         if (item == null) {
             plugin.getLogger().warning("⚠️ Impossible de créer la rune Nexo: " + nexoId);
             return null;
         }
-        
+
         // Générer un taux aléatoire entre 0 et 100
-        // Stocker le taux en NBT
         int successChance = RANDOM.nextInt(101);
+
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
+            // Stocker le taux en NBT
             meta.getPersistentDataContainer().set(successChanceKey, PersistentDataType.INTEGER, successChance);
-            
-            // Ajouter le taux dans le lore
+
+            // Construire le lore proprement
             List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
             lore.add("");
-            
+
             String color = getChanceColor(successChance);
             lore.add(color + "§l✦ Taux de réussite: " + successChance + "%");
             lore.add("");
@@ -69,14 +72,14 @@ public class RuneItem {
             lore.add("");
             lore.add("§c⚠ Si la rune échoue, elle sera détruite");
             lore.add("§a✔ Si elle réussit, elle sera permanente");
-            
+
             meta.setLore(lore);
             item.setItemMeta(meta);
         }
-        
+
         return item;
     }
-    
+
     /**
      * Récupère le taux de réussite stocké dans une rune
      * @param item ItemStack de la rune
@@ -84,22 +87,81 @@ public class RuneItem {
      */
     public int getSuccessChance(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return -1;
-        
+
         ItemMeta meta = item.getItemMeta();
         if (!meta.getPersistentDataContainer().has(successChanceKey, PersistentDataType.INTEGER)) {
             return -1;
         }
-        
-        return meta.getPersistentDataContainer().get(successChanceKey, PersistentDataType.INTEGER);
+
+        Integer value = meta.getPersistentDataContainer().get(successChanceKey, PersistentDataType.INTEGER);
+        return value == null ? -1 : value;
     }
-    
+
     /**
      * Vérifie si un item est une rune valide
      */
     public boolean isRune(ItemStack item) {
         return getSuccessChance(item) != -1;
     }
-    
+
+    /**
+     * Vérifie si une armure possède déjà au moins une rune.
+     * Si tu veux gérer plusieurs runes, tu peux stocker une liste (String) ou un compteur ici.
+     */
+    public boolean hasRuneOnArmor(ItemStack armor) {
+        if (armor == null || !armor.hasItemMeta()) return false;
+        ItemMeta meta = armor.getItemMeta();
+        return meta.getPersistentDataContainer().has(appliedRuneKey, PersistentDataType.STRING);
+    }
+
+    /**
+     * Applique une rune sur une armure.
+     *
+     * @param runeItem  l'ItemStack de la rune (sera consommé par le caller)
+     * @param armorItem l'ItemStack de l'armure cible
+     * @param rune      le type de rune (pour l’affichage / tracking)
+     * @param level     le niveau de la rune
+     * @return -1 si rune invalide, 0 si échec, 1 si réussite
+     */
+    public int applyRuneOnArmor(ItemStack runeItem, ItemStack armorItem, RuneType rune, int level) {
+        int successChance = getSuccessChance(runeItem);
+        if (successChance < 0) {
+            return -1; // pas une rune valide
+        }
+
+        // Tu peux décider ici de limiter le nombre de runes par armure
+        // Exemple simple : 1 seule rune
+        if (hasRuneOnArmor(armorItem)) {
+            return -1; // déjà runée, à toi d’envoyer le message côté listener
+        }
+
+        int roll = RANDOM.nextInt(100) + 1; // 1–100
+        boolean success = roll <= successChance;
+
+        if (!success) {
+            return 0; // échec -> le caller détruira la rune
+        }
+
+        // Réussite : marquer l’armure comme runée + ajouter une ligne de lore propre
+        ItemMeta armorMeta = armorItem.getItemMeta();
+        if (armorMeta != null) {
+            armorMeta.getPersistentDataContainer().set(
+                    appliedRuneKey,
+                    PersistentDataType.STRING,
+                    rune.name() + ":" + level
+            );
+
+            List<String> lore = armorMeta.hasLore() ? new ArrayList<>(armorMeta.getLore()) : new ArrayList<>();
+            lore.add("");
+            lore.add("§b✦ Rune appliquée: §f" + rune.getDisplayName(level));
+            armorMeta.setLore(lore);
+
+            armorItem.setItemMeta(armorMeta);
+        }
+
+        return 1; // réussite
+    }
+
     /**
      * Retourne la couleur selon le taux de réussite
      */

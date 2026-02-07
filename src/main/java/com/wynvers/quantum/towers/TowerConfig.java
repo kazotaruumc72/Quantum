@@ -13,17 +13,27 @@ public class TowerConfig {
     private final int totalFloors;
     private final List<Integer> bossFloors;
     private final int finalBossFloor;
-        private final List<String> scoreboardLines;
+    private final List<String> scoreboardLines;
+    private final int minLevel;
+    private final int maxLevel;
     
-    public TowerConfig(String id, String name, String world, int totalFloors, 
-                       List<Integer> bossFloors, int finalBossFloor) {
+    public TowerConfig(String id, String name, String world, int totalFloors, List<Integer> bossFloors, int finalBossFloor, int minLevel, int maxLevel) {
         this.id = id;
         this.name = name;
         this.world = world;
         this.totalFloors = totalFloors;
         this.bossFloors = bossFloors;
         this.finalBossFloor = finalBossFloor;
-                this.scoreboardLines = new java.util.ArrayList<>();
+        this.scoreboardLines = new java.util.ArrayList<>();
+        this.minLevel = minLevel;
+        this.maxLevel = maxLevel;
+    }
+    public int getMinLevel() { 
+        return minLevel; 
+    }
+    
+    public int getMaxLevel() { 
+        return maxLevel; 
     }
     
     public String getId() {

@@ -59,6 +59,21 @@ public enum RuneType {
             e.printStackTrace();
         }
     }
+    private double getInverseScalingFraction(int level) {
+        int chance = getSuccessChance(level); // 0–100 depuis dungeon.yml
+        int missing = Math.max(0, 100 - chance); // 0–100
+    
+        double base;
+        switch (level) {
+            case 1: base = 2.0; break;
+            case 2: base = 3.0; break;
+            case 3: base = 4.0; break;
+            default: base = 2.0; break;
+        }
+    
+        // Retourne une fraction : 0.02 = 2 %, 0.5 = 50 %, etc.
+        return base * (missing / 100.0);
+    }
     
     public String getDisplay() {
         RuneConfig config = configs.get(this);
@@ -94,12 +109,25 @@ public enum RuneType {
     
     public double getDamageBonus(int level) {
         if (this != FORCE) return 1.0;
-        return getValueOrDefault(level, 1.0);
+    
+        double effect = getInverseScalingFraction(level); // ex: 0.02 (=2%)
+        return 1.0 + effect; // multiplicateur de dégâts
     }
     
     public double getSpeedBonus(int level) {
         if (this != SPEED) return 1.0;
-        return getValueOrDefault(level, 1.0);
+    
+        double effect = getInverseScalingFraction(level);
+        return 1.0 + effect; // multiplicateur de vitesse
+    }
+    
+    public double getRegeneration(int level) {
+        if (this != REGENERATION) return 0.0;
+    
+        double effect = getInverseScalingFraction(level);
+        // Ici tu peux choisir comment ça se traduit en PV / tick
+        // Exemple: 0.02 -> 0.2 ❤ par seconde (à adapter si besoin)
+        return effect * 0.1;
     }
     
     public double getDamageReduction(int level) {
@@ -116,10 +144,12 @@ public enum RuneType {
         if (this != VAMPIRISM) return 0.0;
         return getValueOrDefault(level, 0.0);
     }
+    public double getJumpBonus(int level) {
+        if (this != AGILITY) return 0.0;
     
-    public double getRegeneration(int level) {
-        if (this != REGENERATION) return 0.0;
-        return getValueOrDefault(level, 0.0);
+        double effect = getInverseScalingFraction(level);
+        // Par exemple: 0.02 -> niveau de jump très faible, 0.5 -> gros jump
+        return effect;
     }
     
     private double getValueOrDefault(int level, double defaultValue) {

@@ -319,7 +319,7 @@ public final class Quantum extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new ArmorListener(this), this);
         logger.success("✓ Armor Listener (bonus system)");
 
-        Bukkit.getPluginManager().registerEvents(new RuneApplyListener(runeItem), this);
+        Bukkit.getPluginManager().registerEvents(new RuneApplyListener(runeItem, dungeonArmor), this);
         logger.success("✓ Rune Apply Listener (drag & drop runes)");
     }
    

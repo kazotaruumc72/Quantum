@@ -1,0 +1,50 @@
+# =======================================
+# QUANTUM - Configuration des Tours
+# =======================================
+
+towers:
+  tower_1:
+    name: "Tour des Débutants"
+    worldguard_region: "tour_1"          # région WG principale de la tour
+    min_level: 1
+    max_level: 26
+
+    floors:
+      1:
+        worldguard_region: "tour_1_floor_1"
+        spawners:
+          - id: "t1_f1_s1"
+            mob: "slime_basic"
+            model: "slime_basic"         # id du modèle (Nexo / ModelEngine / autre)
+            base_health: 20.0
+            amount: 5
+            respawn_delay: 10            # secondes
+            skills:
+              - "jump_at_player"
+            animations:
+              spawn: "slime_spawn"
+              idle: "slime_idle"
+              attack: "slime_attack"
+
+      2:
+        worldguard_region: "tour_1_floor_2"
+        spawners:
+          - id: "t1_f2_s1"
+            mob: "skeleton_archer"
+            model: "skeleton_archer"
+            base_health: 30.0
+            amount: 6
+            respawn_delay: 12
+            skills:
+              - "shoot_arrow"
+            animations:
+              spawn: "skeleton_spawn"
+              idle: "skeleton_idle"
+              attack: "skeleton_shoot"
+
+    # Scaling en fonction du nombre de runs du joueur
+    scaling:
+      # run_count = nombre de fois que le joueur a terminé cette tour
+      health_per_run_percent: 5      # +5% hp par run
+      amount_per_run: 1              # +1 mob par run (jusqu'à un max)
+      max_extra_amount: 10           # limite d'augmentation

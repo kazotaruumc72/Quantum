@@ -39,6 +39,20 @@ public class PlayerLevelManager {
     }
 
     /**
+     * Retourne les données du joueur, ou crée une entrée par défaut en mémoire si
+     * elles n'existent pas encore (par exemple si la DB est indisponible ou le joueur
+     * n'a pas encore été chargé via le listener de join).
+     */
+    private PlayerLevelData getOrCreateData(UUID uuid) {
+        PlayerLevelData data = cache.get(uuid);
+        if (data == null) {
+            data = new PlayerLevelData(uuid, 1, 0);
+            cache.put(uuid, data);
+        }
+        return data;
+    }
+
+    /**
      * Charge (ou crée) les données dans le cache depuis MySQL.
      * À appeler en ASYNC au join.
      */
@@ -71,6 +85,11 @@ public class PlayerLevelManager {
         } catch (SQLException e) {
             plugin.getQuantumLogger().error("Failed to load player level for " + uuid + ": " + e.getMessage());
             e.printStackTrace();
+
+            // En cas d'erreur DB, on initialise quand même les données en mémoire
+            if (!cache.containsKey(uuid)) {
+                cache.put(uuid, new PlayerLevelData(uuid, 1, 0));
+            }
         }
     }
 
@@ -129,8 +148,7 @@ public class PlayerLevelManager {
      * puis met à jour la barre d'XP si le joueur est en ligne.
      */
     public void addExp(UUID uuid, int amount) {
-        PlayerLevelData data = cache.get(uuid);
-        if (data == null) return;
+        PlayerLevelData data = getOrCreateData(uuid);
 
         int exp = data.getExp() + amount;
         int level = data.getLevel();
@@ -140,7 +158,7 @@ public class PlayerLevelManager {
             exp -= needed;
             level++;
             needed = getRequiredExp(level);
-            
+
             // Notification de level up
             Player player = Bukkit.getPlayer(uuid);
             if (player != null && player.isOnline()) {
@@ -165,8 +183,7 @@ public class PlayerLevelManager {
      * Gère le level-down si nécessaire.
      */
     public void removeExp(UUID uuid, int amount) {
-        PlayerLevelData data = cache.get(uuid);
-        if (data == null) return;
+        PlayerLevelData data = getOrCreateData(uuid);
 
         int exp = data.getExp() - amount;
         int level = data.getLevel();
@@ -198,9 +215,8 @@ public class PlayerLevelManager {
      */
     public void setExp(UUID uuid, int amount) {
         if (amount < 0) amount = 0;
-        
-        PlayerLevelData data = cache.get(uuid);
-        if (data == null) return;
+
+        PlayerLevelData data = getOrCreateData(uuid);
 
         int level = 1;
         int remainingExp = amount;
@@ -224,8 +240,7 @@ public class PlayerLevelManager {
      * Réinitialise l'XP du joueur (niveau 1, 0 XP).
      */
     public void resetExp(UUID uuid) {
-        PlayerLevelData data = cache.get(uuid);
-        if (data == null) return;
+        PlayerLevelData data = getOrCreateData(uuid);
 
         data.setLevel(1);
         data.setExp(0);

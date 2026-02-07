@@ -412,6 +412,7 @@ public final class Quantum extends JavaPlugin {
         getCommand("offre").setTabCompleter(new OffreTabCompleter(this));
 
         getCommand("qexp").setExecutor(new QexpCommand(this, playerLevelManager));
+        getCommand("qexp").setTabCompleter(new QexpTabCompleter());
 
         logger.success("✓ Commands registered");
     }

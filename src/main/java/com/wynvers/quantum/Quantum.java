@@ -477,7 +477,7 @@ public final class Quantum extends JavaPlugin {
         // Rune command
         getCommand("rune").setExecutor(new RuneCommand(this));
         getCommand("rune").setTabCompleter(new QuantumArmorRuneTabCompleter());
-        logger.success("✓ Rune Command + TabCompleter")
+        logger.success("✓ Rune Command + TabCompleter");
 
         // Register TabCompleters
         getCommand("quantum").setTabCompleter(new QuantumTabCompleter(this));

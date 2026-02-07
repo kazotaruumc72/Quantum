@@ -12,15 +12,15 @@ runes:
     levels:
       1:
         description: "§7+10% dégâts"
-        nexo_id: "rune_force_1"
+        nexo_id: "rune1_red"
         damage_bonus: 1.1
       2:
         description: "§7+20% dégâts"
-        nexo_id: "rune_force_2"
+        nexo_id: "rune1_orange"
         damage_bonus: 1.2
       3:
         description: "§7+30% dégâts"
-        nexo_id: "rune_force_3"
+        nexo_id: "rune1_pink"
         damage_bonus: 1.3
   
   speed:
@@ -29,13 +29,16 @@ runes:
     levels:
       1:
         description: "§7+10% vitesse"
-        nexo_id: "rune_speed_1"
+        nexo_id: "rune1_blue"
+        speed_bonus: 1.1
       2:
         description: "§7+20% vitesse"
-        nexo_id: "rune_speed_2"
+        nexo_id: "rune1_navy"
+        speed_bonus: 1.2
       3:
         description: "§7+30% vitesse"
-        nexo_id: "rune_speed_3"
+        nexo_id: "rune1_purple"
+        speed_bonus: 1.3
   
   resistance:
     display_name: "§a🛡 Résistance"
@@ -43,13 +46,16 @@ runes:
     levels:
       1:
         description: "§7+5% réduction dégâts"
-        nexo_id: "rune_resistance_1"
+        nexo_id: "rune1_green"
+        damage_reduction: 0.05
       2:
         description: "§7+10% réduction dégâts"
-        nexo_id: "rune_resistance_2"
+        nexo_id: "rune1_lime"
+        damage_reduction: 0.10
       3:
         description: "§7+15% réduction dégâts"
-        nexo_id: "rune_resistance_3"
+        nexo_id: "rune1_lime"
+        damage_reduction: 0.15
   
   critical:
     display_name: "§e✨ Critique"
@@ -57,15 +63,15 @@ runes:
     levels:
       1:
         description: "§7+15% chance coup critique"
-        nexo_id: "rune_critical_1"
+        nexo_id: "rune1_yellow"
         critical_chance: 0.15
       2:
         description: "§7+30% chance coup critique"
-        nexo_id: "rune_critical_2"
+        nexo_id: "rune1_yellow"
         critical_chance: 0.30
       3:
         description: "§7+45% chance coup critique"
-        nexo_id: "rune_critical_3"
+        nexo_id: "rune1_orange"
         critical_chance: 0.45
   
   vampirism:
@@ -74,15 +80,15 @@ runes:
     levels:
       1:
         description: "§7Vole 10% de vie"
-        nexo_id: "rune_vampirism_1"
+        nexo_id: "rune1_purple"
         vampirism_percent: 0.10
       2:
         description: "§7Vole 20% de vie"
-        nexo_id: "rune_vampirism_2"
+        nexo_id: "rune1_purple"
         vampirism_percent: 0.20
       3:
         description: "§7Vole 30% de vie"
-        nexo_id: "rune_vampirism_3"
+        nexo_id: "rune1_pink"
         vampirism_percent: 0.30
   
   regeneration:
@@ -91,13 +97,16 @@ runes:
     levels:
       1:
         description: "§7+1❤/3s"
-        nexo_id: "rune_regeneration_1"
+        nexo_id: "rune1_pink"
+        regeneration: 1.0
       2:
         description: "§7+2❤/3s"
-        nexo_id: "rune_regeneration_2"
+        nexo_id: "rune1_pink"
+        regeneration: 2.0
       3:
         description: "§7+3❤/3s"
-        nexo_id: "rune_regeneration_3"
+        nexo_id: "rune1_red"
+        regeneration: 3.0
   
   strength:
     display_name: "§6💪 Puissance"
@@ -105,13 +114,16 @@ runes:
     levels:
       1:
         description: "§7Force I permanent"
-        nexo_id: "rune_strength_1"
+        nexo_id: "rune1_orange"
+        strength_level: 1
       2:
         description: "§7Force II permanent"
-        nexo_id: "rune_strength_2"
+        nexo_id: "rune1_orange"
+        strength_level: 2
       3:
         description: "§7Force III permanent"
-        nexo_id: "rune_strength_3"
+        nexo_id: "rune1_red"
+        strength_level: 3
   
   defense:
     display_name: "§7🛡️ Défense"
@@ -119,13 +131,16 @@ runes:
     levels:
       1:
         description: "§7+2 armure"
-        nexo_id: "rune_defense_1"
+        nexo_id: "rune1_green"
+        armor_points: 2
       2:
         description: "§7+4 armure"
-        nexo_id: "rune_defense_2"
+        nexo_id: "rune1_green"
+        armor_points: 4
       3:
         description: "§7+6 armure"
-        nexo_id: "rune_defense_3"
+        nexo_id: "rune1_lime"
+        armor_points: 6
   
   agility:
     display_name: "§f🏃 Agilité"
@@ -133,10 +148,13 @@ runes:
     levels:
       1:
         description: "§7+10% esquive"
-        nexo_id: "rune_agility_1"
+        nexo_id: "rune1_blue"
+        dodge_chance: 0.10
       2:
         description: "§7+20% esquive"
-        nexo_id: "rune_agility_2"
+        nexo_id: "rune1_navy"
+        dodge_chance: 0.20
       3:
         description: "§7+30% esquive"
-        nexo_id: "rune_agility_3"
+        nexo_id: "rune1_navy"
+        dodge_chance: 0.30

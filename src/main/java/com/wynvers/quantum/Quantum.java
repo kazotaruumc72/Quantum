@@ -13,6 +13,7 @@ import com.wynvers.quantum.levels.PlayerLevelManager;
 import com.wynvers.quantum.listeners.MenuListener;
 import com.wynvers.quantum.listeners.ScoreboardListener;
 import com.wynvers.quantum.listeners.StorageListener;
+import com.wynvers.quantum.listeners.TowerKillListener;
 import com.wynvers.quantum.managers.*;
 import com.wynvers.quantum.orders.OrderAcceptanceHandler;
 import com.wynvers.quantum.orders.OrderButtonHandler;
@@ -271,6 +272,13 @@ public final class Quantum extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new RuneApplyListener(runeItem, dungeonArmor), this);
         logger.success("✓ Rune Apply Listener (drag & drop runes)");
+
+        if (towerManager != null) {
+            Bukkit.getPluginManager().registerEvents(
+                    new TowerKillListener(this, towerManager, playerLevelManager), this
+            );
+            logger.success("✓ Tower Kill Listener (XP on mob kill)");
+        }
     }
 
     // ───────────────────── Managers ─────────────────────
@@ -402,6 +410,8 @@ public final class Quantum extends JavaPlugin {
         getCommand("rechercher").setTabCompleter(new RechercherTabCompleter());
         getCommand("recherche").setTabCompleter(new RechercheTabCompleter(this));
         getCommand("offre").setTabCompleter(new OffreTabCompleter(this));
+
+        getCommand("qexp").setExecutor(new QexpCommand(this, playerLevelManager));
 
         logger.success("✓ Commands registered");
     }

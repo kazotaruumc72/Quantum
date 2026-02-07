@@ -400,8 +400,8 @@ public final class Quantum extends JavaPlugin {
         getCommand("menu").setTabCompleter(new MenuTabCompleter(this));
         getCommand("qstorage").setTabCompleter(new QuantumStorageTabCompleter(this));
         getCommand("rechercher").setTabCompleter(new RechercherTabCompleter());
-        getCommand("recherche").setTabCompleter(new RechercheTabCompleter());
-        getCommand("offre").setTabCompleter(new OffreTabCompleter());
+        getCommand("recherche").setTabCompleter(new RechercheTabCompleter(this));
+        getCommand("offre").setTabCompleter(new OffreTabCompleter(this));
 
         logger.success("✓ Commands registered");
     }

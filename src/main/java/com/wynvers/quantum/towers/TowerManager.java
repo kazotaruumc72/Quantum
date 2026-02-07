@@ -43,36 +43,43 @@ public class TowerManager {
      * Load tower configurations from zones.yml
      */
     private void loadTowers() {
-        File zonesFile = new File(plugin.getDataFolder(), "zones.yml");
-        if (!zonesFile.exists()) {
-            plugin.getQuantumLogger().warning("zones.yml not found - tower system disabled");
+        File towersFile = new File(plugin.getDataFolder(), "towers.yml");
+        if (!towersFile.exists()) {
+            plugin.getQuantumLogger().warning("towers.yml not found - tower system disabled");
             return;
         }
-        
-        FileConfiguration config = YamlConfiguration.loadConfiguration(zonesFile);
+    
+        FileConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
         ConfigurationSection towersSection = config.getConfigurationSection("towers");
-        
+    
         if (towersSection == null) {
-            plugin.getQuantumLogger().warning("No 'towers' section in zones.yml");
+            plugin.getQuantumLogger().warning("No 'towers' section in towers.yml");
             return;
         }
-        
+    
         for (String towerId : towersSection.getKeys(false)) {
             ConfigurationSection towerSection = towersSection.getConfigurationSection(towerId);
             if (towerSection == null) continue;
-            
+    
             String name = towerSection.getString("name", towerId);
             String world = towerSection.getString("world", "world");
             int floors = towerSection.getInt("floors", 25);
             List<Integer> bossFloors = towerSection.getIntegerList("boss_floors");
-            int finalBossFloor = towerSection.getInt("final_boss_floor", 26);
-            
-            TowerConfig tower = new TowerConfig(towerId, name, world, floors, bossFloors, finalBossFloor);
+            int finalBossFloor = towerSection.getInt("final_boss_floor", floors);
+    
+            int minLevel = towerSection.getInt("min_level", 1);
+            int maxLevel = towerSection.getInt("max_level", 999);
+    
+            TowerConfig tower = new TowerConfig(
+                    towerId, name, world, floors, bossFloors, finalBossFloor,
+                    minLevel, maxLevel
+            );
             towers.put(towerId, tower);
-            
+    
             plugin.getQuantumLogger().success("✓ Loaded tower: " + name + " (" + floors + " floors)");
         }
     }
+
     
     /**
      * Load player progress from tower_progress.yml

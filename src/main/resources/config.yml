@@ -6,18 +6,15 @@
 # ───────────────────────────────────────────────────────────────
 # DATABASE
 # ───────────────────────────────────────────────────────────────
-database:
-  # Type de base de données: sqlite ou mysql
-  type: sqlite
-  
-  # Configuration MySQL (si type = mysql)
-  mysql:
-    host: localhost
-    port: 3306
-    database: quantum
-    username: root
-    password: password
-    useSSL: false
+mysql:
+  enabled: true
+  host: "localhost"
+  port: 3306
+  database: "quantum"
+  username: "quantum_user"
+  password: "password"
+  pool_size: 5
+
 
 # ───────────────────────────────────────────────────────────────
 # STORAGE

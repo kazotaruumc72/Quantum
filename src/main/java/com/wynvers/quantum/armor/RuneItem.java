@@ -42,11 +42,21 @@ public class RuneItem {
         if (item == null) {
             plugin.getLogger().warning("⚠️ Impossible de créer la rune Nexo: " + nexoId);
             return null;
+        // Vérifier que Nexo peut créer l'item
+        com.nexomc.nexo.items.ItemBuilder builder = NexoItems.itemFromId(nexoId);
+        if (builder == null) {
+            plugin.getLogger().severe("⚠️ ERREUR: Nexo ne trouve pas l'item '" + nexoId + "'");
+            plugin.getLogger().severe("⚠️ Vérifiez que cet item existe dans votre configuration Nexo !");
+            return null;
+        }
+        
+        ItemStack item = builder.build();
+        if (item == null) {
+            plugin.getLogger().warning("⚠️ Impossible de créer la rune Nexo: " + nexoId);
+            return null;
         }
         
         // Générer un taux aléatoire entre 0 et 100
-        int successChance = RANDOM.nextInt(101); // 0 à 100 inclus
-        
         // Stocker le taux en NBT
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {

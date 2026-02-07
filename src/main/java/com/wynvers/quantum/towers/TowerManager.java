@@ -41,9 +41,11 @@ public class TowerManager {
                 YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "towers.yml"))
         );
     }
+
     public TowerSpawnerManager getSpawnerManager() {
         return spawnerManager;
     }
+
     /**
      * Load tower configurations from zones.yml
      */
@@ -134,21 +136,7 @@ public class TowerManager {
         
         plugin.getQuantumLogger().success("✓ Loaded progress for " + playerProgress.size() + " players");
     }
-    public TowerManager(Quantum plugin) {
-        this.plugin = plugin;
-        this.towers = new HashMap<>();
-        this.playerProgress = new HashMap<>();
-    
-        loadTowers();
-        loadProgress();
-    
-        this.spawnerManager = new TowerSpawnerManager(plugin, this);
-        this.spawnerManager.loadFromConfig(
-                YamlConfiguration.loadConfiguration(
-                        new File(plugin.getDataFolder(), "towers.yml")
-                )
-        );
-    }
+
     /**
      * Save all player progress
      */
@@ -182,10 +170,6 @@ public class TowerManager {
      */
     public TowerProgress getProgress(UUID uuid) {
         return playerProgress.computeIfAbsent(uuid, TowerProgress::new);
-    }
-
-    public TowerSpawnerManager getSpawnerManager() {
-        return spawnerManager;
     }
     
     /**
@@ -285,7 +269,7 @@ public class TowerManager {
     }
     
     /**
-     * Update player's current location in tower
+     * Update player’s current location in tower
      * @param player Player
      * @param towerId Tower ID
      * @param floor Floor number
@@ -302,7 +286,7 @@ public class TowerManager {
     }
     
     /**
-     * Clear player's current location (left tower)
+     * Clear player’s current location (left tower)
      * @param player Player
      */
     public void clearCurrentLocation(Player player) {
@@ -364,7 +348,7 @@ public class TowerManager {
         return towers.size();
     }
 
-        /**
+    /**
      * Get the tower a player is currently in
      * @param player The player
      * @return TowerConfig or null if not in a tower

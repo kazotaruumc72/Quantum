@@ -140,10 +140,95 @@ public class PlayerLevelManager {
             exp -= needed;
             level++;
             needed = getRequiredExp(level);
+            
+            // Notification de level up
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null && player.isOnline()) {
+                final int newLevel = level;
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    player.sendMessage("§6§l✦ LEVEL UP! §7Vous êtes maintenant niveau §f" + newLevel + "§7!");
+                });
+            }
         }
 
         data.setLevel(level);
         data.setExp(exp);
+
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            Bukkit.getScheduler().runTask(plugin, () -> applyToBar(player));
+        }
+    }
+
+    /**
+     * Retire de l'XP au joueur.
+     * Gère le level-down si nécessaire.
+     */
+    public void removeExp(UUID uuid, int amount) {
+        PlayerLevelData data = cache.get(uuid);
+        if (data == null) return;
+
+        int exp = data.getExp() - amount;
+        int level = data.getLevel();
+
+        // Gérer le level down
+        while (exp < 0 && level > 1) {
+            level--;
+            int needed = getRequiredExp(level);
+            exp += needed;
+        }
+
+        // Empêcher l'XP négative
+        if (exp < 0) {
+            exp = 0;
+        }
+
+        data.setLevel(level);
+        data.setExp(exp);
+
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            Bukkit.getScheduler().runTask(plugin, () -> applyToBar(player));
+        }
+    }
+
+    /**
+     * Définit l'XP du joueur à une valeur exacte.
+     * Recalcule le niveau en conséquence.
+     */
+    public void setExp(UUID uuid, int amount) {
+        if (amount < 0) amount = 0;
+        
+        PlayerLevelData data = cache.get(uuid);
+        if (data == null) return;
+
+        int level = 1;
+        int remainingExp = amount;
+
+        // Calculer le niveau basé sur l'XP totale
+        while (remainingExp >= getRequiredExp(level)) {
+            remainingExp -= getRequiredExp(level);
+            level++;
+        }
+
+        data.setLevel(level);
+        data.setExp(remainingExp);
+
+        Player player = Bukkit.getPlayer(uuid);
+        if (player != null && player.isOnline()) {
+            Bukkit.getScheduler().runTask(plugin, () -> applyToBar(player));
+        }
+    }
+
+    /**
+     * Réinitialise l'XP du joueur (niveau 1, 0 XP).
+     */
+    public void resetExp(UUID uuid) {
+        PlayerLevelData data = cache.get(uuid);
+        if (data == null) return;
+
+        data.setLevel(1);
+        data.setExp(0);
 
         Player player = Bukkit.getPlayer(uuid);
         if (player != null && player.isOnline()) {

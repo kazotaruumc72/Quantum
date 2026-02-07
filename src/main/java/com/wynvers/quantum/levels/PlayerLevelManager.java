@@ -2,6 +2,8 @@ package com.wynvers.quantum.levels;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.database.DatabaseManager;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

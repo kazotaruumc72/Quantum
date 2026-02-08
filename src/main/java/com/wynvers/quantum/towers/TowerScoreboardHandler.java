@@ -2,30 +2,40 @@ package com.wynvers.quantum.towers;
 
 import com.wynvers.quantum.Quantum;
 import me.clip.placeholderapi.PlaceholderAPI;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.*;
 
+import java.io.File;
 import java.util.*;
 
 /**
- * Gère le scoreboard personnalisé pour les tours
+ * Gère le scoreboard personnalisé pour les tours avec support MiniMessage
  * 
  * Fonctionnalités:
  * - Scoreboard automatique quand joueur entre dans une tour
  * - Désactive Oreo Essentials avec /sb
- * - Mise à jour en temps réel (1 seconde)
+ * - Mise à jour en temps réel (configurable)
  * - Restaure Oreo Essentials à la sortie
+ * - Support complet de MiniMessage pour les couleurs et formats
+ * - Pas de numéros rouges visibles (entries invisibles)
  */
 public class TowerScoreboardHandler {
     
     private final Quantum plugin;
     private final Map<UUID, Scoreboard> playerScoreboards;
-    private final Map<UUID, Scoreboard> originalScoreboards; // Sauvegarde du scoreboard d'origine
+    private final Map<UUID, Scoreboard> originalScoreboards;
     private final Map<UUID, BukkitRunnable> updateTasks;
     private final Set<UUID> playersInTower;
+    private final MiniMessage miniMessage;
+    
+    private FileConfiguration towersScoreboardConfig;
     
     public TowerScoreboardHandler(Quantum plugin) {
         this.plugin = plugin;
@@ -33,6 +43,34 @@ public class TowerScoreboardHandler {
         this.originalScoreboards = new HashMap<>();
         this.updateTasks = new HashMap<>();
         this.playersInTower = new HashSet<>();
+        this.miniMessage = MiniMessage.miniMessage();
+        
+        loadScoreboardConfig();
+    }
+    
+    /**
+     * Charge la configuration des scoreboards de tours
+     */
+    private void loadScoreboardConfig() {
+        File configFile = new File(plugin.getDataFolder(), "towers_scoreboard.yml");
+        if (!configFile.exists()) {
+            plugin.saveResource("towers_scoreboard.yml", false);
+        }
+        towersScoreboardConfig = YamlConfiguration.loadConfiguration(configFile);
+    }
+    
+    /**
+     * Recharge la configuration des scoreboards
+     */
+    public void reload() {
+        loadScoreboardConfig();
+        // Rafraîchir les scoreboards actifs
+        for (UUID uuid : new HashSet<>(playersInTower)) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null && player.isOnline()) {
+                updateScoreboard(player);
+            }
+        }
     }
     
     /**
@@ -52,8 +90,16 @@ public class TowerScoreboardHandler {
         if (manager == null) return;
         
         Scoreboard scoreboard = manager.getNewScoreboard();
-        Objective objective = scoreboard.registerNewObjective("tower", "dummy", 
-            ChatColor.translateAlternateColorCodes('&', "&6&lTOURS"));
+        
+        // Récupérer le titre depuis la config avec MiniMessage
+        String titlePath = towerId + ".title";
+        String titleMM = towersScoreboardConfig.getString(titlePath, 
+                towersScoreboardConfig.getString("default.title", "<gold><bold>TOURS</bold></gold>"));
+        
+        Component titleComponent = miniMessage.deserialize(titleMM);
+        String titleLegacy = LegacyComponentSerializer.legacySection().serialize(titleComponent);
+        
+        Objective objective = scoreboard.registerNewObjective("tower", "dummy", titleLegacy);
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         
         // Appliquer le scoreboard
@@ -62,7 +108,7 @@ public class TowerScoreboardHandler {
         playersInTower.add(player.getUniqueId());
         
         // Démarrer la tâche de mise à jour
-        startUpdateTask(player);
+        startUpdateTask(player, towerId);
         
         plugin.getQuantumLogger().info("Tower scoreboard enabled for " + player.getName());
     }
@@ -99,8 +145,13 @@ public class TowerScoreboardHandler {
     /**
      * Démarre la tâche de mise à jour du scoreboard
      * @param player Joueur
+     * @param towerId ID de la tour
      */
-    private void startUpdateTask(Player player) {
+    private void startUpdateTask(Player player, String towerId) {
+        // Récupérer l'interval depuis la config
+        int interval = towersScoreboardConfig.getInt(towerId + ".update_interval",
+                towersScoreboardConfig.getInt("default.update_interval", 20));
+        
         BukkitRunnable task = new BukkitRunnable() {
             @Override
             public void run() {
@@ -113,7 +164,7 @@ public class TowerScoreboardHandler {
             }
         };
         
-        task.runTaskTimer(plugin, 0L, 20L); // Mise à jour toutes les secondes
+        task.runTaskTimer(plugin, 0L, interval);
         updateTasks.put(player.getUniqueId(), task);
     }
     
@@ -138,36 +189,39 @@ public class TowerScoreboardHandler {
             scoreboard.resetScores(entry);
         }
         
-        // Récupérer les placeholders
+        // Récupérer les lignes
         List<String> lines = getScoreboardLines(player);
         
         // Ajouter les lignes avec Teams (de bas en haut)
         int lineNumber = lines.size();
         for (String line : lines) {
-            // Remplacer les placeholders
+            // Remplacer les placeholders PlaceholderAPI
             line = PlaceholderAPI.setPlaceholders(player, line);
-            line = ChatColor.translateAlternateColorCodes('&', line);
             
-            // Créer une entrée invisible unique
-            String entry = ChatColor.values()[Math.min(lineNumber, 15)].toString() + ChatColor.RESET;
+            // Convertir MiniMessage -> Legacy
+            Component component = miniMessage.deserialize(line);
+            String legacyText = LegacyComponentSerializer.legacySection().serialize(component);
+            
+            // Créer une entrée INVISIBLE unique (pas de numéros rouges)
+            String entry = generateInvisibleEntry(lineNumber);
             
             // Créer une Team pour cette ligne
             Team team = scoreboard.registerNewTeam("line_" + lineNumber);
             team.addEntry(entry);
             
             // Le texte est dans le prefix/suffix de la Team
-            if (line.length() <= 64) {
-                team.setPrefix(line);
+            if (legacyText.length() <= 64) {
+                team.setPrefix(legacyText);
             } else {
                 // Si trop long, couper en prefix + suffix
-                team.setPrefix(line.substring(0, 64));
-                if (line.length() > 64) {
-                    String suffix = line.substring(64, Math.min(line.length(), 128));
+                team.setPrefix(legacyText.substring(0, 64));
+                if (legacyText.length() > 64) {
+                    String suffix = legacyText.substring(64, Math.min(legacyText.length(), 128));
                     team.setSuffix(suffix);
                 }
             }
             
-            // Ajouter le score
+            // Ajouter le score (ordre d'affichage)
             Score score = objective.getScore(entry);
             score.setScore(lineNumber);
             
@@ -176,45 +230,54 @@ public class TowerScoreboardHandler {
     }
     
     /**
-     * Obtient les lignes du scoreboard configurées
+     * Génère une entrée invisible unique pour une ligne
+     * Utilise des caractères de formatage invisibles
+     */
+    private String generateInvisibleEntry(int line) {
+        // Utiliser des codes de couleur répétés + RESET pour créer des entrées uniques invisibles
+        StringBuilder entry = new StringBuilder();
+        String[] colors = {"§0", "§1", "§2", "§3", "§4", "§5", "§6", "§7", "§8", "§9", 
+                          "§a", "§b", "§c", "§d", "§e", "§f"};
+        
+        int index = line % colors.length;
+        for (int i = 0; i < (line / colors.length) + 1; i++) {
+            entry.append(colors[index]);
+        }
+        entry.append("§r"); // Reset pour rendre invisible
+        
+        return entry.toString();
+    }
+    
+    /**
+     * Obtient les lignes du scoreboard configurées depuis towers_scoreboard.yml
      * @param player Joueur
      * @return Liste des lignes
      */
     private List<String> getScoreboardLines(Player player) {
-        // Configuration par défaut (peut être modifiée via zones.yml)
-        List<String> lines = new ArrayList<>();
-        
-        lines.add("&7&m                    ");
-        lines.add("&6&lTour Actuelle:");
-        lines.add("  &f%quantum_tower_current%");
-        lines.add("");
-        lines.add("&e&lÉtage: &f%quantum_tower_floor%");
-        lines.add("&7Progression: &a%quantum_tower_progress%");
-        lines.add("");
-        lines.add("&c&lMonstres:");
-        lines.add("&7Tués: &f%quantum_tower_kills_progress%");
-        lines.add("&7%quantum_tower_percentage% &acomplété");
-        lines.add("");
-        lines.add("&d&lProchain Boss:");
-        lines.add("&7%quantum_tower_next_boss%");
-        lines.add("");
-        lines.add("&b&lTours Complétées:");
-        lines.add("  &f%quantum_towers_completed%/%quantum_towers_total%");
-                lines.add("  &7(%quantum_towers_percentage%%)");
-        lines.add("&7&m                    ");
-        
-        // Charger depuis la config si disponible
         TowerManager towerManager = plugin.getTowerManager();
-        if (towerManager != null) {
-            TowerProgress progress = towerManager.getProgress(player.getUniqueId());
-            String towerId = progress.getCurrentTower();
-            
-            if (towerId != null) {
-                List<String> customLines = plugin.getConfig().getStringList("towers." + towerId + ".scoreboard.lines");
-                if (!customLines.isEmpty()) {
-                    return customLines;
-                }
-            }
+        if (towerManager == null) {
+            return Collections.singletonList("<red>Erreur: TowerManager non chargé</red>");
+        }
+        
+        TowerProgress progress = towerManager.getProgress(player.getUniqueId());
+        String towerId = progress.getCurrentTower();
+        
+        if (towerId == null) {
+            towerId = "default";
+        }
+        
+        // Chercher les lignes pour cette tour spécifique, sinon fallback sur default
+        List<String> lines = towersScoreboardConfig.getStringList(towerId + ".lines");
+        if (lines.isEmpty()) {
+            lines = towersScoreboardConfig.getStringList("default.lines");
+        }
+        
+        // Si toujours vide, retourner un message d'erreur
+        if (lines.isEmpty()) {
+            return Arrays.asList(
+                "<red>Erreur: Aucune ligne configurée</red>",
+                "<gray>Vérifiez towers_scoreboard.yml</gray>"
+            );
         }
         
         return lines;

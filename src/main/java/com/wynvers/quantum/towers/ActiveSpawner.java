@@ -1,6 +1,7 @@
 package com.wynvers.quantum.towers;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.mobs.MobSkillConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -17,10 +18,9 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 /**
  * Spawner actif pour un joueur dans une tour.
@@ -156,14 +156,34 @@ public class ActiveSpawner implements Listener {
     private void startMobSkills(LivingEntity mob) {
         MobSkillExecutor executor = plugin.getMobSkillExecutor();
         if (executor != null && config.getSkills() != null && !config.getSkills().isEmpty()) {
-            executor.startSkills(mob, config.getSkills(), player);
+            // Convertir List<MobSkillConfig> en List<Map<String, Object>>
+            List<Map<String, Object>> skillMaps = config.getSkills().stream()
+                .map(MobSkillConfig::getAllParameters)
+                .collect(Collectors.toList());
+            
+            executor.startSkills(mob, skillMaps);
         }
     }
     
     private void registerMobAnimations(LivingEntity mob) {
         MobAnimationManager animManager = plugin.getMobAnimationManager();
         if (animManager != null && config.getAnimations() != null && !config.getAnimations().isEmpty()) {
-            animManager.registerMob(mob, config.getAnimations());
+            // Extraire le modelId et créer AnimationConfig
+            Map<String, String> animations = config.getAnimations();
+            
+            // Le mobId est utilisé comme modelId pour Model Engine
+            String modelId = config.getMobId();
+            
+            // Créer une AnimationConfig à partir de la map
+            MobAnimationManager.AnimationConfig animConfig = new MobAnimationManager.AnimationConfig(
+                animations.getOrDefault("spawn", null),
+                animations.getOrDefault("idle", null),
+                animations.getOrDefault("walk", null),
+                animations.getOrDefault("attack", null),
+                animations.getOrDefault("death", null)
+            );
+            
+            animManager.registerMob(mob, modelId, animConfig);
         }
     }
     

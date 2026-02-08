@@ -1,0 +1,56 @@
+# =======================================
+# QUANTUM - Scoreboards des Tours
+# =======================================
+# Support MiniMessage pour tous les textes
+# Documentation: https://docs.advntr.dev/minimessage/format.html
+
+# Scoreboard par défaut pour toutes les tours
+default:
+  title: "<gradient:#FF6B00:#FFD700><bold>TOURS</bold></gradient>"
+  update_interval: 20  # En ticks (20 = 1 seconde)
+  
+  lines:
+    - "<dark_gray>━━━━━━━━━━━━━━━━━━━━"
+    - ""
+    - "<gold><bold>Tour Actuelle:</bold></gold>"
+    - "  <white>%quantum_tower_current%</white>"
+    - ""
+    - "<yellow><bold>Étage:</bold></yellow> <white>%quantum_tower_floor%</white>"
+    - "<gray>Progression: <green>%quantum_tower_progress%</gray>"
+    - ""
+    - "<red><bold>Monstres:</bold></red>"
+    - "<gray>Tués: <white>%quantum_tower_kills_progress%</white></gray>"
+    - "<gray>%quantum_tower_percentage% <green>complété</green></gray>"
+    - ""
+    - "<light_purple><bold>Prochain Boss:</bold></light_purple>"
+    - "<gray>%quantum_tower_next_boss%</gray>"
+    - ""
+    - "<aqua><bold>Tours Complétées:</bold></aqua>"
+    - "  <white>%quantum_towers_completed%/%quantum_towers_total%</white>"
+    - "  <gray>(%quantum_towers_percentage%%)</gray>"
+    - ""
+    - "<dark_gray>━━━━━━━━━━━━━━━━━━━━"
+
+# Scoreboard personnalisé pour la Tour de l'Eau
+tower_1:
+  title: "<gradient:#00D4FF:#0066FF><bold>TOUR DE L'EAU</bold></gradient>"
+  update_interval: 20
+  
+  lines:
+    - "<dark_gray>━━━━━━━━━━━━━━━━━━━━"
+    - ""
+    - "<aqua><bold>🌊 Tour de l'Eau</bold></aqua>"
+    - ""
+    - "<yellow><bold>Étage:</bold></yellow> <white>%quantum_tower_floor%</white>"
+    - "<gray>Progression: <green>%quantum_tower_progress%</gray>"
+    - ""
+    - "<red><bold>Monstres:</bold></red>"
+    - "<gray>Tués: <white>%quantum_tower_kills_progress%</white></gray>"
+    - "<gray>%quantum_tower_percentage% <green>complété</green></gray>"
+    - ""
+    - "<light_purple><bold>Prochain Boss:</bold></light_purple>"
+    - "<gray>%quantum_tower_next_boss%</gray>"
+    - ""
+    - "<gold><bold>Niveau:</bold></gold> <white>%quantum_player_level%</white>"
+    - ""
+    - "<dark_gray>━━━━━━━━━━━━━━━━━━━━"

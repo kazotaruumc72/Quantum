@@ -83,6 +83,10 @@ public final class Quantum extends JavaPlugin {
     private TowerScoreboardHandler scoreboardHandler; // Tower scoreboard
     private MobSkillManager mobSkillManager;          // NEW: Mob skills titles/subtitles
     private MobSkillExecutor mobSkillExecutor;        // NEW: Mob skills execution
+    private TowerDoorManager doorManager;
+    private TowerNPCManager npcManager;
+    private TowerLootManager lootManager;
+
 
     private DungeonArmor dungeonArmor;     // Dungeon armor system
     private ArmorManager armorManager;
@@ -138,6 +142,14 @@ public final class Quantum extends JavaPlugin {
         this.towerManager = new TowerManager(this);
         getServer().getPluginManager().registerEvents(new TowerDamageListener(this), this);
 
+        this.doorManager = new TowerDoorManager(this);
+        this.npcManager = new TowerNPCManager(this);
+        this.lootManager = new TowerLootManager(this);
+        lootManager.loadFromConfig(YamlConfiguration.loadConfiguration(new File(getDataFolder(), "towers.yml")));
+        
+        // Enregistrer les listeners
+        getServer().getPluginManager().registerEvents(new DoorSelectionListener(this, doorManager), this);
+
         // Mob Skills System
         this.mobSkillManager = new MobSkillManager(this);
         this.mobSkillExecutor = new MobSkillExecutor(this);
@@ -166,6 +178,11 @@ public final class Quantum extends JavaPlugin {
 
         // Commandes
         registerCommands();
+
+        PluginCommand quantumCmd = getCommand("quantum");
+        QuantumTowerCommand executor = new QuantumTowerCommand(this, towerManager, doorManager, npcManager, lootManager);
+        quantumCmd.setExecutor(executor);
+        quantumCmd.setTabCompleter(new TowerCommandTabCompleter(this, towerManager, doorManager, npcManager));
 
         logger.success("✓ Quantum enabled successfully!");
         logger.info("Dynamic GUI system loaded!");

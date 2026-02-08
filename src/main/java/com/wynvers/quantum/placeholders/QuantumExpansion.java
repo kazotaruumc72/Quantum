@@ -8,6 +8,7 @@ import com.wynvers.quantum.towers.TowerConfig;
 import com.wynvers.quantum.towers.TowerManager;
 import com.wynvers.quantum.towers.TowerProgress;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -332,24 +333,30 @@ public class QuantumExpansion extends PlaceholderExpansion {
     }
     
     /**
-     * Get required kills for a floor from zone configuration
+     * Get required kills for a floor from towers.yml configuration
+     * Additionne le 'amount' de tous les spawners de l'étage
      */
     private int getRequiredKills(String towerId, int floor) {
         try {
-            File zonesFile = new File(plugin.getDataFolder(), "zones.yml");
-            if (!zonesFile.exists()) return 0;
+            // Charger depuis towers.yml au lieu de zones.yml
+            File towersFile = new File(plugin.getDataFolder(), "towers.yml");
+            if (!towersFile.exists()) return 0;
             
-            YamlConfiguration config = YamlConfiguration.loadConfiguration(zonesFile);
-            String regionName = towerId + "_floor_" + floor;
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
             
-            // Get requirements for this zone
-            List<Map<?, ?>> requirements = config.getMapList("zones." + regionName + ".requirements");
+            // Récupérer le chemin : towers.<towerId>.floors.<floor>.spawners
+            String path = "towers." + towerId + ".floors." + floor + ".spawners";
+            ConfigurationSection spawnersSection = config.getConfigurationSection(path);
             
+            if (spawnersSection == null) return 0;
+            
+            // Calculer le total de mobs à tuer (somme des 'amount' de tous les spawners)
             int total = 0;
-            for (Map<?, ?> req : requirements) {
-                Object amount = req.get("amount");
-                if (amount instanceof Integer) {
-                    total += (Integer) amount;
+            for (String spawnerKey : spawnersSection.getKeys(false)) {
+                ConfigurationSection spawner = spawnersSection.getConfigurationSection(spawnerKey);
+                if (spawner != null) {
+                    int amount = spawner.getInt("amount", 0);
+                    total += amount;
                 }
             }
             

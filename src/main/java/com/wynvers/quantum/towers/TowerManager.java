@@ -47,7 +47,7 @@ public class TowerManager {
     }
 
     /**
-     * Load tower configurations from zones.yml
+     * Load tower configurations from towers.yml
      */
     private void loadTowers() {
         File towersFile = new File(plugin.getDataFolder(), "towers.yml");
@@ -70,20 +70,46 @@ public class TowerManager {
     
             String name = towerSection.getString("name", towerId);
             String world = towerSection.getString("world", "world");
-            int floors = towerSection.getInt("floors", 25);
-            List<Integer> bossFloors = towerSection.getIntegerList("boss_floors");
-            int finalBossFloor = towerSection.getInt("final_boss_floor", floors);
-    
+            
             int minLevel = towerSection.getInt("min_level", 1);
             int maxLevel = towerSection.getInt("max_level", 1000);
+            
+            // Load floors section
+            ConfigurationSection floorsSection = towerSection.getConfigurationSection("floors");
+            if (floorsSection == null) {
+                plugin.getQuantumLogger().warning("No 'floors' section for tower: " + towerId);
+                continue;
+            }
+            
+            int totalFloors = floorsSection.getKeys(false).size();
+            List<Integer> bossFloors = towerSection.getIntegerList("boss_floors");
+            int finalBossFloor = towerSection.getInt("final_boss_floor", totalFloors);
     
             TowerConfig tower = new TowerConfig(
-                    towerId, name, world, floors, bossFloors, finalBossFloor,
+                    towerId, name, world, totalFloors, bossFloors, finalBossFloor,
                     minLevel, maxLevel
             );
+            
+            // Load floor regions
+            for (String floorKey : floorsSection.getKeys(false)) {
+                try {
+                    int floorNum = Integer.parseInt(floorKey);
+                    ConfigurationSection floorSection = floorsSection.getConfigurationSection(floorKey);
+                    if (floorSection != null) {
+                        String regionName = floorSection.getString("worldguard_region");
+                        if (regionName != null && !regionName.isEmpty()) {
+                            tower.setFloorRegion(floorNum, regionName);
+                            plugin.getQuantumLogger().info("  Floor " + floorNum + " -> region: " + regionName);
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    plugin.getQuantumLogger().warning("Invalid floor number: " + floorKey + " in tower " + towerId);
+                }
+            }
+            
             towers.put(towerId, tower);
     
-            plugin.getQuantumLogger().success("✓ Loaded tower: " + name + " (" + floors + " floors)");
+            plugin.getQuantumLogger().success("✓ Loaded tower: " + name + " (" + totalFloors + " floors)");
         }
     }
 
@@ -198,37 +224,30 @@ public class TowerManager {
     }
     
     /**
-     * Get tower by zone region name
+     * Get tower by WorldGuard region name
      * @param regionName WorldGuard region name
      * @return Tower ID or null
      */
     public String getTowerByRegion(String regionName) {
-        // Parse region name to extract tower ID
-        // Format: towerId_floor_N
-        if (regionName.contains("_floor_")) {
-            String[] parts = regionName.split("_floor_");
-            if (parts.length > 0) {
-                return parts[0];
+        for (Map.Entry<String, TowerConfig> entry : towers.entrySet()) {
+            TowerConfig tower = entry.getValue();
+            if (tower.getFloorByRegion(regionName) != -1) {
+                return entry.getKey();
             }
         }
         return null;
     }
     
     /**
-     * Get floor number from region name
+     * Get floor number from WorldGuard region name
      * @param regionName WorldGuard region name
      * @return Floor number or -1
      */
     public int getFloorByRegion(String regionName) {
-        // Format: towerId_floor_N
-        if (regionName.contains("_floor_")) {
-            String[] parts = regionName.split("_floor_");
-            if (parts.length > 1) {
-                try {
-                    return Integer.parseInt(parts[1]);
-                } catch (NumberFormatException e) {
-                    return -1;
-                }
+        for (TowerConfig tower : towers.values()) {
+            int floor = tower.getFloorByRegion(regionName);
+            if (floor != -1) {
+                return floor;
             }
         }
         return -1;
@@ -269,7 +288,7 @@ public class TowerManager {
     }
     
     /**
-     * Update player’s current location in tower
+     * Update player's current location in tower
      * @param player Player
      * @param towerId Tower ID
      * @param floor Floor number
@@ -279,6 +298,8 @@ public class TowerManager {
         progress.setCurrentTower(towerId);
         progress.setCurrentFloor(floor);
         
+        plugin.getQuantumLogger().info("Player " + player.getName() + " entered " + towerId + " floor " + floor);
+        
         // Démarrer les spawners
         if (spawnerManager != null) {
             spawnerManager.startFloorSpawners(player, towerId, floor);
@@ -286,7 +307,7 @@ public class TowerManager {
     }
     
     /**
-     * Clear player’s current location (left tower)
+     * Clear player's current location (left tower)
      * @param player Player
      */
     public void clearCurrentLocation(Player player) {
@@ -338,6 +359,7 @@ public class TowerManager {
     public void reload() {
         towers.clear();
         loadTowers();
+        plugin.getQuantumLogger().success("Towers reloaded from towers.yml");
     }
     
     /**

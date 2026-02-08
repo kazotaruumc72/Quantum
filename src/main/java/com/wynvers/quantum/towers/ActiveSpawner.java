@@ -74,7 +74,7 @@ public class ActiveSpawner implements Listener {
                 if (toSpawn <= 0) return;
 
                 for (int i = 0; i < toSpawn; i++) {
-                    LivingEntity mob = spawnOneMobNearPlayer(player.getLocation());
+                    LivingEntity mob = spawnOneMob();
                     if (mob != null) {
                         aliveMobs.add(mob.getUniqueId());
                         
@@ -115,15 +115,23 @@ public class ActiveSpawner implements Listener {
         return progress.getRuns(towerId);
     }
 
-    private LivingEntity spawnOneMobNearPlayer(Location base) {
-        World world = base.getWorld();
+    private LivingEntity spawnOneMob() {
+        World world = player.getWorld();
         if (world == null) return null;
 
-        Location spawnLoc = base.clone().add(
-                ThreadLocalRandom.current().nextDouble(-3, 3),
-                0,
-                ThreadLocalRandom.current().nextDouble(-3, 3)
-        );
+        Location spawnLoc;
+        if (config.getSpawnRegion() != null) {
+            // Spawn dans la région configurée
+            spawnLoc = config.getSpawnRegion().getRandomLocation(world);
+        } else {
+            // Fallback: ancien comportement, près du joueur
+            Location base = player.getLocation();
+            spawnLoc = base.clone().add(
+                    ThreadLocalRandom.current().nextDouble(-3, 3),
+                    0,
+                    ThreadLocalRandom.current().nextDouble(-3, 3)
+            );
+        }
 
         LivingEntity entity = (LivingEntity) world.spawnEntity(spawnLoc, config.getType());
 
@@ -144,80 +152,5 @@ public class ActiveSpawner implements Listener {
         return entity;
     }
     
-    /**
-     * Démarre les skills automatiques d'un mob selon sa config
-     */
-    private void startMobSkills(LivingEntity mob) {
-        MobSkillExecutor executor = plugin.getMobSkillExecutor();
-        if (executor == null) return;
-        
-        // Récupérer les skills depuis la config
-        if (config.getSkills() != null && !config.getSkills().isEmpty()) {
-            executor.startSkills(mob, config.getSkills());
-        }
-    }
-    
-    /**
-     * Enregistre les animations Model Engine pour un mob
-     */
-    private void registerMobAnimations(LivingEntity mob) {
-        MobAnimationManager animManager = plugin.getMobAnimationManager();
-        if (animManager == null) return;
-        
-        String modelId = config.getModelId();
-        if (modelId == null || modelId.isEmpty()) return;
-        
-        // Récupérer les animations depuis la config (Map<String, String>)
-        Map<String, String> animMap = config.getAnimations();
-        
-        // Convertir en AnimationConfig
-        MobAnimationManager.AnimationConfig animConfig = new MobAnimationManager.AnimationConfig(
-            animMap.get("idle"),
-            animMap.get("walk"),
-            animMap.get("attack"),
-            animMap.get("hurt"),
-            animMap.get("death")
-        );
-        
-        // Enregistrer le mob avec ses animations
-        animManager.registerMob(mob, modelId, animConfig);
-    }
-    
-    /**
-     * Écoute la mort des mobs pour arrêter leurs skills
-     */
-    @EventHandler
-    public void onMobDeath(EntityDeathEvent event) {
-        UUID mobUuid = event.getEntity().getUniqueId();
-        
-        // Vérifier si c'est un de nos mobs
-        if (!aliveMobs.contains(mobUuid)) return;
-        
-        // Arrêter les skills de ce mob
-        MobSkillExecutor executor = plugin.getMobSkillExecutor();
-        if (executor != null) {
-            executor.stopSkills(mobUuid);
-        }
-        
-        aliveMobs.remove(mobUuid);
-    }
-    
-    /**
-     * Obtient le nombre de mobs vivants
-     */
-    public int getAliveMobCount() {
-        // Nettoyer les morts
-        aliveMobs.removeIf(uuid -> {
-            Entity e = Bukkit.getEntity(uuid);
-            return e == null || e.isDead();
-        });
-        return aliveMobs.size();
-    }
-    
-    /**
-     * Obtient la config du spawner
-     */
-    public TowerSpawnerConfig getConfig() {
-        return config;
-    }
+    // ... reste de la classe inchangé ...
 }

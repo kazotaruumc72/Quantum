@@ -48,10 +48,9 @@ global:
   override_custom_names: false
 
 # ========================================
-#   Configuration par Type de Mob
+#   MOBS HOSTILES - OVERWORLD
 # ========================================
 
-# Mobs Hostiles Communs
 ZOMBIE:
   enabled: true
   display_name: "&2Zombie"
@@ -66,6 +65,48 @@ ZOMBIE:
     25: "&6"  # Orange
     0: "&c"   # Rouge
 
+ZOMBIE_VILLAGER:
+  enabled: true
+  display_name: "&2Zombie Villageois"
+  name_color: "&2"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+HUSK:
+  enabled: true
+  display_name: "&6Zombie Momifié"
+  name_color: "&6"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&e"
+    50: "&6"
+    25: "&c"
+    0: "&4"
+
+DROWNED:
+  enabled: true
+  display_name: "&3Noyé"
+  name_color: "&3"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&b"
+    50: "&3"
+    25: "&6"
+    0: "&c"
+
 SKELETON:
   enabled: true
   display_name: "&7Squelette"
@@ -77,6 +118,34 @@ SKELETON:
   color_thresholds:
     75: "&a"
     50: "&e"
+    25: "&6"
+    0: "&c"
+
+STRAY:
+  enabled: true
+  display_name: "&bSquelette Glacé"
+  name_color: "&b"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&b"
+    50: "&3"
+    25: "&9"
+    0: "&1"
+
+BOGGED:
+  enabled: true
+  display_name: "&2Squelette des Marais"
+  name_color: "&2"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&a"
+    50: "&2"
     25: "&6"
     0: "&c"
 
@@ -108,6 +177,20 @@ SPIDER:
     25: "&6"
     0: "&c"
 
+CAVE_SPIDER:
+  enabled: true
+  display_name: "&8Araignée Venimeuse"
+  name_color: "&8"
+  bar_length: 15
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&5"
+    0: "&c"
+
 ENDERMAN:
   enabled: true
   display_name: "&5Enderman"
@@ -122,7 +205,460 @@ ENDERMAN:
     25: "&6"
     0: "&c"
 
-# Boss et Mini-Boss
+WITCH:
+  enabled: true
+  display_name: "&5Sorcière"
+  name_color: "&5"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&d"
+    50: "&5"
+    25: "&6"
+    0: "&c"
+
+SILVERFISH:
+  enabled: true
+  display_name: "&7Poisson d'Argent"
+  name_color: "&7"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+SLIME:
+  enabled: true
+  display_name: "&aSlime"
+  name_color: "&a"
+  bar_length: 15
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&a"
+    50: "&2"
+    25: "&6"
+    0: "&c"
+
+VINDICATOR:
+  enabled: true
+  display_name: "&8Vindicateur"
+  name_color: "&8"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&7"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+EVOKER:
+  enabled: true
+  display_name: "&5Évocateur"
+  name_color: "&5"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&d"
+    50: "&5"
+    25: "&6"
+    0: "&c"
+
+PILLAGER:
+  enabled: true
+  display_name: "&8Pillard"
+  name_color: "&8"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&7"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+RAVAGER:
+  enabled: true
+  display_name: "&8&lRavageur"
+  name_color: "&8&l"
+  bar_length: 25
+  show_percentage: true
+  show_numeric: true
+  format: CLASSIC
+  color_thresholds:
+    75: "&7"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+VEX:
+  enabled: true
+  display_name: "&fVex"
+  name_color: "&f"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&f"
+    50: "&7"
+    25: "&6"
+    0: "&c"
+
+PHANTOM:
+  enabled: true
+  display_name: "&5Fantôme"
+  name_color: "&5"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&d"
+    50: "&5"
+    25: "&6"
+    0: "&c"
+
+BREEZE:
+  enabled: true
+  display_name: "&bBrise"
+  name_color: "&b"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&b"
+    50: "&3"
+    25: "&6"
+    0: "&c"
+
+# ========================================
+#   MOBS HOSTILES - NETHER
+# ========================================
+
+BLAZE:
+  enabled: true
+  display_name: "&6Blaze"
+  name_color: "&6"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&e"
+    50: "&6"
+    25: "&c"
+    0: "&4"
+
+GHAST:
+  enabled: true
+  display_name: "&fGhast"
+  name_color: "&f"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&f"
+    50: "&7"
+    25: "&c"
+    0: "&4"
+
+MAGMA_CUBE:
+  enabled: true
+  display_name: "&cCube de Magma"
+  name_color: "&c"
+  bar_length: 15
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&6"
+    50: "&c"
+    25: "&4"
+    0: "&8"
+
+PIGLIN:
+  enabled: true
+  display_name: "&dPiglin"
+  name_color: "&d"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&d"
+    50: "&5"
+    25: "&6"
+    0: "&c"
+
+PIGLIN_BRUTE:
+  enabled: true
+  display_name: "&4&lBrute Piglin"
+  name_color: "&4&l"
+  bar_length: 25
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&6"
+    50: "&c"
+    25: "&4"
+    0: "&8"
+
+HOGLIN:
+  enabled: true
+  display_name: "&cHoglin"
+  name_color: "&c"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&6"
+    50: "&c"
+    25: "&4"
+    0: "&8"
+
+ZOGLIN:
+  enabled: true
+  display_name: "&8Zoglin"
+  name_color: "&8"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&7"
+    50: "&6"
+    25: "&c"
+    0: "&4"
+
+WITHER_SKELETON:
+  enabled: true
+  display_name: "&8Squelette Wither"
+  name_color: "&8"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&7"
+    50: "&8"
+    25: "&c"
+    0: "&4"
+
+# ========================================
+#   MOBS HOSTILES - END
+# ========================================
+
+ENDERMITE:
+  enabled: true
+  display_name: "&5Endermite"
+  name_color: "&5"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&d"
+    50: "&5"
+    25: "&6"
+    0: "&c"
+
+SHULKER:
+  enabled: true
+  display_name: "&5Shulker"
+  name_color: "&5"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&d"
+    50: "&5"
+    25: "&6"
+    0: "&c"
+
+# ========================================
+#   MOBS AQUATIQUES
+# ========================================
+
+GUARDIAN:
+  enabled: true
+  display_name: "&3Gardien"
+  name_color: "&3"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&b"
+    50: "&3"
+    25: "&6"
+    0: "&c"
+
+ELDER_GUARDIAN:
+  enabled: true
+  display_name: "&3&lGardien de l'Océan"
+  name_color: "&3&l"
+  bar_length: 25
+  show_percentage: true
+  show_numeric: true
+  format: CLASSIC
+  color_thresholds:
+    75: "&b"
+    50: "&3"
+    25: "&6"
+    0: "&c"
+
+# ========================================
+#   MOBS NEUTRES
+# ========================================
+
+WOLF:
+  enabled: false  # Désactivé par défaut pour les loups apprivoisés
+  display_name: "&fLoup"
+  name_color: "&f"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+POLAR_BEAR:
+  enabled: true
+  display_name: "&fOurs Polaire"
+  name_color: "&f"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&f"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+BEE:
+  enabled: false
+  display_name: "&eAbeille"
+  name_color: "&e"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&e"
+    50: "&6"
+    25: "&c"
+    0: "&4"
+
+LLAMA:
+  enabled: false
+  display_name: "&fLama"
+  name_color: "&f"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+PANDA:
+  enabled: false
+  display_name: "&fPanda"
+  name_color: "&f"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+DOLPHIN:
+  enabled: false
+  display_name: "&bDauphin"
+  name_color: "&b"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&b"
+    50: "&3"
+    25: "&6"
+    0: "&c"
+
+FOX:
+  enabled: false
+  display_name: "&6Renard"
+  name_color: "&6"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&6"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+IRON_GOLEM:
+  enabled: true
+  display_name: "&7Golem de Fer"
+  name_color: "&7"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+SNOW_GOLEM:
+  enabled: false
+  display_name: "&fGolem de Neige"
+  name_color: "&f"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&f"
+    50: "&7"
+    25: "&6"
+    0: "&c"
+
+# ========================================
+#   BOSS ET MINI-BOSS
+# ========================================
+
 ENDER_DRAGON:
   enabled: true
   display_name: "&5&l⚔ Dragon de l'Ender ⚔"
@@ -165,38 +701,13 @@ WARDEN:
     25: "&c"
     0: "&4"
 
-ELDER_GUARDIAN:
-  enabled: true
-  display_name: "&3&lGardien de l'Océan"
-  name_color: "&3&l"
-  bar_length: 25
-  show_percentage: true
-  show_numeric: true
-  format: CLASSIC
-  color_thresholds:
-    75: "&b"
-    50: "&3"
-    25: "&6"
-    0: "&c"
+# ========================================
+#   MOBS PASSIFS
+# ========================================
 
-# Mobs Neutres
-IRON_GOLEM:
-  enabled: true
-  display_name: "&7Golem de Fer"
-  name_color: "&7"
-  bar_length: 20
-  show_percentage: true
-  show_numeric: false
-  format: HEARTS
-  color_thresholds:
-    75: "&a"
-    50: "&e"
-    25: "&6"
-    0: "&c"
-
-WOLF:
-  enabled: false  # Désactivé par défaut pour les loups apprivoisés
-  display_name: "&fLoup"
+COW:
+  enabled: false
+  display_name: "&fVache"
   name_color: "&f"
   bar_length: 15
   show_percentage: false
@@ -208,113 +719,417 @@ WOLF:
     25: "&6"
     0: "&c"
 
-# Mobs du Nether
-BLAZE:
-  enabled: true
-  display_name: "&6Blaze"
-  name_color: "&6"
-  bar_length: 20
-  show_percentage: true
+PIG:
+  enabled: false
+  display_name: "&dCochon"
+  name_color: "&d"
+  bar_length: 15
+  show_percentage: false
   show_numeric: false
-  format: CLASSIC
-  color_thresholds:
-    75: "&e"
-    50: "&6"
-    25: "&c"
-    0: "&4"
-
-PIGLIN_BRUTE:
-  enabled: true
-  display_name: "&4&lBrute Piglin"
-  name_color: "&4&l"
-  bar_length: 25
-  show_percentage: true
-  show_numeric: false
-  format: CLASSIC
-  color_thresholds:
-    75: "&6"
-    50: "&c"
-    25: "&4"
-    0: "&8"
-
-GHAST:
-  enabled: true
-  display_name: "&fGhast"
-  name_color: "&f"
-  bar_length: 20
-  show_percentage: true
-  show_numeric: false
-  format: CLASSIC
-  color_thresholds:
-    75: "&f"
-    50: "&7"
-    25: "&c"
-    0: "&4"
-
-# Variantes spéciales
-ZOMBIE_VILLAGER:
-  enabled: true
-  display_name: "&2Zombie Villageois"
-  name_color: "&2"
-  bar_length: 20
-  show_percentage: true
-  show_numeric: false
-  format: CLASSIC
+  format: HEARTS
   color_thresholds:
     75: "&a"
     50: "&e"
     25: "&6"
     0: "&c"
 
-DROWNED:
-  enabled: true
-  display_name: "&3Noyé"
-  name_color: "&3"
-  bar_length: 20
-  show_percentage: true
+SHEEP:
+  enabled: false
+  display_name: "&fMouton"
+  name_color: "&f"
+  bar_length: 15
+  show_percentage: false
   show_numeric: false
-  format: CLASSIC
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+CHICKEN:
+  enabled: false
+  display_name: "&fPoule"
+  name_color: "&f"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+RABBIT:
+  enabled: false
+  display_name: "&fLapin"
+  name_color: "&f"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+HORSE:
+  enabled: false
+  display_name: "&6Cheval"
+  name_color: "&6"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+DONKEY:
+  enabled: false
+  display_name: "&7Âne"
+  name_color: "&7"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+MULE:
+  enabled: false
+  display_name: "&7Mule"
+  name_color: "&7"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+CAT:
+  enabled: false
+  display_name: "&eChat"
+  name_color: "&e"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+OCELOT:
+  enabled: false
+  display_name: "&eOcelot"
+  name_color: "&e"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+PARROT:
+  enabled: false
+  display_name: "&cPerroquet"
+  name_color: "&c"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+VILLAGER:
+  enabled: false
+  display_name: "&2Villageois"
+  name_color: "&2"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+WANDERING_TRADER:
+  enabled: false
+  display_name: "&bMarchand Ambulant"
+  name_color: "&b"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+TURTLE:
+  enabled: false
+  display_name: "&aTortue"
+  name_color: "&a"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+COD:
+  enabled: false
+  display_name: "&3Morue"
+  name_color: "&3"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
   color_thresholds:
     75: "&b"
     50: "&3"
     25: "&6"
     0: "&c"
 
-HUSK:
-  enabled: true
-  display_name: "&6Zombie Momifié"
-  name_color: "&6"
-  bar_length: 20
-  show_percentage: true
+SALMON:
+  enabled: false
+  display_name: "&cSaumon"
+  name_color: "&c"
+  bar_length: 10
+  show_percentage: false
   show_numeric: false
-  format: CLASSIC
+  format: HEARTS
+  color_thresholds:
+    75: "&c"
+    50: "&6"
+    25: "&6"
+    0: "&c"
+
+TROPICAL_FISH:
+  enabled: false
+  display_name: "&6Poisson Tropical"
+  name_color: "&6"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
   color_thresholds:
     75: "&e"
     50: "&6"
-    25: "&c"
-    0: "&4"
+    25: "&6"
+    0: "&c"
 
-STRAY:
-  enabled: true
-  display_name: "&bSquelette Glacé"
-  name_color: "&b"
-  bar_length: 20
-  show_percentage: true
+PUFFERFISH:
+  enabled: false
+  display_name: "&ePoisson-Globe"
+  name_color: "&e"
+  bar_length: 10
+  show_percentage: false
   show_numeric: false
-  format: CLASSIC
+  format: HEARTS
+  color_thresholds:
+    75: "&e"
+    50: "&6"
+    25: "&6"
+    0: "&c"
+
+SQUID:
+  enabled: false
+  display_name: "&9Poulpe"
+  name_color: "&9"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&9"
+    50: "&3"
+    25: "&6"
+    0: "&c"
+
+GLOW_SQUID:
+  enabled: false
+  display_name: "&bPoulpe Lumineux"
+  name_color: "&b"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
   color_thresholds:
     75: "&b"
     50: "&3"
-    25: "&9"
-    0: "&1"
+    25: "&6"
+    0: "&c"
+
+BAT:
+  enabled: false
+  display_name: "&8Chauve-souris"
+  name_color: "&8"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&7"
+    50: "&8"
+    25: "&6"
+    0: "&c"
+
+STRIDER:
+  enabled: false
+  display_name: "&cArpenteur"
+  name_color: "&c"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&c"
+    50: "&6"
+    25: "&6"
+    0: "&4"
+
+AXOLOTL:
+  enabled: false
+  display_name: "&dAxolotl"
+  name_color: "&d"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&d"
+    50: "&5"
+    25: "&6"
+    0: "&c"
+
+GOAT:
+  enabled: false
+  display_name: "&fChèvre"
+  name_color: "&f"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&f"
+    50: "&7"
+    25: "&6"
+    0: "&c"
+
+FROG:
+  enabled: false
+  display_name: "&aGrenouille"
+  name_color: "&a"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&2"
+    25: "&6"
+    0: "&c"
+
+TADPOLE:
+  enabled: false
+  display_name: "&2Têtard"
+  name_color: "&2"
+  bar_length: 10
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&2"
+    25: "&6"
+    0: "&c"
+
+ALLAY:
+  enabled: false
+  display_name: "&bAllay"
+  name_color: "&b"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&b"
+    50: "&3"
+    25: "&6"
+    0: "&c"
+
+CAMEL:
+  enabled: false
+  display_name: "&6Chameau"
+  name_color: "&6"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&e"
+    50: "&6"
+    25: "&6"
+    0: "&c"
+
+SNIFFER:
+  enabled: false
+  display_name: "&6Renifleur"
+  name_color: "&6"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&6"
+    50: "&c"
+    25: "&6"
+    0: "&c"
+
+ARMADILLO:
+  enabled: false
+  display_name: "&7Tatou"
+  name_color: "&7"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&7"
+    50: "&8"
+    25: "&6"
+    0: "&c"
 
 # ========================================
-#   Mobs Custom (Exemple pour tes tours)
+#   MOBS CUSTOM (Pour tes tours Quantum)
 # ========================================
-# Tu peux ajouter des configurations pour tes mobs custom
-# en utilisant leur custom name ou leur type
+# Configuration pour les mobs custom avec nom personnalisé
 
-# Exemple de configuration par custom name:
 custom_mobs:
   # Format: "CustomName":
   "Boss Tour 1":
@@ -332,6 +1147,66 @@ custom_mobs:
       25: "&4"
       10: "&8"
   
+  "Boss Tour 2":
+    enabled: true
+    display_name: "&c&l⚔ BOSS - Tour du Feu ⚔"
+    name_color: "&c&l"
+    bar_length: 40
+    show_percentage: true
+    show_numeric: true
+    format: BOSS_BAR
+    color_thresholds:
+      90: "&e"
+      75: "&6"
+      50: "&c"
+      25: "&4"
+      10: "&8"
+  
+  "Boss Tour 3":
+    enabled: true
+    display_name: "&a&l⚔ BOSS - Tour de la Nature ⚔"
+    name_color: "&a&l"
+    bar_length: 40
+    show_percentage: true
+    show_numeric: true
+    format: BOSS_BAR
+    color_thresholds:
+      90: "&a"
+      75: "&2"
+      50: "&e"
+      25: "&6"
+      10: "&c"
+  
+  "Boss Tour 4":
+    enabled: true
+    display_name: "&f&l⚔ BOSS - Tour de la Glace ⚔"
+    name_color: "&f&l"
+    bar_length: 40
+    show_percentage: true
+    show_numeric: true
+    format: BOSS_BAR
+    color_thresholds:
+      90: "&b"
+      75: "&3"
+      50: "&9"
+      25: "&1"
+      10: "&8"
+  
+  "Boss Tour 5":
+    enabled: true
+    display_name: "&5&l⚔ BOSS - Tour des Ténèbres ⚔"
+    name_color: "&5&l"
+    bar_length: 40
+    show_percentage: true
+    show_numeric: true
+    format: BOSS_BAR
+    color_thresholds:
+      90: "&d"
+      75: "&5"
+      50: "&8"
+      25: "&0"
+      10: "&4"
+  
   "Mini-Boss Étage 5":
     enabled: true
     display_name: "&6&l★ Mini-Boss ★"
@@ -346,6 +1221,20 @@ custom_mobs:
       25: "&c"
       0: "&4"
   
+  "Mini-Boss Étage 10":
+    enabled: true
+    display_name: "&c&l★★ Mini-Boss Elite ★★"
+    name_color: "&c&l"
+    bar_length: 30
+    show_percentage: true
+    show_numeric: true
+    format: CLASSIC
+    color_thresholds:
+      75: "&6"
+      50: "&c"
+      25: "&4"
+      0: "&8"
+  
   "Zombie Renforcé":
     enabled: true
     display_name: "&2&lZombie Renforcé"
@@ -357,6 +1246,62 @@ custom_mobs:
     color_thresholds:
       75: "&a"
       50: "&e"
+      25: "&6"
+      0: "&c"
+  
+  "Squelette d'Elite":
+    enabled: true
+    display_name: "&7&lSquelette d'Elite"
+    name_color: "&7&l"
+    bar_length: 25
+    show_percentage: true
+    show_numeric: false
+    format: CLASSIC
+    color_thresholds:
+      75: "&f"
+      50: "&7"
+      25: "&6"
+      0: "&c"
+  
+  "Champion du Feu":
+    enabled: true
+    display_name: "&c&lChampion du Feu"
+    name_color: "&c&l"
+    bar_length: 25
+    show_percentage: true
+    show_numeric: true
+    format: CLASSIC
+    color_thresholds:
+      75: "&6"
+      50: "&c"
+      25: "&4"
+      0: "&8"
+  
+  "Gardien de l'Eau":
+    enabled: true
+    display_name: "&b&lGardien de l'Eau"
+    name_color: "&b&l"
+    bar_length: 25
+    show_percentage: true
+    show_numeric: true
+    format: CLASSIC
+    color_thresholds:
+      75: "&b"
+      50: "&3"
+      25: "&9"
+      0: "&1"
+  
+  "Protecteur de la Nature":
+    enabled: true
+    display_name: "&a&lProtecteur de la Nature"
+    name_color: "&a&l"
+    bar_length: 25
+    show_percentage: true
+    show_numeric: true
+    format: CLASSIC
+    color_thresholds:
+      75: "&a"
+      50: "&2"
       25: "&6"
       0: "&c"
 

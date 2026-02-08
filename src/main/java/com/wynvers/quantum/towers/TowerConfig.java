@@ -82,6 +82,10 @@ public class TowerConfig {
     public boolean isFinalBoss(int floor) {
         return floor == finalBossFloor;
     }
+
+    public String getWorldGuardRegion() {
+        return worldGuardRegion;  // ou le nom du champ que tu utilises
+    }
     
     /**
      * Get next boss floor after current floor

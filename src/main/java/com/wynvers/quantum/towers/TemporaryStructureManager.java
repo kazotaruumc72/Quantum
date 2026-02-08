@@ -150,6 +150,72 @@ public class TemporaryStructureManager {
     }
     
     /**
+     * Place une cage/prison de glace autour du joueur (iceberg)
+     * 
+     * @param center Centre (position du joueur)
+     * @param radius Rayon de la cage
+     * @param height Hauteur de la cage
+     * @param material Matériau de la cage
+     * @param durationSeconds Durée avant restoration
+     * @return UUID de la structure
+     */
+    public UUID placeIceCage(Location center, int radius, int height, Material material, int durationSeconds) {
+        UUID structureId = UUID.randomUUID();
+        List<PlacedBlock> placedBlocks = new ArrayList<>();
+        
+        // Créer une cage : murs circulaires + toit
+        for (int y = 0; y <= height; y++) {
+            for (int x = -radius; x <= radius; x++) {
+                for (int z = -radius; z <= radius; z++) {
+                    double distance = Math.sqrt(x * x + z * z);
+                    
+                    // Placer bloc si:
+                    // - Sur le bord du cercle (murs)
+                    // - Ou sur le toit (y == height)
+                    boolean isWall = distance >= radius - 0.5 && distance <= radius + 0.5;
+                    boolean isRoof = (y == height && distance <= radius);
+                    boolean isFloor = (y == 0 && distance <= radius);
+                    
+                    if (isWall || isRoof || isFloor) {
+                        Location blockLoc = center.clone().add(x, y, z);
+                        Block block = blockLoc.getBlock();
+                        
+                        // Sauvegarder l'état original
+                        PlacedBlock placed = new PlacedBlock(blockLoc, block.getState());
+                        
+                        // Ne remplacer que l'air, l'eau, la lave et le feu
+                        Material originalType = block.getType();
+                        if (originalType.isAir() || originalType == Material.WATER || 
+                            originalType == Material.LAVA || originalType == Material.FIRE) {
+                            
+                            placedBlocks.add(placed);
+                            block.setType(material);
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (placedBlocks.isEmpty()) {
+            return null;
+        }
+        
+        activeStructures.put(structureId, placedBlocks);
+        
+        // Planifier la restoration
+        BukkitTask task = new BukkitRunnable() {
+            @Override
+            public void run() {
+                restoreStructure(structureId);
+            }
+        }.runTaskLater(plugin, durationSeconds * 20L);
+        
+        restorationTasks.put(structureId, task);
+        
+        return structureId;
+    }
+    
+    /**
      * Restaure une structure à son état original
      * @param structureId UUID de la structure
      */

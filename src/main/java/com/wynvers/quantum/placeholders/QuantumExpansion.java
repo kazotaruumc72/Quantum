@@ -55,7 +55,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
     @Override
     public String onPlaceholderRequest(Player player, @NotNull String params) {
         if (player == null) {
-            return "";
+            return "0";
         }
         
         // === STORAGE MODE ===
@@ -133,15 +133,15 @@ public class QuantumExpansion extends PlaceholderExpansion {
         if (params.startsWith("order_")) {
             OrderCreationSession session = plugin.getOrderCreationManager().getSession(player);
             if (session == null) {
-                return "";
+                return "0";
             }
             
             Map<String, String> placeholders = session.getPlaceholders();
             String key = "quantum_" + params;
-            return placeholders.getOrDefault(key, "");
+            return placeholders.getOrDefault(key, "0");
         }
         
-        return null;
+        return "0";
     }
     
     /**
@@ -151,31 +151,14 @@ public class QuantumExpansion extends PlaceholderExpansion {
         TowerManager towerManager = plugin.getTowerManager();
         if (towerManager == null) {
             // Pas de WorldGuard / Tours non configurées
-            if (params.equals("towers_completed")) {
-                return "Aucune tour configurée";
-            }
-            if (params.equals("towers_total")) {
-                return "0";
-            }
-            if (params.equals("towers_percentage")) {
-                return "0.0";
-            }
-            return "";
+            return "0";
         }
         
         Map<String, TowerConfig> towers = towerManager.getAllTowers();
         
         // Cas spécial : Aucune tour configurée
         if (towers.isEmpty()) {
-            if (params.equals("towers_completed")) {
-                return "Aucune tour configurée";
-            }
-            if (params.equals("towers_total")) {
-                return "0";
-            }
-            if (params.equals("towers_percentage")) {
-                return "0.0";
-            }
+            return "0";
         }
         
         TowerProgress progress = towerManager.getProgress(player.getUniqueId());
@@ -183,19 +166,20 @@ public class QuantumExpansion extends PlaceholderExpansion {
         
         // %quantum_tower_current% - Current tower name
         if (params.equals("tower_current")) {
-            if (currentTowerId == null) return "Aucune";
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
             TowerConfig tower = towerManager.getTower(currentTowerId);
-            return tower != null ? tower.getName() : "Inconnue";
+            return tower != null ? tower.getName() : "0";
         }
         
         // %quantum_tower_floor% - Current floor number
         if (params.equals("tower_floor")) {
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
             return String.valueOf(progress.getCurrentFloor());
         }
         
         // %quantum_tower_progress% - Current floor progress (5/25)
         if (params.equals("tower_progress")) {
-            if (currentTowerId == null) return "0/0";
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0/0";
             TowerConfig tower = towerManager.getTower(currentTowerId);
             if (tower == null) return "0/0";
             int completed = progress.getFloorProgress(currentTowerId);
@@ -204,54 +188,53 @@ public class QuantumExpansion extends PlaceholderExpansion {
         
         // %quantum_tower_kills_current% - Total kills in current floor
         if (params.equals("tower_kills_current")) {
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
             Map<String, Integer> kills = progress.getCurrentKills();
             return String.valueOf(kills.values().stream().mapToInt(Integer::intValue).sum());
         }
         
         // %quantum_tower_kills_required% - Required kills for current floor
         if (params.equals("tower_kills_required")) {
-            if (currentTowerId == null) return "0";
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
             int floor = progress.getCurrentFloor();
             return String.valueOf(getRequiredKills(currentTowerId, floor));
         }
         
         // %quantum_tower_kills_progress% - Kills progress (3/10)
         if (params.equals("tower_kills_progress")) {
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0/0";
             Map<String, Integer> kills = progress.getCurrentKills();
             int current = kills.values().stream().mapToInt(Integer::intValue).sum();
-            int required = 0;
-            if (currentTowerId != null) {
-                required = getRequiredKills(currentTowerId, progress.getCurrentFloor());
-            }
+            int required = getRequiredKills(currentTowerId, progress.getCurrentFloor());
             return current + "/" + required;
         }
         
         // %quantum_tower_percentage% - Completion percentage
         if (params.equals("tower_percentage")) {
-            if (currentTowerId == null) return "0%";
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
             Map<String, Integer> kills = progress.getCurrentKills();
             int current = kills.values().stream().mapToInt(Integer::intValue).sum();
             int required = getRequiredKills(currentTowerId, progress.getCurrentFloor());
-            if (required == 0) return "100%";
+            if (required == 0) return "0";
             int percentage = (current * 100) / required;
-            return Math.min(percentage, 100) + "%";
+            return String.valueOf(Math.min(percentage, 100));
         }
         
         // %quantum_tower_next_boss% - Next boss floor
         if (params.equals("tower_next_boss")) {
-            if (currentTowerId == null) return "Aucun";
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
             TowerConfig tower = towerManager.getTower(currentTowerId);
-            if (tower == null) return "Aucun";
+            if (tower == null) return "0";
             int currentFloor = progress.getFloorProgress(currentTowerId);
             int nextBoss = tower.getNextBossFloor(currentFloor);
-            return nextBoss == -1 ? "Aucun" : "Étage " + nextBoss;
+            return nextBoss == -1 ? "0" : String.valueOf(nextBoss);
         }
         
         // %quantum_tower_status% - Current status
         if (params.equals("tower_status")) {
-            if (currentTowerId == null) return "Hors tour";
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
             TowerConfig tower = towerManager.getTower(currentTowerId);
-            if (tower == null) return "Inconnu";
+            if (tower == null) return "0";
             int floor = progress.getCurrentFloor();
             if (tower.isFinalBoss(floor)) return "§c§lBOSS FINAL";
             if (tower.isBossFloor(floor)) return "§e§lBOSS D'ÉTAGE";
@@ -271,12 +254,12 @@ public class QuantumExpansion extends PlaceholderExpansion {
         if (params.matches("tower_[a-z_]+_percentage")) {
             String towerId = params.substring(6, params.lastIndexOf("_percentage"));
             TowerConfig tower = towerManager.getTower(towerId);
-            if (tower == null) return "0.0%";
+            if (tower == null) return "0";
             int completed = progress.getFloorProgress(towerId);
             int total = tower.getTotalFloors();
-            if (total == 0) return "100.0%";
+            if (total == 0) return "0";
             double percentage = (completed * 100.0) / total;
-            return percentFormat.format(percentage) + "%";
+            return percentFormat.format(percentage);
         }
         
         // %quantum_tower_<id>_completed% - Is specific tower completed? (true/false)
@@ -291,7 +274,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
         
         // %quantum_towers_completed% - Number of completed towers (format: "2" or "Aucune tour configurée")
         if (params.equals("towers_completed")) {
-            if (towers.isEmpty()) return "Aucune tour configurée";
+            if (towers.isEmpty()) return "0";
             int completed = progress.getCompletedTowersCount(towers);
             return String.valueOf(completed);
         }
@@ -303,7 +286,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
         
         // %quantum_towers_percentage% - Overall towers completion percentage (50.0 or 0.0)
         if (params.equals("towers_percentage")) {
-            if (towers.isEmpty()) return "0.0";
+            if (towers.isEmpty()) return "0";
             
             int totalFloors = 0;
             int completedFloors = 0;
@@ -315,7 +298,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
                 completedFloors += progress.getFloorProgress(towerId);
             }
             
-            if (totalFloors == 0) return "100.0";
+            if (totalFloors == 0) return "0";
             double percentage = (completedFloors * 100.0) / totalFloors;
             return percentFormat.format(percentage);
         }
@@ -329,7 +312,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return totalFloors + "/" + maxFloors;
         }
         
-        return "";
+        return "0";
     }
     
     /**

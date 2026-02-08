@@ -85,6 +85,7 @@ public final class Quantum extends JavaPlugin {
     private TowerDoorManager doorManager;
     private TowerNPCManager npcManager;
     private TowerLootManager lootManager;
+    private MobAnimationManager mobAnimationManager;  // NEW: Mob animations
 
 
     private DungeonArmor dungeonArmor;     // Dungeon armor system
@@ -145,6 +146,10 @@ public final class Quantum extends JavaPlugin {
         this.npcManager = new TowerNPCManager(this);
         this.lootManager = new TowerLootManager(this);
         lootManager.loadFromConfig(YamlConfiguration.loadConfiguration(new File(getDataFolder(), "towers.yml")));
+        
+        // Mob Animation Manager
+        this.mobAnimationManager = new MobAnimationManager(this);
+        logger.success("✓ Mob Animation Manager initialized!");
         
         // Enregistrer les listeners
         getServer().getPluginManager().registerEvents(new DoorSelectionListener(this, doorManager), this);
@@ -305,7 +310,7 @@ public final class Quantum extends JavaPlugin {
 
         if (towerManager != null) {
             Bukkit.getPluginManager().registerEvents(
-                    new TowerKillListener(this, towerManager, playerLevelManager), this
+                    new TowerKillListener(this, towerManager, playerLevelManager, doorManager, lootManager), this
             );
             logger.success("✓ Tower Kill Listener (XP on mob kill)");
         }
@@ -468,6 +473,11 @@ public final class Quantum extends JavaPlugin {
             mobSkillExecutor.shutdown();
             logger.success("✓ Mob skills stopped");
         }
+        
+        if (mobAnimationManager != null) {
+            mobAnimationManager.shutdown();
+            logger.success("✓ Mob animations stopped");
+        }
 
         if (escrowManager != null) {
             escrowManager.saveEscrow();
@@ -520,6 +530,8 @@ public final class Quantum extends JavaPlugin {
         if (towerManager != null) towerManager.reload();
         
         if (mobSkillManager != null) mobSkillManager.reload();
+        
+        if (mobAnimationManager != null) mobAnimationManager.reload();
 
         RuneType.init(this);
         logger.success("✓ Dungeon armor & rune configs reloaded");
@@ -661,6 +673,10 @@ public final class Quantum extends JavaPlugin {
     
     public MobSkillExecutor getMobSkillExecutor() {
         return mobSkillExecutor;
+    }
+    
+    public MobAnimationManager getMobAnimationManager() {
+        return mobAnimationManager;
     }
     
     // NEW: Getters pour les managers des tours

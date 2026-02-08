@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -78,6 +79,9 @@ public class ActiveSpawner implements Listener {
                         
                         // Démarrer les skills du mob
                         startMobSkills(mob);
+                        
+                        // Enregistrer les animations du mob
+                        registerMobAnimations(mob);
                     }
                 }
             }
@@ -94,6 +98,12 @@ public class ActiveSpawner implements Listener {
         MobSkillExecutor executor = plugin.getMobSkillExecutor();
         if (executor != null) {
             aliveMobs.forEach(executor::stopSkills);
+        }
+        
+        // Nettoyer les animations
+        MobAnimationManager animManager = plugin.getMobAnimationManager();
+        if (animManager != null) {
+            aliveMobs.forEach(animManager::unregisterMob);
         }
         
         aliveMobs.clear();
@@ -121,9 +131,14 @@ public class ActiveSpawner implements Listener {
         entity.setMaxHealth(health);
         entity.setHealth(health);
 
+        // Stocker les métadonnées
         PersistentDataContainer pdc = entity.getPersistentDataContainer();
         pdc.set(new NamespacedKey(plugin, "tower_spawner"), PersistentDataType.STRING, config.getId());
         pdc.set(new NamespacedKey(plugin, "tower_id"), PersistentDataType.STRING, towerId);
+        
+        // Métadatas pour TowerKillListener
+        entity.setMetadata("tower_mob", new FixedMetadataValue(plugin, config.getMobId()));
+        entity.setMetadata("spawner_id", new FixedMetadataValue(plugin, config.getId()));
 
         return entity;
     }
@@ -139,6 +154,27 @@ public class ActiveSpawner implements Listener {
         if (config.getSkills() != null && !config.getSkills().isEmpty()) {
             executor.startSkills(mob, config.getSkills());
         }
+    }
+    
+    /**
+     * Enregistre les animations Model Engine pour un mob
+     */
+    private void registerMobAnimations(LivingEntity mob) {
+        MobAnimationManager animManager = plugin.getMobAnimationManager();
+        if (animManager == null) return;
+        
+        String modelId = config.getModelId();
+        if (modelId == null || modelId.isEmpty()) return;
+        
+        // Récupérer les animations depuis la config
+        MobAnimationManager.AnimationConfig animConfig = config.getAnimations();
+        if (animConfig == null) {
+            // Créer une config par défaut si aucune n'est définie
+            animConfig = new MobAnimationManager.AnimationConfig(null, null, null, null, null);
+        }
+        
+        // Enregistrer le mob avec ses animations
+        animManager.registerMob(mob, modelId, animConfig);
     }
     
     /**
@@ -158,5 +194,24 @@ public class ActiveSpawner implements Listener {
         }
         
         aliveMobs.remove(mobUuid);
+    }
+    
+    /**
+     * Obtient le nombre de mobs vivants
+     */
+    public int getAliveMobCount() {
+        // Nettoyer les morts
+        aliveMobs.removeIf(uuid -> {
+            Entity e = Bukkit.getEntity(uuid);
+            return e == null || e.isDead();
+        });
+        return aliveMobs.size();
+    }
+    
+    /**
+     * Obtient la config du spawner
+     */
+    public TowerSpawnerConfig getConfig() {
+        return config;
     }
 }

@@ -13,6 +13,7 @@ import com.wynvers.quantum.levels.PlayerLevelManager;
 import com.wynvers.quantum.listeners.DoorSelectionListener;
 import com.wynvers.quantum.listeners.MenuListener;
 import com.wynvers.quantum.listeners.ScoreboardListener;
+import com.wynvers.quantum.listeners.SpawnSelectionListener;
 import com.wynvers.quantum.listeners.StorageListener;
 import com.wynvers.quantum.listeners.TowerKillListener;
 import com.wynvers.quantum.managers.*;
@@ -86,6 +87,7 @@ public final class Quantum extends JavaPlugin {
     private TowerNPCManager npcManager;
     private TowerLootManager lootManager;
     private MobAnimationManager mobAnimationManager;  // NEW: Mob animations
+    private SpawnSelectionManager spawnSelectionManager; // NEW: spawn zone selection
 
 
     private DungeonArmor dungeonArmor;     // Dungeon armor system
@@ -150,6 +152,14 @@ public final class Quantum extends JavaPlugin {
         // Mob Animation Manager
         this.mobAnimationManager = new MobAnimationManager(this);
         logger.success("✓ Mob Animation Manager initialized!");
+        
+        // Spawn Selection Manager + Listener (hache netherite pour définir zones de spawn)
+        this.spawnSelectionManager = new SpawnSelectionManager();
+        Bukkit.getPluginManager().registerEvents(
+                new SpawnSelectionListener(this, spawnSelectionManager),
+                this
+        );
+        logger.success("✓ Spawn Selection Manager + Listener initialized!");
         
         // Enregistrer les listeners
         getServer().getPluginManager().registerEvents(new DoorSelectionListener(this, doorManager), this);
@@ -677,6 +687,10 @@ public final class Quantum extends JavaPlugin {
     
     public MobAnimationManager getMobAnimationManager() {
         return mobAnimationManager;
+    }
+    
+    public SpawnSelectionManager getSpawnSelectionManager() {
+        return spawnSelectionManager;
     }
     
     // NEW: Getters pour les managers des tours

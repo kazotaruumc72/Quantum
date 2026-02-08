@@ -239,51 +239,53 @@ public class MobSkillExecutor {
     }
     
     /**
-     * ICEBERG - Place un pilier de glace temporaire sous le joueur
-     * Le pilier disparait automatiquement après la durée configurée
+     * ICEBERG - Crée une cage/prison de glace autour du joueur
+     * Le joueur est piégé à l'intérieur et la cage disparait après la durée configurée
      */
     private void executeIceberg(LivingEntity mob, Map<String, Object> skillData) {
-        // Durée de l'iceberg (défaut 10 secondes)
+        // Durée de la cage (défaut 8 secondes)
         int duration = skillData.containsKey("duration") 
             ? ((Number) skillData.get("duration")).intValue() 
-            : 10; // secondes
+            : 8; // secondes
         
-        // Hauteur du pilier (défaut 5 blocs)
+        // Rayon de la cage (défaut 2 blocs)
+        int radius = skillData.containsKey("radius") 
+            ? ((Number) skillData.get("radius")).intValue() 
+            : 2;
+        
+        // Hauteur de la cage (défaut 4 blocs)
         int height = skillData.containsKey("height") 
             ? ((Number) skillData.get("height")).intValue() 
-            : 5;
+            : 4;
         
         getValidTargetPlayers(mob.getLocation(), 15).forEach(player -> {
             Location playerLoc = player.getLocation();
-            // Position au sol sous le joueur
-            Location baseLoc = playerLoc.clone().subtract(0, 1, 0);
             
-            // Placer le pilier temporaire avec le structure manager
-            structureManager.placeTemporaryPillar(
-                baseLoc,
+            // Placer la cage de glace autour du joueur
+            structureManager.placeIceCage(
+                playerLoc,
+                radius,
                 height,
                 Material.PACKED_ICE,
                 duration
             );
             
-            // Soulèvement du joueur s'il est debout sur le sol
-            if (player.getLocation().getY() % 1.0 < 0.5) {
-                player.teleport(playerLoc.clone().add(0, height, 0));
-            }
-            
             // Effet de ralentissement
             player.addPotionEffect(new PotionEffect(
                 PotionEffectType.SLOWNESS, 
                 duration * 20, 
-                2 // Niveau 3
+                3 // Niveau 4 - très lent
             ));
             
             // Particules de glace
             player.getWorld().spawnParticle(
                 org.bukkit.Particle.SNOWFLAKE,
-                playerLoc,
-                100, 1, 2, 1, 0.02
+                playerLoc.clone().add(0, 1, 0),
+                150, radius, height / 2.0, radius, 0.05
             );
+            
+            // Son de glace
+            player.playSound(playerLoc, org.bukkit.Sound.BLOCK_GLASS_BREAK, 1.0f, 0.5f);
         });
     }
     

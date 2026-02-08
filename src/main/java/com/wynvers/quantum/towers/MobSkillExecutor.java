@@ -129,6 +129,10 @@ public class MobSkillExecutor {
                 executeIce(mob, skillData);
                 break;
                 
+            case "slowness":
+                executeSlowness(mob, skillData);
+                break;
+                
             case "iceberg":
                 executeIceberg(mob, skillData);
                 break;
@@ -235,6 +239,31 @@ public class MobSkillExecutor {
                 player.getLocation().add(0, 1, 0),
                 50, 0.5, 0.5, 0.5, 0.01
             );
+        });
+    }
+    
+    /**
+     * SLOWNESS - Applique l'effet de ralentissement aux joueurs proches
+     */
+    private void executeSlowness(LivingEntity mob, Map<String, Object> skillData) {
+        int duration = skillData.containsKey("duration") 
+            ? ((Number) skillData.get("duration")).intValue() 
+            : 5; // secondes
+        
+        int level = skillData.containsKey("level") 
+            ? ((Number) skillData.get("level")).intValue() - 1 
+            : 1; // Niveau 2 par défaut (index 1)
+        
+        double radius = skillData.containsKey("radius") 
+            ? ((Number) skillData.get("radius")).doubleValue() 
+            : 10.0; // rayon en blocs
+        
+        getValidTargetPlayers(mob.getLocation(), radius).forEach(player -> {
+            player.addPotionEffect(new PotionEffect(
+                PotionEffectType.SLOWNESS, 
+                duration * 20, 
+                level
+            ));
         });
     }
     

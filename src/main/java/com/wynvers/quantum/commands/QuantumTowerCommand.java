@@ -12,6 +12,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import java.io.File;
@@ -20,7 +22,7 @@ import java.util.UUID;
 
 /**
  * Commande principale du système de tours
- * Gère: portes, NPC, téléportation, progression
+ * Gère: portes, NPC, téléportation, progression, animations
  */
 public class QuantumTowerCommand implements CommandExecutor {
     
@@ -63,10 +65,182 @@ public class QuantumTowerCommand implements CommandExecutor {
                 return handleReset(sender, args);
             case "reload":
                 return handleReload(sender);
+            case "info":
+                return handleInfo(sender, args);
             default:
                 sendMainHelp(sender);
                 return true;
         }
+    }
+    
+    // ==================== INFO COMMANDS ====================
+    
+    private boolean handleInfo(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            sender.sendMessage("§cUsage: /quantum info <animation>");
+            return true;
+        }
+        
+        String infoType = args[1].toLowerCase();
+        
+        switch (infoType) {
+            case "animation":
+            case "anim":
+                return handleInfoAnimation(sender, args);
+            default:
+                sender.sendMessage("§cType d'info inconnu: " + infoType);
+                return true;
+        }
+    }
+    
+    private boolean handleInfoAnimation(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("§cCette commande est réservée aux joueurs.");
+            return true;
+        }
+        
+        if (!sender.hasPermission("quantum.info.animation")) {
+            sender.sendMessage("§cVous n'avez pas la permission!");
+            return true;
+        }
+        
+        Player player = (Player) sender;
+        
+        // Si aucun argument, afficher l'aide
+        if (args.length < 3) {
+            sender.sendMessage("§6§m══════════════════════════════");
+            sender.sendMessage("§6§lInfo Animations Model Engine");
+            sender.sendMessage("");
+            sender.sendMessage("§eUsage:");
+            sender.sendMessage("§7/quantum info animation <model_id> §8- Lister les animations");
+            sender.sendMessage("§7/quantum info animation <model_id> <animation> §8- Tester une animation");
+            sender.sendMessage("");
+            sender.sendMessage("§7Un zombie sera spawné à votre position avec le modèle.");
+            sender.sendMessage("§6§m══════════════════════════════");
+            return true;
+        }
+        
+        String modelId = args[2];
+        
+        // Si animation spécifiée, tester
+        if (args.length >= 4) {
+            String animationName = args[3];
+            return testAnimation(player, modelId, animationName);
+        } else {
+            // Sinon, lister les animations disponibles
+            return listAnimations(player, modelId);
+        }
+    }
+    
+    /**
+     * Spawner un mob avec le modèle et tester une animation
+     */
+    private boolean testAnimation(Player player, String modelId, String animationName) {
+        // Vérifier si Model Engine est activé
+        if (Bukkit.getPluginManager().getPlugin("ModelEngine") == null) {
+            player.sendMessage("§c§l[Anim] §cModel Engine n'est pas installé!");
+            return true;
+        }
+        
+        Location spawnLoc = player.getLocation().add(player.getLocation().getDirection().multiply(3));
+        
+        // Spawner un zombie
+        LivingEntity mob = (LivingEntity) player.getWorld().spawnEntity(spawnLoc, EntityType.ZOMBIE);
+        mob.setCustomName("§e§l[TEST] §f" + modelId);
+        mob.setCustomNameVisible(true);
+        
+        // Appliquer le modèle
+        try {
+            String command = "meg model set " + mob.getUniqueId() + " " + modelId;
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+            
+            player.sendMessage("§a§l[Anim] §aModèle appliqué: §f" + modelId);
+            
+            // Attendre un peu puis jouer l'animation
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (mob.isValid() && !mob.isDead()) {
+                    String animCommand = "meg anim play " + mob.getUniqueId() + " " + animationName;
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), animCommand);
+                    
+                    player.sendMessage("§a§l[Anim] §aAnimation jouée: §f" + animationName);
+                    player.sendMessage("§7Le mob sera supprimé dans 10 secondes...");
+                    
+                    // Supprimer le mob après 10 secondes
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        if (mob.isValid()) {
+                            mob.remove();
+                        }
+                    }, 200L);
+                }
+            }, 20L);
+            
+        } catch (Exception e) {
+            player.sendMessage("§c§l[Anim] §cErreur: " + e.getMessage());
+            mob.remove();
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Lister les animations communes et spawner un mob de test
+     */
+    private boolean listAnimations(Player player, String modelId) {
+        // Vérifier si Model Engine est activé
+        if (Bukkit.getPluginManager().getPlugin("ModelEngine") == null) {
+            player.sendMessage("§c§l[Anim] §cModel Engine n'est pas installé!");
+            return true;
+        }
+        
+        Location spawnLoc = player.getLocation().add(player.getLocation().getDirection().multiply(3));
+        
+        // Spawner un zombie avec le modèle
+        LivingEntity mob = (LivingEntity) player.getWorld().spawnEntity(spawnLoc, EntityType.ZOMBIE);
+        mob.setCustomName("§e§l[TEST] §f" + modelId);
+        mob.setCustomNameVisible(true);
+        
+        try {
+            String command = "meg model set " + mob.getUniqueId() + " " + modelId;
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+            
+            player.sendMessage("§6§m══════════════════════════════");
+            player.sendMessage("§6§lAnimations - " + modelId);
+            player.sendMessage("");
+            player.sendMessage("§aMob spawné avec le modèle!");
+            player.sendMessage("§7Animations communes:");
+            player.sendMessage("");
+            
+            // Liste des animations les plus communes
+            String[] commonAnims = {
+                "idle", "walk", "run", "attack", "death",
+                "spawn", "hurt", "jump", "sit", "sleep",
+                "fly", "swim", "eat", "drink", "roar"
+            };
+            
+            for (String anim : commonAnims) {
+                player.sendMessage("§7- §f" + anim + " §8[§e/quantum info anim " + modelId + " " + anim + "§8]");
+            }
+            
+            player.sendMessage("");
+            player.sendMessage("§7Cliquez sur une commande pour tester l'animation.");
+            player.sendMessage("§7Le mob sera supprimé dans 30 secondes...");
+            player.sendMessage("§6§m══════════════════════════════");
+            
+            // Supprimer le mob après 30 secondes
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (mob.isValid()) {
+                    mob.remove();
+                    player.sendMessage("§7§l[Anim] §7Mob de test supprimé.");
+                }
+            }, 600L);
+            
+        } catch (Exception e) {
+            player.sendMessage("§c§l[Anim] §cErreur: " + e.getMessage());
+            player.sendMessage("§7Vérifiez que le modèle existe dans Model Engine.");
+            mob.remove();
+        }
+        
+        return true;
     }
     
     // ==================== TOWER COMMANDS ====================
@@ -80,6 +254,7 @@ public class QuantumTowerCommand implements CommandExecutor {
         String action = args[1].toLowerCase();
         
         switch (action) {
+            case "étage":
             case "etage":
             case "tp":
                 return handleTowerTeleport(sender, args);
@@ -180,14 +355,14 @@ public class QuantumTowerCommand implements CommandExecutor {
             return true;
         }
         
-        sender.sendMessage("§6§m──────────────────────────────");
+        sender.sendMessage("§6§m══════════════════════════════");
         sender.sendMessage("§6§l" + tower.getName());
-        sender.sendMessage(");
+        sender.sendMessage("");
         sender.sendMessage("§7ID: §f" + towerId);
         sender.sendMessage("§7Étages: §f" + tower.getTotalFloors());
         sender.sendMessage("§7Boss final: §cÉtage " + tower.getFinalBossFloor());
         sender.sendMessage("§7Niveau requis: §f" + tower.getMinLevel() + " - " + tower.getMaxLevel());
-        sender.sendMessage("§6§m──────────────────────────────");
+        sender.sendMessage("§6§m══════════════════════════════");
         
         return true;
     }
@@ -307,15 +482,15 @@ public class QuantumTowerCommand implements CommandExecutor {
     }
     
     private boolean handleDoorList(CommandSender sender) {
-        sender.sendMessage("§6§m──────────────────────────────");
+        sender.sendMessage("§6§m══════════════════════════════");
         sender.sendMessage("§6§lListe des portes");
-        sender.sendMessage(");
+        sender.sendMessage("");
         
         for (String doorId : doorManager.getAllDoorIds()) {
             sender.sendMessage("§7- §f" + doorId);
         }
         
-        sender.sendMessage("§6§m──────────────────────────────");
+        sender.sendMessage("§6§m══════════════════════════════");
         return true;
     }
     
@@ -418,9 +593,9 @@ public class QuantumTowerCommand implements CommandExecutor {
     }
     
     private boolean handleNPCList(CommandSender sender) {
-        sender.sendMessage("§6§m──────────────────────────────");
+        sender.sendMessage("§6§m══════════════════════════════");
         sender.sendMessage("§6§lListe des NPC");
-        sender.sendMessage(");
+        sender.sendMessage("");
         
         for (Map.Entry<UUID, TowerNPCManager.NPCConfig> entry : npcManager.getAllNPCs().entrySet()) {
             TowerNPCManager.NPCConfig config = entry.getValue();
@@ -428,7 +603,7 @@ public class QuantumTowerCommand implements CommandExecutor {
             sender.sendMessage("  §8UUID: " + entry.getKey());
         }
         
-        sender.sendMessage("§6§m──────────────────────────────");
+        sender.sendMessage("§6§m══════════════════════════════");
         return true;
     }
     
@@ -463,9 +638,9 @@ public class QuantumTowerCommand implements CommandExecutor {
         TowerProgress progress = towerManager.getProgress(target.getUniqueId());
         Map<String, TowerConfig> towers = towerManager.getAllTowers();
         
-        sender.sendMessage("§6§m──────────────────────────────");
+        sender.sendMessage("§6§m══════════════════════════════");
         sender.sendMessage("§6§l§nProgression - " + target.getName());
-        sender.sendMessage(");
+        sender.sendMessage("");
         
         for (Map.Entry<String, TowerConfig> entry : towers.entrySet()) {
             String towerId = entry.getKey();
@@ -473,11 +648,11 @@ public class QuantumTowerCommand implements CommandExecutor {
             int completed = progress.getFloorProgress(towerId);
             int total = tower.getTotalFloors();
             
-            String status = completed >= tower.getFinalBossFloor() ? "§a§l✓" : "§e➤";
+            String status = completed >= tower.getFinalBossFloor() ? "§a§l✓" : "§e➞";
             sender.sendMessage(status + " §f" + tower.getName() + "§7: " + completed + "/" + total);
         }
         
-        sender.sendMessage("§6§m──────────────────────────────");
+        sender.sendMessage("§6§m══════════════════════════════");
     }
     
     private boolean handleReset(CommandSender sender, String[] args) {
@@ -524,15 +699,16 @@ public class QuantumTowerCommand implements CommandExecutor {
     }
     
     private void sendMainHelp(CommandSender sender) {
-        sender.sendMessage("§6§m──────────────────────────────");
+        sender.sendMessage("§6§m══════════════════════════════");
         sender.sendMessage("§6§l§nQuantum - Système de Tours");
-        sender.sendMessage(");
-        sender.sendMessage("§e/quantum tower etage <id> <floor> §7- Téléportation");
-        sender.sendMessage("§e/quantum door <wand|create|delete|list> §7- Gestion portes");
-        sender.sendMessage("§e/quantum npc <set|remove|list> §7- Gestion NPC");
-        sender.sendMessage("§e/quantum progress [player] §7- Voir progression");
-        sender.sendMessage("§e/quantum reset <player> §7- Reset progression");
-        sender.sendMessage("§e/quantum reload §7- Recharger configs");
-        sender.sendMessage("§6§m──────────────────────────────");
+        sender.sendMessage("");
+        sender.sendMessage("§e/quantum tower etage <id> <floor> §8- Téléportation");
+        sender.sendMessage("§e/quantum door <wand|create|delete|list> §8- Gestion portes");
+        sender.sendMessage("§e/quantum npc <set|remove|list> §8- Gestion NPC");
+        sender.sendMessage("§e/quantum info animation <model> §8- Test animations");
+        sender.sendMessage("§e/quantum progress [player] §8- Voir progression");
+        sender.sendMessage("§e/quantum reset <player> §8- Reset progression");
+        sender.sendMessage("§e/quantum reload §8- Recharger configs");
+        sender.sendMessage("§6§m══════════════════════════════");
     }
 }

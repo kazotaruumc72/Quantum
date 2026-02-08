@@ -31,10 +31,6 @@ import java.util.UUID;
  * - Vérifie les niveaux min/max de la tour (PlayerLevelManager)
  * - Met à jour TowerManager (currentTower/currentFloor)
  * - Active / désactive le TowerScoreboardHandler
- *
- * Convention de nom de région :
- *   towerId_floor_<N>
- * Ex : fire_tower_floor_3
  */
 public class ZoneManager implements Listener {
 
@@ -78,6 +74,11 @@ public class ZoneManager implements Listener {
 
         if (Objects.equals(previousRegion, newRegion)) {
             return; // pas de changement
+        }
+
+        // Debug log
+        if (newRegion != null) {
+            plugin.getQuantumLogger().info("Player " + player.getName() + " moved to region: " + newRegion);
         }
 
         // Sortie d'une région de tour
@@ -141,7 +142,13 @@ public class ZoneManager implements Listener {
     private boolean isTowerRegion(String regionName) {
         String towerId = towerManager.getTowerByRegion(regionName);
         int floor = towerManager.getFloorByRegion(regionName);
-        return towerId != null && floor > 0;
+        boolean isTower = towerId != null && floor > 0;
+        
+        if (isTower) {
+            plugin.getQuantumLogger().info("Region " + regionName + " is tower " + towerId + " floor " + floor);
+        }
+        
+        return isTower;
     }
 
     /**
@@ -173,6 +180,7 @@ public class ZoneManager implements Listener {
         // OK : enregistrer la position, spawners + scoreboard
         towerManager.updateCurrentLocation(player, towerId, floor);
         if (!scoreboardHandler.hasTowerScoreboard(player)) {
+            plugin.getQuantumLogger().info("Enabling tower scoreboard for " + player.getName());
             scoreboardHandler.enableTowerScoreboard(player, towerId);
         }
 
@@ -194,6 +202,7 @@ public class ZoneManager implements Listener {
 
         towerManager.updateCurrentLocation(player, towerId, floor);
         if (!scoreboardHandler.hasTowerScoreboard(player)) {
+            plugin.getQuantumLogger().info("Enabling tower scoreboard for " + player.getName() + " (bypass)");
             scoreboardHandler.enableTowerScoreboard(player, towerId);
         }
 
@@ -208,6 +217,7 @@ public class ZoneManager implements Listener {
     private void handleLeaveTower(Player player) {
         towerManager.clearCurrentLocation(player);
         if (scoreboardHandler.hasTowerScoreboard(player)) {
+            plugin.getQuantumLogger().info("Disabling tower scoreboard for " + player.getName());
             scoreboardHandler.disableTowerScoreboard(player);
         }
         player.sendMessage("§7Tu quittes la tour.");

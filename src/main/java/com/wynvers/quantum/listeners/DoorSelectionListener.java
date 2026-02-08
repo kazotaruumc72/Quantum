@@ -15,7 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.Arrays;
 
 /**
- * Listener pour la hache en fer qui permet de sélectionner les zones de portes
+ * Listener pour la hache en cuivre qui permet de sélectionner les zones de portes
  */
 public class DoorSelectionListener implements Listener {
     
@@ -24,7 +24,7 @@ public class DoorSelectionListener implements Listener {
     
     // Nom custom de l'outil
     private static final String WAND_NAME = "§e§lHache de Sélection";
-    private static final Material WAND_MATERIAL = Material.IRON_AXE;
+    private static final Material WAND_MATERIAL = Material.COPPER_AXE;
     
     public DoorSelectionListener(Quantum plugin, TowerDoorManager doorManager) {
         this.plugin = plugin;

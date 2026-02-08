@@ -272,7 +272,7 @@ public class TowerManager {
         TowerConfig tower = getTower(towerId);
         if (tower == null) return;
         
-        // Si final boss, incrémenter les runs
+        // Si final boss, incrementer les runs
         if (tower.isFinalBoss(floor)) {
             progress.incrementRuns(towerId);
         }
@@ -281,14 +281,14 @@ public class TowerManager {
         
         // Send completion message
         if (tower.isFinalBoss(floor)) {
-            player.sendMessage("§6§l✦ TOUR COMPLÉTÉE ✦");
-            player.sendMessage("§7Vous avez terminé: §f" + tower.getName());
-            Bukkit.broadcastMessage("§6§l[TOURS] §f" + player.getName() + " §7a complété §f" + tower.getName() + "§7!");
+            player.sendMessage("§6§l✦ TOUR COMPLETEE ✦");
+            player.sendMessage("§7Vous avez termine: §f" + tower.getName());
+            Bukkit.broadcastMessage("§6§l[TOURS] §f" + player.getName() + " §7a complete §f" + tower.getName() + "§7!");
         } else if (tower.isBossFloor(floor)) {
             player.sendMessage("§a§l✓ BOSS VAINCU!");
-            player.sendMessage("§7Étage §f" + floor + " §7terminé!");
+            player.sendMessage("§7Etage §f" + floor + " §7termine!");
         } else {
-            player.sendMessage("§a§l✓ Étage " + floor + " terminé!");
+            player.sendMessage("§a§l✓ Etage " + floor + " termine!");
         }
     }
     
@@ -305,13 +305,13 @@ public class TowerManager {
         
         plugin.getQuantumLogger().info("Player " + player.getName() + " entered " + towerId + " floor " + floor);
 
-        // Désactiver le scoreboard quand le joueur entre dans une tour
+        // Desactiver le scoreboard quand le joueur entre dans une tour
         ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
         if (scoreboardManager != null) {
             scoreboardManager.disableScoreboard(player);
         }
         
-        // Démarrer les spawners
+        // Demarrer les spawners
         if (spawnerManager != null) {
             spawnerManager.startFloorSpawners(player, towerId, floor);
         }
@@ -327,24 +327,24 @@ public class TowerManager {
         progress.setCurrentFloor(0);
         progress.resetKills();
     
-        // Réactiver et recréer le scoreboard classique quand le joueur quitte la tour
+        // Reactiver et recreer le scoreboard classique quand le joueur quitte la tour
         ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
         ScoreboardConfig scoreboardConfig = plugin.getScoreboardConfig();
     
         if (scoreboardManager != null && scoreboardConfig != null) {
-            // Réactiver le flag
+            // Reactiver le flag
             scoreboardManager.enableScoreboard(player);
     
-            // Si le scoreboard global est activé et le joueur l’a activé
+            // Si le scoreboard global est active et le joueur l'a active
             if (scoreboardConfig.isEnabled() && scoreboardManager.isScoreboardEnabled(player)) {
-                // Recréer le scoreboard classique à partir de scoreboard.yml
+                // Recreer le scoreboard classique a partir de scoreboard.yml
                 String title = scoreboardConfig.getTitle();
                 List<String> lines = scoreboardConfig.getLines();
                 scoreboardManager.setScoreboard(player, title, lines);
     
                 long updateInterval = scoreboardConfig.getUpdateInterval();
     
-                // Relancer la mise à jour auto comme dans ScoreboardListener
+                // Relancer la mise a jour auto comme dans ScoreboardListener
                 new BukkitRunnable() {
                     @Override
                     public void run() {
@@ -384,7 +384,7 @@ public class TowerManager {
             }
         }
     
-        // Arrêter les spawners
+        // Arreter les spawners
         if (spawnerManager != null) {
             spawnerManager.stopSpawners(player);
         }
@@ -422,12 +422,34 @@ public class TowerManager {
     }
     
     /**
-     * Reload tower configurations
+     * Reload tower configurations and spawners
      */
     public void reload() {
+        // Clear old data
         towers.clear();
+        
+        // Reload tower configs
         loadTowers();
-        plugin.getQuantumLogger().success("Towers reloaded from towers.yml");
+        
+        // Reload spawner configs
+        File towersFile = new File(plugin.getDataFolder(), "towers.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
+        spawnerManager.loadFromConfig(config);
+        
+        // Restart spawners for players currently in towers
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            TowerProgress progress = getProgress(player.getUniqueId());
+            String currentTower = progress.getCurrentTower();
+            int currentFloor = progress.getCurrentFloor();
+            
+            if (currentTower != null && currentFloor > 0) {
+                plugin.getQuantumLogger().info("Restarting spawners for " + player.getName() + " in " + currentTower + " floor " + currentFloor);
+                spawnerManager.stopSpawners(player);
+                spawnerManager.startFloorSpawners(player, currentTower, currentFloor);
+            }
+        }
+        
+        plugin.getQuantumLogger().success("Towers and spawners reloaded from towers.yml");
     }
     
     /**

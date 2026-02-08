@@ -25,6 +25,7 @@ import com.wynvers.quantum.statistics.StatisticsManager;
 import com.wynvers.quantum.statistics.StorageStatsManager;
 import com.wynvers.quantum.statistics.TradingStatisticsManager;
 import com.wynvers.quantum.tabcompleters.*;
+import com.wynvers.quantum.towers.MobSkillExecutor;
 import com.wynvers.quantum.towers.MobSkillManager;
 import com.wynvers.quantum.towers.TowerDamageListener;
 import com.wynvers.quantum.towers.TowerManager;
@@ -81,6 +82,7 @@ public final class Quantum extends JavaPlugin {
     private TowerManager towerManager;     // Tower progression system
     private TowerScoreboardHandler scoreboardHandler; // Tower scoreboard
     private MobSkillManager mobSkillManager;          // NEW: Mob skills titles/subtitles
+    private MobSkillExecutor mobSkillExecutor;        // NEW: Mob skills execution
 
     private DungeonArmor dungeonArmor;     // Dungeon armor system
     private ArmorManager armorManager;
@@ -138,6 +140,7 @@ public final class Quantum extends JavaPlugin {
 
         // Mob Skills System
         this.mobSkillManager = new MobSkillManager(this);
+        this.mobSkillExecutor = new MobSkillExecutor(this);
 
         // WorldGuard / zones de tours
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
@@ -444,6 +447,11 @@ public final class Quantum extends JavaPlugin {
             scoreboardHandler.shutdown();
             logger.success("✓ Tower scoreboards cleared");
         }
+        
+        if (mobSkillExecutor != null) {
+            mobSkillExecutor.shutdown();
+            logger.success("✓ Mob skills stopped");
+        }
 
         if (escrowManager != null) {
             escrowManager.saveEscrow();
@@ -633,6 +641,10 @@ public final class Quantum extends JavaPlugin {
     
     public MobSkillManager getMobSkillManager() {
         return mobSkillManager;
+    }
+    
+    public MobSkillExecutor getMobSkillExecutor() {
+        return mobSkillExecutor;
     }
 
     public DungeonArmor getDungeonArmor() {

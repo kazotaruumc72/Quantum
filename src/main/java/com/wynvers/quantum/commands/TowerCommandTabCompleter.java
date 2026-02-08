@@ -27,6 +27,14 @@ public class TowerCommandTabCompleter implements TabCompleter {
     private final TowerDoorManager doorManager;
     private final TowerNPCManager npcManager;
     
+    // Animations communes pour Model Engine
+    private static final List<String> COMMON_ANIMATIONS = Arrays.asList(
+        "idle", "walk", "run", "attack", "death",
+        "spawn", "hurt", "jump", "sit", "sleep",
+        "fly", "swim", "eat", "drink", "roar",
+        "cast", "defend", "victory", "taunt"
+    );
+    
     public TowerCommandTabCompleter(Quantum plugin, TowerManager towerManager, 
                                     TowerDoorManager doorManager, TowerNPCManager npcManager) {
         this.plugin = plugin;
@@ -44,6 +52,7 @@ public class TowerCommandTabCompleter implements TabCompleter {
             completions.add("tower");
             completions.add("door");
             completions.add("npc");
+            completions.add("info");
             completions.add("progress");
             completions.add("reset");
             completions.add("reload");
@@ -59,6 +68,8 @@ public class TowerCommandTabCompleter implements TabCompleter {
                 return handleDoorTab(sender, args);
             case "npc":
                 return handleNPCTab(sender, args);
+            case "info":
+                return handleInfoTab(sender, args);
             case "progress":
                 return handleProgressTab(sender, args);
             case "reset":
@@ -69,6 +80,85 @@ public class TowerCommandTabCompleter implements TabCompleter {
     }
     
     /**
+     * Tab completion pour /quantum info
+     */
+    private List<String> handleInfoTab(CommandSender sender, String[] args) {
+        List<String> completions = new ArrayList<>();
+        
+        // /quantum info <type>
+        if (args.length == 2) {
+            completions.add("animation");
+            completions.add("anim");
+            return filterCompletions(completions, args[1]);
+        }
+        
+        String infoType = args[1].toLowerCase();
+        
+        // /quantum info animation <model_id>
+        if ((infoType.equals("animation") || infoType.equals("anim")) && args.length == 3) {
+            // Suggérer les modèles depuis towers.yml
+            completions.addAll(getModelIdsFromConfig());
+            
+            // Ajouter quelques exemples génériques
+            if (completions.isEmpty()) {
+                completions.add("slime_basic");
+                completions.add("fire_knight_boss");
+                completions.add("zombie_custom");
+                completions.add("skeleton_warrior");
+            }
+            
+            return filterCompletions(completions, args[2]);
+        }
+        
+        // /quantum info animation <model_id> <animation_name>
+        if ((infoType.equals("animation") || infoType.equals("anim")) && args.length == 4) {
+            return filterCompletions(COMMON_ANIMATIONS, args[3]);
+        }
+        
+        return completions;
+    }
+    
+    /**
+     * Récupère tous les model IDs depuis towers.yml
+     */
+    private List<String> getModelIdsFromConfig() {
+        Set<String> modelIds = new HashSet<>();
+        
+        try {
+            File towersFile = new File(plugin.getDataFolder(), "towers.yml");
+            if (!towersFile.exists()) return new ArrayList<>(modelIds);
+            
+            FileConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
+            ConfigurationSection towersSection = config.getConfigurationSection("towers");
+            if (towersSection == null) return new ArrayList<>(modelIds);
+            
+            // Parcourir toutes les tours
+            for (String towerId : towersSection.getKeys(false)) {
+                ConfigurationSection floorsSection = towersSection.getConfigurationSection(towerId + ".floors");
+                if (floorsSection == null) continue;
+                
+                // Parcourir tous les étages
+                for (String floorKey : floorsSection.getKeys(false)) {
+                    ConfigurationSection spawnersSection = floorsSection.getConfigurationSection(floorKey + ".spawners");
+                    if (spawnersSection == null) continue;
+                    
+                    // Parcourir tous les spawners
+                    for (String spawnerId : spawnersSection.getKeys(false)) {
+                        String modelId = spawnersSection.getString(spawnerId + ".model");
+                        if (modelId != null && !modelId.isEmpty()) {
+                            modelIds.add(modelId);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            plugin.getQuantumLogger().error("Error loading model IDs: " + e.getMessage());
+        }
+        
+        return new ArrayList<>(modelIds);
+    }
+    
+    /**
      * Tab completion pour /quantum tower
      */
     private List<String> handleTowerTab(CommandSender sender, String[] args) {
@@ -76,6 +166,7 @@ public class TowerCommandTabCompleter implements TabCompleter {
         
         // /quantum tower <action>
         if (args.length == 2) {
+            completions.add("étage");
             completions.add("etage");
             completions.add("tp");
             completions.add("info");
@@ -85,7 +176,7 @@ public class TowerCommandTabCompleter implements TabCompleter {
         String action = args[1].toLowerCase();
         
         // /quantum tower etage <tower_id>
-        if (action.equals("etage") || action.equals("tp")) {
+        if (action.equals("étage") || action.equals("etage") || action.equals("tp")) {
             if (args.length == 3) {
                 // Liste des tower IDs
                 return filterCompletions(new ArrayList<>(towerManager.getTowerIds()), args[2]);
@@ -211,10 +302,14 @@ public class TowerCommandTabCompleter implements TabCompleter {
         
         // /quantum npc set goto <tower_id> <floor> [model_id]
         if (action.equals("set") && args.length == 6 && args[2].equals("goto")) {
-            // Suggestions de modèles (tu peux personnaliser cette liste)
+            // Suggérer les modèles depuis towers.yml
+            completions.addAll(getModelIdsFromConfig());
+            
+            // Ajouter quelques exemples de NPC
             completions.add("guardian_npc");
             completions.add("tower_keeper");
             completions.add("portal_npc");
+            
             return filterCompletions(completions, args[5]);
         }
         

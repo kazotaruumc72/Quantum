@@ -33,8 +33,8 @@ import com.wynvers.quantum.utils.Logger;
 import com.wynvers.quantum.worldguard.KillTracker;
 import com.wynvers.quantum.worldguard.ZoneManager;
 import org.bukkit.Bukkit;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;

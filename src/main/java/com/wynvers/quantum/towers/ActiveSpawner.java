@@ -8,6 +8,9 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -18,7 +21,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class ActiveSpawner {
+public class ActiveSpawner implements Listener {
     
     private final Quantum plugin;
     private final TowerSpawnerConfig config;
@@ -36,6 +39,9 @@ public class ActiveSpawner {
         this.player = player;
         this.towerId = towerId;
         this.towerManager = towerManager;
+        
+        // Enregistrer le listener pour détecter la mort des mobs
+        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     public void start() {
@@ -69,6 +75,9 @@ public class ActiveSpawner {
                     LivingEntity mob = spawnOneMobNearPlayer(player.getLocation());
                     if (mob != null) {
                         aliveMobs.add(mob.getUniqueId());
+                        
+                        // Démarrer les skills du mob
+                        startMobSkills(mob);
                     }
                 }
             }
@@ -80,6 +89,14 @@ public class ActiveSpawner {
             task.cancel();
         }
         task = null;
+        
+        // Arrêter tous les skills des mobs vivants
+        MobSkillExecutor executor = plugin.getMobSkillExecutor();
+        if (executor != null) {
+            aliveMobs.forEach(executor::stopSkills);
+        }
+        
+        aliveMobs.clear();
     }
 
     private int getRunsForPlayer() {
@@ -109,5 +126,37 @@ public class ActiveSpawner {
         pdc.set(new NamespacedKey(plugin, "tower_id"), PersistentDataType.STRING, towerId);
 
         return entity;
+    }
+    
+    /**
+     * Démarre les skills automatiques d'un mob selon sa config
+     */
+    private void startMobSkills(LivingEntity mob) {
+        MobSkillExecutor executor = plugin.getMobSkillExecutor();
+        if (executor == null) return;
+        
+        // Récupérer les skills depuis la config
+        if (config.getSkills() != null && !config.getSkills().isEmpty()) {
+            executor.startSkills(mob, config.getSkills());
+        }
+    }
+    
+    /**
+     * Écoute la mort des mobs pour arrêter leurs skills
+     */
+    @EventHandler
+    public void onMobDeath(EntityDeathEvent event) {
+        UUID mobUuid = event.getEntity().getUniqueId();
+        
+        // Vérifier si c'est un de nos mobs
+        if (!aliveMobs.contains(mobUuid)) return;
+        
+        // Arrêter les skills de ce mob
+        MobSkillExecutor executor = plugin.getMobSkillExecutor();
+        if (executor != null) {
+            executor.stopSkills(mobUuid);
+        }
+        
+        aliveMobs.remove(mobUuid);
     }
 }

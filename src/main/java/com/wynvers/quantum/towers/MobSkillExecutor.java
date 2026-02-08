@@ -2,6 +2,7 @@ package com.wynvers.quantum.towers;
 
 import com.wynvers.quantum.Quantum;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -14,6 +15,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 /**
  * Exécute automatiquement les skills des mobs spawned dans les tours
@@ -191,7 +193,7 @@ public class MobSkillExecutor {
             ? ((Number) skillData.get("duration")).intValue() 
             : 5; // secondes
         
-        getNearbyPlayers(mob.getLocation(), 10).forEach(player -> {
+        getValidTargetPlayers(mob.getLocation(), 10).forEach(player -> {
             player.setFireTicks(duration * 20);
         });
     }
@@ -204,7 +206,7 @@ public class MobSkillExecutor {
             ? ((Number) skillData.get("duration")).intValue() 
             : 4; // secondes
         
-        getNearbyPlayers(mob.getLocation(), 10).forEach(player -> {
+        getValidTargetPlayers(mob.getLocation(), 10).forEach(player -> {
             createFireRing(player.getLocation(), duration);
             player.setFireTicks(duration * 20);
         });
@@ -218,7 +220,7 @@ public class MobSkillExecutor {
             ? ((Number) skillData.get("duration")).intValue() 
             : 5; // secondes
         
-        getNearbyPlayers(mob.getLocation(), 10).forEach(player -> {
+        getValidTargetPlayers(mob.getLocation(), 10).forEach(player -> {
             player.addPotionEffect(new PotionEffect(
                 PotionEffectType.SLOWNESS, 
                 duration * 20, 
@@ -240,7 +242,7 @@ public class MobSkillExecutor {
     private void executeIceberg(LivingEntity mob, Map<String, Object> skillData) {
         String schematic = (String) skillData.get("schematic");
         
-        getNearbyPlayers(mob.getLocation(), 15).forEach(player -> {
+        getValidTargetPlayers(mob.getLocation(), 15).forEach(player -> {
             Location center = player.getLocation();
             
             // Temp: Créer un simple pilier de glace
@@ -261,7 +263,7 @@ public class MobSkillExecutor {
      * THUNDER - Foudre sur les joueurs proches
      */
     private void executeThunder(LivingEntity mob, Map<String, Object> skillData) {
-        getNearbyPlayers(mob.getLocation(), 15).forEach(player -> {
+        getValidTargetPlayers(mob.getLocation(), 15).forEach(player -> {
             player.getWorld().strikeLightningEffect(player.getLocation());
             player.damage(4.0); // 2 cœurs de dégâts
         });
@@ -275,7 +277,7 @@ public class MobSkillExecutor {
             ? ((Number) skillData.get("duration")).intValue() 
             : 5; // secondes
         
-        getNearbyPlayers(mob.getLocation(), 10).forEach(player -> {
+        getValidTargetPlayers(mob.getLocation(), 10).forEach(player -> {
             player.addPotionEffect(new PotionEffect(
                 PotionEffectType.POISON, 
                 duration * 20, 
@@ -292,7 +294,7 @@ public class MobSkillExecutor {
             ? ((Number) skillData.get("duration")).intValue() 
             : 4; // secondes
         
-        getNearbyPlayers(mob.getLocation(), 10).forEach(player -> {
+        getValidTargetPlayers(mob.getLocation(), 10).forEach(player -> {
             player.addPotionEffect(new PotionEffect(
                 PotionEffectType.WITHER, 
                 duration * 20, 
@@ -304,20 +306,37 @@ public class MobSkillExecutor {
     // ==================== HELPERS ====================
     
     /**
-     * Récupère tous les joueurs dans un rayon
+     * Récupère tous les joueurs dans un rayon (ancien - déprécié)
+     * @deprecated Utiliser getValidTargetPlayers() à la place
      */
+    @Deprecated
     private List<Player> getNearbyPlayers(Location center, double radius) {
-        List<Player> players = new ArrayList<>();
+        return getValidTargetPlayers(center, radius);
+    }
+    
+    /**
+     * Récupère tous les joueurs VALIDES dans un rayon
+     * Exclut les joueurs en créatif et spectateur
+     * 
+     * @param center Centre de la zone
+     * @param radius Rayon en blocs
+     * @return Liste des joueurs valides (survie/aventure)
+     */
+    private List<Player> getValidTargetPlayers(Location center, double radius) {
+        if (center.getWorld() == null) {
+            return new ArrayList<>();
+        }
         
-        if (center.getWorld() == null) return players;
-        
-        center.getWorld().getNearbyEntities(center, radius, radius, radius)
+        return center.getWorld().getNearbyEntities(center, radius, radius, radius)
             .stream()
             .filter(e -> e instanceof Player)
             .map(e -> (Player) e)
-            .forEach(players::add);
-        
-        return players;
+            .filter(player -> {
+                GameMode mode = player.getGameMode();
+                // Exclure créatif et spectateur
+                return mode != GameMode.CREATIVE && mode != GameMode.SPECTATOR;
+            })
+            .collect(Collectors.toList());
     }
     
     /**

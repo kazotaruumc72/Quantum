@@ -1,5 +1,7 @@
 package com.wynvers.quantum.towers;
 
+import com.wynvers.quantum.mobs.MobSkillConfig;
+
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 

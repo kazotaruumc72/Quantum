@@ -1,6 +1,7 @@
 package com.wynvers.quantum.healthbar;
 
 import com.wynvers.quantum.Quantum;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.LivingEntity;
@@ -24,9 +25,14 @@ public class HealthBarManager {
     private File configFile;
     private FileConfiguration config;
     
+    // Configuration des mobs
+    private File mobConfigFile;
+    private FileConfiguration mobConfig;
+    
     public HealthBarManager(Quantum plugin) {
         this.plugin = plugin;
         loadConfig();
+        loadMobConfig();
     }
     
     /**
@@ -53,6 +59,27 @@ public class HealthBarManager {
                 playerModes.put(uuid, HealthBarMode.fromString(modeStr));
             }
         }
+    }
+    
+    /**
+     * Charge la configuration des mobs
+     */
+    private void loadMobConfig() {
+        mobConfigFile = new File(plugin.getDataFolder(), "mob_healthbar.yml");
+        
+        if (!mobConfigFile.exists()) {
+            plugin.saveResource("mob_healthbar.yml", false);
+        }
+        
+        mobConfig = YamlConfiguration.loadConfiguration(mobConfigFile);
+    }
+    
+    /**
+     * Recharge les configurations
+     */
+    public void reload() {
+        loadConfig();
+        loadMobConfig();
     }
     
     /**
@@ -83,6 +110,58 @@ public class HealthBarManager {
     }
     
     /**
+     * Vérifie si le système est activé pour un type de mob
+     */
+    private boolean isMobEnabled(LivingEntity entity) {
+        // Vérifier la config globale
+        if (!mobConfig.getBoolean("global.enabled", true)) {
+            return false;
+        }
+        
+        // Vérifier si le mob a un nom custom dans la config
+        String customName = entity.getCustomName();
+        if (customName != null) {
+            customName = customName.replace("§", "&"); // Normaliser les codes couleur
+            if (customName.contains("\n")) {
+                customName = customName.split("\n")[0]; // Extraire juste le nom
+            }
+            customName = customName.replaceAll("&[0-9a-fk-or]", ""); // Retirer les codes couleur
+            
+            if (mobConfig.contains("custom_mobs.\"" + customName + "\"")) {
+                return mobConfig.getBoolean("custom_mobs.\"" + customName + "\".enabled", true);
+            }
+        }
+        
+        // Vérifier par type de mob
+        String mobType = entity.getType().name();
+        return mobConfig.getBoolean(mobType + ".enabled", true);
+    }
+    
+    /**
+     * Récupère la configuration d'un mob
+     */
+    private ConfigurationSection getMobConfig(LivingEntity entity) {
+        // Chercher d'abord par nom custom
+        String customName = entity.getCustomName();
+        if (customName != null) {
+            customName = customName.replace("§", "&");
+            if (customName.contains("\n")) {
+                customName = customName.split("\n")[0];
+            }
+            customName = customName.replaceAll("&[0-9a-fk-or]", "");
+            
+            ConfigurationSection section = mobConfig.getConfigurationSection("custom_mobs.\"" + customName + "\"");
+            if (section != null) {
+                return section;
+            }
+        }
+        
+        // Sinon par type
+        String mobType = entity.getType().name();
+        return mobConfig.getConfigurationSection(mobType);
+    }
+    
+    /**
      * Génère la barre de vie formatée pour un mob
      */
     public String generateHealthBar(LivingEntity entity, HealthBarMode mode) {
@@ -90,45 +169,102 @@ public class HealthBarManager {
         double maxHealth = entity.getMaxHealth();
         double percentage = (health / maxHealth) * 100.0;
         
-        if (mode == HealthBarMode.HEARTS) {
-            return generateHeartsDisplay(health, maxHealth);
-        } else {
-            return generatePercentageDisplay(health, maxHealth, percentage);
+        ConfigurationSection mobSection = getMobConfig(entity);
+        
+        // Récupérer le format depuis la config si disponible
+        String format = "CLASSIC";
+        if (mobSection != null && mobSection.contains("format")) {
+            format = mobSection.getString("format", "CLASSIC");
+        }
+        
+        // Override avec le mode du joueur si pas de format spécifique
+        if (format.equals("CLASSIC") && mode == HealthBarMode.HEARTS) {
+            format = "HEARTS";
+        }
+        
+        // Générer selon le format
+        switch (format.toUpperCase()) {
+            case "HEARTS":
+                return generateHeartsDisplay(entity, health, maxHealth, mobSection);
+            case "NUMERIC":
+                return generateNumericDisplay(entity, health, maxHealth, mobSection);
+            case "BOSS_BAR":
+            case "CLASSIC":
+            default:
+                return generateClassicDisplay(entity, health, maxHealth, percentage, mobSection);
         }
     }
     
     /**
-     * Affichage en pourcentage avec barre de couleur
+     * Affichage classique avec barre de couleur
      */
-    private String generatePercentageDisplay(double health, double maxHealth, double percentage) {
-        String color = getHealthColor(percentage);
+    private String generateClassicDisplay(LivingEntity entity, double health, double maxHealth, 
+                                          double percentage, ConfigurationSection mobSection) {
+        String color = getHealthColor(entity, percentage, mobSection);
         
-        // Barre graphique
+        // Longueur de la barre depuis la config
         int barLength = 20;
+        if (mobSection != null && mobSection.contains("bar_length")) {
+            barLength = mobSection.getInt("bar_length", 20);
+        }
+        
         int filledBars = (int) ((health / maxHealth) * barLength);
         
-        StringBuilder bar = new StringBuilder("§8[");
+        // Symboles depuis la config
+        String filledSymbol = mobConfig.getString("symbols.bar.filled", "|");
+        String emptySymbol = mobConfig.getString("symbols.bar.empty", "|");
+        String leftBracket = mobConfig.getString("symbols.bar.left_bracket", "[");
+        String rightBracket = mobConfig.getString("symbols.bar.right_bracket", "]");
+        
+        StringBuilder bar = new StringBuilder("§8" + leftBracket);
         for (int i = 0; i < barLength; i++) {
             if (i < filledBars) {
-                bar.append(color).append("|");
+                bar.append(color).append(filledSymbol);
             } else {
-                bar.append("§7|");
+                bar.append("§7").append(emptySymbol);
             }
         }
-        bar.append("§8]");
+        bar.append("§8" + rightBracket);
         
-        // Texte
-        String healthText = color + percentFormat.format(percentage) + "%";
+        // Afficher pourcentage si activé
+        boolean showPercentage = true;
+        if (mobSection != null && mobSection.contains("show_percentage")) {
+            showPercentage = mobSection.getBoolean("show_percentage", true);
+        }
         
-        return bar.toString() + " " + healthText;
+        if (showPercentage) {
+            bar.append(" ").append(color).append(percentFormat.format(percentage)).append("%");
+        }
+        
+        // Afficher numérique si activé
+        boolean showNumeric = false;
+        if (mobSection != null && mobSection.contains("show_numeric")) {
+            showNumeric = mobSection.getBoolean("show_numeric", false);
+        }
+        
+        if (showNumeric) {
+            bar.append(" ").append(color)
+               .append(percentFormat.format(health))
+               .append("§7/")
+               .append(percentFormat.format(maxHealth))
+               .append(" HP");
+        }
+        
+        return bar.toString();
     }
     
     /**
      * Affichage en cœurs
      */
-    private String generateHeartsDisplay(double health, double maxHealth) {
+    private String generateHeartsDisplay(LivingEntity entity, double health, double maxHealth,
+                                        ConfigurationSection mobSection) {
         double percentage = (health / maxHealth) * 100.0;
-        String color = getHealthColor(percentage);
+        String color = getHealthColor(entity, percentage, mobSection);
+        
+        // Symboles depuis la config
+        String fullHeart = mobConfig.getString("symbols.hearts.full", "❤");
+        String halfHeart = mobConfig.getString("symbols.hearts.half", "♡");
+        String emptyHeart = mobConfig.getString("symbols.hearts.empty", "♡");
         
         // Convertir la vie en cœurs (1 cœur = 2 HP)
         double hearts = health / 2.0;
@@ -141,12 +277,12 @@ public class HealthBarManager {
         
         // Afficher les cœurs pleins
         for (int i = 0; i < fullHearts; i++) {
-            display.append("❤");
+            display.append(fullHeart);
         }
         
         // Afficher le demi-cœur si nécessaire
         if (hasHalfHeart) {
-            display.append("§c♡"); // Demi-cœur
+            display.append("§c").append(halfHeart);
         }
         
         // Afficher les cœurs vides restants (max 10 cœurs affichés)
@@ -154,7 +290,7 @@ public class HealthBarManager {
         int maxDisplayHearts = Math.min((int) maxHearts, 10);
         
         for (int i = displayedHearts; i < maxDisplayHearts; i++) {
-            display.append("§7♡");
+            display.append("§7").append(emptyHeart);
         }
         
         // Ajouter le total si > 10 cœurs
@@ -171,9 +307,35 @@ public class HealthBarManager {
     }
     
     /**
-     * Retourne la couleur selon le pourcentage de vie
+     * Affichage numérique uniquement
      */
-    private String getHealthColor(double percentage) {
+    private String generateNumericDisplay(LivingEntity entity, double health, double maxHealth,
+                                         ConfigurationSection mobSection) {
+        double percentage = (health / maxHealth) * 100.0;
+        String color = getHealthColor(entity, percentage, mobSection);
+        
+        return color + percentFormat.format(health) + "§7/" + 
+               percentFormat.format(maxHealth) + " HP";
+    }
+    
+    /**
+     * Retourne la couleur selon le pourcentage de vie et la config du mob
+     */
+    private String getHealthColor(LivingEntity entity, double percentage, ConfigurationSection mobSection) {
+        // Utiliser les seuils de couleur de la config si disponibles
+        if (mobSection != null && mobSection.contains("color_thresholds")) {
+            ConfigurationSection thresholds = mobSection.getConfigurationSection("color_thresholds");
+            if (thresholds != null) {
+                // Parcourir les seuils dans l'ordre décroissant
+                for (int threshold = 100; threshold >= 0; threshold -= 5) {
+                    if (percentage >= threshold && thresholds.contains(String.valueOf(threshold))) {
+                        return thresholds.getString(String.valueOf(threshold)).replace("&", "§");
+                    }
+                }
+            }
+        }
+        
+        // Couleurs par défaut
         if (percentage >= 75) {
             return "§a"; // Vert
         } else if (percentage >= 50) {
@@ -186,31 +348,53 @@ public class HealthBarManager {
     }
     
     /**
+     * Récupère le nom d'affichage d'un mob depuis la config
+     */
+    private String getDisplayName(LivingEntity entity, ConfigurationSection mobSection) {
+        if (mobSection != null && mobSection.contains("display_name")) {
+            return mobSection.getString("display_name").replace("&", "§");
+        }
+        
+        // Nom par défaut
+        String mobType = entity.getType().name().replace("_", " ");
+        return "§f" + mobType.substring(0, 1).toUpperCase() + mobType.substring(1).toLowerCase();
+    }
+    
+    /**
      * Met à jour le nom custom d'un mob avec sa barre de vie
      */
     public void updateMobHealthDisplay(LivingEntity entity, Player viewer) {
         if (entity instanceof Player) return; // Ne pas afficher pour les joueurs
         
+        // Vérifier si activé pour ce mob
+        if (!isMobEnabled(entity)) return;
+        
+        // Vérifier hide_at_full_health
+        if (mobConfig.getBoolean("global.hide_at_full_health", false)) {
+            if (entity.getHealth() >= entity.getMaxHealth()) {
+                return;
+            }
+        }
+        
+        ConfigurationSection mobSection = getMobConfig(entity);
         HealthBarMode mode = getMode(viewer);
         String healthBar = generateHealthBar(entity, mode);
         
-        // Récupérer le nom d'origine du mob (s'il en a un)
+        // Récupérer le nom d'origine du mob
         String originalName = entity.getCustomName();
         if (originalName != null && originalName.contains("\n")) {
-            // Si le nom contient déjà une barre de vie, on extrait juste le nom
             originalName = originalName.split("\n")[0];
         }
         
-        // Construire le nouveau nom avec la barre de vie
-        String newName;
-        if (originalName != null && !originalName.isEmpty()) {
-            newName = originalName + "\n" + healthBar;
-        } else {
-            // Si pas de nom custom, utiliser le type du mob
-            String mobType = entity.getType().name().replace("_", " ");
-            mobType = mobType.substring(0, 1).toUpperCase() + mobType.substring(1).toLowerCase();
-            newName = "§f" + mobType + "\n" + healthBar;
+        // Si pas de nom custom et qu'on ne doit pas override
+        if (originalName == null || originalName.isEmpty()) {
+            originalName = getDisplayName(entity, mobSection);
+        } else if (!mobConfig.getBoolean("global.override_custom_names", false)) {
+            // Garder le nom custom d'origine
         }
+        
+        // Construire le nouveau nom avec la barre de vie
+        String newName = originalName + "\n" + healthBar;
         
         entity.setCustomName(newName);
         entity.setCustomNameVisible(true);

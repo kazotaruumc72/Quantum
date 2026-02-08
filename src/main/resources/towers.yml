@@ -1,137 +1,493 @@
 # =======================================
 # QUANTUM - Configuration des Tours
 # =======================================
+# Documentation complète du système:
+# - Portes automatiques (disparition 30s)
+# - NPC avec Model Engine
+# - Loots Nexo/MythicMobs avec %chance
+# - Commandes avec %chance (style DeluxeMenus)
+# - Skills des mobs (15 types)
+# - Animations Model Engine (spawn, idle, walk, attack, death)
+# - Scaling automatique par nombre de runs
 
 towers:
-  tower_1:
-    name: "Tour des Débutants"
-    worldguard_region: "tour_1"    # Région WG principale de la tour
+  tower_water:
+    # Informations générales
+    name: "§b§lTour de l'Eau"
+    worldguard_region: "tower_water_global"
     min_level: 1
     max_level: 26
+    
+    # Loots par mob (global à tous les étages de cette tour)
+    mob_loots:
+      slime_basic:
+        nexo:
+          - id: "slime_fragment"
+            amount: 1
+            chance: 50.0
+            message: "&a+1 Fragment de Slime"
+          - id: "water_essence"
+            amount: 1
+            chance: 25.0
+            message: "&b+1 Essence d'Eau"
+        mythic:
+          - id: "CommonDungeon"
+            amount: 1
+            chance: 100.0
+        commands:
+          # Format simple (100% chance)
+          - "eco give %player% 10"
+          
+          # Format avec chance
+          - cmd: "xp give %player% 5"
+            chance: 100.0
+          - cmd: "give %player% gold_nugget 1"
+            chance: 30.0
 
+      water_guardian:
+        nexo:
+          - id: "guardian_scale"
+            amount: 1
+            chance: 40.0
+            message: "&9+1 Écaille de Gardien"
+        commands:
+          - "eco give %player% 25"
+          - cmd: "give %player% prismarine_shard 2"
+            chance: 50.0
+
+    # Configuration des étages
     floors:
+      # ==================== ÉTAGE 1 ====================
       1:
-        worldguard_region: "tour_1_floor_1"
+        worldguard_region: "donjon_eau_1"
+        
+        # Point de spawn (utilisé par /quantum tower etage et NPC)
+        spawn:
+          world: "world"
+          x: 100.5
+          y: 65.0
+          z: 200.5
+          yaw: 90.0
+          pitch: 0.0
 
+        # Spawners de mobs
         spawners:
           slime_pack_1:
-            type: ZOMBIE              # type vanilla
-            model: "slime_basic"      # id du modèle (ModelEngine / autre)
-            base_health: 40.0         # HP de base d’un mob
-            damage: 4                 # dégâts en demi-cœurs (4 = 2 cœurs)
-            amount: 3                 # mobs par vague
-            interval: 60              # toutes les 60 secondes
-            max_alive: 10             # max de mobs vivants pour ce spawner
+            type: ZOMBIE
+            model: "slime_basic"        # Model Engine ID
+            base_health: 40.0
+            damage: 4
+            amount: 3                    # Nombre initial
+            interval: 60                 # Secondes entre spawns
+            max_alive: 10                # Maximum de mobs vivants
+
+            # Scaling par nombre de runs
+            scaling:
+              health_per_run_percent: 5  # +5% HP par run
+              amount_per_run: 1          # +1 mob tous les X runs
+              max_extra_amount: 5        # Maximum +5 mobs
+
+            # Skills du mob
+            skills:
+              - id: iceberg
+                interval: 25
+                duration: 8
+                radius: 2
+                height: 4
+              - id: slowness
+                interval: 30
+                duration: 5
+                amplifier: 1
+
+            # Animations Model Engine
+            animations:
+              spawn: "slime_spawn"
+              idle: "slime_idle"
+              walk: "slime_walk"
+              attack: "slime_attack"
+              death: "slime_death"
+
+          slime_pack_2:
+            type: ZOMBIE
+            model: "slime_basic"
+            base_health: 40.0
+            damage: 4
+            amount: 2
+            interval: 45
+            max_alive: 8
 
             scaling:
-              health_per_run_percent: 5   # +5% HP par run
-              amount_per_run: 1          # +1 mob par run
-              max_extra_amount: 5        # max +5 mobs
+              health_per_run_percent: 5
+              amount_per_run: 1
+              max_extra_amount: 3
 
             skills:
-              - id: summon               # fait apparaître des congénères
-                interval: 30
-                amount: 2
-              - id: healing              # se soigne régulièrement
-                interval: 30
-                amount: 4                # en demi-cœurs (4 = 2 cœurs)
+              - id: slowness
+                interval: 20
+                duration: 4
+                amplifier: 2
 
             animations:
               spawn: "slime_spawn"
               idle: "slime_idle"
+              walk: "slime_walk"
               attack: "slime_attack"
               death: "slime_death"
 
+        # Récompenses de fin d'étage (automatiques quand tous les mobs sont tués)
+        rewards:
+          nexo:
+            - id: "water_key"
+              amount: 1
+              chance: 100.0
+              message: "&6Vous avez obtenu: Clé de l'Eau!"
+            - id: "crystal_shard"
+              amount: 2
+              chance: 75.0
+              message: "&d+2 Éclats de Cristal"
+            - id: "rare_gem"
+              amount: 1
+              chance: 15.0
+              message: "&5&l✦ GEMME RARE OBTENUE!"
+          
+          mythic:
+            - id: "UncommonDungeon"
+              amount: 1
+              chance: 100.0
+            - id: "RareWeapon"
+              amount: 1
+              chance: 10.0
+          
+          commands:
+            # Récompenses garanties
+            - "eco give %player% 100"
+            - "xp give %player% 50"
+            - "title %player% title \"&aÉtage 1 Terminé!\""
+            
+            # Récompenses avec chance
+            - cmd: "give %player% diamond 1"
+              chance: 50.0
+            - cmd: "give %player% emerald 2"
+              chance: 25.0
+            - cmd: "crates givekey %player% common 1"
+              chance: 30.0
+            - cmd: "broadcast &6%player% a trouvé un trésor rare!"
+              chance: 5.0
+          
+          message: "&6✓ Récompenses de l'étage 1 reçues!"
+
+      # ==================== ÉTAGE 2 ====================
       2:
-        worldguard_region: "tour_1_floor_2"
+        worldguard_region: "donjon_eau_2"
+        
+        spawn:
+          world: "world"
+          x: 120.5
+          y: 70.0
+          z: 250.5
+          yaw: 180.0
+          pitch: 0.0
 
         spawners:
-          fire_knight:
+          water_guardian_pack:
             type: ZOMBIE
-            model: "fire_knight"
-            base_health: 60.0
-            damage: 6                 # 6 demi-cœurs = 3 cœurs
-            amount: 2
-            interval: 45
-            max_alive: 6
+            model: "water_guardian"
+            base_health: 80.0
+            damage: 6
+            amount: 4
+            interval: 50
+            max_alive: 12
 
             scaling:
               health_per_run_percent: 7
-              amount_per_run: 0
-              max_extra_amount: 0
+              amount_per_run: 1
+              max_extra_amount: 6
 
             skills:
-              - id: fire               # met le joueur en feu
-                interval: 30
-                duration: 5            # secondes
-              - id: fireprison         # flammes autour du joueur
-                interval: 30
-                duration: 4            # secondes
+              - id: iceberg
+                interval: 20
+                duration: 10
+                radius: 3
+                height: 5
+              - id: slowness
+                interval: 25
+                duration: 6
+                amplifier: 2
+              - id: pull
+                interval: 35
+                strength: 2
 
             animations:
-              spawn: "knight_spawn"
-              idle: "knight_idle"
-              attack: "knight_attack"
-              death: "knight_death"
+              spawn: "guardian_rise"
+              idle: "guardian_idle"
+              walk: "guardian_walk"
+              attack: "guardian_thrust"
+              death: "guardian_dissolve"
 
-          ice_mage:
-            type: SKELETON
-            model: "ice_mage"
-            base_health: 50.0
-            damage: 5                 # 2.5 cœurs
-            amount: 2
-            interval: 45
-            max_alive: 6
+        rewards:
+          nexo:
+            - id: "water_key"
+              amount: 1
+              chance: 100.0
+            - id: "aqua_crystal"
+              amount: 1
+              chance: 50.0
+              message: "&b+1 Cristal Aquatique"
+          
+          mythic:
+            - id: "UncommonDungeon"
+              amount: 1
+              chance: 100.0
+          
+          commands:
+            - "eco give %player% 200"
+            - "xp give %player% 75"
+            - cmd: "give %player% diamond 2"
+              chance: 60.0
+            - cmd: "give %player% trident 1"
+              chance: 20.0
+          
+          message: "&6✓ Étage 2 complété!"
 
-            scaling:
-              health_per_run_percent: 7
-              amount_per_run: 0
-              max_extra_amount: 0
-
-            skills:
-              - id: iceberg           # schematic au centre du joueur
-                interval: 30
-                schematic: "ice_spike_1"
-              - id: ice               # effet de gel (snow_powder)
-                interval: 30
-                duration: 5
-              - id: thunder           # foudre sur le joueur
-                interval: 30
-
-            animations:
-              spawn: "mage_spawn"
-              idle: "mage_idle"
-              attack: "mage_cast"
-              death: "mage_death"
-
+      # ==================== ÉTAGE 3 - MINI BOSS ====================
       3:
-        worldguard_region: "tour_1_floor_3"
+        worldguard_region: "donjon_eau_3"
+        
+        spawn:
+          world: "world"
+          x: 140.5
+          y: 75.0
+          z: 300.5
+          yaw: 270.0
+          pitch: 0.0
 
         spawners:
-          toxic_spirit:
-            type: HUSK
-            model: "toxic_spirit"
-            base_health: 70.0
-            damage: 6
-            amount: 3
-            interval: 50
-            max_alive: 8
+          water_knight_boss:
+            type: ZOMBIE
+            model: "water_knight_boss"
+            base_health: 200.0
+            damage: 10
+            amount: 1
+            interval: 120
+            max_alive: 1
 
             scaling:
-              health_per_run_percent: 8
+              health_per_run_percent: 10
+              amount_per_run: 0        # Pas de scaling de quantité pour les boss
+              max_extra_amount: 0
+
+            skills:
+              - id: iceberg
+                interval: 15
+                duration: 8
+                radius: 4
+                height: 6
+              - id: fireprison
+                interval: 25
+                duration: 5
+              - id: explosion
+                interval: 30
+                damage: 15
+                radius: 3
+              - id: pull
+                interval: 20
+                strength: 3
+              - id: weakness
+                interval: 35
+                duration: 10
+                amplifier: 2
+
+            animations:
+              spawn: "boss_epic_entrance"
+              idle: "boss_breathing"
+              walk: "boss_heavy_walk"
+              attack: "boss_power_slash"
+              death: "boss_explosion_death"
+
+          # Adds du boss
+          water_minion:
+            type: ZOMBIE
+            model: "slime_basic"
+            base_health: 30.0
+            damage: 3
+            amount: 2
+            interval: 40
+            max_alive: 6
+
+            scaling:
+              health_per_run_percent: 5
               amount_per_run: 1
               max_extra_amount: 4
 
             skills:
-              - id: poisonous         # poison sur le joueur
-                interval: 30
-                duration: 5
-              - id: wither            # wither sur le joueur
-                interval: 30
+              - id: slowness
+                interval: 20
                 duration: 4
+                amplifier: 1
 
             animations:
-              spawn: "toxic_spawn"
-              idle: "toxic_idle"
-              attack: "toxic_attack"
-              death: "toxic_death"
+              idle: "slime_idle"
+              walk: "slime_walk"
+              attack: "slime_attack"
+              death: "slime_death"
+
+        rewards:
+          nexo:
+            - id: "boss_chest"
+              amount: 1
+              chance: 100.0
+              message: "&6&l✦ COFFRE DE BOSS OBTENU!"
+            - id: "legendary_fragment"
+              amount: 1
+              chance: 30.0
+              message: "&5&l★ Fragment Légendaire!"
+          
+          mythic:
+            - id: "EpicBossDrop"
+              amount: 1
+              chance: 50.0
+            - id: "LegendaryWeapon"
+              amount: 1
+              chance: 5.0
+          
+          commands:
+            # Récompenses garanties boss
+            - "eco give %player% 1000"
+            - "xp give %player% 200"
+            - "broadcast &6&l[BOSS] &f%player% &7a vaincu le Chevalier de l'Eau!"
+            - "title %player% title \"&b&lBOSS VAINCU!\""
+            - "title %player% subtitle \"&7Chevalier de l'Eau\""
+            
+            # Récompenses rares
+            - cmd: "give %player% diamond 5"
+              chance: 75.0
+            - cmd: "give %player% netherite_ingot 1"
+              chance: 25.0
+            - cmd: "crates givekey %player% legendary 1"
+              chance: 10.0
+            - cmd: "give %player% elytra 1"
+              chance: 5.0
+            - cmd: "give %player% nether_star 1"
+              chance: 3.0
+          
+          message: "&6&l✦ Félicitations! Boss de l'étage 3 vaincu!"
+
+  # ==================== TOUR DU FEU ====================
+  tower_fire:
+    name: "§c§lTour du Feu"
+    worldguard_region: "tower_fire_global"
+    min_level: 20
+    max_level: 50
+    
+    mob_loots:
+      fire_imp:
+        nexo:
+          - id: "fire_essence"
+            amount: 1
+            chance: 50.0
+            message: "&c+1 Essence de Feu"
+        commands:
+          - "eco give %player% 20"
+          - cmd: "give %player% blaze_powder 1"
+            chance: 40.0
+
+    floors:
+      1:
+        worldguard_region: "donjon_feu_1"
+        
+        spawn:
+          world: "world_nether"
+          x: 200.5
+          y: 80.0
+          z: 400.5
+          yaw: 0.0
+          pitch: 0.0
+
+        spawners:
+          fire_imp_pack:
+            type: BLAZE
+            model: "fire_imp"
+            base_health: 60.0
+            damage: 8
+            amount: 3
+            interval: 55
+            max_alive: 10
+
+            scaling:
+              health_per_run_percent: 6
+              amount_per_run: 1
+              max_extra_amount: 5
+
+            skills:
+              - id: fire
+                interval: 20
+                duration: 6
+                radius: 3
+              - id: firestorm
+                interval: 35
+                duration: 8
+                radius: 4
+              - id: blindness
+                interval: 40
+                duration: 5
+
+            animations:
+              spawn: "imp_summon"
+              idle: "imp_float"
+              walk: "imp_fly"
+              attack: "imp_fireball"
+              death: "imp_explode"
+
+        rewards:
+          nexo:
+            - id: "fire_key"
+              amount: 1
+              chance: 100.0
+          mythic:
+            - id: "UncommonDungeon"
+              amount: 1
+              chance: 100.0
+          commands:
+            - "eco give %player% 150"
+            - "xp give %player% 80"
+            - cmd: "give %player% blaze_rod 3"
+              chance: 60.0
+          message: "&c✓ Étage de feu complété!"
+
+# =======================================
+# NOTES DE CONFIGURATION
+# =======================================
+
+# ANIMATIONS:
+# - spawn: Joué une fois au spawn
+# - idle: Boucle quand immobile
+# - walk: Joué quand le mob bouge
+# - attack: Joué lors d'une attaque
+# - death: Joué à la mort
+
+# SKILLS DISPONIBLES:
+# - iceberg: Colonnes de glace
+# - fire: Zone de feu
+# - fireprison: Prison de feu
+# - firestorm: Pluie de boules de feu
+# - slowness: Effet de lenteur
+# - weakness: Effet de faiblesse
+# - poison: Effet de poison
+# - wither: Effet wither
+# - blindness: Cécité
+# - darkness: Obscurité
+# - explosion: Explosion
+# - lightning: Foudre
+# - teleport: Téléportation aléatoire
+# - knockback: Repousse
+# - pull: Attire vers le mob
+
+# COMMANDES:
+# Format simple: "commande" (100% chance)
+# Format avec chance: {cmd: "commande", chance: 50.0}
+
+# PLACEHOLDERS DISPONIBLES:
+# %player% - Nom du joueur
+# %uuid% - UUID du joueur
+# %world% - Nom du monde
+# %x%, %y%, %z% - Coordonnées

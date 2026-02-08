@@ -193,11 +193,6 @@ public final class Quantum extends JavaPlugin {
         // Commandes
         registerCommands();
 
-        PluginCommand quantumCmd = getCommand("quantum");
-        QuantumTowerCommand executor = new QuantumTowerCommand(this, towerManager, doorManager, npcManager, lootManager);
-        quantumCmd.setExecutor(executor);
-        quantumCmd.setTabCompleter(new TowerCommandTabCompleter(this, towerManager, doorManager, npcManager));
-
         logger.success("✓ Quantum enabled successfully!");
         logger.info("Dynamic GUI system loaded!");
         logger.info("Storage system ready!");
@@ -415,18 +410,34 @@ public final class Quantum extends JavaPlugin {
     private void registerCommands() {
         logger.info("Registering commands...");
 
-        getCommand("quantum").setExecutor(new QuantumCommand(this));
+        // /quantum command with QuantumTowerCommand executor and QuantumTabCompleter
+        PluginCommand quantumCmd = getCommand("quantum");
+        QuantumTowerCommand quantumExecutor = new QuantumTowerCommand(this, towerManager, doorManager, npcManager, lootManager);
+        quantumCmd.setExecutor(quantumExecutor);
+        quantumCmd.setTabCompleter(new QuantumTabCompleter(this));
+        logger.success("✓ Quantum Command + TabCompleter");
+
         getCommand("storage").setExecutor(new StorageCommand(this));
+        getCommand("storage").setTabCompleter(new StorageTabCompleter());
+        
         getCommand("menu").setExecutor(new MenuCommand(this));
+        getCommand("menu").setTabCompleter(new MenuTabCompleter(this));
+        
         getCommand("qstorage").setExecutor(new QuantumStorageCommand(this));
+        getCommand("qstorage").setTabCompleter(new QuantumStorageTabCompleter(this));
 
         getCommand("qscoreboard").setExecutor(new QScoreboardCommand(this));
         getCommand("qscoreboard").setTabCompleter(new QScoreboardTabCompleter(this));
         logger.success("✓ Scoreboard Command + TabCompleter");
 
         getCommand("rechercher").setExecutor(new RechercherCommand(this));
+        getCommand("rechercher").setTabCompleter(new RechercherTabCompleter());
+        
         getCommand("recherche").setExecutor(new RechercheCommand(this));
+        getCommand("recherche").setTabCompleter(new RechercheTabCompleter(this));
+        
         getCommand("offre").setExecutor(new OffreCommand(this));
+        getCommand("offre").setTabCompleter(new OffreTabCompleter(this));
 
         // zoneexit retiré : l'ancien système de zones à kills est désactivé
 
@@ -447,14 +458,6 @@ public final class Quantum extends JavaPlugin {
 
         getCommand("rune").setExecutor(new RuneCommand(this));
         getCommand("rune").setTabCompleter(new QuantumArmorRuneTabCompleter());
-
-        getCommand("quantum").setTabCompleter(new QuantumTabCompleter(this));
-        getCommand("storage").setTabCompleter(new StorageTabCompleter());
-        getCommand("menu").setTabCompleter(new MenuTabCompleter(this));
-        getCommand("qstorage").setTabCompleter(new QuantumStorageTabCompleter(this));
-        getCommand("rechercher").setTabCompleter(new RechercherTabCompleter());
-        getCommand("recherche").setTabCompleter(new RechercheTabCompleter(this));
-        getCommand("offre").setTabCompleter(new OffreTabCompleter(this));
 
         getCommand("qexp").setExecutor(new QexpCommand(this, playerLevelManager));
         getCommand("qexp").setTabCompleter(new QexpTabCompleter());

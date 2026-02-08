@@ -15,9 +15,13 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -66,7 +70,57 @@ public class ZoneManager implements Listener {
             return;
         }
 
+        checkRegionChange(event.getPlayer(), from, to, event);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        Location from = event.getFrom();
+        Location to = event.getTo();
+        if (to == null) return;
+
+        // Verifier 1 tick apres la teleportation pour etre sur que le joueur est arrive
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (event.getPlayer().isOnline()) {
+                    checkRegionChange(event.getPlayer(), from, to, null);
+                }
+            }
+        }.runTaskLater(plugin, 1L);
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        
+        // Verifier 1 tick apres le join pour etre sur que le joueur est spawne
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (player.isOnline()) {
+                    Location loc = player.getLocation();
+                    checkRegionChange(player, loc, loc, null);
+                }
+            }
+        }.runTaskLater(plugin, 1L);
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        UUID uuid = player.getUniqueId();
+
+        if (currentRegion.containsKey(uuid)) {
+            handleLeaveTower(player);
+            currentRegion.remove(uuid);
+        }
+    }
+
+    /**
+     * Verifie si le joueur a change de region et gere entree/sortie
+     */
+    private void checkRegionChange(Player player, Location from, Location to, PlayerMoveEvent moveEvent) {
         UUID uuid = player.getUniqueId();
 
         String previousRegion = currentRegion.get(uuid);
@@ -94,7 +148,12 @@ public class ZoneManager implements Listener {
             boolean ok = handleEnterTowerRegion(player, newRegion, from);
             if (!ok) {
                 // Si refus (niveau insuffisant), on le renvoie a l'ancienne position
-                event.setTo(from);
+                if (moveEvent != null) {
+                    moveEvent.setTo(from);
+                } else {
+                    // Teleportation : on ejecte le joueur
+                    player.teleport(from);
+                }
                 currentRegion.remove(uuid);
                 return;
             }
@@ -106,22 +165,15 @@ public class ZoneManager implements Listener {
             plugin.getQuantumLogger().info("Player " + player.getName() + " changed floor: " + previousRegion + " -> " + newRegion);
             boolean ok = handleEnterTowerRegion(player, newRegion, from);
             if (!ok) {
-                event.setTo(from);
+                if (moveEvent != null) {
+                    moveEvent.setTo(from);
+                } else {
+                    player.teleport(from);
+                }
                 currentRegion.put(uuid, previousRegion); // garder l'ancien
                 return;
             }
             currentRegion.put(uuid, newRegion);
-        }
-    }
-
-    @EventHandler
-    public void onQuit(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        UUID uuid = player.getUniqueId();
-
-        if (currentRegion.containsKey(uuid)) {
-            handleLeaveTower(player);
-            currentRegion.remove(uuid);
         }
     }
 

@@ -1,56 +1,30 @@
-# Configuration du scoreboard Quantum
-# Design inspiré des meilleurs serveurs (Hypixel, Mineplex, CubeCraft)
+# =======================================
+# QUANTUM - Scoreboard Classique
+# =======================================
+# Support MiniMessage pour tous les textes
+# Documentation: https://docs.advntr.dev/minimessage/format.html
 
-# Activé par défaut
-enabled: true
-
-# Titre du scoreboard (avec codes couleurs Minecraft)
-# Supporte les codes &, les hex colors et les placeholders
-title: "&6&lQUANTUM"
-
-# Lignes du scoreboard (de haut en bas)
-# Supporte PlaceholderAPI avec %placeholder%
-# Utilise des lignes vides avec différents codes couleur pour l'espacement
-lines:
-  - "&7&m━━━━━━━━━━━━━━━━━"
-  - "&r"
-  - "&e⚡ &fVotre Progression"
-  - "&r "
-  - "&6⚔ Tours Complétées&7:"
-  - "  &f%quantum_towers_completed%/%quantum_towers_total%"
-  - "  &7(%quantum_towers_percentage%%)"
-  - "&0&r"
-  - "&7● Serveur&7:"
-  - "  &f%server_online% joueurs"
-  - "&1&r"
-  - "&7&m━━━━━━━━━━━━━━━━━"
-
-# Fréquence de mise à jour (en ticks, 20 ticks = 1 seconde)
-update-interval: 20
-
-# Messages de la commande /qscoreboard
-messages:
-  # Activation/Désactivation pour soi-même
-  scoreboard_enabled: "&a✓ Scoreboard activé !"
-  scoreboard_disabled: "&c✗ Scoreboard désactivé !"
+scoreboard:
+  enabled: true
+  update_interval: 20  # En ticks (20 = 1 seconde)
   
-  # Config rechargée
-  config_reloaded: "&a✓ Configuration du scoreboard rechargée !"
+  title: "<gradient:#FFD700:#FFA500><bold>QUANTUM</bold></gradient>"
   
-  # Statut
-  status:
-    enabled: "&6· Statut du scoreboard: &a✓ Activé"
-    disabled: "&6· Statut du scoreboard: &c✗ Désactivé"
-  
-  # Messages admin (pour d'autres joueurs)
-  admin:
-    scoreboard_enabled: "&a✓ Scoreboard activé pour {player}"
-    scoreboard_disabled: "&c✗ Scoreboard désactivé pour {player}"
-  
-  # Erreurs
-  errors:
-    player_only: "&c· Cette commande est réservée aux joueurs."
-    no_permission: "&c· Vous n'avez pas la permission d'utiliser cette commande pour d'autres joueurs."
-    player_not_found: "&c· Joueur introuvable: {player}"
-    invalid_action: "&c· Action invalide. Utilisez: on, off, status, reload"
-    invalid_usage: "&c· Utilisation: /qscoreboard [on|off|status|reload] [joueur]"
+  lines:
+    - "<dark_gray>━━━━━━━━━━━━━━━━━━━━"
+    - ""
+    - "<gold><bold>Niveau:</bold></gold>"
+    - "  <white>%quantum_player_level%</white> <gray>(%quantum_player_exp%/%quantum_player_exp_required%)</gray>"
+    - ""
+    - "<aqua><bold>Stockage:</bold></aqua>"
+    - "  <white>%quantum_storage_items%</white> <gray>items</gray>"
+    - "  <white>%quantum_storage_total%</white> <gray>total</gray>"
+    - ""
+    - "<light_purple><bold>Tours:</bold></light_purple>"
+    - "  <white>%quantum_towers_completed%/%quantum_towers_total%</white>"
+    - "  <gray>(%quantum_towers_percentage%%)</gray>"
+    - ""
+    - "<yellow><bold>En ligne:</bold></yellow>"
+    - "  <white>%server_online%</white><gray>/<white>%server_max_players%</white>"
+    - ""
+    - "<dark_gray>━━━━━━━━━━━━━━━━━━━━"

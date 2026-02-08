@@ -2,6 +2,7 @@ package com.wynvers.quantum.towers;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.towers.TowerSpawnerManager;
+import com.wynvers.quantum.managers.ScoreboardManager;
 import com.wynvers.quantum.worldguard.ZoneManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -299,6 +300,12 @@ public class TowerManager {
         progress.setCurrentFloor(floor);
         
         plugin.getQuantumLogger().info("Player " + player.getName() + " entered " + towerId + " floor " + floor);
+
+        // Désactiver le scoreboard quand le joueur entre dans une tour
+        ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
+        if (scoreboardManager != null) {
+            scoreboardManager.disableScoreboard(player);
+        }
         
         // Démarrer les spawners
         if (spawnerManager != null) {
@@ -315,7 +322,13 @@ public class TowerManager {
         progress.setCurrentTower(null);
         progress.setCurrentFloor(0);
         progress.resetKills();
-        
+    
+        // Réactiver le scoreboard quand le joueur quitte la tour
+        ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
+        if (scoreboardManager != null) {
+            scoreboardManager.enableScoreboard(player);
+        }
+    
         // Arrêter les spawners
         if (spawnerManager != null) {
             spawnerManager.stopSpawners(player);

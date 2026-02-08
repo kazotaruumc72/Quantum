@@ -72,4 +72,66 @@ public class TowerSpawnerManager {
             active.stop();
         }
     }
+    
+    /**
+     * Arrête tous les spawners d'un étage spécifique
+     */
+    public void stopFloorSpawners(Player player, String towerId, int floor) {
+        List<ActiveSpawner> list = activeByPlayer.get(player.getUniqueId());
+        if (list == null) return;
+        
+        String prefix = towerId + ":" + floor + ":";
+        
+        // Arrêter les spawners de cet étage
+        list.removeIf(spawner -> {
+            if (spawner.getConfig().getFullId().startsWith(prefix)) {
+                spawner.stop();
+                return true;
+            }
+            return false;
+        });
+    }
+    
+    /**
+     * Vérifie si tous les spawners d'un étage sont vides (aucun mob vivant)
+     */
+    public boolean areAllSpawnersEmpty(Player player, String towerId, int floor) {
+        List<ActiveSpawner> list = activeByPlayer.get(player.getUniqueId());
+        if (list == null || list.isEmpty()) {
+            return true; // Aucun spawner actif
+        }
+        
+        String prefix = towerId + ":" + floor + ":";
+        
+        // Vérifier tous les spawners de cet étage
+        for (ActiveSpawner spawner : list) {
+            if (spawner.getConfig().getFullId().startsWith(prefix)) {
+                // Si le spawner a encore des mobs vivants, l'étage n'est pas complété
+                if (spawner.getAliveMobCount() > 0) {
+                    return false;
+                }
+            }
+        }
+        
+        return true; // Tous les spawners de l'étage sont vides
+    }
+    
+    /**
+     * Obtient la liste des spawners actifs pour un joueur
+     */
+    public List<ActiveSpawner> getActiveSpawners(Player player) {
+        return activeByPlayer.getOrDefault(player.getUniqueId(), Collections.emptyList());
+    }
+    
+    /**
+     * Obtient le nombre total de mobs vivants pour un joueur
+     */
+    public int getTotalAliveMobs(Player player) {
+        List<ActiveSpawner> list = activeByPlayer.get(player.getUniqueId());
+        if (list == null) return 0;
+        
+        return list.stream()
+            .mapToInt(ActiveSpawner::getAliveMobCount)
+            .sum();
+    }
 }

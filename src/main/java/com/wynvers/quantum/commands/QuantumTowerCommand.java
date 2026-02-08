@@ -6,7 +6,6 @@ import com.wynvers.quantum.towers.*;
 import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
-import com.ticxo.modelengine.api.model.bone.ModelBone;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -230,14 +229,12 @@ public class QuantumTowerCommand implements CommandExecutor {
             
             modeledEntity.addModel(activeModel, true);
             
-            // Récupérer les animations depuis le blueprint
+            // Récupérer les animations depuis le blueprint du modèle
             Set<String> animations = new HashSet<>();
             
-            // Parcourir tous les bones du modèle pour extraire les animations
-            for (ModelBone bone : activeModel.getBones().values()) {
-                if (bone.getBlueprintBone() != null && bone.getBlueprintBone().getBoneAnimations() != null) {
-                    animations.addAll(bone.getBlueprintBone().getBoneAnimations().keySet());
-                }
+            // Utiliser getBlueprint().getAnimations() pour obtenir les animations
+            if (activeModel.getBlueprint() != null && activeModel.getBlueprint().getAnimations() != null) {
+                animations.addAll(activeModel.getBlueprint().getAnimations().keySet());
             }
             
             player.sendMessage("§6§m══════════════════════════════");

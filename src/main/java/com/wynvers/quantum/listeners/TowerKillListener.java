@@ -4,6 +4,8 @@ import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.levels.PlayerLevelManager;
 import com.wynvers.quantum.towers.*;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -12,6 +14,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import java.io.File;
 import java.util.UUID;
 
 /**
@@ -87,7 +90,7 @@ public class TowerKillListener implements Listener {
         towerManager.addKill(killer, mobId);
         
         // ========== 4. VÉRIFIER SI L'ÉTAGE EST COMPLÉTÉ ==========
-        checkFloorCompletion(killer, towerId, floor, spawnerId);
+        checkFloorCompletion(killer, towerId, floor, spawnerId, progress);
     }
     
     /**
@@ -114,15 +117,26 @@ public class TowerKillListener implements Listener {
     }
     
     /**
-     * Vérifie si tous les mobs de l'étage sont tués et déclenche la complétion
+     * Vérifie si tous les mobs requis de l'étage sont tués et déclenche la complétion
      */
-    private void checkFloorCompletion(Player player, String towerId, int floor, String spawnerId) {
+    private void checkFloorCompletion(Player player, String towerId, int floor, String spawnerId, TowerProgress progress) {
         if (spawnerId == null) return;
         
         TowerSpawnerManager spawnerManager = towerManager.getSpawnerManager();
         if (spawnerManager == null) return;
+
+        // 1) Vérification basée sur les kills (ce qui alimente ton scoreboard)
+        int currentKills = progress.getCurrentKills().values().stream()
+                .mapToInt(Integer::intValue)
+                .sum();
+        int requiredKills = getRequiredKills(towerId, floor);
+
+        if (requiredKills > 0 && currentKills >= requiredKills) {
+            onFloorCompleted(player, towerId, floor);
+            return;
+        }
         
-        // Vérifier si tous les spawners de cet étage sont vides
+        // 2) Fallback: tous les spawners de cet étage sont vides
         boolean allSpawnersEmpty = spawnerManager.areAllSpawnersEmpty(player, towerId, floor);
         
         if (allSpawnersEmpty) {
@@ -210,6 +224,36 @@ public class TowerKillListener implements Listener {
                 return 5.0;
             default:
                 return 1.0;
+        }
+    }
+
+    /**
+     * Récupère le nombre total de kills requis pour un étage depuis towers.yml
+     * (même logique que dans QuantumExpansion#getRequiredKills)
+     */
+    private int getRequiredKills(String towerId, int floor) {
+        try {
+            File towersFile = new File(plugin.getDataFolder(), "towers.yml");
+            if (!towersFile.exists()) return 0;
+
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
+            String path = "towers." + towerId + ".floors." + floor + ".spawners";
+            ConfigurationSection spawnersSection = config.getConfigurationSection(path);
+
+            if (spawnersSection == null) return 0;
+
+            int total = 0;
+            for (String spawnerKey : spawnersSection.getKeys(false)) {
+                ConfigurationSection spawner = spawnersSection.getConfigurationSection(spawnerKey);
+                if (spawner != null) {
+                    int amount = spawner.getInt("amount", 0);
+                    total += amount;
+                }
+            }
+
+            return total;
+        } catch (Exception e) {
+            return 0;
         }
     }
 }

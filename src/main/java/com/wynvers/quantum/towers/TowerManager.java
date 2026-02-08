@@ -314,6 +314,7 @@ public class TowerManager {
         TowerProgress progress = getProgress(player.getUniqueId());
         progress.setCurrentTower(towerId);
         progress.setCurrentFloor(floor);
+        progress.resetKills(); // Nouveau run / nouvel étage -> on remet les kills à zéro
         
         plugin.getQuantumLogger().info("Player " + player.getName() + " entered " + towerId + " floor " + floor);
 

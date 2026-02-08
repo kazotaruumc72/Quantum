@@ -3,6 +3,7 @@ package com.wynvers.quantum.managers;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.utils.ScoreboardUtils;
 import io.papermc.paper.scoreboard.numbers.NumberFormat;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
@@ -46,7 +47,9 @@ public class ScoreboardManager {
         // Utiliser NumberFormat.blank() pour supprimer complètement les nombres
         int score = lines.size();
         for (String line : lines) {
-            String colored = ScoreboardUtils.color(line);
+            // Parse les placeholders PUIS applique les couleurs
+            String parsedLine = PlaceholderAPI.setPlaceholders(player, line);
+            String colored = ScoreboardUtils.color(parsedLine);
             
             // Créer une entrée unique (utilise des espaces invisibles)
             String entry = getUniqueEntry(score);
@@ -99,7 +102,9 @@ public class ScoreboardManager {
         
         Team team = board.getTeam("line_" + lineIndex);
         if (team != null) {
-            String colored = ScoreboardUtils.color(newText);
+            // Parse les placeholders PUIS applique les couleurs
+            String parsedText = PlaceholderAPI.setPlaceholders(player, newText);
+            String colored = ScoreboardUtils.color(parsedText);
             if (colored.length() <= 64) {
                 team.setPrefix(colored);
                 team.setSuffix("");
@@ -119,7 +124,9 @@ public class ScoreboardManager {
         for (String line : lines) {
             Team team = board.getTeam("line_" + lineNumber);
             if (team != null) {
-                String colored = ScoreboardUtils.color(line);
+                // Parse les placeholders PUIS applique les couleurs
+                String parsedLine = PlaceholderAPI.setPlaceholders(player, line);
+                String colored = ScoreboardUtils.color(parsedLine);
                 if (colored.length() <= 64) {
                     team.setPrefix(colored);
                     team.setSuffix("");

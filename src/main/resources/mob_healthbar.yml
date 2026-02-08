@@ -1,0 +1,380 @@
+# ========================================
+#   QUANTUM - Mob HealthBar Configuration
+# ========================================
+# Configuration complète des barres de vie par type de mob
+#
+# enabled: Active/désactive la barre de vie pour ce mob
+# display_name: Nom personnalisé affiché au-dessus du mob
+# name_color: Couleur du nom (utiliser les codes couleur Minecraft)
+# bar_length: Longueur de la barre (nombre de caractères)
+# show_percentage: Afficher le pourcentage (true/false)
+# show_numeric: Afficher la vie numérique (ex: 20/20 HP)
+# format: Format de la barre
+#   - CLASSIC: [||||||||||||] 100%
+#   - HEARTS: ❤❤❤❤❤♡♡♡♡♡
+#   - BOSS_BAR: Utilise la boss bar native de Minecraft
+#   - NUMERIC: 20/20 HP
+# color_thresholds: Couleurs selon le % de vie
+#
+# Codes couleur:
+# &0=noir, &1=bleu foncé, &2=vert foncé, &3=cyan, &4=rouge, &5=violet
+# &6=or, &7=gris, &8=gris foncé, &9=bleu, &a=vert, &b=cyan clair
+# &c=rouge clair, &d=rose, &e=jaune, &f=blanc
+# &l=gras, &o=italique, &n=souligné, &m=barré
+
+# ========================================
+#   Configuration Globale
+# ========================================
+global:
+  # Active le système de healthbar pour tous les mobs
+  enabled: true
+  
+  # Distance maximale d'affichage (en blocs)
+  max_distance: 50
+  
+  # Fréquence de mise à jour (en ticks, 20 = 1 seconde)
+  update_interval: 1
+  
+  # Masquer la barre quand le mob est à 100% de vie
+  hide_at_full_health: false
+  
+  # Afficher la barre uniquement en combat
+  show_only_in_combat: false
+  
+  # Durée avant de cacher la barre après le dernier dégât (en secondes)
+  hide_delay_after_combat: 5
+  
+  # Forcer l'affichage même si le mob a déjà un nom custom
+  override_custom_names: false
+
+# ========================================
+#   Configuration par Type de Mob
+# ========================================
+
+# Mobs Hostiles Communs
+ZOMBIE:
+  enabled: true
+  display_name: "&2Zombie"
+  name_color: "&2"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&a"  # Vert
+    50: "&e"  # Jaune
+    25: "&6"  # Orange
+    0: "&c"   # Rouge
+
+SKELETON:
+  enabled: true
+  display_name: "&7Squelette"
+  name_color: "&7"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+CREEPER:
+  enabled: true
+  display_name: "&aCreeeeeper"
+  name_color: "&a"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+SPIDER:
+  enabled: true
+  display_name: "&8Araignée"
+  name_color: "&8"
+  bar_length: 15
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+ENDERMAN:
+  enabled: true
+  display_name: "&5Enderman"
+  name_color: "&5"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&d"
+    50: "&5"
+    25: "&6"
+    0: "&c"
+
+# Boss et Mini-Boss
+ENDER_DRAGON:
+  enabled: true
+  display_name: "&5&l⚔ Dragon de l'Ender ⚔"
+  name_color: "&5&l"
+  bar_length: 30
+  show_percentage: true
+  show_numeric: true
+  format: BOSS_BAR
+  color_thresholds:
+    75: "&d"
+    50: "&5"
+    25: "&c"
+    0: "&4"
+
+WITHER:
+  enabled: true
+  display_name: "&8&l☠ Wither ☠"
+  name_color: "&8&l"
+  bar_length: 30
+  show_percentage: true
+  show_numeric: true
+  format: BOSS_BAR
+  color_thresholds:
+    75: "&8"
+    50: "&7"
+    25: "&c"
+    0: "&4"
+
+WARDEN:
+  enabled: true
+  display_name: "&1&l⚡ Gardien ⚡"
+  name_color: "&1&l"
+  bar_length: 30
+  show_percentage: true
+  show_numeric: true
+  format: HEARTS
+  color_thresholds:
+    75: "&b"
+    50: "&3"
+    25: "&c"
+    0: "&4"
+
+ELDER_GUARDIAN:
+  enabled: true
+  display_name: "&3&lGardien de l'Océan"
+  name_color: "&3&l"
+  bar_length: 25
+  show_percentage: true
+  show_numeric: true
+  format: CLASSIC
+  color_thresholds:
+    75: "&b"
+    50: "&3"
+    25: "&6"
+    0: "&c"
+
+# Mobs Neutres
+IRON_GOLEM:
+  enabled: true
+  display_name: "&7Golem de Fer"
+  name_color: "&7"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+WOLF:
+  enabled: false  # Désactivé par défaut pour les loups apprivoisés
+  display_name: "&fLoup"
+  name_color: "&f"
+  bar_length: 15
+  show_percentage: false
+  show_numeric: false
+  format: HEARTS
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+# Mobs du Nether
+BLAZE:
+  enabled: true
+  display_name: "&6Blaze"
+  name_color: "&6"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&e"
+    50: "&6"
+    25: "&c"
+    0: "&4"
+
+PIGLIN_BRUTE:
+  enabled: true
+  display_name: "&4&lBrute Piglin"
+  name_color: "&4&l"
+  bar_length: 25
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&6"
+    50: "&c"
+    25: "&4"
+    0: "&8"
+
+GHAST:
+  enabled: true
+  display_name: "&fGhast"
+  name_color: "&f"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&f"
+    50: "&7"
+    25: "&c"
+    0: "&4"
+
+# Variantes spéciales
+ZOMBIE_VILLAGER:
+  enabled: true
+  display_name: "&2Zombie Villageois"
+  name_color: "&2"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&a"
+    50: "&e"
+    25: "&6"
+    0: "&c"
+
+DROWNED:
+  enabled: true
+  display_name: "&3Noyé"
+  name_color: "&3"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&b"
+    50: "&3"
+    25: "&6"
+    0: "&c"
+
+HUSK:
+  enabled: true
+  display_name: "&6Zombie Momifié"
+  name_color: "&6"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&e"
+    50: "&6"
+    25: "&c"
+    0: "&4"
+
+STRAY:
+  enabled: true
+  display_name: "&bSquelette Glacé"
+  name_color: "&b"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  color_thresholds:
+    75: "&b"
+    50: "&3"
+    25: "&9"
+    0: "&1"
+
+# ========================================
+#   Mobs Custom (Exemple pour tes tours)
+# ========================================
+# Tu peux ajouter des configurations pour tes mobs custom
+# en utilisant leur custom name ou leur type
+
+# Exemple de configuration par custom name:
+custom_mobs:
+  # Format: "CustomName":
+  "Boss Tour 1":
+    enabled: true
+    display_name: "&4&l⚔ BOSS - Tour de l'Eau ⚔"
+    name_color: "&4&l"
+    bar_length: 40
+    show_percentage: true
+    show_numeric: true
+    format: BOSS_BAR
+    color_thresholds:
+      90: "&d"
+      75: "&5"
+      50: "&c"
+      25: "&4"
+      10: "&8"
+  
+  "Mini-Boss Étage 5":
+    enabled: true
+    display_name: "&6&l★ Mini-Boss ★"
+    name_color: "&6&l"
+    bar_length: 30
+    show_percentage: true
+    show_numeric: true
+    format: CLASSIC
+    color_thresholds:
+      75: "&e"
+      50: "&6"
+      25: "&c"
+      0: "&4"
+  
+  "Zombie Renforcé":
+    enabled: true
+    display_name: "&2&lZombie Renforcé"
+    name_color: "&2&l"
+    bar_length: 25
+    show_percentage: true
+    show_numeric: false
+    format: CLASSIC
+    color_thresholds:
+      75: "&a"
+      50: "&e"
+      25: "&6"
+      0: "&c"
+
+# ========================================
+#   Symboles personnalisés
+# ========================================
+symbols:
+  bar:
+    filled: "|"
+    empty: "|"
+    left_bracket: "["
+    right_bracket: "]"
+  
+  hearts:
+    full: "❤"
+    half: "♡"
+    empty: "♡"
+  
+  boss:
+    prefix: "⚔"
+    suffix: "⚔"

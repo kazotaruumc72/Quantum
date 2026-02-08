@@ -189,6 +189,22 @@ public class MobAnimationManager implements Listener {
     }
     
     /**
+     * Arrête le système d'animations
+     */
+    public void shutdown() {
+        mobAnimations.clear();
+        plugin.getQuantumLogger().info("Mob animations cleared");
+    }
+    
+    /**
+     * Recharge la configuration
+     */
+    public void reload() {
+        checkModelEngine();
+        plugin.getQuantumLogger().info("Mob animation manager reloaded");
+    }
+    
+    /**
      * Configuration des animations pour un mob
      */
     public static class AnimationConfig {

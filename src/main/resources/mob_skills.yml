@@ -1,0 +1,86 @@
+# =======================================
+# QUANTUM - Configuration des Skills de Mobs
+# =======================================
+# Affichage des titles/subtitles quand un mob utilise un skill
+
+# Activer/désactiver le système
+enabled: true
+
+# Distance d'affichage (en blocs)
+# Les joueurs dans ce rayon verront le title quand le mob utilise un skill
+display_radius: 20
+
+# Durée d'affichage du title (en ticks, 20 ticks = 1 seconde)
+title_timing:
+  fade_in: 10      # Temps d'apparition
+  stay: 40         # Temps d'affichage
+  fade_out: 10     # Temps de disparition
+
+# =======================================
+# CONFIGURATION DES SKILLS
+# =======================================
+# Supporte les codes couleur Minecraft (&c, &l, etc.)
+# Supporte MiniMessage si activé
+
+skills:
+  # --- Skills d'Invocation/Soutien ---
+  summon:
+    title: "&d&l✦ INVOCATION"
+    subtitle: "&7Des alliés apparaissent!"
+  
+  healing:
+    title: "&a&l+ RÉGÉNÉRATION"
+    subtitle: "&7Le mob se soigne!"
+  
+  # --- Skills de Feu ---
+  fire:
+    title: "&c&l🔥 FEU"
+    subtitle: "&7Vous brûles!"
+  
+  fireprison:
+    title: "&6&l🔥 PRISON DE FLAMMES"
+    subtitle: "&7Vous êtes piégé dans les flammes!"
+  
+  # --- Skills de Glace ---
+  iceberg:
+    title: "&b&l❄ ICEBERG"
+    subtitle: "&7Un pic de glace surgit!"
+  
+  ice:
+    title: "&b&l❄ GEL"
+    subtitle: "&7Vous êtes gelé!"
+  
+  # --- Skills Électriques ---
+  thunder:
+    title: "&e&l⚡ ÉCLAIR"
+    subtitle: "&7La foudre s'abat sur vous!"
+  
+  # --- Skills de Poison/Débuff ---
+  poisonous:
+    title: "&2&l☠ POISON"
+    subtitle: "&7Vous êtes empoisonné!"
+  
+  wither:
+    title: "&8&l☠ WITHER"
+    subtitle: "&7Votre vie se flétrit!"
+  
+  # --- Skills supplémentaires (pour extension future) ---
+  explosion:
+    title: "&c&l💥 EXPLOSION"
+    subtitle: "&7Le mob explose!"
+  
+  charge:
+    title: "&e&l➡ CHARGE"
+    subtitle: "&7Le mob fonce sur vous!"
+  
+  teleport:
+    title: "&5&l✨ TÉLÉPORTATION"
+    subtitle: "&7Le mob se téléporte!"
+  
+  shield:
+    title: "&9&l🛡 BOUCLIER"
+    subtitle: "&7Le mob se protège!"
+  
+  rage:
+    title: "&4&l🔥 RAGE"
+    subtitle: "&7Le mob entre en furie!"

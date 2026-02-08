@@ -9,6 +9,7 @@
 # - Skills des mobs (15 types)
 # - Animations Model Engine (spawn, idle, walk, attack, death)
 # - Scaling automatique par nombre de runs
+# - display_name: Nom affiché au-dessus du mob (utilisé par mob_healthbar.yml)
 
 towers:
   tower_water:
@@ -75,6 +76,7 @@ towers:
           slime_pack_1:
             type: ZOMBIE
             model: "slime_basic"        # Model Engine ID
+            display_name: "&bSlime d'Eau"  # Nom affiché au-dessus du mob
             base_health: 40.0
             damage: 4
             amount: 3                    # Nombre initial
@@ -110,6 +112,7 @@ towers:
           slime_pack_2:
             type: ZOMBIE
             model: "slime_basic"
+            display_name: "&bSlime d'Eau"
             base_health: 40.0
             damage: 4
             amount: 2
@@ -192,6 +195,7 @@ towers:
           water_guardian_pack:
             type: ZOMBIE
             model: "water_guardian"
+            display_name: "&3Gardien de l'Eau"
             base_health: 80.0
             damage: 6
             amount: 4
@@ -265,6 +269,7 @@ towers:
           water_knight_boss:
             type: ZOMBIE
             model: "water_knight_boss"
+            display_name: "&3&l⚔ Chevalier de l'Eau ⚔"
             base_health: 200.0
             damage: 10
             amount: 1
@@ -308,6 +313,7 @@ towers:
           water_minion:
             type: ZOMBIE
             model: "slime_basic"
+            display_name: "&bServiteur d'Eau"
             base_health: 30.0
             damage: 3
             amount: 2
@@ -407,6 +413,7 @@ towers:
           fire_imp_pack:
             type: BLAZE
             model: "fire_imp"
+            display_name: "&cDiablot in de Feu"
             base_health: 60.0
             damage: 8
             amount: 3
@@ -457,6 +464,11 @@ towers:
 # =======================================
 # NOTES DE CONFIGURATION
 # =======================================
+
+# DISPLAY_NAME:
+# - Nom affiché au-dessus du mob avec codes couleur Minecraft (&a, &b, etc.)
+# - Utilisé par mob_healthbar.yml pour associer la configuration de healthbar
+# - Doit être unique pour chaque type de mob
 
 # ANIMATIONS:
 # - spawn: Joué une fois au spawn

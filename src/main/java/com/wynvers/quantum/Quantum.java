@@ -10,6 +10,7 @@ import com.wynvers.quantum.commands.*;
 import com.wynvers.quantum.database.DatabaseManager;
 import com.wynvers.quantum.levels.PlayerLevelListener;
 import com.wynvers.quantum.levels.PlayerLevelManager;
+import com.wynvers.quantum.listeners.DoorSelectionListener;
 import com.wynvers.quantum.listeners.MenuListener;
 import com.wynvers.quantum.listeners.ScoreboardListener;
 import com.wynvers.quantum.listeners.StorageListener;
@@ -25,17 +26,15 @@ import com.wynvers.quantum.statistics.StatisticsManager;
 import com.wynvers.quantum.statistics.StorageStatsManager;
 import com.wynvers.quantum.statistics.TradingStatisticsManager;
 import com.wynvers.quantum.tabcompleters.*;
-import com.wynvers.quantum.towers.MobSkillExecutor;
-import com.wynvers.quantum.towers.MobSkillManager;
-import com.wynvers.quantum.towers.TowerDamageListener;
-import com.wynvers.quantum.towers.TowerManager;
-import com.wynvers.quantum.towers.TowerScoreboardHandler;
+import com.wynvers.quantum.towers.*;
 import com.wynvers.quantum.transactions.TransactionHistoryManager;
 import com.wynvers.quantum.utils.ActionExecutor;
 import com.wynvers.quantum.utils.Logger;
 import com.wynvers.quantum.worldguard.KillTracker;
 import com.wynvers.quantum.worldguard.ZoneManager;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -662,6 +661,19 @@ public final class Quantum extends JavaPlugin {
     
     public MobSkillExecutor getMobSkillExecutor() {
         return mobSkillExecutor;
+    }
+    
+    // NEW: Getters pour les managers des tours
+    public TowerDoorManager getDoorManager() {
+        return doorManager;
+    }
+    
+    public TowerNPCManager getNPCManager() {
+        return npcManager;
+    }
+    
+    public TowerLootManager getLootManager() {
+        return lootManager;
     }
 
     public DungeonArmor getDungeonArmor() {

@@ -25,9 +25,11 @@ public class MobSkillExecutor {
     
     private final Quantum plugin;
     private final Map<UUID, List<BukkitTask>> mobSkillTasks = new HashMap<>();
+    private final TemporaryStructureManager structureManager;
     
     public MobSkillExecutor(Quantum plugin) {
         this.plugin = plugin;
+        this.structureManager = new TemporaryStructureManager(plugin);
     }
     
     /**
@@ -237,25 +239,51 @@ public class MobSkillExecutor {
     }
     
     /**
-     * ICEBERG - Place un schematic de glace (TODO: implémenter avec WorldEdit/FAWE)
+     * ICEBERG - Place un pilier de glace temporaire sous le joueur
+     * Le pilier disparait automatiquement après la durée configurée
      */
     private void executeIceberg(LivingEntity mob, Map<String, Object> skillData) {
-        String schematic = (String) skillData.get("schematic");
+        // Durée de l'iceberg (défaut 10 secondes)
+        int duration = skillData.containsKey("duration") 
+            ? ((Number) skillData.get("duration")).intValue() 
+            : 10; // secondes
+        
+        // Hauteur du pilier (défaut 5 blocs)
+        int height = skillData.containsKey("height") 
+            ? ((Number) skillData.get("height")).intValue() 
+            : 5;
         
         getValidTargetPlayers(mob.getLocation(), 15).forEach(player -> {
-            Location center = player.getLocation();
+            Location playerLoc = player.getLocation();
+            // Position au sol sous le joueur
+            Location baseLoc = playerLoc.clone().subtract(0, 1, 0);
             
-            // Temp: Créer un simple pilier de glace
-            // TODO: Charger le vrai schematic avec WorldEdit/FAWE
-            for (int y = 0; y < 5; y++) {
-                center.clone().add(0, y, 0).getBlock().setType(Material.PACKED_ICE);
+            // Placer le pilier temporaire avec le structure manager
+            structureManager.placeTemporaryPillar(
+                baseLoc,
+                height,
+                Material.PACKED_ICE,
+                duration
+            );
+            
+            // Soulèvement du joueur s'il est debout sur le sol
+            if (player.getLocation().getY() % 1.0 < 0.5) {
+                player.teleport(playerLoc.clone().add(0, height, 0));
             }
             
+            // Effet de ralentissement
             player.addPotionEffect(new PotionEffect(
                 PotionEffectType.SLOWNESS, 
-                3 * 20, 
-                1
+                duration * 20, 
+                2 // Niveau 3
             ));
+            
+            // Particules de glace
+            player.getWorld().spawnParticle(
+                org.bukkit.Particle.SNOWFLAKE,
+                playerLoc,
+                100, 1, 2, 1, 0.02
+            );
         });
     }
     
@@ -378,5 +406,19 @@ public class MobSkillExecutor {
     public void shutdown() {
         mobSkillTasks.values().forEach(tasks -> tasks.forEach(BukkitTask::cancel));
         mobSkillTasks.clear();
+        
+        // Restaurer toutes les structures temporaires
+        if (structureManager != null) {
+            structureManager.restoreAll();
+        }
+    }
+    
+    /**
+     * Restaure toutes les structures temporaires actives
+     */
+    public void restoreAllTemporaryStructures() {
+        if (structureManager != null) {
+            structureManager.restoreAll();
+        }
     }
 }

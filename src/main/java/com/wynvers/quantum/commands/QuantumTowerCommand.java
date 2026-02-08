@@ -3,6 +3,10 @@ package com.wynvers.quantum.commands;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.listeners.DoorSelectionListener;
 import com.wynvers.quantum.towers.*;
+import com.ticxo.modelengine.api.ModelEngineAPI;
+import com.ticxo.modelengine.api.model.ActiveModel;
+import com.ticxo.modelengine.api.model.ModeledEntity;
+import com.ticxo.modelengine.api.model.bone.ModelBone;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -17,8 +21,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import java.io.File;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Commande principale du système de tours
@@ -153,18 +156,26 @@ public class QuantumTowerCommand implements CommandExecutor {
         mob.setCustomName("§e§l[TEST] §f" + modelId);
         mob.setCustomNameVisible(true);
         
-        // Appliquer le modèle
+        // Appliquer le modèle via Model Engine API
         try {
-            String command = "meg model set " + mob.getUniqueId() + " " + modelId;
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+            ModeledEntity modeledEntity = ModelEngineAPI.createModeledEntity(mob);
+            ActiveModel activeModel = ModelEngineAPI.createActiveModel(modelId);
+            
+            if (activeModel == null) {
+                player.sendMessage("§c§l[Anim] §cModèle introuvable: " + modelId);
+                player.sendMessage("§7Vérifiez que le modèle existe dans Model Engine.");
+                mob.remove();
+                return true;
+            }
+            
+            modeledEntity.addModel(activeModel, true);
             
             player.sendMessage("§a§l[Anim] §aModèle appliqué: §f" + modelId);
             
             // Attendre un peu puis jouer l'animation
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (mob.isValid() && !mob.isDead()) {
-                    String animCommand = "meg anim play " + mob.getUniqueId() + " " + animationName;
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), animCommand);
+                    activeModel.getAnimationHandler().playAnimation(animationName, 0.3, 0.3, 1, true);
                     
                     player.sendMessage("§a§l[Anim] §aAnimation jouée: §f" + animationName);
                     player.sendMessage("§7Le mob sera supprimé dans 10 secondes...");
@@ -172,6 +183,7 @@ public class QuantumTowerCommand implements CommandExecutor {
                     // Supprimer le mob après 10 secondes
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
                         if (mob.isValid()) {
+                            ModelEngineAPI.removeModeledEntity(mob.getUniqueId());
                             mob.remove();
                         }
                     }, 200L);
@@ -180,6 +192,7 @@ public class QuantumTowerCommand implements CommandExecutor {
             
         } catch (Exception e) {
             player.sendMessage("§c§l[Anim] §cErreur: " + e.getMessage());
+            e.printStackTrace();
             mob.remove();
         }
         
@@ -187,7 +200,7 @@ public class QuantumTowerCommand implements CommandExecutor {
     }
     
     /**
-     * Lister les animations communes et spawner un mob de test
+     * Lister les animations du modèle via Model Engine API
      */
     private boolean listAnimations(Player player, String modelId) {
         // Vérifier si Model Engine est activé
@@ -204,25 +217,47 @@ public class QuantumTowerCommand implements CommandExecutor {
         mob.setCustomNameVisible(true);
         
         try {
-            String command = "meg model set " + mob.getUniqueId() + " " + modelId;
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+            // Créer le modèle via Model Engine API
+            ModeledEntity modeledEntity = ModelEngineAPI.createModeledEntity(mob);
+            ActiveModel activeModel = ModelEngineAPI.createActiveModel(modelId);
+            
+            if (activeModel == null) {
+                player.sendMessage("§c§l[Anim] §cModèle introuvable: " + modelId);
+                player.sendMessage("§7Vérifiez que le modèle existe dans Model Engine.");
+                mob.remove();
+                return true;
+            }
+            
+            modeledEntity.addModel(activeModel, true);
+            
+            // Récupérer les animations depuis le blueprint
+            Set<String> animations = new HashSet<>();
+            
+            // Parcourir tous les bones du modèle pour extraire les animations
+            for (ModelBone bone : activeModel.getBones().values()) {
+                if (bone.getBlueprintBone() != null && bone.getBlueprintBone().getBoneAnimations() != null) {
+                    animations.addAll(bone.getBlueprintBone().getBoneAnimations().keySet());
+                }
+            }
             
             player.sendMessage("§6§m══════════════════════════════");
             player.sendMessage("§6§lAnimations - " + modelId);
             player.sendMessage("");
-            player.sendMessage("§aMob spawné avec le modèle!");
-            player.sendMessage("§7Animations communes:");
-            player.sendMessage("");
             
-            // Liste des animations les plus communes
-            String[] commonAnims = {
-                "idle", "walk", "run", "attack", "death",
-                "spawn", "hurt", "jump", "sit", "sleep",
-                "fly", "swim", "eat", "drink", "roar"
-            };
-            
-            for (String anim : commonAnims) {
-                player.sendMessage("§7- §f" + anim + " §8[§e/quantum info anim " + modelId + " " + anim + "§8]");
+            if (animations.isEmpty()) {
+                player.sendMessage("§c§lAucune animation trouvée dans ce modèle!");
+                player.sendMessage("§7Vérifiez que votre .bbmodel contient des animations.");
+            } else {
+                player.sendMessage("§a" + animations.size() + " animation(s) disponible(s):");
+                player.sendMessage("");
+                
+                // Trier et afficher les animations
+                List<String> sortedAnims = new ArrayList<>(animations);
+                Collections.sort(sortedAnims);
+                
+                for (String anim : sortedAnims) {
+                    player.sendMessage("§7- §f" + anim + " §8[§e/quantum info anim " + modelId + " " + anim + "§8]");
+                }
             }
             
             player.sendMessage("");
@@ -233,6 +268,7 @@ public class QuantumTowerCommand implements CommandExecutor {
             // Supprimer le mob après 30 secondes
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (mob.isValid()) {
+                    ModelEngineAPI.removeModeledEntity(mob.getUniqueId());
                     mob.remove();
                     player.sendMessage("§7§l[Anim] §7Mob de test supprimé.");
                 }
@@ -241,6 +277,7 @@ public class QuantumTowerCommand implements CommandExecutor {
         } catch (Exception e) {
             player.sendMessage("§c§l[Anim] §cErreur: " + e.getMessage());
             player.sendMessage("§7Vérifiez que le modèle existe dans Model Engine.");
+            e.printStackTrace();
             mob.remove();
         }
         

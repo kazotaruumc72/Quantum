@@ -8,6 +8,8 @@ import com.wynvers.quantum.armor.RuneItem;
 import com.wynvers.quantum.armor.RuneType;
 import com.wynvers.quantum.commands.*;
 import com.wynvers.quantum.database.DatabaseManager;
+import com.wynvers.quantum.healthbar.HealthBarListener;
+import com.wynvers.quantum.healthbar.HealthBarManager;
 import com.wynvers.quantum.levels.PlayerLevelListener;
 import com.wynvers.quantum.levels.PlayerLevelManager;
 import com.wynvers.quantum.listeners.DoorSelectionListener;
@@ -88,6 +90,7 @@ public final class Quantum extends JavaPlugin {
     private TowerLootManager lootManager;
     private MobAnimationManager mobAnimationManager;  // NEW: Mob animations
     private SpawnSelectionManager spawnSelectionManager; // NEW: spawn zone selection
+    private HealthBarManager healthBarManager;       // NEW: Health bar display system
 
 
     private DungeonArmor dungeonArmor;     // Dungeon armor system
@@ -139,6 +142,10 @@ public final class Quantum extends JavaPlugin {
         this.armorManager = new ArmorManager(this, dungeonArmor);
         this.runeItem = new RuneItem(this);
         logger.success("✓ Dungeon Armor & Rune system initialized! (9 runes with 3 levels)");
+
+        // HealthBar System
+        this.healthBarManager = new HealthBarManager(this);
+        logger.success("✓ HealthBar system initialized! (Mob health display)");
 
         // Tours
         this.towerManager = new TowerManager(this);
@@ -319,6 +326,12 @@ public final class Quantum extends JavaPlugin {
             );
             logger.success("✓ Tower Kill Listener (XP on mob kill)");
         }
+        
+        // HealthBar Listener
+        if (healthBarManager != null) {
+            Bukkit.getPluginManager().registerEvents(new HealthBarListener(this, healthBarManager), this);
+            logger.success("✓ HealthBar Listener (mob health display)");
+        }
     }
 
     // ───────────────────── Managers ─────────────────────
@@ -461,6 +474,13 @@ public final class Quantum extends JavaPlugin {
 
         getCommand("qexp").setExecutor(new QexpCommand(this, playerLevelManager));
         getCommand("qexp").setTabCompleter(new QexpTabCompleter());
+        
+        // HealthBar Command
+        if (healthBarManager != null) {
+            getCommand("healthbar").setExecutor(new HealthBarCommand(this, healthBarManager));
+            getCommand("healthbar").setTabCompleter(new HealthBarTabCompleter());
+            logger.success("✓ HealthBar Command + TabCompleter");
+        }
 
         logger.success("✓ Commands registered");
     }
@@ -694,6 +714,10 @@ public final class Quantum extends JavaPlugin {
     
     public SpawnSelectionManager getSpawnSelectionManager() {
         return spawnSelectionManager;
+    }
+    
+    public HealthBarManager getHealthBarManager() {
+        return healthBarManager;
     }
     
     // NEW: Getters pour les managers des tours

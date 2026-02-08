@@ -206,11 +206,10 @@ public class ZoneManager implements Listener {
         );
 
         for (ProtectedRegion region : set) {
-            plugin.getQuantumLogger().info("[DEBUG] Found WorldGuard region: " + region.getId());
-            return region.getId(); // on prend la premiere
+            // Retirer ou commenter cette ligne :
+            // plugin.getQuantumLogger().info("[DEBUG] Found WorldGuard region: " + region.getId());
+            return region.getId();
         }
-        
-        plugin.getQuantumLogger().info("[DEBUG] No WorldGuard region found at location");
         return null;
     }
 
@@ -220,15 +219,10 @@ public class ZoneManager implements Listener {
      */
     private boolean isTowerRegion(String regionName) {
         if (regionName == null) return false;
-
         String towerId = towerManager.getTowerByRegion(regionName);
         int floor = towerManager.getFloorByRegion(regionName);
-        
-        // DEBUG: Log tower region check
-        plugin.getQuantumLogger().info("[DEBUG] isTowerRegion(" + regionName + "): towerId=" + towerId + 
-                ", floor=" + floor);
-
-        return towerId != null && floor > 0;
+    
+        return towerId != null && floor >= 0;  // ← Note: >= 0 au lieu de > 0
     }
 
     /**

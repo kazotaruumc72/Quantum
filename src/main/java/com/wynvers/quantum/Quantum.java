@@ -25,6 +25,7 @@ import com.wynvers.quantum.statistics.StatisticsManager;
 import com.wynvers.quantum.statistics.StorageStatsManager;
 import com.wynvers.quantum.statistics.TradingStatisticsManager;
 import com.wynvers.quantum.tabcompleters.*;
+import com.wynvers.quantum.towers.MobSkillManager;
 import com.wynvers.quantum.towers.TowerDamageListener;
 import com.wynvers.quantum.towers.TowerManager;
 import com.wynvers.quantum.towers.TowerScoreboardHandler;
@@ -79,6 +80,7 @@ public final class Quantum extends JavaPlugin {
     private KillTracker killTracker;       // Kill tracking for (anciens) systèmes
     private TowerManager towerManager;     // Tower progression system
     private TowerScoreboardHandler scoreboardHandler; // Tower scoreboard
+    private MobSkillManager mobSkillManager;          // NEW: Mob skills titles/subtitles
 
     private DungeonArmor dungeonArmor;     // Dungeon armor system
     private ArmorManager armorManager;
@@ -134,11 +136,14 @@ public final class Quantum extends JavaPlugin {
         this.towerManager = new TowerManager(this);
         getServer().getPluginManager().registerEvents(new TowerDamageListener(this), this);
 
+        // Mob Skills System
+        this.mobSkillManager = new MobSkillManager(this);
+
         // WorldGuard / zones de tours
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
             this.killTracker = new KillTracker(this);
             this.scoreboardHandler = new TowerScoreboardHandler(this);
-            this.zoneManager = new ZoneManager(this); // s’enregistre lui-même en listener
+            this.zoneManager = new ZoneManager(this); // s'enregistre lui-même en listener
 
             logger.success("✓ WorldGuard integration enabled!");
             logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
@@ -216,6 +221,9 @@ public final class Quantum extends JavaPlugin {
 
         // Configuration des tours (TowerManager)
         extractResource("towers.yml");
+        
+        // Configuration des skills de mobs (MobSkillManager)
+        extractResource("mob_skills.yml");
 
         logger.success("✓ Default resources extracted");
     }
@@ -386,7 +394,7 @@ public final class Quantum extends JavaPlugin {
         getCommand("recherche").setExecutor(new RechercheCommand(this));
         getCommand("offre").setExecutor(new OffreCommand(this));
 
-        // zoneexit retiré : l’ancien système de zones à kills est désactivé
+        // zoneexit retiré : l'ancien système de zones à kills est désactivé
 
         if (towerManager != null) {
             getCommand("tower").setExecutor(new TowerCommand(this));
@@ -484,8 +492,10 @@ public final class Quantum extends JavaPlugin {
 
         if (statisticsManager != null) statisticsManager.loadStatistics();
 
-        // zoneManager.reloadConfig() supprimé (nouveau ZoneManager n’a plus cette méthode)
+        // zoneManager.reloadConfig() supprimé (nouveau ZoneManager n'a plus cette méthode)
         if (towerManager != null) towerManager.reload();
+        
+        if (mobSkillManager != null) mobSkillManager.reload();
 
         RuneType.init(this);
         logger.success("✓ Dungeon armor & rune configs reloaded");
@@ -616,9 +626,13 @@ public final class Quantum extends JavaPlugin {
         return scoreboardHandler;
     }
 
-    // alias si tu veux garder l’ancien nom
+    // alias si tu veux garder l'ancien nom
     public TowerScoreboardHandler getScoreboardHandler() {
         return scoreboardHandler;
+    }
+    
+    public MobSkillManager getMobSkillManager() {
+        return mobSkillManager;
     }
 
     public DungeonArmor getDungeonArmor() {

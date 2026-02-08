@@ -61,8 +61,13 @@ public class TowerSpawnerConfig {
     }
 
     public String getId() { return id; }
+    public String getFullId() { return id; } // Alias pour compatibilité
+    public String getMobId() { return id; } // Alias pour compatibilité
+    
     public EntityType getType() { return type; }
     public String getModel() { return model; }
+    public String getModelId() { return model; } // Alias pour compatibilité
+    
     public double getBaseHealth() { return baseHealth; }
     public int getDamageHalfHearts() { return damageHalfHearts; }
     public int getBaseAmount() { return amount; }

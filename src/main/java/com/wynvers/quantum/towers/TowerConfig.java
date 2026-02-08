@@ -18,6 +18,8 @@ public class TowerConfig {
     private final List<String> scoreboardLines;
     private final int minLevel;
     private final int maxLevel;
+
+    private String worldGuardRegion;
     
     // Map floor number -> WorldGuard region name
     private final Map<Integer, String> floorRegions;

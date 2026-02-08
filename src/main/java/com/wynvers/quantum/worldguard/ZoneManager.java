@@ -54,6 +54,11 @@ public class ZoneManager implements Listener {
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         plugin.getQuantumLogger().success("ZoneManager (tours) initialized");
+        
+        // DEBUG: Log initialization
+        plugin.getQuantumLogger().info("[DEBUG] ZoneManager created - towerManager: " + (towerManager != null));
+        plugin.getQuantumLogger().info("[DEBUG] ZoneManager created - levelManager: " + (levelManager != null));
+        plugin.getQuantumLogger().info("[DEBUG] ZoneManager created - scoreboardHandler: " + (scoreboardHandler != null));
     }
 
     @EventHandler
@@ -93,7 +98,7 @@ public class ZoneManager implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        
+
         // Verifier 1 tick apres le join pour etre sur que le joueur est spawne
         new BukkitRunnable() {
             @Override
@@ -122,9 +127,12 @@ public class ZoneManager implements Listener {
      */
     private void checkRegionChange(Player player, Location from, Location to, PlayerMoveEvent moveEvent) {
         UUID uuid = player.getUniqueId();
-
         String previousRegion = currentRegion.get(uuid);
         String newRegion = getWorldGuardRegionAt(to);
+        
+        // DEBUG: Log region change check
+        plugin.getQuantumLogger().info("[DEBUG] checkRegionChange for " + player.getName() + 
+                ": previousRegion=" + previousRegion + ", newRegion=" + newRegion);
 
         // Pas de changement de region
         if (Objects.equals(previousRegion, newRegion)) {
@@ -159,10 +167,11 @@ public class ZoneManager implements Listener {
             }
             currentRegion.put(uuid, newRegion);
         }
-        
+
         // Changement d'etage dans la meme tour
         if (wasTower && isTower && !Objects.equals(previousRegion, newRegion)) {
-            plugin.getQuantumLogger().info("Player " + player.getName() + " changed floor: " + previousRegion + " -> " + newRegion);
+            plugin.getQuantumLogger().info("Player " + player.getName() + " changed floor: " + 
+                    previousRegion + " -> " + newRegion);
             boolean ok = handleEnterTowerRegion(player, newRegion, from);
             if (!ok) {
                 if (moveEvent != null) {
@@ -197,8 +206,11 @@ public class ZoneManager implements Listener {
         );
 
         for (ProtectedRegion region : set) {
+            plugin.getQuantumLogger().info("[DEBUG] Found WorldGuard region: " + region.getId());
             return region.getId(); // on prend la premiere
         }
+        
+        plugin.getQuantumLogger().info("[DEBUG] No WorldGuard region found at location");
         return null;
     }
 
@@ -208,8 +220,14 @@ public class ZoneManager implements Listener {
      */
     private boolean isTowerRegion(String regionName) {
         if (regionName == null) return false;
+
         String towerId = towerManager.getTowerByRegion(regionName);
         int floor = towerManager.getFloorByRegion(regionName);
+        
+        // DEBUG: Log tower region check
+        plugin.getQuantumLogger().info("[DEBUG] isTowerRegion(" + regionName + "): towerId=" + towerId + 
+                ", floor=" + floor);
+
         return towerId != null && floor > 0;
     }
 
@@ -218,12 +236,18 @@ public class ZoneManager implements Listener {
      * @return true si le joueur est autorise a entrer
      */
     private boolean handleEnterTowerRegion(Player player, String regionName, Location from) {
+        // DEBUG: Log enter attempt
+        plugin.getQuantumLogger().info("[DEBUG] handleEnterTowerRegion for " + player.getName() + 
+                " in region " + regionName);
+        plugin.getQuantumLogger().info("[DEBUG] Player has bypass: " + player.hasPermission(BYPASS_PERMISSION));
+        
         if (player.hasPermission(BYPASS_PERMISSION)) {
             return enterWithoutLevelCheck(player, regionName);
         }
 
         String towerId = towerManager.getTowerByRegion(regionName);
         int floor = towerManager.getFloorByRegion(regionName);
+
         if (towerId == null || floor <= 0) return true; // pas une tour
 
         TowerConfig tower = towerManager.getTower(towerId);
@@ -234,7 +258,8 @@ public class ZoneManager implements Listener {
         int max = tower.getMaxLevel();
 
         if (level < min || level > max) {
-            player.sendMessage("\u00a7cTu dois etre niveau \u00a7f" + min + " \u00a7ca \u00a7f" + max +
+            player.sendMessage("\u00a7cTu dois etre niveau \u00a7f" + min +
+                    " \u00a7ca \u00a7f" + max +
                     " \u00a7cpour entrer dans \u00a7f" + tower.getName() + "\u00a7c.");
             return false;
         }
@@ -244,7 +269,6 @@ public class ZoneManager implements Listener {
         if (!scoreboardHandler.hasTowerScoreboard(player)) {
             scoreboardHandler.enableTowerScoreboard(player, towerId);
         }
-
         player.sendMessage("\u00a7aTu entres dans \u00a7f" + tower.getName() +
                 " \u00a77(Etage \u00a7f" + floor + "\u00a77)");
         return true;
@@ -256,6 +280,7 @@ public class ZoneManager implements Listener {
     private boolean enterWithoutLevelCheck(Player player, String regionName) {
         String towerId = towerManager.getTowerByRegion(regionName);
         int floor = towerManager.getFloorByRegion(regionName);
+
         if (towerId == null || floor <= 0) return true;
 
         TowerConfig tower = towerManager.getTower(towerId);
@@ -265,7 +290,6 @@ public class ZoneManager implements Listener {
         if (!scoreboardHandler.hasTowerScoreboard(player)) {
             scoreboardHandler.enableTowerScoreboard(player, towerId);
         }
-
         player.sendMessage("\u00a7e[Bypass] \u00a7aTu entres dans \u00a7f" + tower.getName() +
                 " \u00a77(Etage \u00a7f" + floor + "\u00a77)");
         return true;

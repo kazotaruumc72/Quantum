@@ -85,6 +85,11 @@ commands:
     description: Manage player EXP
     usage: /qexp <player> <give|take|set|reset> [amount]
     permission: quantum.exp.admin
+  
+  healthbar:
+    description: Change mob health display mode
+    usage: /healthbar <pourcentage|coeurs|info>
+    aliases: [hpbar, hp]
 
 permissions:
   quantum.*:
@@ -103,6 +108,7 @@ permissions:
       quantum.armor.*: true
       quantum.rune.*: true
       quantum.exp.admin: true
+      quantum.healthbar.use: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -237,3 +243,8 @@ permissions:
   quantum.exp.admin:
     description: Allows using /qexp to manage player EXP
     default: op
+  
+  # HealthBar system
+  quantum.healthbar.use:
+    description: Allows changing health bar display mode
+    default: true

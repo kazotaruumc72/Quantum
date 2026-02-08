@@ -4,11 +4,15 @@ import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.towers.TowerSpawnerManager;
 import com.wynvers.quantum.managers.ScoreboardManager;
 import com.wynvers.quantum.worldguard.ZoneManager;
+import com.wynvers.quantum.managers.ScoreboardManager;
+import com.wynvers.quantum.managers.ScoreboardConfig;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
@@ -323,10 +327,61 @@ public class TowerManager {
         progress.setCurrentFloor(0);
         progress.resetKills();
     
-        // Réactiver le scoreboard quand le joueur quitte la tour
+        // Réactiver et recréer le scoreboard classique quand le joueur quitte la tour
         ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
-        if (scoreboardManager != null) {
+        ScoreboardConfig scoreboardConfig = plugin.getScoreboardConfig();
+    
+        if (scoreboardManager != null && scoreboardConfig != null) {
+            // Réactiver le flag
             scoreboardManager.enableScoreboard(player);
+    
+            // Si le scoreboard global est activé et le joueur l’a activé
+            if (scoreboardConfig.isEnabled() && scoreboardManager.isScoreboardEnabled(player)) {
+                // Recréer le scoreboard classique à partir de scoreboard.yml
+                String title = scoreboardConfig.getTitle();
+                List<String> lines = scoreboardConfig.getLines();
+                scoreboardManager.setScoreboard(player, title, lines);
+    
+                long updateInterval = scoreboardConfig.getUpdateInterval();
+    
+                // Relancer la mise à jour auto comme dans ScoreboardListener
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (!player.isOnline()) {
+                            cancel();
+                            return;
+                        }
+    
+                        if (!scoreboardConfig.isEnabled()) {
+                            cancel();
+                            return;
+                        }
+    
+                        if (!scoreboardManager.isScoreboardEnabled(player)) {
+                            cancel();
+                            return;
+                        }
+    
+                        if (!scoreboardManager.hasScoreboard(player)) {
+                            cancel();
+                            return;
+                        }
+    
+                        List<String> rawLines = scoreboardConfig.getLines();
+                        List<String> processedLines = new ArrayList<>();
+    
+                        for (String line : rawLines) {
+                            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                                line = PlaceholderAPI.setPlaceholders(player, line);
+                            }
+                            processedLines.add(line);
+                        }
+    
+                        scoreboardManager.updateAllLines(player, processedLines);
+                    }
+                }.runTaskTimer(plugin, updateInterval, updateInterval);
+            }
         }
     
         // Arrêter les spawners

@@ -236,6 +236,13 @@ public class TowerManager {
     public String getTowerByRegion(String regionName) {
         for (Map.Entry<String, TowerConfig> entry : towers.entrySet()) {
             TowerConfig tower = entry.getValue();
+            
+            // Vérifier d'abord si c'est la région principale de la tour
+            if (regionName.equals(tower.getWorldGuardRegion())) {
+                return entry.getKey();
+            }
+            
+            // Sinon chercher dans les floors
             if (tower.getFloorByRegion(regionName) != -1) {
                 return entry.getKey();
             }
@@ -250,6 +257,11 @@ public class TowerManager {
      */
     public int getFloorByRegion(String regionName) {
         for (TowerConfig tower : towers.values()) {
+            // Si c'est la région principale, retourner l'étage 0 (entrée)
+            if (regionName.equals(tower.getWorldGuardRegion())) {
+                return 0;  // ou 1 selon ta logique
+            }
+            
             int floor = tower.getFloorByRegion(regionName);
             if (floor != -1) {
                 return floor;

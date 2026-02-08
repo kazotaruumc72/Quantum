@@ -18,11 +18,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Spawner actif pour un joueur dans une tour.
+ */
 public class ActiveSpawner implements Listener {
     
     private final Quantum plugin;
@@ -42,7 +44,6 @@ public class ActiveSpawner implements Listener {
         this.towerId = towerId;
         this.towerManager = towerManager;
         
-        // Enregistrer le listener pour détecter la mort des mobs
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
@@ -152,5 +153,49 @@ public class ActiveSpawner implements Listener {
         return entity;
     }
     
-    // ... reste de la classe inchangé ...
+    private void startMobSkills(LivingEntity mob) {
+        MobSkillExecutor executor = plugin.getMobSkillExecutor();
+        if (executor != null && config.getSkills() != null && !config.getSkills().isEmpty()) {
+            executor.startSkills(mob, config.getSkills(), player);
+        }
+    }
+    
+    private void registerMobAnimations(LivingEntity mob) {
+        MobAnimationManager animManager = plugin.getMobAnimationManager();
+        if (animManager != null && config.getAnimations() != null && !config.getAnimations().isEmpty()) {
+            animManager.registerMob(mob, config.getAnimations());
+        }
+    }
+    
+    @EventHandler
+    public void onEntityDeath(EntityDeathEvent event) {
+        UUID uuid = event.getEntity().getUniqueId();
+        if (aliveMobs.remove(uuid)) {
+            // Arrêter les skills du mob
+            MobSkillExecutor executor = plugin.getMobSkillExecutor();
+            if (executor != null) {
+                executor.stopSkills(uuid);
+            }
+            
+            // Désenregistrer les animations
+            MobAnimationManager animManager = plugin.getMobAnimationManager();
+            if (animManager != null) {
+                animManager.unregisterMob(uuid);
+            }
+        }
+    }
+    
+    // ============ GETTERS ============
+    
+    public TowerSpawnerConfig getConfig() {
+        return config;
+    }
+    
+    public int getAliveMobCount() {
+        return aliveMobs.size();
+    }
+    
+    public Set<UUID> getAliveMobs() {
+        return new HashSet<>(aliveMobs);
+    }
 }

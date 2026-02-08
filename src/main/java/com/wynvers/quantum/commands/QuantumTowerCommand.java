@@ -22,7 +22,7 @@ import java.util.UUID;
 
 /**
  * Commande principale du système de tours
- * Gère: portes, NPC, téléportation, progression, animations
+ * Gère: portes, NPC, téléportation, progression, animations, zones de spawn
  */
 public class QuantumTowerCommand implements CommandExecutor {
     
@@ -31,6 +31,7 @@ public class QuantumTowerCommand implements CommandExecutor {
     private final TowerDoorManager doorManager;
     private final TowerNPCManager npcManager;
     private final TowerLootManager lootManager;
+    private final SpawnSelectionManager selectionManager;
     
     public QuantumTowerCommand(Quantum plugin, TowerManager towerManager, 
                               TowerDoorManager doorManager, TowerNPCManager npcManager,
@@ -40,6 +41,7 @@ public class QuantumTowerCommand implements CommandExecutor {
         this.doorManager = doorManager;
         this.npcManager = npcManager;
         this.lootManager = lootManager;
+        this.selectionManager = plugin.getSpawnSelectionManager();
     }
     
     @Override
@@ -67,6 +69,8 @@ public class QuantumTowerCommand implements CommandExecutor {
                 return handleReload(sender);
             case "info":
                 return handleInfo(sender, args);
+            case "mobspawnzone":
+                return handleMobSpawnZone(sender, args);
             default:
                 sendMainHelp(sender);
                 return true;
@@ -607,6 +611,115 @@ public class QuantumTowerCommand implements CommandExecutor {
         return true;
     }
     
+    // ==================== MOB SPAWN ZONE COMMANDS ====================
+    
+    private boolean handleMobSpawnZone(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("§cCette commande est réservée aux joueurs.");
+            return true;
+        }
+
+        if (!sender.hasPermission("quantum.tower.mobspawnzone")) {
+            sender.sendMessage("§cVous n'avez pas la permission!");
+            return true;
+        }
+
+        // /quantum mobspawnzone create <tower_id> <floor>
+        if (args.length < 4 || !args[1].equalsIgnoreCase("create")) {
+            sender.sendMessage("§cUsage: /quantum mobspawnzone create <tower_id> <floor>");
+            return true;
+        }
+
+        Player player = (Player) sender;
+        String towerId = args[2];
+
+        TowerConfig tower = towerManager.getTower(towerId);
+        if (tower == null) {
+            player.sendMessage("§c§l[SpawnZone] §cTour introuvable: " + towerId);
+            return true;
+        }
+
+        int floor;
+        try {
+            floor = Integer.parseInt(args[3]);
+        } catch (NumberFormatException e) {
+            player.sendMessage("§c§l[SpawnZone] §cÉtage invalide: " + args[3]);
+            return true;
+        }
+
+        if (floor < 1 || floor > tower.getTotalFloors()) {
+            player.sendMessage("§c§l[SpawnZone] §cÉtage invalide. Min: 1, Max: " + tower.getTotalFloors());
+            return true;
+        }
+
+        // Récupérer la sélection (Pos1 / Pos2) faite avec la hache en netherite
+        Location pos1 = selectionManager.getPos1(player.getUniqueId());
+        Location pos2 = selectionManager.getPos2(player.getUniqueId());
+
+        if (pos1 == null || pos2 == null) {
+            player.sendMessage("§c§l[SpawnZone] §cVous devez d'abord définir Pos1 et Pos2 avec la hache en netherite.");
+            player.sendMessage("§7Clic gauche bloc = Pos1, Clic droit bloc = Pos2.");
+            return true;
+        }
+
+        if (pos1.getWorld() == null || pos2.getWorld() == null ||
+                !pos1.getWorld().getName().equals(pos2.getWorld().getName())) {
+            player.sendMessage("§c§l[SpawnZone] §cPos1 et Pos2 doivent être dans le même monde.");
+            return true;
+        }
+
+        String worldName = pos1.getWorld().getName();
+
+        double x1 = Math.min(pos1.getX(), pos2.getX());
+        double y1 = Math.min(pos1.getY(), pos2.getY());
+        double z1 = Math.min(pos1.getZ(), pos2.getZ());
+        double x2 = Math.max(pos1.getX(), pos2.getX());
+        double y2 = Math.max(pos1.getY(), pos2.getY());
+        double z2 = Math.max(pos1.getZ(), pos2.getZ());
+
+        // Charger towers.yml
+        File towersFile = new File(plugin.getDataFolder(), "towers.yml");
+        if (!towersFile.exists()) {
+            player.sendMessage("§c§l[SpawnZone] §cFichier towers.yml introuvable.");
+            return true;
+        }
+
+        FileConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
+        String spawnersPath = "towers." + towerId + ".floors." + floor + ".spawners";
+        ConfigurationSection spawnersSection = config.getConfigurationSection(spawnersPath);
+
+        if (spawnersSection == null || spawnersSection.getKeys(false).isEmpty()) {
+            player.sendMessage("§c§l[SpawnZone] §cAucun spawner trouvé pour cet étage.");
+            return true;
+        }
+
+        // Appliquer la même zone à tous les spawners de l'étage
+        for (String spawnerId : spawnersSection.getKeys(false)) {
+            String base = spawnersPath + "." + spawnerId + ".region";
+            config.set(base + ".world", worldName);
+            config.set(base + ".x1", x1);
+            config.set(base + ".y1", y1);
+            config.set(base + ".z1", z1);
+            config.set(base + ".x2", x2);
+            config.set(base + ".y2", y2);
+            config.set(base + ".z2", z2);
+        }
+
+        try {
+            config.save(towersFile);
+        } catch (Exception e) {
+            player.sendMessage("§c§l[SpawnZone] §cErreur lors de l'enregistrement de towers.yml: " + e.getMessage());
+            return true;
+        }
+
+        // Recharger les tours pour prendre en compte la nouvelle région
+        towerManager.reload();
+        player.sendMessage("§a§l[SpawnZone] §aZone de spawn enregistrée pour tous les spawners de "
+                + towerId + " étage " + floor + ".");
+
+        return true;
+    }
+    
     // ==================== OTHER COMMANDS ====================
     
     private boolean handleProgress(CommandSender sender, String[] args) {
@@ -705,6 +818,7 @@ public class QuantumTowerCommand implements CommandExecutor {
         sender.sendMessage("§e/quantum tower etage <id> <floor> §8- Téléportation");
         sender.sendMessage("§e/quantum door <wand|create|delete|list> §8- Gestion portes");
         sender.sendMessage("§e/quantum npc <set|remove|list> §8- Gestion NPC");
+        sender.sendMessage("§e/quantum mobspawnzone create <id> <floor> §8- Zone de spawn");
         sender.sendMessage("§e/quantum info animation <model> §8- Test animations");
         sender.sendMessage("§e/quantum progress [player] §8- Voir progression");
         sender.sendMessage("§e/quantum reset <player> §8- Reset progression");

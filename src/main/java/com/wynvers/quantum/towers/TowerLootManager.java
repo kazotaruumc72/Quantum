@@ -10,10 +10,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Gère les drops d'items (Nexo, MythicMobs, vanilla) et les commandes
  * par mob tué et par complétion d'étage
+ * Supporte le système de chance pour les commandes (style DeluxeMenus)
  */
 public class TowerLootManager {
     
@@ -104,17 +106,23 @@ public class TowerLootManager {
         
         // Donner les items Nexo
         for (NexoItemDrop drop : config.getNexoDrops()) {
-            giveNexoItem(player, drop, deathLocation);
+            if (rollChance(drop.getChance())) {
+                giveNexoItem(player, drop, deathLocation);
+            }
         }
         
         // Donner les items MythicMobs
         for (MythicItemDrop drop : config.getMythicDrops()) {
-            giveMythicItem(player, drop, deathLocation);
+            if (rollChance(drop.getChance())) {
+                giveMythicItem(player, drop, deathLocation);
+            }
         }
         
-        // Exécuter les commandes
-        for (String command : config.getCommands()) {
-            executeCommand(command, player, deathLocation);
+        // Exécuter les commandes avec chance
+        for (CommandWithChance cmd : config.getCommands()) {
+            if (rollChance(cmd.getChance())) {
+                executeCommand(cmd.getCommand(), player, deathLocation);
+            }
         }
     }
     
@@ -129,17 +137,23 @@ public class TowerLootManager {
         
         // Donner les items Nexo
         for (NexoItemDrop drop : config.getNexoRewards()) {
-            giveNexoItem(player, drop, location);
+            if (rollChance(drop.getChance())) {
+                giveNexoItem(player, drop, location);
+            }
         }
         
         // Donner les items MythicMobs
         for (MythicItemDrop drop : config.getMythicRewards()) {
-            giveMythicItem(player, drop, location);
+            if (rollChance(drop.getChance())) {
+                giveMythicItem(player, drop, location);
+            }
         }
         
-        // Exécuter les commandes console
-        for (String command : config.getCommands()) {
-            executeCommand(command, player, location);
+        // Exécuter les commandes console avec chance
+        for (CommandWithChance cmd : config.getCommands()) {
+            if (rollChance(cmd.getChance())) {
+                executeCommand(cmd.getCommand(), player, location);
+            }
         }
         
         // Message de récompense
@@ -148,6 +162,18 @@ public class TowerLootManager {
         }
         
         plugin.getQuantumLogger().info("Floor rewards given for " + rewardId + " to " + player.getName());
+    }
+    
+    /**
+     * Roll un pourcentage de chance (0-100)
+     * @return true si le roll réussit
+     */
+    private boolean rollChance(double chance) {
+        if (chance >= 100.0) return true;
+        if (chance <= 0.0) return false;
+        
+        double roll = ThreadLocalRandom.current().nextDouble(0.0, 100.0);
+        return roll < chance;
     }
     
     /**
@@ -220,10 +246,26 @@ public class TowerLootManager {
     
     // ==================== CLASSES INTERNES ====================
     
+    /**
+     * Représente une commande avec un pourcentage de chance d'exécution
+     */
+    private static class CommandWithChance {
+        private final String command;
+        private final double chance;
+        
+        public CommandWithChance(String command, double chance) {
+            this.command = command;
+            this.chance = chance;
+        }
+        
+        public String getCommand() { return command; }
+        public double getChance() { return chance; }
+    }
+    
     private static class MobLootConfig {
         private final List<NexoItemDrop> nexoDrops = new ArrayList<>();
         private final List<MythicItemDrop> mythicDrops = new ArrayList<>();
-        private final List<String> commands = new ArrayList<>();
+        private final List<CommandWithChance> commands = new ArrayList<>();
         
         public MobLootConfig(ConfigurationSection section) {
             // Charger les drops Nexo
@@ -250,19 +292,36 @@ public class TowerLootManager {
                 }
             }
             
-            // Charger les commandes
-            commands.addAll(section.getStringList("commands"));
+            // Charger les commandes avec chance (NOUVEAU)
+            if (section.contains("commands")) {
+                List<?> cmdList = section.getList("commands");
+                if (cmdList != null) {
+                    for (Object obj : cmdList) {
+                        if (obj instanceof String) {
+                            // Format simple: "commande" (chance = 100%)
+                            commands.add(new CommandWithChance((String) obj, 100.0));
+                        } else if (obj instanceof Map) {
+                            // Format avec chance: {cmd: "commande", chance: 50.0}
+                            Map<?, ?> map = (Map<?, ?>) obj;
+                            String cmd = (String) map.get("cmd");
+                            double chance = map.containsKey("chance") ? 
+                                ((Number) map.get("chance")).doubleValue() : 100.0;
+                            commands.add(new CommandWithChance(cmd, chance));
+                        }
+                    }
+                }
+            }
         }
         
         public List<NexoItemDrop> getNexoDrops() { return nexoDrops; }
         public List<MythicItemDrop> getMythicDrops() { return mythicDrops; }
-        public List<String> getCommands() { return commands; }
+        public List<CommandWithChance> getCommands() { return commands; }
     }
     
     private static class FloorRewardConfig {
         private final List<NexoItemDrop> nexoRewards = new ArrayList<>();
         private final List<MythicItemDrop> mythicRewards = new ArrayList<>();
-        private final List<String> commands = new ArrayList<>();
+        private final List<CommandWithChance> commands = new ArrayList<>();
         private String message;
         
         public FloorRewardConfig(ConfigurationSection section) {
@@ -290,8 +349,25 @@ public class TowerLootManager {
                 }
             }
             
-            // Charger les commandes
-            commands.addAll(section.getStringList("commands"));
+            // Charger les commandes avec chance (NOUVEAU)
+            if (section.contains("commands")) {
+                List<?> cmdList = section.getList("commands");
+                if (cmdList != null) {
+                    for (Object obj : cmdList) {
+                        if (obj instanceof String) {
+                            // Format simple: "commande" (chance = 100%)
+                            commands.add(new CommandWithChance((String) obj, 100.0));
+                        } else if (obj instanceof Map) {
+                            // Format avec chance: {cmd: "commande", chance: 50.0}
+                            Map<?, ?> map = (Map<?, ?>) obj;
+                            String cmd = (String) map.get("cmd");
+                            double chance = map.containsKey("chance") ? 
+                                ((Number) map.get("chance")).doubleValue() : 100.0;
+                            commands.add(new CommandWithChance(cmd, chance));
+                        }
+                    }
+                }
+            }
             
             // Charger le message
             message = section.getString("message");
@@ -299,7 +375,7 @@ public class TowerLootManager {
         
         public List<NexoItemDrop> getNexoRewards() { return nexoRewards; }
         public List<MythicItemDrop> getMythicRewards() { return mythicRewards; }
-        public List<String> getCommands() { return commands; }
+        public List<CommandWithChance> getCommands() { return commands; }
         public String getMessage() { return message; }
     }
     

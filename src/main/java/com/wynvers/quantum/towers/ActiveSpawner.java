@@ -18,6 +18,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -166,12 +167,17 @@ public class ActiveSpawner implements Listener {
         String modelId = config.getModelId();
         if (modelId == null || modelId.isEmpty()) return;
         
-        // Récupérer les animations depuis la config
-        MobAnimationManager.AnimationConfig animConfig = config.getAnimations();
-        if (animConfig == null) {
-            // Créer une config par défaut si aucune n'est définie
-            animConfig = new MobAnimationManager.AnimationConfig(null, null, null, null, null);
-        }
+        // Récupérer les animations depuis la config (Map<String, String>)
+        Map<String, String> animMap = config.getAnimations();
+        
+        // Convertir en AnimationConfig
+        MobAnimationManager.AnimationConfig animConfig = new MobAnimationManager.AnimationConfig(
+            animMap.get("idle"),
+            animMap.get("walk"),
+            animMap.get("attack"),
+            animMap.get("hurt"),
+            animMap.get("death")
+        );
         
         // Enregistrer le mob avec ses animations
         animManager.registerMob(mob, modelId, animConfig);

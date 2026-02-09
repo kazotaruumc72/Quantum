@@ -91,6 +91,7 @@ public final class Quantum extends JavaPlugin {
     private MobAnimationManager mobAnimationManager;  // NEW: Mob animations
     private SpawnSelectionManager spawnSelectionManager; // NEW: spawn zone selection
     private HealthBarManager healthBarManager;       // NEW: Health bar display system
+    private StorageUpgradeManager storageUpgradeManager;
 
 
     private DungeonArmor dungeonArmor;     // Dungeon armor system
@@ -211,6 +212,8 @@ public final class Quantum extends JavaPlugin {
         logger.success("✓ Orders system ready!");
         logger.success("✓ Statistics tracking enabled!");
         logger.success("✓ Transaction history enabled!");
+
+        storageUpgradeManager = new StorageUpgradeManager();
     }
 
     // ───────────────────── Ressources ─────────────────────

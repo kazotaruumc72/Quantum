@@ -610,6 +610,10 @@ public final class Quantum extends JavaPlugin {
         return animationManager;
     }
 
+    public StorageUpgradeManager getStorageUpgradeManager() {
+        return storageUpgradeManager;
+    }
+
     @Deprecated
     public MessagesManager getMessagesManager() {
         return messagesManager;

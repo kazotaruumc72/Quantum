@@ -104,8 +104,7 @@ public class StorageUpgradeManager {
     }
 
     /**
-     * Exemple d'utilisation lors de l'autovente :
-     * limite=50, current=54 -> vend 4.
+     * Exemple: limite=50, current=54 -> vend 4.
      */
     public int computeAutoSellAmount(int currentAmount, int limit) {
         if (limit <= 0) return currentAmount;

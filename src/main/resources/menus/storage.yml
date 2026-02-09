@@ -6,17 +6,13 @@
 # Syntaxe compatible DeluxeMenus avec actions Quantum
 
 # Titre du menu avec placeholder dynamique
+# ========================================
+# QUANTUM STORAGE MENU
+# ========================================
 menu_title: '&fQuantum Storage &8| &eMode: %mode_simple%'
-
-# Taille de l'inventaire (9, 18, 27, 36, 45, 54)
 size: 54
-
-# Commande pour ouvrir le menu
 open_command: storage
 
-# ========================================
-# ITEMS DU MENU
-# ========================================
 items:
 
   # ──────────────────────────────────────
@@ -25,6 +21,7 @@ items:
   border:
     material: GRAY_STAINED_GLASS_PANE
     display_name: ' '
+    custom_model_data: 1
     slots: [1, 2, 3, 5, 6, 7, 45, 46, 47, 48, 50, 51, 52]
 
   # ──────────────────────────────────────
@@ -33,6 +30,7 @@ items:
   mode_storage:
     slots: [0]
     material: LIME_WOOL
+    custom_model_data: 100
     display_name: '&a&l⚡ Mode: Storage'
     lore:
       - '&7Activez le mode stockage'
@@ -53,6 +51,7 @@ items:
   mode_recherche:
     slots: [4]
     material: DIAMOND
+    custom_model_data: 101
     display_name: '&b&l⚡ Mode: Recherche'
     lore:
       - '&7Activez le mode recherche d''items'
@@ -75,6 +74,7 @@ items:
   mode_sell:
     slots: [8]
     material: GOLD_BLOCK
+    custom_model_data: 102
     display_name: '&6&l⚡ Mode: Vente'
     lore:
       - '&7Activez le mode vente'
@@ -93,8 +93,12 @@ items:
   # SLOTS DE STOCKAGE DYNAMIQUES
   # ──────────────────────────────────────
   storage_slots:
-    slots: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44]
+    slots: [9, 10, 11, 12, 13, 14, 15, 16, 17,
+            18, 19, 20, 21, 22, 23, 24, 25, 26,
+            27, 28, 29, 30, 31, 32, 33, 34, 35,
+            36, 37, 38, 39, 40, 41, 42, 43, 44]
     type: quantum_storage
+    custom_model_data: 200
     lore_append:
       - ' '
       - '&8─────────────────────'
@@ -107,11 +111,110 @@ items:
       - '&7▸ Clic droit: &eVendre (mode Vente)'
 
   # ──────────────────────────────────────
+  # BOUTON: PARAMÈTRES (ouvre storage_settings.yml)
+  # ──────────────────────────────────────
+  settings:
+    slots: [45]
+    material: COMPARATOR
+    custom_model_data: 300
+    display_name: '&eParamètres'
+    lore:
+      - '&7Configurer l''autovente, la limite'
+      - '&7et les options avancées du storage.'
+      - ' '
+      - '&e► Cliquez pour ouvrir le menu des paramètres'
+    type: quantum_open_menu
+    menu: storage_settings.yml
+
+  # ──────────────────────────────────────
+  # BOUTON: STATUT AUTOVENTE
+  # ──────────────────────────────────────
+  autosell:
+    slots: [48]
+    material: HOPPER
+    custom_model_data: 301
+    display_name: '&bAutovente'
+    lore:
+      - '&7Statut: &e%quantum_autovente_statut%'
+      - '&7Limite actuelle: &e%quantum_autovente_limite%'
+      - ' '
+      - '&7Vend automatiquement tout ce qui dépasse'
+      - '&7la limite configurée.'
+      - ' '
+      - '&e► Cliquez pour ouvrir les paramètres'
+
+  # ──────────────────────────────────────
+  # BOUTON: STATUT MULTIPLICATEUR
+  # ──────────────────────────────────────
+  multiplicateur:
+    slots: [49]
+    material: EXPERIENCE_BOTTLE
+    custom_model_data: 302
+    display_name: '&dMultiplicateur'
+    lore:
+      - '&7Multiplicateur actuel: &ex%quantum_multiplicateur_amount%'
+      - ' '
+      - '&7Augmente les gains lors de la vente.'
+      - ' '
+      - '&e► Cliquez pour gérer le multiplicateur'
+
+  # ──────────────────────────────────────
+  # BOUTON: STORAGE+
+  # ──────────────────────────────────────
+  upgrade_storage:
+    slots: [50]
+    material: CHEST
+    custom_model_data: 303
+    display_name: '&aStorage+'
+    lore:
+      - '&7Capacité maximale: &e%quantum_upgrade_storage_amount% stacks'
+      - '&7Prochain palier: &e%quantum_upgrade_storage_next%'
+      - ' '
+      - '&7Améliore la capacité de ton Quantum Storage.'
+      - ' '
+      - '&e► Cliquez pour améliorer'
+
+  # ──────────────────────────────────────
+  # BOUTON: PAGE STORAGE 1
+  # ──────────────────────────────────────
+  storage_page_1:
+    slots: [51]
+    material: BOOK
+    custom_model_data: 304
+    display_name: '&9Page d''upgrades &7(1)'
+    lore:
+      - '&7Ouvre la première page d''upgrades'
+      - '&7et donne l''item Nexo associé.'
+      - ' '
+      - '&e► Cliquez pour recevoir l''item'
+    # L’item donné sera un item Nexo qui,
+    # quand utilisé, exécutera /quantum upgrade page 1 <player>
+    type: quantum_give_nexo_page
+    page: 1
+
+  # ──────────────────────────────────────
+  # BOUTON: PAGE STORAGE 2
+  # ──────────────────────────────────────
+  storage_page_2:
+    slots: [52]
+    material: BOOK
+    custom_model_data: 305
+    display_name: '&9Page d''upgrades &7(2)'
+    lore:
+      - '&7Ouvre la seconde page d''upgrades'
+      - '&7et donne l''item Nexo associé.'
+      - ' '
+      - '&e► Cliquez pour recevoir l''item'
+    type: quantum_give_nexo_page
+    page: 2
+
+  # ──────────────────────────────────────
   # BOUTON: FERMER
   # ──────────────────────────────────────
   close:
     slots: [53]
     material: BARRIER
+    custom_model_data: 399
     display_name: '&c&l✖ Fermer'
     lore:
       - '&7Fermez ce menu'

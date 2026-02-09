@@ -50,6 +50,9 @@ public class MenuItem {
     // Lore append pour quantum_storage
     private List<String> loreAppend;
     
+    // Item statique (vitre, bouton) qui ne doit pas déclencher d'actions storage
+    private boolean isStatic = false;
+    
     // Actions
     private List<MenuAction> leftClickActions;
     private List<MenuAction> rightClickActions;
@@ -149,6 +152,10 @@ public class MenuItem {
         return loreAppend;
     }
     
+    public boolean isStatic() {
+        return isStatic;
+    }
+    
     public List<MenuAction> getLeftClickActions() {
         return leftClickActions;
     }
@@ -245,6 +252,10 @@ public class MenuItem {
     
     public void setLoreAppend(List<String> loreAppend) {
         this.loreAppend = loreAppend;
+    }
+    
+    public void setStatic(boolean isStatic) {
+        this.isStatic = isStatic;
     }
     
     public void addHideFlag(ItemFlag flag) {
@@ -437,7 +448,6 @@ public class MenuItem {
     public void executeActions(Player player, Quantum plugin) {
         executeActions(player, plugin, ClickType.LEFT);
     }
-
     /**
      * Convert this MenuItem to a Bukkit ItemStack
      */

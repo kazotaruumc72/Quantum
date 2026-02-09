@@ -28,6 +28,7 @@ import com.wynvers.quantum.sell.SellManager;
 import com.wynvers.quantum.statistics.StatisticsManager;
 import com.wynvers.quantum.statistics.StorageStatsManager;
 import com.wynvers.quantum.statistics.TradingStatisticsManager;
+import com.wynvers.quantum.storage.upgrades.StorageUpgradeManager;
 import com.wynvers.quantum.tabcompleters.*;
 import com.wynvers.quantum.towers.*;
 import com.wynvers.quantum.transactions.TransactionHistoryManager;

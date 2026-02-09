@@ -6,7 +6,6 @@ import com.wynvers.quantum.orders.OrderCreationManager;
 import com.wynvers.quantum.sell.SellSession;
 import com.wynvers.quantum.storage.PlayerStorage;
 import com.wynvers.quantum.storage.StorageMode;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
@@ -36,12 +35,12 @@ public class StorageMenuHandler {
 
     /**
      * Handle storage menu click
-     * 
+     *
      * NOUVELLE LOGIQUE SIMPLIFIÉE:
      * - Seuls les items avec le tag "quantum_item_id" dans leur PDC peuvent déclencher des actions
      * - Les boutons, bordures, et autres items décoratifs n'ont PAS ce tag
      * - Pas besoin de listes noires ou de détection complexe
-     * 
+     *
      * @param player The player who clicked
      * @param slot The slot that was clicked
      * @param clickType The type of click
@@ -70,35 +69,35 @@ public class StorageMenuHandler {
             // (les boutons comme le diamant sont gérés par MenuListener)
             return;
         }
-        
+
         // L'item a le tag quantum_item_id, c'est un vrai item de storage
         // On peut maintenant traiter l'action selon le mode
         StorageMode.Mode mode = StorageMode.getMode(player);
-        
+
         switch (mode) {
             case STORAGE:
                 // Mode STORAGE : retirer l'item
                 handleWithdraw(player, storage, clickedItem, clickType);
                 break;
-                
+
             case SELL:
                 // Mode VENTE : ouvrir le menu de vente
                 handleSell(player, storage, clickedItem);
                 break;
-                
+
             case RECHERCHE:
                 // Mode RECHERCHE : ouvrir le menu order_quantity
                 handleCreateOrder(player, storage, clickedItem);
                 break;
         }
     }
-    
+
     /**
      * Vérifie si un item possède le tag "quantum_item_id" dans son PersistentDataContainer
-     * 
+     *
      * Ce tag est présent UNIQUEMENT sur les items de storage légitimes.
      * Les boutons, bordures, et items décoratifs n'ont PAS ce tag.
-     * 
+     *
      * @param item L'item à vérifier
      * @return true si l'item a le tag quantum_item_id, false sinon
      */
@@ -106,15 +105,15 @@ public class StorageMenuHandler {
         if (item == null || !item.hasItemMeta()) {
             return false;
         }
-        
+
         ItemMeta meta = item.getItemMeta();
         if (meta == null) {
             return false;
         }
-        
+
         // Vérifier la présence du tag quantum_item_id
         String itemId = meta.getPersistentDataContainer().get(itemIdKey, PersistentDataType.STRING);
-        
+
         // Si le tag existe et n'est pas vide, c'est un item de storage
         return itemId != null && !itemId.isEmpty();
     }
@@ -144,7 +143,7 @@ public class StorageMenuHandler {
         // Check if it's a Nexo item
         String nexoId = NexoItems.idFromItem(cursorItem);
         String itemName;
-        
+
         if (nexoId != null) {
             storage.addNexoItem(nexoId, amount);
             itemName = nexoId;
@@ -152,7 +151,7 @@ public class StorageMenuHandler {
             storage.addItem(cursorItem.getType(), amount);
             itemName = cursorItem.getType().name();
         }
-        
+
         // Send message from messages.yml
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("amount", String.valueOf(amount));
@@ -216,7 +215,7 @@ public class StorageMenuHandler {
         }
 
         String itemName;
-        
+
         // Withdraw from storage
         if (nexoId != null) {
             storage.removeNexoItem(nexoId, toWithdraw);
@@ -227,7 +226,7 @@ public class StorageMenuHandler {
             giveVanillaItems(player, material, toWithdraw);
             itemName = material.name();
         }
-        
+
         // Send message from messages.yml
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("amount", String.valueOf(toWithdraw));
@@ -239,7 +238,7 @@ public class StorageMenuHandler {
         player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1.0f, 1.0f);
         refreshMenu(player);
     }
-    
+
     /**
      * Handle selling items from storage
      * Ouvre le menu de vente avec l'item sélectionné
@@ -250,11 +249,11 @@ public class StorageMenuHandler {
             player.sendMessage("§cLe système de vente n'est pas disponible (Vault requis).");
             return;
         }
-        
+
         // Déterminer le type d'item
         String nexoId = NexoItems.idFromItem(clickedItem);
         Material material = clickedItem.getType();
-        
+
         // Vérifier la quantité disponible
         int available;
         if (nexoId != null) {
@@ -262,12 +261,12 @@ public class StorageMenuHandler {
         } else {
             available = storage.getAmount(material);
         }
-        
+
         if (available <= 0) {
             player.sendMessage("§cVous n'avez pas cet item en stock.");
             return;
         }
-        
+
         // Récupérer le prix de l'item
         double pricePerUnit;
         if (nexoId != null) {
@@ -275,20 +274,20 @@ public class StorageMenuHandler {
         } else {
             pricePerUnit = plugin.getPriceManager().getPrice(material.name());
         }
-        
+
         if (pricePerUnit <= 0) {
             player.sendMessage("§cCet item ne peut pas être vendu.");
             return;
         }
-        
+
         // Créer une session de vente
         SellSession session = plugin.getSellManager().createSession(player, clickedItem, available, pricePerUnit);
-        
+
         // Ouvrir le menu de vente
         Menu sellMenu = plugin.getMenuManager().getMenu("sell");
         if (sellMenu != null) {
             player.closeInventory();
-            
+
             // Attendre 2 ticks avant d'ouvrir le menu de vente
             org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 // Passer les placeholders au menu
@@ -299,7 +298,7 @@ public class StorageMenuHandler {
             plugin.getSellManager().removeSession(player);
         }
     }
-    
+
     /**
      * Handle creating a purchase order from storage
      * PATCH: Définir displayItem dans la session pour l'afficher dans order_quantity/order_price
@@ -307,61 +306,61 @@ public class StorageMenuHandler {
     private void handleCreateOrder(Player player, PlayerStorage storage, ItemStack clickedItem) {
         // Récupérer l'itemId depuis le PersistentDataContainer si disponible
         String itemId = null;
-        
+
         if (clickedItem.hasItemMeta() && clickedItem.getItemMeta() != null) {
             itemId = clickedItem.getItemMeta().getPersistentDataContainer().get(itemIdKey, PersistentDataType.STRING);
         }
-        
+
         // Fallback: Utiliser OrderCreationManager.getItemId() si pas de PDC
         if (itemId == null) {
             itemId = OrderCreationManager.getItemId(clickedItem);
         }
-        
+
         if (itemId == null) {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             player.sendMessage("§c⚠ Item invalide!");
             return;
         }
-        
+
         // Récupérer la quantité en stock (SANS LA RETIRER)
         int stockQuantity = storage.getAmountByItemId(itemId);
-        
+
         // Vérifier qu'il y a au moins 1 item en stock
         if (stockQuantity <= 0) {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             player.sendMessage("§c⚠ Vous devez avoir au moins 1 item en stock!");
             return;
         }
-        
+
         // Démarrer la création d'offre via OrderCreationManager
         OrderCreationManager orderManager = plugin.getOrderCreationManager();
         if (orderManager == null) {
             player.sendMessage("§c⚠ OrderCreationManager non initialisé!");
             return;
         }
-        
+
         boolean started = orderManager.startOrderCreation(player, itemId, stockQuantity);
         if (!started) {
             // Le message d'erreur est géré par OrderCreationManager si nécessaire
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             return;
         }
-        
+
         // === PATCH: DÉFINIR displayItem DANS LA SESSION ===
         // Créer l'ItemStack depuis l'itemId pour l'afficher dans les menus
         ItemStack displayItem = createItemStackFromId(itemId);
-        
+
         if (displayItem != null) {
             orderManager.getSession(player).setDisplayItem(displayItem.clone());
         } else {
             plugin.getQuantumLogger().warning("Failed to create displayItem for itemId: " + itemId);
         }
-        
+
         // Ouvrir le menu order_quantity pour configurer la quantité
         Menu orderQuantityMenu = plugin.getMenuManager().getMenu("order_quantity");
         if (orderQuantityMenu != null) {
             player.closeInventory();
-            
+
             // Attendre 2 ticks avant d'ouvrir le menu order_quantity
             org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 orderQuantityMenu.open(player, plugin);
@@ -372,7 +371,7 @@ public class StorageMenuHandler {
             orderManager.cancelOrder(player);
         }
     }
-    
+
     /**
      * Crée un ItemStack depuis un itemId (nexo:xxx ou minecraft:xxx)
      * @param itemId L'ID de l'item
@@ -382,7 +381,7 @@ public class StorageMenuHandler {
         if (itemId == null || itemId.isEmpty()) {
             return null;
         }
-        
+
         if (itemId.startsWith("nexo:")) {
             // Item Nexo
             String nexoId = itemId.substring(5);
@@ -404,7 +403,7 @@ public class StorageMenuHandler {
                 plugin.getQuantumLogger().warning("Invalid material: " + materialName);
             }
         }
-        
+
         return null;
     }
 
@@ -441,7 +440,7 @@ public class StorageMenuHandler {
             plugin.getQuantumLogger().warning("Cannot give Nexo item " + nexoId + " - ItemBuilder is null");
             return;
         }
-        
+
         ItemStack nexoItem = itemBuilder.build();
         int maxStackSize = nexoItem.getMaxStackSize();
 

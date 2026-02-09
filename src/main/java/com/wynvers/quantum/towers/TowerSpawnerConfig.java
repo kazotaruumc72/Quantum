@@ -57,7 +57,7 @@ public class TowerSpawnerConfig {
     }
 
     private void loadFromConfig(ConfigurationSection section) {
-        // Type d’entité Vanilla (ZOMBIE, SKELETON, etc.)
+        // Type d'entité Vanilla (ZOMBIE, SKELETON, etc.)
         this.type = parseEntityType(section.getString("type", "ZOMBIE"));
 
         // ID du modèle ModelEngine (blueprint)
@@ -220,14 +220,15 @@ public class TowerSpawnerConfig {
         // Spawn vanilla
         LivingEntity entity = (LivingEntity) location.getWorld().spawnEntity(location, type);
 
-        // Stats
-        if (entity.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null) {
-            entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        // Stats - Utilisation de MAX_HEALTH (pas GENERIC_MAX_HEALTH)
+        if (entity.getAttribute(Attribute.MAX_HEALTH) != null) {
+            entity.getAttribute(Attribute.MAX_HEALTH).setBaseValue(health);
         }
         entity.setHealth(health);
 
-        if (entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null) {
-            entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damageValue);
+        // Stats - Utilisation de ATTACK_DAMAGE (pas GENERIC_ATTACK_DAMAGE)
+        if (entity.getAttribute(Attribute.ATTACK_DAMAGE) != null) {
+            entity.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(damageValue);
         }
 
         // Nom / nametag
@@ -247,8 +248,8 @@ public class TowerSpawnerConfig {
         // Ajoute le modèle à l'entité (true = visible immédiatement)
         modeledEntity.addModel(activeModel, true);
 
-        // Cacher complètement le modèle de base côté ModelEngine (optionnel)
-        modeledEntity.setBaseVisible(false);
+        // NOTE: setBaseVisible n'existe pas dans ModelEngine R4.1.0
+        // Le setInvisible(true) sur l'entité Vanilla suffit
 
         return entity;
     }

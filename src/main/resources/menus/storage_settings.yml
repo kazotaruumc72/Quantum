@@ -1,0 +1,65 @@
+# ========================================
+# QUANTUM STORAGE - PARAMÈTRES
+# ========================================
+menu_title: '&8Paramètres du Quantum Storage'
+size: 27
+
+items:
+
+  border:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: ' '
+    custom_model_data: 1
+    slots: [0, 1, 2, 3, 5, 6, 7, 9, 17, 18, 19, 20, 21, 23, 24, 25, 26]
+
+  # ──────────────────────────────────────
+  # AUTOVENTE ON/OFF
+  # ──────────────────────────────────────
+  autosell_toggle:
+    slots: [11]
+    material: HOPPER
+    custom_model_data: 310
+    display_name: '&bAutovente'
+    lore:
+      - '&7Statut actuel: &e%quantum_autovente_statut%'
+      - ' '
+      - '&7Active ou désactive l''autovente'
+      - '&7pour ce Quantum Storage.'
+      - ' '
+      - '&e► Cliquez pour basculer ON/OFF'
+    type: quantum_autosell_toggle
+
+  # ──────────────────────────────────────
+  # LIMITE D'AUTOVENTE
+  # ──────────────────────────────────────
+  autosell_limit:
+    slots: [15]
+    material: PAPER
+    custom_model_data: 311
+    display_name: '&eLimite d''autovente'
+    lore:
+      - '&7Limite actuelle: &e%quantum_autovente_limite%'
+      - ' '
+      - '&7La quantité minimale d''items à'
+      - '&7garder en stock avant de vendre.'
+      - ' '
+      - '&eClic gauche: &a+10'
+      - '&eClic droit: &c-10'
+      - '&eShift + clic gauche: &a+1'
+      - '&eShift + clic droit: &c-1'
+    type: quantum_autosell_limit
+
+  # ──────────────────────────────────────
+  # RETOUR AU MENU PRINCIPAL
+  # ──────────────────────────────────────
+  back:
+    slots: [22]
+    material: ARROW
+    custom_model_data: 312
+    display_name: '&cRetour'
+    lore:
+      - '&7Revenir au menu principal du storage.'
+      - ' '
+      - '&e► Cliquez pour revenir'
+    type: quantum_open_menu
+    menu: storage.yml

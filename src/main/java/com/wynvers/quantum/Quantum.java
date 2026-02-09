@@ -215,6 +215,10 @@ public final class Quantum extends JavaPlugin {
         logger.success("✓ Transaction history enabled!");
 
         storageUpgradeManager = new StorageUpgradeManager();
+        getServer().getPluginManager().registerEvents(
+                new StorageSettingsMenuListener(this, storageUpgradeManager),
+                this
+        );
     }
 
     // ───────────────────── Ressources ─────────────────────

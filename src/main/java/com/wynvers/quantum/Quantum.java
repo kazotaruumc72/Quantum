@@ -19,6 +19,7 @@ import com.wynvers.quantum.listeners.SpawnSelectionListener;
 import com.wynvers.quantum.listeners.StorageListener;
 import com.wynvers.quantum.listeners.TowerKillListener;
 import com.wynvers.quantum.managers.*;
+import com.wynvers.quantum.menu.StorageSettingsMenuListener;
 import com.wynvers.quantum.orders.OrderAcceptanceHandler;
 import com.wynvers.quantum.orders.OrderButtonHandler;
 import com.wynvers.quantum.orders.OrderCreationManager;
@@ -93,7 +94,6 @@ public final class Quantum extends JavaPlugin {
     private SpawnSelectionManager spawnSelectionManager; // NEW: spawn zone selection
     private HealthBarManager healthBarManager;       // NEW: Health bar display system
     private StorageUpgradeManager storageUpgradeManager;
-    private StorageSettingsMenuListener storageSettingsMenuListener;
 
 
     private DungeonArmor dungeonArmor;     // Dungeon armor system

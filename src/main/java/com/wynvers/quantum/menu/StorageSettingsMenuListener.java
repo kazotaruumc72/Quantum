@@ -9,7 +9,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
 public class StorageSettingsMenuListener implements Listener {
 
@@ -27,51 +26,53 @@ public class StorageSettingsMenuListener implements Listener {
         Inventory inv = event.getClickedInventory();
         if (inv == null) return;
 
-        // On ne s'intéresse qu'à l'inventaire du haut (menu)
-        if (!event.getView().getTitle().contains("Paramètres du Quantum Storage")) {
-            return;
+        String title = event.getView().getTitle();
+        if (title == null || !title.contains("Paramètres du Quantum Storage")) {
+            return; // ce n'est pas le menu settings
         }
 
         event.setCancelled(true);
 
         int slot = event.getSlot();
-        ItemStack item = event.getCurrentItem();
-        if (item == null) return;
-
         ClickType click = event.getClick();
 
         switch (slot) {
-            case 11 -> { // autosell_toggle
+            case 11 -> { // toggle autovente
                 upgradeManager.toggleAutoSell(player);
-                // On rouvre pour rafraîchir les placeholders
-                Bukkit.getScheduler().runTaskLater(plugin,
-                        () -> plugin.getMenuManager().openMenu(player, "storage_settings"),
-                        1L);
+                reopenSettings(player);
             }
-            case 15 -> { // autosell_limit
+            case 15 -> { // changer la limite
                 int delta = 0;
-                if (click.isLeftClick() && !click.isShiftClick()) {
-                    delta = 10;
-                } else if (click.isRightClick() && !click.isShiftClick()) {
-                    delta = -10;
-                } else if (click.isLeftClick() && click.isShiftClick()) {
-                    delta = 1;
-                } else if (click.isRightClick() && click.isShiftClick()) {
-                    delta = -1;
-                }
+                if (click.isLeftClick() && !click.isShiftClick())       delta = 10;
+                else if (click.isRightClick() && !click.isShiftClick()) delta = -10;
+                else if (click.isLeftClick() && click.isShiftClick())   delta = 1;
+                else if (click.isRightClick() && click.isShiftClick())  delta = -1;
+
                 if (delta != 0) {
                     upgradeManager.changeAutoSellLimit(player, delta);
-                    Bukkit.getScheduler().runTaskLater(plugin,
-                            () -> plugin.getMenuManager().openMenu(player, "storage_settings"),
-                            1L);
+                    reopenSettings(player);
                 }
             }
-            case 22 -> { // bouton "Retour" (on laisse aussi quantum_open_menu faire le job si tu l'as)
-                plugin.getMenuManager().openMenu(player, "storage");
+            case 22 -> { // retour au menu principal
+                openStorageMain(player);
             }
             default -> {
                 // rien
             }
         }
+    }
+
+    private void reopenSettings(Player player) {
+        var menu = plugin.getMenuManager().getMenu("storage_settings");
+        if (menu == null) return;
+
+        Bukkit.getScheduler().runTask(plugin, () -> menu.open(player, plugin));
+    }
+
+    private void openStorageMain(Player player) {
+        var menu = plugin.getMenuManager().getMenu("storage");
+        if (menu == null) return;
+
+        Bukkit.getScheduler().runTask(plugin, () -> menu.open(player, plugin));
     }
 }

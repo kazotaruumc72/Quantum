@@ -57,7 +57,6 @@ public class MenuManager {
                         commandMenus.put(menu.getOpenCommand().toLowerCase(), menu);
                     }
                     
-                    // Log pour chaque menu chargé
                     plugin.getQuantumLogger().success("✓ Loaded menu: " + menuId + " (" + menu.getItems().size() + " items)");
                     loaded++;
                 }
@@ -127,12 +126,10 @@ public class MenuManager {
             }
         }
         
-        // === NOUVEAU : Charger le champ static depuis la config ===
         if (section.contains("static")) {
             item.setStatic(section.getBoolean("static"));
         }
         
-        // Gérer d'abord le champ 'type' (ancienne syntaxe)
         if (section.contains("type")) {
             String type = section.getString("type");
             item.setType(type);
@@ -140,26 +137,21 @@ public class MenuManager {
             if ("quantum_change_mode".equalsIgnoreCase(type)) {
                 item.setButtonType(ButtonType.QUANTUM_CHANGE_MODE);
                 
-                // Accepter 'mode' OU 'target_mode'
                 if (section.contains("target_mode")) {
                     item.setTargetMode(section.getString("target_mode"));
                 } else if (section.contains("mode")) {
                     item.setTargetMode(section.getString("mode"));
                 }
-            }
-            // Nouveau type: quantum_sell_item
-            else if ("quantum_sell_item".equalsIgnoreCase(type)) {
+            } else if ("quantum_sell_item".equalsIgnoreCase(type)) {
                 item.setButtonType(ButtonType.QUANTUM_SELL_ITEM);
             }
         }
         
-        // Gérer le champ 'button_type' (nouvelle syntaxe)
         if (section.contains("button_type")) {
             try {
                 ButtonType buttonType = ButtonType.valueOf(section.getString("button_type").toUpperCase());
                 item.setButtonType(buttonType);
                 
-                // Pour QUANTUM_CHANGE_MODE, accepter 'target_mode' OU 'mode'
                 if (buttonType == ButtonType.QUANTUM_CHANGE_MODE) {
                     if (section.contains("target_mode")) {
                         item.setTargetMode(section.getString("target_mode"));
@@ -168,14 +160,12 @@ public class MenuManager {
                     }
                 }
                 
-                // Pour QUANTUM_CHANGE_AMOUNT, charger le champ 'amount'
                 if (buttonType == ButtonType.QUANTUM_CHANGE_AMOUNT) {
                     if (section.contains("amount")) {
                         item.setChangeAmount(section.getInt("amount"));
                     }
                 }
                 
-                // === CHARGER LES PARAMETERS (NOUVELLE SYNTAXE) ===
                 if (section.contains("parameters")) {
                     ConfigurationSection paramsSection = section.getConfigurationSection("parameters");
                     if (paramsSection != null) {
@@ -238,10 +228,6 @@ public class MenuManager {
             }
         }
         
-        // Support pour les actions:
-        // 1. click_actions: [] (ancienne syntaxe simple)
-        // 2. left_click_actions: [] (DeluxeMenus)
-        // 3. left_click.actions: [] (Quantum original)
         if (section.contains("click_actions")) {
             List<String> actionStrings = section.getStringList("click_actions");
             for (String actionStr : actionStrings) {
@@ -251,8 +237,6 @@ public class MenuManager {
                 }
             }
         }
-        
-        // Supporter left_click_actions (style DeluxeMenus)
         if (section.contains("left_click_actions")) {
             List<String> actionStrings = section.getStringList("left_click_actions");
             for (String actionStr : actionStrings) {
@@ -262,11 +246,9 @@ public class MenuManager {
                 }
             }
         } else {
-            // Supporter left_click.actions (style original)
             loadActions(section, "left_click", item, true);
         }
         
-        // Supporter right_click_actions (style DeluxeMenus)
         if (section.contains("right_click_actions")) {
             List<String> actionStrings = section.getStringList("right_click_actions");
             for (String actionStr : actionStrings) {
@@ -276,7 +258,6 @@ public class MenuManager {
                 }
             }
         } else {
-            // Supporter right_click.actions (style original)
             loadActions(section, "right_click", item, false);
         }
         
@@ -395,17 +376,11 @@ public class MenuManager {
             activeMenus.put(uuid, menu);
         }
     }
-    /**
-     * Ouvre un menu avec une session de création d'ordre
-     * Utilisé pour les menus order_quantity et order_price
-     * 
-     * PATCH: Applique les placeholders de la session
-     * 
-     * @param player Le joueur
-     * @param menuId L'ID du menu à ouvrir
-     * @param session La session de création d'ordre
-     * @param displayItem L'item à afficher dans le menu (utilisé par QUANTUM_ORDER_DISPLAY_ITEM)
-     */
+    
+    public void clearActiveMenu(Player player) {
+        activeMenus.remove(player.getUniqueId());
+    }
+    
     public void openMenuWithSession(Player player, String menuId, OrderCreationSession session, ItemStack displayItem) {
         Menu menu = getMenu(menuId);
         if (menu == null) {
@@ -413,7 +388,6 @@ public class MenuManager {
             return;
         }
         
-        // PATCH: Ouvrir le menu en passant les placeholders de la session
         menu.open(player, plugin, session.getPlaceholders());
     }
     

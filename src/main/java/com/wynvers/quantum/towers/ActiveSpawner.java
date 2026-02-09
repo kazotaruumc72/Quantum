@@ -119,7 +119,7 @@ public class ActiveSpawner implements Listener {
     private LivingEntity spawnOneMob() {
         World world = player.getWorld();
         if (world == null) return null;
-
+    
         Location spawnLoc;
         if (config.getSpawnRegion() != null) {
             // Spawn dans la région configurée
@@ -133,25 +133,23 @@ public class ActiveSpawner implements Listener {
                     ThreadLocalRandom.current().nextDouble(-3, 3)
             );
         }
-
-        LivingEntity entity = (LivingEntity) world.spawnEntity(spawnLoc, config.getType());
-
+    
+        // ⭐ IMPORTANT : on utilise maintenant ModelEngine via TowerSpawnerConfig
         int runs = getRunsForPlayer();
-        double health = config.getHealthForRuns(runs);
-        entity.setMaxHealth(health);
-        entity.setHealth(health);
-
-        // Stocker les métadonnées
+        LivingEntity entity = config.spawnWithModelEngine(spawnLoc, runs);
+    
+        // Stocker les métadonnées (inchangé)
         PersistentDataContainer pdc = entity.getPersistentDataContainer();
         pdc.set(new NamespacedKey(plugin, "tower_spawner"), PersistentDataType.STRING, config.getId());
         pdc.set(new NamespacedKey(plugin, "tower_id"), PersistentDataType.STRING, towerId);
-        
+    
         // Métadatas pour TowerKillListener
         entity.setMetadata("tower_mob", new FixedMetadataValue(plugin, config.getMobId()));
         entity.setMetadata("spawner_id", new FixedMetadataValue(plugin, config.getId()));
-
+    
         return entity;
     }
+
     
     private void startMobSkills(LivingEntity mob) {
         MobSkillExecutor executor = plugin.getMobSkillExecutor();

@@ -93,6 +93,7 @@ public final class Quantum extends JavaPlugin {
     private SpawnSelectionManager spawnSelectionManager; // NEW: spawn zone selection
     private HealthBarManager healthBarManager;       // NEW: Health bar display system
     private StorageUpgradeManager storageUpgradeManager;
+    private StorageSettingsMenuListener storageSettingsMenuListener;
 
 
     private DungeonArmor dungeonArmor;     // Dungeon armor system

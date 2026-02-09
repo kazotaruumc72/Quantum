@@ -413,7 +413,8 @@ towers:
           fire_imp_pack:
             type: BLAZE
             model: "fire_imp"
-            display_name: "&cDiablotin de Feu"            base_health: 60.0
+            display_name: "&cDiablotin de Feu"            
+            base_health: 60.0
             damage: 8
             amount: 3
             interval: 55

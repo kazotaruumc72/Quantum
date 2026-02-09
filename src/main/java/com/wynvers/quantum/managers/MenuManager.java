@@ -127,6 +127,11 @@ public class MenuManager {
             }
         }
         
+        // === NOUVEAU : Charger le champ static depuis la config ===
+        if (section.contains("static")) {
+            item.setStatic(section.getBoolean("static"));
+        }
+        
         // Gérer d'abord le champ 'type' (ancienne syntaxe)
         if (section.contains("type")) {
             String type = section.getString("type");
@@ -390,11 +395,6 @@ public class MenuManager {
             activeMenus.put(uuid, menu);
         }
     }
-    
-    public void clearActiveMenu(Player player) {
-        activeMenus.remove(player.getUniqueId());
-    }
-    
     /**
      * Ouvre un menu avec une session de création d'ordre
      * Utilisé pour les menus order_quantity et order_price

@@ -23,6 +23,7 @@ items:
     display_name: ' '
     custom_model_data: 1
     slots: [1, 2, 3, 5, 6, 7, 45, 46, 47, 48, 50, 51, 52]
+    static: true
 
   # ──────────────────────────────────────
   # BOUTON: MODE STOCKAGE (Coin haut gauche)
@@ -44,6 +45,7 @@ items:
       - '&e► Cliquez pour activer'
     button_type: QUANTUM_CHANGE_MODE
     mode: STORAGE
+    static: true
 
   # ──────────────────────────────────────
   # BOUTON: MODE RECHERCHE (Milieu haut)
@@ -67,6 +69,7 @@ items:
       - '&e► Cliquez pour activer'
     button_type: QUANTUM_CHANGE_MODE
     mode: RECHERCHE
+    static: true
 
   # ──────────────────────────────────────
   # BOUTON: MODE VENTE (Coin haut droit)
@@ -88,6 +91,7 @@ items:
       - '&e► Cliquez pour activer'
     button_type: QUANTUM_CHANGE_MODE
     mode: SELL
+    static: true
 
   # ──────────────────────────────────────
   # SLOTS DE STOCKAGE DYNAMIQUES
@@ -125,6 +129,7 @@ items:
       - '&e► Cliquez pour ouvrir le menu des paramètres'
     type: quantum_open_menu
     menu: storage_settings.yml
+    static: true
 
   # ──────────────────────────────────────
   # BOUTON: STATUT AUTOVENTE
@@ -142,6 +147,7 @@ items:
       - '&7la limite configurée.'
       - ' '
       - '&e► Cliquez pour ouvrir les paramètres'
+    static: true
 
   # ──────────────────────────────────────
   # BOUTON: STATUT MULTIPLICATEUR
@@ -157,6 +163,7 @@ items:
       - '&7Augmente les gains lors de la vente.'
       - ' '
       - '&e► Cliquez pour gérer le multiplicateur'
+    static: true
 
   # ──────────────────────────────────────
   # BOUTON: STORAGE+
@@ -173,6 +180,7 @@ items:
       - '&7Améliore la capacité de ton Quantum Storage.'
       - ' '
       - '&e► Cliquez pour améliorer'
+    static: true
 
   # ──────────────────────────────────────
   # BOUTON: PAGE STORAGE 1
@@ -191,6 +199,7 @@ items:
     # quand utilisé, exécutera /quantum upgrade page 1 <player>
     type: quantum_give_nexo_page
     page: 1
+    static: true
 
   # ──────────────────────────────────────
   # BOUTON: PAGE STORAGE 2
@@ -207,6 +216,7 @@ items:
       - '&e► Cliquez pour recevoir l''item'
     type: quantum_give_nexo_page
     page: 2
+    static: true
 
   # ──────────────────────────────────────
   # BOUTON: FERMER
@@ -222,6 +232,7 @@ items:
       - '&e► Cliquez pour fermer'
     left_click_actions:
       - '[close]'
+    static: true
 
 # ========================================
 # NOTES IMPORTANTES

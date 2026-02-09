@@ -2,7 +2,8 @@ package com.wynvers.quantum.listeners;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.managers.MenuManager;
-import com.wynvers.quantum.orders.OrderButtonHandler;
+import com.wynvers.quantum.menu.Menu;
+import com.wynvers.quantum.menu.MenuItem;
 import com.wynvers.quantum.orders.OrderCreationManager;
 import com.wynvers.quantum.orders.OrderCreationSession;
 import com.wynvers.quantum.storage.PlayerStorage;
@@ -48,6 +49,25 @@ public class StorageListener implements Listener {
             
             ItemStack clicked = event.getCurrentItem();
             if (clicked == null || clicked.getType() == Material.AIR) return;
+            
+            // === FILTRE: Vérifier si c'est un bouton/item statique ===
+            Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
+            if (activeMenu != null) {
+                MenuItem menuItem = activeMenu.getItemAt(event.getSlot());
+                
+                // Si l'item existe dans la config et qu'il est marqué comme statique, on ignore
+                if (menuItem != null && menuItem.isStatic()) {
+                    // C'est un bouton/vitre statique, on laisse MenuListener gérer
+                    return;
+                }
+                
+                // Si ce n'est pas un slot de storage dynamique (quantum_storage), on ignore aussi
+                if (menuItem != null && !menuItem.isQuantumStorage()) {
+                    // C'est un bouton (mode, settings, etc.), on laisse MenuListener gérer
+                    return;
+                }
+            }
+            // === FIN DU FILTRE ===
             
             // Vérifier le mode du joueur
             StorageMode.Mode mode = StorageMode.getMode(player);
@@ -169,15 +189,11 @@ public class StorageListener implements Listener {
         }
         
         // Obtenir le prix depuis le PriceManager
-        // Pour Nexo: utilise l'ID sans le préfixe "nexo:" (ex: afzelia_bark)
-        // Pour Minecraft: utilise le MATERIAL en MAJUSCULES (ex: DIAMOND)
         String priceKey;
         if (itemId.startsWith("nexo:")) {
-            // Item Nexo: extraire l'ID sans le préfixe
-            priceKey = itemId.substring(5); // Retire "nexo:"
+            priceKey = itemId.substring(5);
         } else if (itemId.startsWith("minecraft:")) {
-            // Item Minecraft: extraire le material en MAJUSCULES
-            priceKey = itemId.substring(10).toUpperCase(); // Retire "minecraft:" et met en majuscules
+            priceKey = itemId.substring(10).toUpperCase();
         } else {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
             player.sendMessage("§c⚠ Format d'item non reconnu!");
@@ -196,7 +212,7 @@ public class StorageListener implements Listener {
         // Calculer le montant total
         double totalPrice = pricePerItem * toSell;
         
-        // Retirer les items du storage (en utilisant l'ID unifié)
+        // Retirer les items du storage
         storage.removeItemById(itemId, toSell);
         
         // Donner l'argent au joueur via VaultManager
@@ -242,9 +258,6 @@ public class StorageListener implements Listener {
     /**
      * Gère la création d'offre d'achat en mode RECHERCHE
      * IMPORTANT: NE RETIRE PAS LES ITEMS DU STORAGE !
-     * Crée la session et ouvre le menu avec placeholders appliqués
-     * 
-     * PATCH: Stocke l'ItemStack dans la session pour affichage
      */
     private void handleCreateOrder(Player player, ItemStack displayItem) {
         PlayerStorage storage = plugin.getStorageManager().getStorage(player);
@@ -280,14 +293,13 @@ public class StorageListener implements Listener {
             return;
         }
         
-        // === PATCH: STOCKER L'ITEMSTACK DANS LA SESSION ===
+        // Stocker l'ItemStack dans la session
         session.setDisplayItem(displayItem.clone());
         
         // Fermer l'inventaire et ouvrir le menu order_quantity
         player.closeInventory();
         player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
         
-        // PATCH: Utiliser la méthode openMenuWithSession correcte
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             MenuManager menuManager = plugin.getMenuManager();
             if (menuManager != null) {

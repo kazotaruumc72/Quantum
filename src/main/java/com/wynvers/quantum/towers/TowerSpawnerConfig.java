@@ -1,9 +1,15 @@
 package com.wynvers.quantum.towers;
 
 import com.wynvers.quantum.mobs.MobSkillConfig;
-
+import com.ticxo.modelengine.api.ModelEngineAPI;
+import com.ticxo.modelengine.api.model.ActiveModel;
+import com.ticxo.modelengine.api.model.ModeledEntity;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,30 +17,37 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Configuration d'un spawner de mob dans une tour.
+ * Configuration d'un spawner de mob dans une tour + méthode de spawn avec ModelEngine.
  */
 public class TowerSpawnerConfig {
 
-    private String fullId;  // ex: "tower_water:1:slime_pack_1"
-    private String mobId;   // ex: "slime_basic"
+    // ex: "tower_water:1:slime_pack_1"
+    private String fullId;
+
+    // ID du modèle ModelEngine (blueprint), ex: "slime_basic", "spider_melee_am"
+    private String mobId;
+
+    // Nom affiché au-dessus du mob, ex: "&bAraignée de méllée"
+    private String displayName;
+
     private EntityType type;
     private double baseHealth;
     private int damage;
     private int baseAmount;
     private int intervalSeconds;
     private int maxAlive;
-    
+
     // Scaling
     private int healthPerRunPercent;
     private int amountPerRun;
     private int maxExtraAmount;
-    
+
     // Skills
     private List<MobSkillConfig> skills = new ArrayList<>();
-    
-    // Animations
+
+    // Animations (clé logique -> nom d'animation ModelEngine)
     private Map<String, String> animations = new HashMap<>();
-    
+
     // Région de spawn (optionnelle)
     private SpawnRegion spawnRegion;
 
@@ -44,14 +57,21 @@ public class TowerSpawnerConfig {
     }
 
     private void loadFromConfig(ConfigurationSection section) {
+        // Type d’entité Vanilla (ZOMBIE, SKELETON, etc.)
         this.type = parseEntityType(section.getString("type", "ZOMBIE"));
+
+        // ID du modèle ModelEngine (blueprint)
         this.mobId = section.getString("model", "default");
+
+        // Nom affiché (pour nametag + healthbar)
+        this.displayName = section.getString("display_name", "&fMob");
+
         this.baseHealth = section.getDouble("base_health", 20.0);
         this.damage = section.getInt("damage", 1);
         this.baseAmount = section.getInt("amount", 1);
         this.intervalSeconds = section.getInt("interval", 60);
         this.maxAlive = section.getInt("max_alive", 10);
-        
+
         // Scaling
         ConfigurationSection scalingSec = section.getConfigurationSection("scaling");
         if (scalingSec != null) {
@@ -59,7 +79,7 @@ public class TowerSpawnerConfig {
             this.amountPerRun = scalingSec.getInt("amount_per_run", 1);
             this.maxExtraAmount = scalingSec.getInt("max_extra_amount", 5);
         }
-        
+
         // Skills
         if (section.contains("skills")) {
             List<?> rawSkills = section.getList("skills");
@@ -73,7 +93,7 @@ public class TowerSpawnerConfig {
                 }
             }
         }
-        
+
         // Animations
         ConfigurationSection animSec = section.getConfigurationSection("animations");
         if (animSec != null) {
@@ -81,7 +101,7 @@ public class TowerSpawnerConfig {
                 animations.put(key, animSec.getString(key));
             }
         }
-        
+
         // Région de spawn
         ConfigurationSection regionSec = section.getConfigurationSection("region");
         if (regionSec != null) {
@@ -111,13 +131,23 @@ public class TowerSpawnerConfig {
     public String getFullId() {
         return fullId;
     }
-    
+
     public String getId() {
         return fullId;
     }
 
+    /**
+     * ID du modèle ModelEngine (blueprint).
+     */
     public String getMobId() {
         return mobId;
+    }
+
+    /**
+     * Display name configuré dans towers.yml (nametag + healthbar).
+     */
+    public String getDisplayName() {
+        return displayName;
     }
 
     public EntityType getType() {
@@ -172,5 +202,54 @@ public class TowerSpawnerConfig {
         if (runs <= 0) return baseAmount;
         int extra = Math.min(runs * amountPerRun, maxExtraAmount);
         return baseAmount + extra;
+    }
+
+    // ============ INTÉGRATION MODELENGINE ============
+
+    /**
+     * Spawn un mob de ce spawner à une position donnée avec ModelEngine 4.
+     *
+     * @param location Où spawn
+     * @param runs     Nombre de runs (pour le scaling de la vie / amount)
+     * @return         L'entité vivante spawn (celle qui porte le modèle)
+     */
+    public LivingEntity spawnWithModelEngine(Location location, int runs) {
+        double health = getHealthForRuns(runs);
+        int damageValue = getDamageHalfHearts();
+
+        // Spawn vanilla
+        LivingEntity entity = (LivingEntity) location.getWorld().spawnEntity(location, type);
+
+        // Stats
+        if (entity.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null) {
+            entity.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+        }
+        entity.setHealth(health);
+
+        if (entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE) != null) {
+            entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(damageValue);
+        }
+
+        // Nom / nametag
+        entity.setCustomName(ChatColor.translateAlternateColorCodes('&', displayName));
+        entity.setCustomNameVisible(true);
+
+        // On ne veut voir que le modèle
+        entity.setInvisible(true);
+
+        // ===== ModelEngine 4 =====
+        // Crée une ModeledEntity à partir de l'entité Bukkit
+        ModeledEntity modeledEntity = ModelEngineAPI.createModeledEntity(entity);
+
+        // Crée un ActiveModel via l'ID du blueprint (ex: "spider_melee_am")
+        ActiveModel activeModel = ModelEngineAPI.createActiveModel(mobId);
+
+        // Ajoute le modèle à l'entité (true = visible immédiatement)
+        modeledEntity.addModel(activeModel, true);
+
+        // Cacher complètement le modèle de base côté ModelEngine (optionnel)
+        modeledEntity.setBaseVisible(false);
+
+        return entity;
     }
 }

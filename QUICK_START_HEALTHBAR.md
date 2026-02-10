@@ -7,7 +7,7 @@ To fix health bar positioning for ModelEngine mobs, add this to `mob_healthbar.y
 ```yaml
 "Your Mob Name":
   enabled: true
-  modelengine_offset: 1.2  # Adjust this value (0.3 = 1 line higher)
+  modelengine_offset: 1.2  # Height in blocks above the mob
   # ... other settings ...
 ```
 
@@ -27,43 +27,45 @@ symbols:
 
 ## Common Values
 
-| Mob Size | Recommended Offset | Lines Added |
+| Mob Size | Recommended Offset | Description |
 |----------|-------------------|-------------|
-| Tiny (slime) | 0.6 - 0.9 | 2-3 lines |
-| Small | 0.9 - 1.2 | 3-4 lines |
-| Medium | 1.2 - 1.5 | 4-5 lines |
-| Large | 1.5 - 2.1 | 5-7 lines |
-| Boss | 2.1 - 2.7 | 7-9 lines |
+| Tiny (slime) | 0.6 - 0.9 | Small models |
+| Small | 0.9 - 1.2 | Standard small mobs |
+| Medium | 1.2 - 1.5 | Human-sized mobs |
+| Large | 1.5 - 2.1 | Large creatures |
+| Boss | 2.1 - 2.7 | Very large bosses |
 
 ## Examples from Config
 
 ```yaml
 # Small water slime
 "Slime d'Eau":
-  modelengine_offset: 1.0
+  modelengine_offset: 1.0  # 1 block above
 
 # Medium guardian
 "Gardien de l'Eau":
-  modelengine_offset: 1.2
+  modelengine_offset: 1.2  # 1.2 blocks above
 
 # Large servant
 "Serviteur d'Eau":
-  modelengine_offset: 1.5
+  modelengine_offset: 1.5  # 1.5 blocks above
 
 # Boss knight
 "⚔ Chevalier de l'Eau ⚔":
-  modelengine_offset: 2.0
+  modelengine_offset: 2.0  # 2 blocks above
 ```
 
 ## Adjustment Formula
 
 ```
-New offset = Current offset ± 0.3
+New offset = Current offset ± 0.1 to 0.2
 ```
 
-- Too low? Add 0.3
-- Too high? Subtract 0.3
-- Way off? Adjust by multiples of 0.3
+- Too low? Add 0.1-0.2
+- Too high? Subtract 0.1-0.2
+- Way off? Adjust by larger increments (0.5)
+
+**Note:** The offset is in Minecraft blocks. 1.0 = 1 block above the entity.
 
 ## Global Default
 
@@ -76,6 +78,14 @@ global:
 
 Individual mob settings override this global default.
 
+## How It Works
+
+The system uses **TextDisplay entities** (introduced in Minecraft 1.19.4) instead of custom names with newlines, because:
+- Newlines in custom names stopped working in Minecraft 1.20.5+
+- TextDisplay provides precise positioning
+- The healthbar automatically follows the mob as it moves
+- Updates 4 times per second for smooth tracking
+
 ## Troubleshooting
 
 **Health bar doesn't move?**
@@ -85,9 +95,13 @@ Individual mob settings override this global default.
 4. Run `/quantum reload` after config changes
 
 **Health bar still wrong?**
-- Adjust in increments of 0.3
-- Client rendering varies - test with actual players
-- Consider different player GUI scales
+- Adjust in increments of 0.1-0.2 blocks
+- Remember: offset is the Y-coordinate above the entity
+- Test with actual players to see final result
+
+**Health bar doesn't follow mob?**
+- Normal - it updates every 5 ticks (0.25 seconds)
+- If it never follows, restart the server
 
 ## Need More Help?
 

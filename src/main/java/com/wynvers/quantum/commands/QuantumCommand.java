@@ -11,12 +11,20 @@ public class QuantumCommand implements CommandExecutor {
     private final OrdersAdminCommand ordersAdminCommand;
     private final StatsCommand statsCommand;
     private final StorageStatsCommand storageStatsCommand;
+    private final QuantumTowerCommand towerCommand;
 
     public QuantumCommand(Quantum plugin) {
         this.plugin = plugin;
         this.ordersAdminCommand = new OrdersAdminCommand(plugin);
         this.statsCommand = new StatsCommand(plugin);
         this.storageStatsCommand = new StorageStatsCommand(plugin);
+        this.towerCommand = new QuantumTowerCommand(
+            plugin, 
+            plugin.getTowerManager(), 
+            plugin.getDoorManager(), 
+            plugin.getNPCManager(), 
+            plugin.getLootManager()
+        );
     }
 
     @Override
@@ -44,6 +52,13 @@ public class QuantumCommand implements CommandExecutor {
         // Commandes Storage Stats
         if (subCommand.equals("storagestats") || subCommand.equals("sstats")) {
             return storageStatsCommand.onCommand(sender, command, label, args);
+        }
+        
+        // Tower-related commands - delegate to QuantumTowerCommand
+        if (subCommand.equals("tower") || subCommand.equals("door") || subCommand.equals("npc") ||
+            subCommand.equals("progress") || subCommand.equals("reset") || 
+            subCommand.equals("info") || subCommand.equals("mobspawnzone")) {
+            return towerCommand.onCommand(sender, command, label, args);
         }
 
         switch (subCommand) {
@@ -203,5 +218,13 @@ public class QuantumCommand implements CommandExecutor {
     private void sendHelp(CommandSender sender) {
         sender.sendMessage("§6§lCOMMANDES QUANTUM");
         sender.sendMessage("§e/quantum reload [all|runes|config|towers|price|messages|...]");
+        sender.sendMessage("§e/quantum stats [category] §7- Afficher les statistiques");
+        sender.sendMessage("§e/quantum storagestats §7- Stats du storage");
+        if (sender.hasPermission("quantum.admin.orders")) {
+            sender.sendMessage("§e/quantum orders button <create|delete>categorie <nom>");
+        }
+        if (plugin.getTowerManager() != null) {
+            sender.sendMessage("§e/quantum tower|door|npc §7- Commandes des tours");
+        }
     }
 }

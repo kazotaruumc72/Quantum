@@ -487,7 +487,7 @@ public class MobSkillExecutor {
         
         // Particules d'explosion
         mobLoc.getWorld().spawnParticle(
-            org.bukkit.Particle.EXPLOSION_HUGE,
+            org.bukkit.Particle.EXPLOSION_EMITTER,
             mobLoc,
             3, 0.5, 0.5, 0.5, 0.1
         );
@@ -617,7 +617,7 @@ public class MobSkillExecutor {
             
             // Particules
             player.getWorld().spawnParticle(
-                org.bukkit.Particle.EXPLOSION_NORMAL,
+                org.bukkit.Particle.EXPLOSION,
                 player.getLocation(),
                 20, 0.5, 0.5, 0.5, 0.1
             );
@@ -653,7 +653,7 @@ public class MobSkillExecutor {
             
             // Particules
             player.getWorld().spawnParticle(
-                org.bukkit.Particle.SMOKE_NORMAL,
+                org.bukkit.Particle.SMOKE,
                 player.getLocation().add(0, 1, 0),
                 30, 0.3, 0.5, 0.3, 0.05
             );

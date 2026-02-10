@@ -2,7 +2,7 @@ package com.wynvers.quantum.furniture;
 
 import com.nexomc.nexo.api.NexoFurniture;
 import com.nexomc.nexo.api.NexoItems;
-import com.nexomc.nexo.furniture.FurnitureMechanic;
+import com.nexomc.nexo.mechanics.furniture.FurnitureMechanic;
 import com.wynvers.quantum.Quantum;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

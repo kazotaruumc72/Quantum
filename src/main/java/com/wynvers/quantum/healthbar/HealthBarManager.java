@@ -170,8 +170,23 @@ public class HealthBarManager {
     
     /**
      * Génère la barre de vie formatée pour un mob
+     * Méthode de compatibilité qui délègue à la méthode principale sans indicateur ModelEngine
+     * 
+     * Generates the formatted health bar for a mob
+     * Compatibility method that delegates to the main method without ModelEngine indicator
      */
     public String generateHealthBar(LivingEntity entity, HealthBarMode mode) {
+        return generateHealthBar(entity, mode, false);
+    }
+    
+    /**
+     * Génère la barre de vie formatée pour un mob avec indicateur ModelEngine optionnel
+     * @param entity L'entité pour laquelle générer la barre de vie
+     * @param mode Le mode d'affichage (PERCENTAGE, HEARTS, etc.)
+     * @param hasModelEngine Si true, ajoute un indicateur visuel pour signaler un modèle ModelEngine
+     * @return La chaîne formatée de la barre de vie
+     */
+    public String generateHealthBar(LivingEntity entity, HealthBarMode mode, boolean hasModelEngine) {
         double health = entity.getHealth();
         double maxHealth = entity.getMaxHealth();
         double percentage = (health / maxHealth) * 100.0;
@@ -192,13 +207,13 @@ public class HealthBarManager {
         // Générer selon le format
         switch (format.toUpperCase()) {
             case "HEARTS":
-                return generateHeartsDisplay(entity, health, maxHealth, mobSection);
+                return generateHeartsDisplay(entity, health, maxHealth, mobSection, hasModelEngine);
             case "NUMERIC":
-                return generateNumericDisplay(entity, health, maxHealth, mobSection);
+                return generateNumericDisplay(entity, health, maxHealth, mobSection, hasModelEngine);
             case "BOSS_BAR":
             case "CLASSIC":
             default:
-                return generateClassicDisplay(entity, health, maxHealth, percentage, mobSection);
+                return generateClassicDisplay(entity, health, maxHealth, percentage, mobSection, hasModelEngine);
         }
     }
     
@@ -206,7 +221,7 @@ public class HealthBarManager {
      * Affichage classique avec barre de couleur
      */
     private String generateClassicDisplay(LivingEntity entity, double health, double maxHealth, 
-                                          double percentage, ConfigurationSection mobSection) {
+                                          double percentage, ConfigurationSection mobSection, boolean hasModelEngine) {
         String color = getHealthColor(entity, percentage, mobSection);
         
         // Longueur de la barre depuis la config
@@ -223,7 +238,12 @@ public class HealthBarManager {
         String leftBracket = mobConfig.getString("symbols.bar.left_bracket", "[");
         String rightBracket = mobConfig.getString("symbols.bar.right_bracket", "]");
         
-        StringBuilder bar = new StringBuilder("§8" + leftBracket);
+        StringBuilder bar = new StringBuilder();
+        
+        // Ajouter l'indicateur ModelEngine au début si applicable
+        bar.append(getModelEngineIndicator(hasModelEngine));
+        
+        bar.append("§8").append(leftBracket);
         for (int i = 0; i < barLength; i++) {
             if (i < filledBars) {
                 bar.append(color).append(filledSymbol);
@@ -264,7 +284,7 @@ public class HealthBarManager {
      * Affichage en cœurs
      */
     private String generateHeartsDisplay(LivingEntity entity, double health, double maxHealth,
-                                        ConfigurationSection mobSection) {
+                                        ConfigurationSection mobSection, boolean hasModelEngine) {
         double percentage = (health / maxHealth) * 100.0;
         String color = getHealthColor(entity, percentage, mobSection);
         
@@ -280,7 +300,12 @@ public class HealthBarManager {
         int fullHearts = (int) hearts;
         boolean hasHalfHeart = (hearts - fullHearts) >= 0.5;
         
-        StringBuilder display = new StringBuilder(color);
+        StringBuilder display = new StringBuilder();
+        
+        // Ajouter l'indicateur ModelEngine au début si applicable
+        display.append(getModelEngineIndicator(hasModelEngine));
+        
+        display.append(color);
         
         // Afficher les cœurs pleins
         for (int i = 0; i < fullHearts; i++) {
@@ -317,12 +342,21 @@ public class HealthBarManager {
      * Affichage numérique uniquement
      */
     private String generateNumericDisplay(LivingEntity entity, double health, double maxHealth,
-                                         ConfigurationSection mobSection) {
+                                         ConfigurationSection mobSection, boolean hasModelEngine) {
         double percentage = (health / maxHealth) * 100.0;
         String color = getHealthColor(entity, percentage, mobSection);
         
-        return color + percentFormat.format(health) + "§7/" + 
-               percentFormat.format(maxHealth) + " HP";
+        StringBuilder display = new StringBuilder();
+        
+        // Ajouter l'indicateur ModelEngine au début si applicable
+        display.append(getModelEngineIndicator(hasModelEngine));
+        
+        display.append(color).append(percentFormat.format(health))
+               .append("§7/")
+               .append(percentFormat.format(maxHealth))
+               .append(" HP");
+        
+        return display.toString();
     }
     
     /**
@@ -385,7 +419,20 @@ public class HealthBarManager {
         
         ConfigurationSection mobSection = getMobConfig(entity);
         HealthBarMode mode = getMode(viewer);
-        String healthBar = generateHealthBar(entity, mode);
+        
+        // Vérifier si l'entité utilise un modèle ModelEngine
+        boolean hasModelEngine = false;
+        if (Bukkit.getPluginManager().getPlugin("ModelEngine") != null) {
+            try {
+                // ModelEngineAPI.getModeledEntity() retourne null si l'entité n'a pas de modèle
+                hasModelEngine = ModelEngineAPI.getModeledEntity(entity.getUniqueId()) != null;
+            } catch (IllegalStateException e) {
+                // ModelEngine n'est pas complètement chargé
+                hasModelEngine = false;
+            }
+        }
+        
+        String healthBar = generateHealthBar(entity, mode, hasModelEngine);
         
         // Récupérer le nom d'origine du mob
         String originalName = entity.getCustomName();
@@ -398,18 +445,6 @@ public class HealthBarManager {
             originalName = getDisplayName(entity, mobSection);
         } else if (!mobConfig.getBoolean("global.override_custom_names", false)) {
             // Garder le nom custom d'origine
-        }
-        
-        // Vérifier si l'entité utilise un modèle ModelEngine
-        boolean hasModelEngine = false;
-        if (Bukkit.getPluginManager().getPlugin("ModelEngine") != null) {
-            try {
-                // ModelEngineAPI.getModeledEntity() retourne null si l'entité n'a pas de modèle
-                hasModelEngine = ModelEngineAPI.getModeledEntity(entity.getUniqueId()) != null;
-            } catch (IllegalStateException e) {
-                // ModelEngine n'est pas complètement chargé
-                hasModelEngine = false;
-            }
         }
         
         // Calculer l'offset pour les modèles ModelEngine
@@ -440,5 +475,20 @@ public class HealthBarManager {
         }
         // Utiliser l'offset par défaut de la configuration globale
         return mobConfig.getDouble("global.default_modelengine_offset", 0.0);
+    }
+    
+    /**
+     * Récupère l'indicateur visuel ModelEngine formaté si applicable
+     * @param hasModelEngine Si l'entité utilise un modèle ModelEngine
+     * @return L'indicateur formaté avec couleur et espace, ou chaîne vide si pas de ModelEngine
+     */
+    private String getModelEngineIndicator(boolean hasModelEngine) {
+        if (!hasModelEngine) {
+            return "";
+        }
+        
+        String meIndicator = mobConfig.getString("symbols.modelengine.indicator", "⚙");
+        String meColor = mobConfig.getString("symbols.modelengine.color", "&7").replace("&", "§");
+        return meColor + meIndicator + " ";
     }
 }

@@ -13,6 +13,18 @@ To fix health bar positioning for ModelEngine mobs, add this to `mob_healthbar.y
 
 Then reload: `/quantum reload`
 
+## Visual Indicator
+
+Mobs with ModelEngine models automatically display a ⚙ symbol at the start of their health bar, making them easy to identify.
+
+**Customize the indicator in `mob_healthbar.yml`:**
+```yaml
+symbols:
+  modelengine:
+    indicator: "⚙"  # Change to any symbol: ⚡, ✦, ⬟, ●, ◆
+    color: "&7"     # Color code
+```
+
 ## Common Values
 
 | Mob Size | Recommended Offset | Lines Added |

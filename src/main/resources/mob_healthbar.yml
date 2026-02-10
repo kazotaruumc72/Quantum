@@ -725,3 +725,9 @@ symbols:
   boss:
     prefix: "⚔"
     suffix: "⚔"
+  
+  modelengine:
+    # Indicateur visuel pour les mobs avec modèle ModelEngine
+    # Visual indicator for mobs with ModelEngine model
+    indicator: "⚙"
+    color: "&7"

@@ -189,6 +189,92 @@ public class QuantumCommand implements CommandExecutor {
                             }
                             break;
 
+                        case "scoreboard":
+                        case "scoreboard.yml":
+                            if (plugin.getScoreboardConfig() != null) {
+                                plugin.getScoreboardConfig().reload();
+                                sender.sendMessage("§a§l✓ §ascoreboard.yml rechargé!");
+                            }
+                            break;
+
+                        case "towerscoreboard":
+                        case "tower_scoreboard":
+                            if (plugin.getTowerScoreboardHandler() != null) {
+                                plugin.getTowerScoreboardHandler().reload();
+                                sender.sendMessage("§a§l✓ §aTower scoreboard rechargé!");
+                            }
+                            break;
+
+                        case "mobskills":
+                        case "mob_skills":
+                        case "mob_skills.yml":
+                            if (plugin.getMobSkillManager() != null) {
+                                plugin.getMobSkillManager().reload();
+                                sender.sendMessage("§a§l✓ §amob_skills.yml rechargé!");
+                            }
+                            break;
+
+                        case "mobanimations":
+                        case "mob_animations":
+                            if (plugin.getMobAnimationManager() != null) {
+                                plugin.getMobAnimationManager().reload();
+                                sender.sendMessage("§a§l✓ §aMob animations rechargées!");
+                            }
+                            break;
+
+                        case "healthbar":
+                        case "healthbars":
+                        case "mob_healthbar":
+                        case "mob_healthbar.yml":
+                            if (plugin.getHealthBarManager() != null) {
+                                plugin.getHealthBarManager().reload();
+                                sender.sendMessage("§a§l✓ §amob_healthbar.yml rechargé!");
+                            }
+                            break;
+
+                        case "furniture":
+                        case "furniture.yml":
+                            if (plugin.getFurnitureManager() != null) {
+                                plugin.getFurnitureManager().reload();
+                                sender.sendMessage("§a§l✓ §afurniture.yml rechargé!");
+                            }
+                            break;
+
+                        case "crops":
+                        case "custom_crops":
+                        case "custom_crops.yml":
+                            if (plugin.getCustomCropManager() != null) {
+                                plugin.getCustomCropManager().reload();
+                                sender.sendMessage("§a§l✓ §acustom_crops.yml rechargé!");
+                            }
+                            break;
+
+                        case "tools":
+                        case "tools.yml":
+                            if (plugin.getToolManager() != null) {
+                                plugin.getToolManager().reload();
+                                sender.sendMessage("§a§l✓ §atools.yml rechargé!");
+                            }
+                            break;
+
+                        case "structures":
+                        case "structures.yml":
+                            if (plugin.getStructureManager() != null) {
+                                plugin.getStructureManager().reload();
+                                sender.sendMessage("§a§l✓ §astructures.yml rechargé!");
+                            }
+                            break;
+
+                        case "weapon":
+                        case "weapons":
+                        case "dungeon_weapon":
+                        case "dungeon_weapon.yml":
+                            if (plugin.getDungeonWeapon() != null) {
+                                plugin.getDungeonWeapon().reload();
+                                sender.sendMessage("§a§l✓ §adungeon_weapon.yml rechargé!");
+                            }
+                            break;
+
                         default:
                             sender.sendMessage("§c⚠ Type de reload invalide!");
                             break;
@@ -228,6 +314,16 @@ public class QuantumCommand implements CommandExecutor {
         if (plugin.getStatisticsManager() != null) plugin.getStatisticsManager().loadStatistics();
         if (plugin.getStorageManager() != null) plugin.getStorageManager().reload();
         if (plugin.getAnimationManager() != null) plugin.getAnimationManager().reload();
+        if (plugin.getScoreboardConfig() != null) plugin.getScoreboardConfig().reload();
+        if (plugin.getTowerScoreboardHandler() != null) plugin.getTowerScoreboardHandler().reload();
+        if (plugin.getMobSkillManager() != null) plugin.getMobSkillManager().reload();
+        if (plugin.getMobAnimationManager() != null) plugin.getMobAnimationManager().reload();
+        if (plugin.getHealthBarManager() != null) plugin.getHealthBarManager().reload();
+        if (plugin.getFurnitureManager() != null) plugin.getFurnitureManager().reload();
+        if (plugin.getCustomCropManager() != null) plugin.getCustomCropManager().reload();
+        if (plugin.getToolManager() != null) plugin.getToolManager().reload();
+        if (plugin.getStructureManager() != null) plugin.getStructureManager().reload();
+        if (plugin.getDungeonWeapon() != null) plugin.getDungeonWeapon().reload();
 
         sender.sendMessage("§a§l✓ §aTout a été rechargé avec succès!");
     }

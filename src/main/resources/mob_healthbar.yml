@@ -143,6 +143,20 @@ global:
     25: "&4"  # Rouge
     0: "&8"   # Gris foncé
 
+"Araignée de Feu":
+  enabled: true
+  name_color: "&c"
+  bar_length: 15
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  modelengine_offset: 0.6
+  color_thresholds:
+    75: "&6"  # Or
+    50: "&c"  # Rouge clair
+    25: "&4"  # Rouge
+    0: "&8"   # Gris foncé
+
 # ========================================
 #   MOBS HOSTILES - OVERWORLD
 # ========================================

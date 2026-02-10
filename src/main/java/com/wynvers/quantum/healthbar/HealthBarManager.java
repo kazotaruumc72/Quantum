@@ -134,8 +134,8 @@ public class HealthBarManager {
             }
             customName = customName.replaceAll("&[0-9a-fk-or]", ""); // Retirer les codes couleur
             
-            if (mobConfig.contains("custom_mobs.\"" + customName + "\"")) {
-                return mobConfig.getBoolean("custom_mobs.\"" + customName + "\".enabled", true);
+            if (mobConfig.contains("\"" + customName + "\"")) {
+                return mobConfig.getBoolean("\"" + customName + "\".enabled", true);
             }
         }
         
@@ -157,7 +157,7 @@ public class HealthBarManager {
             }
             customName = customName.replaceAll("&[0-9a-fk-or]", "");
             
-            ConfigurationSection section = mobConfig.getConfigurationSection("custom_mobs.\"" + customName + "\"");
+            ConfigurationSection section = mobConfig.getConfigurationSection("\"" + customName + "\"");
             if (section != null) {
                 return section;
             }

@@ -367,6 +367,7 @@ public class StorageMenuHandler {
                 plugin.getMenuManager().openMenuWithSession(player, "order_quantity", session, displayItem);
             } else {
                 player.sendMessage("§c⚠ Session de création d'ordre perdue!");
+                orderManager.cancelOrder(player);
             }
         }, 2L);
     }

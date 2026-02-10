@@ -45,11 +45,22 @@ public class HealthBarListener implements Listener {
             }
         }, 1L);
         
-        // Mettre à jour pour tous les joueurs dans un rayon de 50 blocs
-        entity.getWorld().getNearbyEntities(entity.getLocation(), 50, 50, 50).stream()
-            .filter(e -> e instanceof Player)
-            .map(e -> (Player) e)
-            .forEach(player -> healthBarManager.updateMobHealthDisplay(entity, player));
+        // Délai de 2 ticks pour la mise à jour de la healthbar
+        // Nécessaire car:
+        // - Pour les mobs spawned via TowerSpawnerConfig.spawnWithModelEngine(), le custom name
+        //   et le modèle ModelEngine sont appliqués APRÈS l'EntitySpawnEvent
+        // - Le délai permet à la configuration complète du mob (nom + modèle) d'être appliquée
+        //   avant que la healthbar ne soit générée
+        // - Sans ce délai, la healthbar serait calculée avec un nom vide ou incorrecte
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (entity.isValid() && !entity.isDead()) {
+                // Mettre à jour pour tous les joueurs dans un rayon de 50 blocs
+                entity.getWorld().getNearbyEntities(entity.getLocation(), 50, 50, 50).stream()
+                    .filter(e -> e instanceof Player)
+                    .map(e -> (Player) e)
+                    .forEach(player -> healthBarManager.updateMobHealthDisplay(entity, player));
+            }
+        }, 2L);
     }
     
     /**

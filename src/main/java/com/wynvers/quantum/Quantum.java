@@ -585,6 +585,11 @@ public final class Quantum extends JavaPlugin {
             mobAnimationManager.shutdown();
             logger.success("✓ Mob animations stopped");
         }
+        
+        if (healthBarManager != null) {
+            healthBarManager.shutdown();
+            logger.success("✓ HealthBar displays cleaned up");
+        }
 
         if (escrowManager != null) {
             escrowManager.saveEscrow();

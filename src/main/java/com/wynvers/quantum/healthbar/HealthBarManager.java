@@ -4,12 +4,17 @@ import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
 import com.wynvers.quantum.Quantum;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,13 +25,12 @@ import java.util.UUID;
 
 /**
  * Gestionnaire de l'affichage des barres de vie des mobs
+ * 
+ * Utilise des entités TextDisplay (Minecraft 1.19.4+) pour afficher les barres de vie
+ * au-dessus des mobs, car les newlines dans les noms custom ne fonctionnent plus
+ * dans Minecraft 1.20.5+/1.21+
  */
 public class HealthBarManager {
-    
-    // Espacement vertical ajouté par chaque ligne de texte (newline)
-    // Chaque '\n' ajoute environ 0.3 blocs de hauteur verticale
-    // Cette valeur est une approximation basée sur le rendu client
-    private static final double VERTICAL_SPACING_PER_NEWLINE = 0.3;
     
     private final Quantum plugin;
     private final Map<UUID, HealthBarMode> playerModes = new HashMap<>();
@@ -38,10 +42,77 @@ public class HealthBarManager {
     private File mobConfigFile;
     private FileConfiguration mobConfig;
     
+    // Map pour tracker les TextDisplay entities associées aux mobs
+    // Key: UUID du mob, Value: UUID de la TextDisplay
+    private final Map<UUID, UUID> mobHealthDisplays = new HashMap<>();
+    
+    // Task ID pour le rafraîchissement périodique des positions
+    private int updateTaskId = -1;
+    
     public HealthBarManager(Quantum plugin) {
         this.plugin = plugin;
         loadConfig();
         loadMobConfig();
+        startPositionUpdateTask();
+    }
+    
+    /**
+     * Démarre une tâche périodique pour mettre à jour les positions des TextDisplay
+     */
+    private void startPositionUpdateTask() {
+        // Mise à jour toutes les 5 ticks (4 fois par seconde) pour un mouvement fluide
+        updateTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+            // Itérer sur toutes les healthbars actives
+            mobHealthDisplays.forEach((mobUUID, displayUUID) -> {
+                org.bukkit.entity.Entity mobEntity = Bukkit.getEntity(mobUUID);
+                org.bukkit.entity.Entity displayEntity = Bukkit.getEntity(displayUUID);
+                
+                // Vérifier que les deux entités existent toujours
+                if (mobEntity instanceof LivingEntity && mobEntity.isValid() && 
+                    displayEntity instanceof TextDisplay && displayEntity.isValid()) {
+                    
+                    LivingEntity mob = (LivingEntity) mobEntity;
+                    TextDisplay display = (TextDisplay) displayEntity;
+                    
+                    // Vérifier si l'entité a ModelEngine
+                    boolean hasModelEngine = false;
+                    if (Bukkit.getPluginManager().getPlugin("ModelEngine") != null) {
+                        try {
+                            hasModelEngine = ModelEngineAPI.getModeledEntity(mob.getUniqueId()) != null;
+                        } catch (IllegalStateException e) {
+                            // Ignorer
+                        }
+                    }
+                    
+                    // Calculer l'offset
+                    ConfigurationSection mobSection = getMobConfig(mob);
+                    double yOffset = 0.5; // Défaut
+                    if (hasModelEngine) {
+                        double modelEngineOffset = getModelEngineOffset(mobSection);
+                        if (modelEngineOffset > 0) {
+                            yOffset = modelEngineOffset;
+                        }
+                    }
+                    
+                    // Mettre à jour la position
+                    Location newLoc = mob.getLocation().add(0, yOffset, 0);
+                    if (!display.getLocation().equals(newLoc)) {
+                        display.teleport(newLoc);
+                    }
+                }
+            });
+        }, 5L, 5L); // 5 ticks de délai initial, puis toutes les 5 ticks
+    }
+    
+    /**
+     * Arrête la tâche de mise à jour et nettoie toutes les TextDisplay
+     */
+    public void shutdown() {
+        if (updateTaskId != -1) {
+            plugin.getServer().getScheduler().cancelTask(updateTaskId);
+            updateTaskId = -1;
+        }
+        cleanupAllDisplays();
     }
     
     /**
@@ -404,17 +475,25 @@ public class HealthBarManager {
     }
     
     /**
-     * Met à jour le nom custom d'un mob avec sa barre de vie
+     * Met à jour l'affichage de la barre de vie d'un mob en utilisant une entité TextDisplay
+     * 
+     * Note: Depuis Minecraft 1.20.5+, les newlines dans setCustomName() ne fonctionnent plus.
+     * On utilise donc des TextDisplay entities pour afficher les barres de vie avec un offset vertical précis.
      */
     public void updateMobHealthDisplay(LivingEntity entity, Player viewer) {
         if (entity instanceof Player) return; // Ne pas afficher pour les joueurs
         
         // Vérifier si activé pour ce mob
-        if (!isMobEnabled(entity)) return;
+        if (!isMobEnabled(entity)) {
+            // Si désactivé, nettoyer l'affichage existant
+            removeHealthDisplay(entity);
+            return;
+        }
         
         // Vérifier hide_at_full_health
         if (mobConfig.getBoolean("global.hide_at_full_health", false)) {
             if (entity.getHealth() >= entity.getMaxHealth()) {
+                removeHealthDisplay(entity);
                 return;
             }
         }
@@ -426,61 +505,111 @@ public class HealthBarManager {
         boolean hasModelEngine = false;
         if (Bukkit.getPluginManager().getPlugin("ModelEngine") != null) {
             try {
-                // ModelEngineAPI.getModeledEntity() retourne null si l'entité n'a pas de modèle
                 hasModelEngine = ModelEngineAPI.getModeledEntity(entity.getUniqueId()) != null;
             } catch (IllegalStateException e) {
-                // ModelEngine n'est pas complètement chargé
                 hasModelEngine = false;
             }
         }
         
         String healthBar = generateHealthBar(entity, mode, hasModelEngine);
         
-        // Récupérer le nom d'origine du mob
+        // Récupérer le nom d'affichage du mob
         String originalName = entity.getCustomName();
-        if (originalName != null && originalName.contains("\n")) {
-            // Extraire le nom en sautant les newlines d'offset au début
-            String[] parts = originalName.split("\n");
-            // Trouver la première partie non-vide (le nom réel)
-            String extractedName = null;
-            for (String part : parts) {
-                if (!part.isEmpty()) {
-                    extractedName = part;
-                    break;
-                }
-            }
-            // Si toutes les parties sont vides, utiliser le display name par défaut
-            if (extractedName != null) {
-                originalName = extractedName;
-            } else {
-                originalName = getDisplayName(entity, mobSection);
-            }
-        }
-        
-        // Si pas de nom custom et qu'on ne doit pas override
         if (originalName == null || originalName.isEmpty()) {
             originalName = getDisplayName(entity, mobSection);
         } else if (!mobConfig.getBoolean("global.override_custom_names", false)) {
-            // Garder le nom custom d'origine
+            // Garder le nom custom existant (enlever les anciennes newlines si présentes)
+            originalName = originalName.replace("\n", "").trim();
         }
         
-        // Calculer l'offset pour les modèles ModelEngine
-        String offsetNewlines = "";
+        // Définir le nom custom du mob (sans healthbar)
+        entity.setCustomName(originalName);
+        entity.setCustomNameVisible(true);
+        
+        // Calculer l'offset vertical pour les modèles ModelEngine
+        double baseOffset = 0.5; // Offset par défaut au-dessus de l'entité
         if (hasModelEngine) {
-            double offset = getModelEngineOffset(mobSection);
-            if (offset > 0) {
-                // Ajouter des lignes vides proportionnelles à l'offset
-                // Chaque '\n' ajoute environ VERTICAL_SPACING_PER_NEWLINE blocs de hauteur
-                int numLines = (int) Math.round(offset / VERTICAL_SPACING_PER_NEWLINE);
-                offsetNewlines = "\n".repeat(Math.max(0, numLines));
+            double modelEngineOffset = getModelEngineOffset(mobSection);
+            if (modelEngineOffset > 0) {
+                baseOffset = modelEngineOffset;
             }
         }
         
-        // Construire le nouveau nom avec la barre de vie et l'offset
-        String newName = offsetNewlines + originalName + "\n" + healthBar;
+        // Créer ou mettre à jour la TextDisplay entity
+        createOrUpdateHealthDisplay(entity, healthBar, baseOffset);
+    }
+    
+    /**
+     * Crée ou met à jour une entité TextDisplay pour afficher la healthbar
+     */
+    private void createOrUpdateHealthDisplay(LivingEntity entity, String healthBar, double yOffset) {
+        UUID entityUUID = entity.getUniqueId();
+        UUID displayUUID = mobHealthDisplays.get(entityUUID);
         
-        entity.setCustomName(newName);
-        entity.setCustomNameVisible(true);
+        TextDisplay display = null;
+        
+        // Chercher la TextDisplay existante
+        if (displayUUID != null) {
+            org.bukkit.entity.Entity displayEntity = Bukkit.getEntity(displayUUID);
+            if (displayEntity instanceof TextDisplay && displayEntity.isValid()) {
+                display = (TextDisplay) displayEntity;
+            } else {
+                // L'entité n'existe plus, nettoyer
+                mobHealthDisplays.remove(entityUUID);
+            }
+        }
+        
+        // Créer une nouvelle TextDisplay si nécessaire
+        if (display == null) {
+            Location spawnLoc = entity.getLocation().add(0, yOffset, 0);
+            display = entity.getWorld().spawn(spawnLoc, TextDisplay.class);
+            
+            // Configuration de la TextDisplay
+            display.setBillboard(Display.Billboard.CENTER); // Toujours face au joueur
+            display.setSeeThrough(false);
+            display.setDefaultBackground(false);
+            display.setPersistent(false); // Ne pas sauvegarder avec le monde
+            
+            // Enregistrer l'UUID
+            mobHealthDisplays.put(entityUUID, display.getUniqueId());
+        }
+        
+        // Mettre à jour le texte
+        Component healthBarComponent = LegacyComponentSerializer.legacySection().deserialize(healthBar);
+        display.text(healthBarComponent);
+        
+        // Mettre à jour la position pour suivre le mob
+        Location newLoc = entity.getLocation().add(0, yOffset, 0);
+        display.teleport(newLoc);
+    }
+    
+    /**
+     * Supprime l'affichage de healthbar pour un mob
+     */
+    public void removeHealthDisplay(LivingEntity entity) {
+        UUID entityUUID = entity.getUniqueId();
+        UUID displayUUID = mobHealthDisplays.get(entityUUID);
+        
+        if (displayUUID != null) {
+            org.bukkit.entity.Entity displayEntity = Bukkit.getEntity(displayUUID);
+            if (displayEntity != null && displayEntity.isValid()) {
+                displayEntity.remove();
+            }
+            mobHealthDisplays.remove(entityUUID);
+        }
+    }
+    
+    /**
+     * Nettoie tous les affichages de healthbar
+     */
+    public void cleanupAllDisplays() {
+        for (UUID displayUUID : mobHealthDisplays.values()) {
+            org.bukkit.entity.Entity displayEntity = Bukkit.getEntity(displayUUID);
+            if (displayEntity != null && displayEntity.isValid()) {
+                displayEntity.remove();
+            }
+        }
+        mobHealthDisplays.clear();
     }
     
     /**

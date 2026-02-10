@@ -103,8 +103,9 @@ public class ButtonHandler {
         // Définit le pourcentage d'items à vendre (25%, 50%, 75%, 100%)
         String percentage = parameters.getOrDefault("percentage", "100");
         
-        // Récupérer la session de vente active
-        if (plugin.getSellManager().getSession(player) == null) {
+        // Récupérer la session de vente active et la stocker pour éviter les problèmes de concurrence
+        var sellSession = plugin.getSellManager().getSession(player);
+        if (sellSession == null) {
             player.sendMessage("§cErreur: Aucune session de vente active.");
             return;
         }
@@ -118,12 +119,18 @@ public class ButtonHandler {
                 return;
             }
             
+            // Vérifier que maxQuantity est valide
+            int maxQuantity = sellSession.getMaxQuantity();
+            if (maxQuantity <= 0) {
+                player.sendMessage("§cErreur: Quantité maximale invalide.");
+                return;
+            }
+            
             // Calculer la nouvelle quantité basée sur le pourcentage
-            int maxQuantity = plugin.getSellManager().getSession(player).getMaxQuantity();
             int newQuantity = Math.max(1, (int) Math.ceil(maxQuantity * percentValue / 100.0));
             
             // Mettre à jour la quantité dans la session
-            plugin.getSellManager().getSession(player).setQuantity(newQuantity);
+            sellSession.setQuantity(newQuantity);
             
             // Feedback sonore
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);

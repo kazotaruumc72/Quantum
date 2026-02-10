@@ -135,10 +135,10 @@ public class OrderButtonHandler {
         
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
         
-        // Fermer et ouvrir le menu prix
+        // Fermer et ouvrir le menu prix avec la session
         player.closeInventory();
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            player.performCommand("menu order_price");
+            plugin.getOrderCreationManager().openMenuWithSession(player, "order_price", session.getDisplayItem());
         }, 2L);
     }
     

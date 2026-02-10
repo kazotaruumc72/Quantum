@@ -3,6 +3,7 @@ package com.wynvers.quantum.menu;
 import com.nexomc.nexo.api.NexoItems;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.orders.OrderCreationManager;
+import com.wynvers.quantum.orders.OrderCreationSession;
 import com.wynvers.quantum.sell.SellSession;
 import com.wynvers.quantum.storage.PlayerStorage;
 import com.wynvers.quantum.storage.StorageMode;
@@ -356,20 +357,18 @@ public class StorageMenuHandler {
             plugin.getQuantumLogger().warning("Failed to create displayItem for itemId: " + itemId);
         }
 
-        // Ouvrir le menu order_quantity pour configurer la quantité
-        Menu orderQuantityMenu = plugin.getMenuManager().getMenu("order_quantity");
-        if (orderQuantityMenu != null) {
-            player.closeInventory();
-
-            // Attendre 2 ticks avant d'ouvrir le menu order_quantity
-            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                orderQuantityMenu.open(player, plugin);
-            }, 2L);
-        } else {
-            player.sendMessage("§c⚠ Menu order_quantity introuvable!");
-            // Annuler la création d'offre
-            orderManager.cancelOrder(player);
-        }
+        // Fermer l'inventaire et ouvrir le menu order_quantity avec la session
+        player.closeInventory();
+        
+        // Attendre 2 ticks avant d'ouvrir le menu order_quantity
+        org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            OrderCreationSession session = orderManager.getSession(player);
+            if (session != null) {
+                plugin.getMenuManager().openMenuWithSession(player, "order_quantity", session, displayItem);
+            } else {
+                player.sendMessage("§c⚠ Session de création d'ordre perdue!");
+            }
+        }, 2L);
     }
 
     /**

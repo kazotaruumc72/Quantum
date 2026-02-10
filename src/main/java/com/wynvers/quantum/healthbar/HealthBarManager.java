@@ -1,6 +1,8 @@
 package com.wynvers.quantum.healthbar;
 
+import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.wynvers.quantum.Quantum;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -18,6 +20,11 @@ import java.util.UUID;
  * Gestionnaire de l'affichage des barres de vie des mobs
  */
 public class HealthBarManager {
+    
+    // Espacement vertical ajouté par chaque ligne de texte (newline)
+    // Chaque '\n' ajoute environ 0.3 blocs de hauteur verticale
+    // Cette valeur est une approximation basée sur le rendu client
+    private static final double VERTICAL_SPACING_PER_NEWLINE = 0.3;
     
     private final Quantum plugin;
     private final Map<UUID, HealthBarMode> playerModes = new HashMap<>();
@@ -393,10 +400,45 @@ public class HealthBarManager {
             // Garder le nom custom d'origine
         }
         
-        // Construire le nouveau nom avec la barre de vie
-        String newName = originalName + "\n" + healthBar;
+        // Vérifier si l'entité utilise un modèle ModelEngine
+        boolean hasModelEngine = false;
+        if (Bukkit.getPluginManager().getPlugin("ModelEngine") != null) {
+            try {
+                // ModelEngineAPI.getModeledEntity() retourne null si l'entité n'a pas de modèle
+                hasModelEngine = ModelEngineAPI.getModeledEntity(entity.getUniqueId()) != null;
+            } catch (IllegalStateException e) {
+                // ModelEngine n'est pas complètement chargé
+                hasModelEngine = false;
+            }
+        }
+        
+        // Calculer l'offset pour les modèles ModelEngine
+        String offsetNewlines = "";
+        if (hasModelEngine) {
+            double offset = getModelEngineOffset(mobSection);
+            if (offset > 0) {
+                // Ajouter des lignes vides proportionnelles à l'offset
+                // Chaque '\n' ajoute environ VERTICAL_SPACING_PER_NEWLINE blocs de hauteur
+                int numLines = (int) Math.round(offset / VERTICAL_SPACING_PER_NEWLINE);
+                offsetNewlines = "\n".repeat(Math.max(0, numLines));
+            }
+        }
+        
+        // Construire le nouveau nom avec la barre de vie et l'offset
+        String newName = offsetNewlines + originalName + "\n" + healthBar;
         
         entity.setCustomName(newName);
         entity.setCustomNameVisible(true);
+    }
+    
+    /**
+     * Récupère l'offset vertical pour les modèles ModelEngine depuis la configuration
+     */
+    private double getModelEngineOffset(ConfigurationSection mobSection) {
+        if (mobSection != null && mobSection.contains("modelengine_offset")) {
+            return mobSection.getDouble("modelengine_offset", 0.0);
+        }
+        // Utiliser l'offset par défaut de la configuration globale
+        return mobConfig.getDouble("global.default_modelengine_offset", 0.0);
     }
 }

@@ -55,6 +55,12 @@ global:
   # EXACT: Le display_name doit correspondre exactement (sans codes couleur)
   # CONTAINS: Le display_name peut contenir le nom (plus flexible)
   matching_mode: EXACT
+  
+  # Offset vertical par défaut pour les modèles ModelEngine (en blocs)
+  # Utilisé pour positionner la healthbar au-dessus des modèles custom
+  # Valeur négative = plus bas, positive = plus haut
+  # 0.0 = désactivé (utilise la position native de l'entité)
+  default_modelengine_offset: 0.5
 
 # ========================================
 #   MOBS CUSTOM - TOUR DE L'EAU
@@ -67,6 +73,9 @@ global:
   show_percentage: true
   show_numeric: false
   format: CLASSIC
+  # Offset vertical pour les modèles ModelEngine (en blocs)
+  # Ajuste la hauteur d'affichage de la healthbar
+  modelengine_offset: 1.0
   color_thresholds:
     75: "&b"  # Cyan clair
     50: "&3"  # Cyan
@@ -80,6 +89,7 @@ global:
   show_percentage: true
   show_numeric: true
   format: CLASSIC
+  modelengine_offset: 1.2
   color_thresholds:
     75: "&b"
     50: "&3"
@@ -93,6 +103,7 @@ global:
   show_percentage: true
   show_numeric: false
   format: CLASSIC
+  modelengine_offset: 1.5
   color_thresholds:
     75: "&b"
     50: "&3"
@@ -106,6 +117,7 @@ global:
   show_percentage: true
   show_numeric: true
   format: BOSS_BAR
+  modelengine_offset: 2.0
   color_thresholds:
     90: "&b"
     75: "&3"
@@ -124,6 +136,7 @@ global:
   show_percentage: true
   show_numeric: false
   format: CLASSIC
+  modelengine_offset: 0.8
   color_thresholds:
     75: "&6"  # Or
     50: "&c"  # Rouge clair
@@ -673,6 +686,7 @@ WARDEN:
 #   show_percentage: true      # Afficher %
 #   show_numeric: false        # Afficher 100/100 HP
 #   format: CLASSIC            # CLASSIC, HEARTS, BOSS_BAR, NUMERIC
+#   modelengine_offset: 1.0    # Offset vertical pour ModelEngine (en blocs, optionnel)
 #   color_thresholds:
 #     75: "&a"                 # Couleur à 75%+ de vie
 #     50: "&e"                 # Couleur à 50-75% de vie

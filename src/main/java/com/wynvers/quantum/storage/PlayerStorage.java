@@ -2,6 +2,7 @@ package com.wynvers.quantum.storage;
 
 import com.wynvers.quantum.Quantum;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,7 +42,7 @@ public class PlayerStorage {
      * @param amount Amount to add
      * @return true if successful, false if limit reached
      */
-    public boolean addItem(Quantum plugin, org.bukkit.entity.Player player, Material material, int amount) {
+    public boolean addItem(Quantum plugin, Player player, Material material, int amount) {
         int currentAmount = getAmount(material);
         int newAmount = currentAmount + amount;
         int limit = plugin.getStorageUpgradeManager().getMaxStacks(
@@ -51,7 +52,7 @@ public class PlayerStorage {
         if (newAmount > limit) {
             // Send both limit messages using MessagesManager
             String itemDisplayName = formatMaterialName(material);
-            Map<String, String> placeholders = new java.util.HashMap<>();
+            Map<String, String> placeholders = new HashMap<>();
             placeholders.put("item_display_name", itemDisplayName);
             placeholders.put("limite", String.valueOf(limit));
             
@@ -107,7 +108,7 @@ public class PlayerStorage {
      * @param amount Amount to add
      * @return true if successful, false if limit reached
      */
-    public boolean addNexoItem(Quantum plugin, org.bukkit.entity.Player player, String nexoId, int amount) {
+    public boolean addNexoItem(Quantum plugin, Player player, String nexoId, int amount) {
         int currentAmount = getNexoAmount(nexoId);
         int newAmount = currentAmount + amount;
         int limit = plugin.getStorageUpgradeManager().getMaxStacks(
@@ -128,7 +129,7 @@ public class PlayerStorage {
                 // Fallback to nexoId if any error occurs
             }
             
-            Map<String, String> placeholders = new java.util.HashMap<>();
+            Map<String, String> placeholders = new HashMap<>();
             placeholders.put("item_display_name", itemDisplayName);
             placeholders.put("limite", String.valueOf(limit));
             

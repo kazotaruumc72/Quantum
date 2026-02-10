@@ -486,9 +486,9 @@ public final class Quantum extends JavaPlugin {
     private void registerCommands() {
         logger.info("Registering commands...");
 
-        // /quantum command with QuantumTowerCommand executor and QuantumTabCompleter
+        // /quantum command with QuantumCommand executor and QuantumTabCompleter
         PluginCommand quantumCmd = getCommand("quantum");
-        QuantumTowerCommand quantumExecutor = new QuantumTowerCommand(this, towerManager, doorManager, npcManager, lootManager);
+        QuantumCommand quantumExecutor = new QuantumCommand(this);
         quantumCmd.setExecutor(quantumExecutor);
         quantumCmd.setTabCompleter(new QuantumTabCompleter(this));
         logger.success("✓ Quantum Command + TabCompleter");

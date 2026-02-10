@@ -1,6 +1,8 @@
 package com.wynvers.quantum.healthbar;
 
 import com.ticxo.modelengine.api.ModelEngineAPI;
+import com.ticxo.modelengine.api.model.ActiveModel;
+import com.ticxo.modelengine.api.model.ModeledEntity;
 import com.wynvers.quantum.Quantum;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -490,5 +492,54 @@ public class HealthBarManager {
         String meIndicator = mobConfig.getString("symbols.modelengine.indicator", "⚙");
         String meColor = mobConfig.getString("symbols.modelengine.color", "&7").replace("&", "§");
         return meColor + meIndicator + " ";
+    }
+    
+    /**
+     * Applique un modèle ModelEngine à une entité si configuré dans mob_healthbar.yml
+     * @param entity L'entité à laquelle appliquer le modèle
+     * @return true si un modèle a été appliqué avec succès, false sinon
+     */
+    public boolean applyModelEngineModel(LivingEntity entity) {
+        // Vérifier si ModelEngine est disponible
+        if (Bukkit.getPluginManager().getPlugin("ModelEngine") == null) {
+            return false;
+        }
+        
+        // Récupérer la configuration du mob
+        ConfigurationSection mobSection = getMobConfig(entity);
+        if (mobSection == null || !mobSection.contains("model")) {
+            return false;
+        }
+        
+        String modelId = mobSection.getString("model");
+        if (modelId == null || modelId.isEmpty()) {
+            return false;
+        }
+        
+        try {
+            // Vérifier si l'entité a déjà un modèle
+            // Retourne false silencieusement car c'est un cas normal (modèle déjà appliqué par un autre système)
+            if (ModelEngineAPI.getModeledEntity(entity.getUniqueId()) != null) {
+                return false; // Déjà un modèle appliqué, pas besoin de logger
+            }
+            
+            // Créer et appliquer le modèle
+            ModeledEntity modeledEntity = ModelEngineAPI.createModeledEntity(entity);
+            ActiveModel activeModel = ModelEngineAPI.createActiveModel(modelId);
+            
+            if (activeModel == null) {
+                plugin.getQuantumLogger().warning("ModelEngine model not found: " + modelId + " for mob: " + entity.getType());
+                return false;
+            }
+            
+            modeledEntity.addModel(activeModel, true);
+            
+            plugin.getQuantumLogger().info("Applied ModelEngine model '" + modelId + "' to " + entity.getType() + " at " + entity.getLocation());
+            return true;
+            
+        } catch (Exception e) {
+            plugin.getQuantumLogger().warning("Failed to apply ModelEngine model '" + modelId + "' to " + entity.getType() + ": " + e.getMessage());
+            return false;
+        }
     }
 }

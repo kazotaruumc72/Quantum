@@ -55,8 +55,8 @@ public class PlayerStorage {
             placeholders.put("item_display_name", itemDisplayName);
             placeholders.put("limite", String.valueOf(limit));
             
-            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached.message1", placeholders, false));
-            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached.message2", placeholders, false));
+            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached-1", placeholders, false));
+            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached-2", placeholders, false));
             return false;
         }
         
@@ -116,13 +116,24 @@ public class PlayerStorage {
         
         if (newAmount > limit) {
             // Send both limit messages using MessagesManager
+            // Try to get display name from Nexo, fallback to nexoId
             String itemDisplayName = nexoId;
+            try {
+                // Attempt to get Nexo item display name if available
+                org.bukkit.inventory.ItemStack nexoItem = com.nexomc.nexo.api.NexoItems.itemFromId(nexoId);
+                if (nexoItem != null && nexoItem.hasItemMeta() && nexoItem.getItemMeta().hasDisplayName()) {
+                    itemDisplayName = nexoItem.getItemMeta().getDisplayName();
+                }
+            } catch (Exception e) {
+                // Fallback to nexoId if any error occurs
+            }
+            
             Map<String, String> placeholders = new java.util.HashMap<>();
             placeholders.put("item_display_name", itemDisplayName);
             placeholders.put("limite", String.valueOf(limit));
             
-            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached.message1", placeholders, false));
-            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached.message2", placeholders, false));
+            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached-1", placeholders, false));
+            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached-2", placeholders, false));
             return false;
         }
         

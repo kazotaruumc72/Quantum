@@ -92,11 +92,6 @@ storage:
     - "&7▸ Clic gauche: &eCréer offre (mode Recherche)"
     - "&7▸ Clic droit: &eVendre (mode Vente)"
   
-  # Messages de limite de stockage
-  limit-reached:
-    message1: "&cL'item %item_display_name% &cest arrivé à la limite de %limite%"
-    message2: "&cVous ne pouvez pas stocker plus de %limite% &citems pour: %item_display_name%"
-  
   # Bouton: Fermer
   close:
     name: "&c&l✖ Fermer"

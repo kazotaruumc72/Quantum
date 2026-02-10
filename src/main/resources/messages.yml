@@ -59,6 +59,8 @@ storage:
   item-removed: "<yellow>⚠ <white>%quantity%x %item%</white> retiré du stockage.</yellow>"
   storage-full: "<red>✖ Stockage plein ! Impossible d'ajouter plus d'items.</red>"
   invalid-item: "<red>✖ Cet item ne peut pas être stocké.</red>"
+  limit-reached-1: "<red>L'item %item_display_name% est arrivé à la limite de %limite%</red>"
+  limit-reached-2: "<red>Vous ne pouvez pas stocker plus de %limite% items pour: %item_display_name%</red>"
   
 # ═══════════════════════════════════════════════════════════════════════════
 #   🤝 SECTION 5: MESSAGES D'ORDRES (VENTE AUX ACHETEURS)

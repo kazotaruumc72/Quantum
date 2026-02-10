@@ -1,6 +1,7 @@
 package com.wynvers.quantum.furniture;
 
 import com.nexomc.nexo.api.NexoFurniture;
+import com.nexomc.nexo.mechanics.furniture.FurnitureMechanic;
 import com.wynvers.quantum.Quantum;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,8 +27,10 @@ public class FurnitureListener implements Listener {
         
         // Vérifier si c'est un furniture Nexo
         try {
-            String furnitureId = NexoFurniture.furnitureIdFromBlock(event.getBlock());
-            if (furnitureId == null) return;
+            FurnitureMechanic mechanic = NexoFurniture.furnitureMechanic(event.getBlock());
+            if (mechanic == null) return;
+            
+            String furnitureId = mechanic.getItemID();
             
             // Gérer le break du furniture
             furnitureManager.handleFurnitureBreak(event.getBlock().getLocation(), furnitureId, player);

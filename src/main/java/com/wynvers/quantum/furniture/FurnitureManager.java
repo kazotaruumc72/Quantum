@@ -174,11 +174,7 @@ public class FurnitureManager {
     private void scheduleRespawn(Location location, FurnitureData originalData) {
         // Sélectionner quel furniture va apparaître
         String furnitureToSpawn = originalData.selectFurnitureToSpawn();
-        FurnitureData spawnData = furnitureMap.get(furnitureToSpawn);
-        
-        if (spawnData == null) {
-            spawnData = originalData;
-        }
+        final FurnitureData spawnData = furnitureMap.getOrDefault(furnitureToSpawn, originalData);
         
         ScheduledRespawn respawn = new ScheduledRespawn(location, spawnData);
         scheduledRespawns.put(location, respawn);

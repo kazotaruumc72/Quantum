@@ -63,6 +63,22 @@ skills:
   wither:
     title: "&8&l☠ WITHER"
     subtitle: "&7Votre vie se flétrit!"
+    
+  blindness:
+    title: "&3&l👁 CÉCITÉ"
+    subtitle: "&7Vous êtes aveuglé!"
+    
+  darkness:
+    title: "&0&l🌑 OBSCURITÉ"
+    subtitle: "&7Les ténèbres vous entourent!"
+    
+  weakness:
+    title: "&7&l⚔ FAIBLESSE"
+    subtitle: "&7Vos forces vous abandonnent!"
+    
+  poison:
+    title: "&2&l☠ POISON"
+    subtitle: "&7Vous êtes empoisonné!"
   
   # --- Skills supplémentaires (pour extension future) ---
   explosion:
@@ -84,3 +100,23 @@ skills:
   rage:
     title: "&4&l🔥 RAGE"
     subtitle: "&7Le mob entre en furie!"
+    
+  knockback:
+    title: "&6&l💨 REPOUSSE"
+    subtitle: "&7Vous êtes repoussé!"
+    
+  pull:
+    title: "&d&l⬅ ATTRACTION"
+    subtitle: "&7Vous êtes attiré vers le mob!"
+    
+  lightning:
+    title: "&e&l⚡ FOUDRE"
+    subtitle: "&7La foudre s'abat sur vous!"
+    
+  slowness:
+    title: "&b&l❄ LENTEUR"
+    subtitle: "&7Vous êtes ralenti!"
+    
+  firestorm:
+    title: "&c&l🔥 TEMPÊTE DE FEU"
+    subtitle: "&7Des boules de feu pleuvent!"

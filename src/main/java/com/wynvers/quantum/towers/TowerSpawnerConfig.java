@@ -237,6 +237,14 @@ public class TowerSpawnerConfig {
 
         // On ne veut voir que le modèle
         entity.setInvisible(true);
+        
+        // ===== DÉSACTIVER LES SPAWNS DE ZOMBIES =====
+        // Si c'est un zombie, désactiver la capacité de spawner des renforts
+        if (entity instanceof org.bukkit.entity.Zombie) {
+            org.bukkit.entity.Zombie zombie = (org.bukkit.entity.Zombie) entity;
+            // Empêcher le zombie de spawner des renforts quand il est attaqué
+            zombie.setShouldBurnInDay(false); // Les zombies de tour ne brûlent pas au soleil
+        }
 
         // ===== ModelEngine 4 =====
         // Crée une ModeledEntity à partir de l'entité Bukkit

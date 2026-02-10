@@ -544,6 +544,17 @@ public final class Quantum extends JavaPlugin {
             getCommand("healthbar").setTabCompleter(new HealthBarTabCompleter());
             logger.success("✓ HealthBar Command + TabCompleter");
         }
+        
+        // NEW: Tool and Weapon Commands
+        if (toolManager != null) {
+            getCommand("tool").setExecutor(new ToolCommand(this));
+            logger.success("✓ Tool Command");
+        }
+        
+        if (dungeonWeapon != null) {
+            getCommand("weapon").setExecutor(new WeaponCommand(this));
+            logger.success("✓ Weapon Command");
+        }
 
         logger.success("✓ Commands registered");
     }

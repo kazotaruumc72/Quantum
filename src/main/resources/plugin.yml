@@ -90,6 +90,16 @@ commands:
     description: Change mob health display mode
     usage: /healthbar <pourcentage|coeurs|info>
     aliases: [hpbar, hp]
+  
+  tool:
+    description: Manage upgradeable tools (pickaxe, axe, hoe)
+    usage: /tool <upgrade|info|give> [args]
+    aliases: [tools, outil, outils]
+  
+  weapon:
+    description: Manage dungeon weapon
+    usage: /weapon <upgrade|info|give>
+    aliases: [dweapon, darme, arme]
 
 permissions:
   quantum.*:
@@ -109,6 +119,8 @@ permissions:
       quantum.rune.*: true
       quantum.exp.admin: true
       quantum.healthbar.use: true
+      quantum.tool.*: true
+      quantum.weapon.*: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -248,3 +260,46 @@ permissions:
   quantum.healthbar.use:
     description: Allows changing health bar display mode
     default: true
+  
+  # Tool system (Pickaxe, Axe, Hoe)
+  quantum.tool.*:
+    description: All tool permissions
+    default: op
+    children:
+      quantum.tool.use: true
+      quantum.tool.upgrade: true
+      quantum.tool.give: true
+  
+  quantum.tool.use:
+    description: Use upgradeable tools
+    default: true
+  
+  quantum.tool.upgrade:
+    description: Upgrade tools
+    default: true
+  
+  quantum.tool.give:
+    description: Give tools to players
+    default: op
+  
+  # Dungeon weapon system
+  quantum.weapon.*:
+    description: All weapon permissions
+    default: op
+    children:
+      quantum.weapon.use: true
+      quantum.weapon.upgrade: true
+      quantum.weapon.give: true
+  
+  quantum.weapon.use:
+    description: Use dungeon weapon
+    default: true
+  
+  quantum.weapon.upgrade:
+    description: Upgrade dungeon weapon
+    default: true
+  
+  quantum.weapon.give:
+    description: Give dungeon weapon to players
+    default: op
+

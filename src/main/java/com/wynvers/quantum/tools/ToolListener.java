@@ -1,6 +1,7 @@
 package com.wynvers.quantum.tools;
 
 import com.nexomc.nexo.api.NexoFurniture;
+import com.nexomc.nexo.mechanics.furniture.FurnitureMechanic;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.furniture.FurnitureData;
 import org.bukkit.entity.Player;
@@ -43,8 +44,10 @@ public class ToolListener implements Listener {
     private void handlePickaxe(BlockBreakEvent event, Player player, ItemStack tool) {
         // Vérifier si c'est un furniture Nexo
         try {
-            String furnitureId = NexoFurniture.furnitureIdFromBlock(event.getBlock());
-            if (furnitureId == null) return;
+            FurnitureMechanic mechanic = NexoFurniture.furnitureMechanic(event.getBlock());
+            if (mechanic == null) return;
+            
+            String furnitureId = mechanic.getItemID();
             
             int level = toolManager.getPickaxe().getLevel(tool);
             int multiplier = toolManager.getPickaxe().getLootMultiplier(level);

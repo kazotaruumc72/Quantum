@@ -22,7 +22,7 @@ items:
     material: GRAY_STAINED_GLASS_PANE
     display_name: ' '
     custom_model_data: 1
-    slots: [1, 2, 3, 5, 6, 7, 45, 46, 47, 48, 50, 51, 52]
+    slots: [1, 2, 3, 5, 6, 7]
     static: true
 
   # ──────────────────────────────────────
@@ -114,115 +114,106 @@ items:
       - '&7▸ Clic gauche: &eCréer offre (mode Recherche)'
       - '&7▸ Clic droit: &eVendre (mode Vente)'
 
+
   # ──────────────────────────────────────
-  # BOUTON: PARAMÈTRES (ouvre storage_settings.yml)
+  # BOUTON: PAGE PRÉCÉDENTE
   # ──────────────────────────────────────
-  settings:
+  previous_page:
     slots: [45]
-    material: COMPARATOR
-    custom_model_data: 300
-    display_name: '&eParamètres'
+    material: ARROW
+    custom_model_data: 400
+    display_name: '&e◄ Page Précédente'
     lore:
-      - '&7Configurer l''autovente, la limite'
-      - '&7et les options avancées du storage.'
+      - '&7Aller à la page précédente'
       - ' '
-      - '&e► Cliquez pour ouvrir le menu des paramètres'
-    type: quantum_open_menu
-    menu: storage_settings.yml
+      - '&e► Cliquez pour revenir'
+    button_type: QUANTUM_STORAGE_PREV_PAGE
     static: true
 
   # ──────────────────────────────────────
-  # BOUTON: STATUT AUTOVENTE
+  # BOUTON: RECHERCHER
   # ──────────────────────────────────────
-  autosell:
-    slots: [48]
+  search:
+    slots: [46]
+    material: SPYGLASS
+    custom_model_data: 402
+    display_name: '&b&l🔍 Rechercher'
+    lore:
+      - '&7Recherchez un item spécifique'
+      - '&7dans votre storage'
+      - ' '
+      - '&7Recherche actuelle: &e%quantum_storage_search_query%'
+      - ' '
+      - '&e► Cliquez pour rechercher'
+    button_type: QUANTUM_STORAGE_SEARCH
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: FILTRER PAR TYPE
+  # ──────────────────────────────────────
+  filter_type:
+    slots: [47]
     material: HOPPER
-    custom_model_data: 301
-    display_name: '&bAutovente'
+    custom_model_data: 403
+    display_name: '&d&l⚡ Filtrer par Type'
     lore:
-      - '&7Statut: &e%quantum_autovente_statut%'
-      - '&7Limite actuelle: &e%quantum_autovente_limite%'
+      - '&7Filtrez les items par leur type'
       - ' '
-      - '&7Vend automatiquement tout ce qui dépasse'
-      - '&7la limite configurée.'
+      - '&7Type actuel: &e%quantum_storage_filter_type%'
       - ' '
-      - '&e► Cliquez pour ouvrir les paramètres'
+      - '&fOptions:'
+      - '&7  • &aTous les items'
+      - '&7  • &bItems Nexo uniquement'
+      - '&7  • &6Items Minecraft uniquement'
+      - ' '
+      - '&e► Cliquez pour changer le filtre'
+    button_type: QUANTUM_STORAGE_FILTER_TYPE
     static: true
 
   # ──────────────────────────────────────
-  # BOUTON: STATUT MULTIPLICATEUR
+  # BOUTON: TRI
   # ──────────────────────────────────────
-  multiplicateur:
+  sort:
+    slots: [48]
+    material: COMPARATOR
+    custom_model_data: 404
+    display_name: '&a&l⇅ Trier'
+    lore:
+      - '&7Changez le mode de tri'
+      - ' '
+      - '&7Tri actuel: &e%quantum_storage_sort_mode%'
+      - ' '
+      - '&fOptions:'
+      - '&7  • &aAlphabétique (A → Z)'
+      - '&7  • &bQuantité (élevé → bas)'
+      - '&7  • &6Prix (élevé → bas)'
+      - '&7  • &eRécent (récent → ancien)'
+      - ' '
+      - '&e► Cliquez pour changer le tri'
+    button_type: QUANTUM_STORAGE_SORT
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: RÉINITIALISER FILTRES
+  # ──────────────────────────────────────
+  reset_filters:
     slots: [49]
-    material: EXPERIENCE_BOTTLE
-    custom_model_data: 302
-    display_name: '&dMultiplicateur'
+    material: BUCKET
+    custom_model_data: 405
+    display_name: '&c&l✖ Réinitialiser'
     lore:
-      - '&7Multiplicateur actuel: &ex%quantum_multiplicateur_amount%'
+      - '&7Réinitialisez tous les filtres'
+      - '&7et la recherche'
       - ' '
-      - '&7Augmente les gains lors de la vente.'
-      - ' '
-      - '&e► Cliquez pour gérer le multiplicateur'
-    static: true
-
-  # ──────────────────────────────────────
-  # BOUTON: STORAGE+
-  # ──────────────────────────────────────
-  upgrade_storage:
-    slots: [50]
-    material: CHEST
-    custom_model_data: 303
-    display_name: '&aStorage+'
-    lore:
-      - '&7Capacité maximale: &e%quantum_upgrade_storage_amount% stacks'
-      - '&7Prochain palier: &e%quantum_upgrade_storage_next%'
-      - ' '
-      - '&7Améliore la capacité de ton Quantum Storage.'
-      - ' '
-      - '&e► Cliquez pour améliorer'
-    static: true
-
-  # ──────────────────────────────────────
-  # BOUTON: PAGE STORAGE 1
-  # ──────────────────────────────────────
-  storage_page_1:
-    slots: [51]
-    material: BOOK
-    custom_model_data: 304
-    display_name: '&9Page d''upgrades &7(1)'
-    lore:
-      - '&7Ouvre la première page d''upgrades'
-      - '&7et donne l''item Nexo associé.'
-      - ' '
-      - '&e► Cliquez pour recevoir l''item'
-    # L’item donné sera un item Nexo qui,
-    # quand utilisé, exécutera /quantum upgrade page 1 <player>
-    type: quantum_give_nexo_page
-    page: 1
-    static: true
-
-  # ──────────────────────────────────────
-  # BOUTON: PAGE STORAGE 2
-  # ──────────────────────────────────────
-  storage_page_2:
-    slots: [52]
-    material: BOOK
-    custom_model_data: 305
-    display_name: '&9Page d''upgrades &7(2)'
-    lore:
-      - '&7Ouvre la seconde page d''upgrades'
-      - '&7et donne l''item Nexo associé.'
-      - ' '
-      - '&e► Cliquez pour recevoir l''item'
-    type: quantum_give_nexo_page
-    page: 2
+      - '&e► Cliquez pour réinitialiser'
+    button_type: QUANTUM_STORAGE_RESET_FILTERS
     static: true
 
   # ──────────────────────────────────────
   # BOUTON: FERMER
   # ──────────────────────────────────────
   close:
-    slots: [53]
+    slots: [50]
     material: BARRIER
     custom_model_data: 399
     display_name: '&c&l✖ Fermer'
@@ -232,6 +223,60 @@ items:
       - '&e► Cliquez pour fermer'
     left_click_actions:
       - '[close]'
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: HISTORIQUE
+  # ──────────────────────────────────────
+  history:
+    slots: [51]
+    material: WRITABLE_BOOK
+    custom_model_data: 406
+    display_name: '&e&l📝 Historique'
+    lore:
+      - '&7Consultez l''historique complet'
+      - '&7de vos transactions'
+      - ' '
+      - '&7Total transactions: &e%quantum_history_total%'
+      - '&7Dernière activité: &e%quantum_history_last%'
+      - ' '
+      - '&e► Cliquez pour ouvrir l''historique'
+    button_type: QUANTUM_VIEW_HISTORY
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: STATISTIQUES
+  # ──────────────────────────────────────
+  statistics:
+    slots: [52]
+    material: KNOWLEDGE_BOOK
+    custom_model_data: 407
+    display_name: '&b&l📊 Statistiques'
+    lore:
+      - '&7Analysez vos performances'
+      - '&7de trading'
+      - ' '
+      - '&7Total achats: &a%quantum_stats_total_buys%'
+      - '&7Total ventes: &6%quantum_stats_total_sells%'
+      - '&7Profit net: &e%quantum_stats_net_profit%'
+      - ' '
+      - '&e► Cliquez pour voir les stats détaillées'
+    button_type: QUANTUM_VIEW_STATS
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: PAGE SUIVANTE
+  # ──────────────────────────────────────
+  next_page:
+    slots: [53]
+    material: ARROW
+    custom_model_data: 401
+    display_name: '&ePage Suivante ►'
+    lore:
+      - '&7Aller à la page suivante'
+      - ' '
+      - '&e► Cliquez pour continuer'
+    button_type: QUANTUM_STORAGE_NEXT_PAGE
     static: true
 
 # ========================================
@@ -245,6 +290,16 @@ items:
 #   - STORAGE: Déposer/retirer des items
 #   - SELL: Vendre des items stockés instantanément
 #   - RECHERCHE: Créer des offres d'achat pour items stockés
+# 
+# NOUVEAUX TYPES DE BOUTONS (VERSION 2.0):
+#   - QUANTUM_STORAGE_NEXT_PAGE: Page suivante dans le storage
+#   - QUANTUM_STORAGE_PREV_PAGE: Page précédente dans le storage
+#   - QUANTUM_STORAGE_SEARCH: Rechercher un item
+#   - QUANTUM_STORAGE_FILTER_TYPE: Filtrer par type (Nexo/Minecraft/Tous)
+#   - QUANTUM_STORAGE_SORT: Trier les items (alphabétique, quantité, prix, date)
+#   - QUANTUM_STORAGE_RESET_FILTERS: Réinitialiser les filtres
+#   - QUANTUM_VIEW_HISTORY: Voir l'historique des transactions
+#   - QUANTUM_VIEW_STATS: Voir les statistiques de trading
 # 
 # COMMANDE /offre:
 #   - Pour les items NON stockables (armures, épées, potions)

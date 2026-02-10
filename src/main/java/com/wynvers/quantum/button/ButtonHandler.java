@@ -56,7 +56,13 @@ public class ButtonHandler {
      */
     private void handleStorageButton(Player player, Map<String, String> parameters) {
         // Ouvre le menu de stockage pour le joueur
-        // TODO: Implémenter l'ouverture du menu storage
+        if (plugin.getMenuManager().getMenu("storage") != null) {
+            plugin.getMenuManager().getMenu("storage").open(player, plugin);
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
+        } else {
+            plugin.getQuantumLogger().warning("Menu 'storage' non trouvé!");
+            player.sendMessage("§cErreur: Le menu de stockage n'est pas configuré.");
+        }
     }
 
     /**
@@ -64,7 +70,30 @@ public class ButtonHandler {
      */
     private void handleSellButton(Player player, Map<String, String> parameters) {
         // Bascule entre les modes STORAGE et VENTE
-        // TODO: Implémenter le basculement de mode
+        StorageMode.Mode currentMode = StorageMode.getMode(player);
+        StorageMode.Mode newMode;
+        
+        if (currentMode == StorageMode.Mode.SELL) {
+            // Si déjà en mode SELL, retourner en STORAGE
+            newMode = StorageMode.Mode.STORAGE;
+        } else {
+            // Sinon, passer en mode SELL
+            newMode = StorageMode.Mode.SELL;
+        }
+        
+        StorageMode.setMode(player, newMode);
+        
+        // Feedback sonore
+        player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
+        
+        // Message de confirmation
+        String modeDisplay = newMode.getDisplayName();
+        player.sendMessage("§8[§6Quantum§8] §7Mode changé en " + modeDisplay);
+        
+        // Rafraîchir le menu storage si ouvert
+        if (plugin.getMenuManager().getMenu("storage") != null) {
+            plugin.getMenuManager().getMenu("storage").refresh(player, plugin);
+        }
     }
 
     /**
@@ -73,7 +102,44 @@ public class ButtonHandler {
     private void handleSellPercentageButton(Player player, Map<String, String> parameters) {
         // Définit le pourcentage d'items à vendre (25%, 50%, 75%, 100%)
         String percentage = parameters.getOrDefault("percentage", "100");
-        // TODO: Implémenter la sélection de pourcentage
+        
+        // Récupérer la session de vente active
+        if (plugin.getSellManager().getSession(player) == null) {
+            player.sendMessage("§cErreur: Aucune session de vente active.");
+            return;
+        }
+        
+        try {
+            int percentValue = Integer.parseInt(percentage);
+            
+            // Valider le pourcentage
+            if (percentValue <= 0 || percentValue > 100) {
+                player.sendMessage("§cErreur: Pourcentage invalide (doit être entre 1 et 100).");
+                return;
+            }
+            
+            // Calculer la nouvelle quantité basée sur le pourcentage
+            int maxQuantity = plugin.getSellManager().getSession(player).getMaxQuantity();
+            int newQuantity = Math.max(1, (int) Math.ceil(maxQuantity * percentValue / 100.0));
+            
+            // Mettre à jour la quantité dans la session
+            plugin.getSellManager().getSession(player).setQuantity(newQuantity);
+            
+            // Feedback sonore
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
+            
+            // Message de confirmation
+            player.sendMessage("§8[§6Quantum§8] §7Quantité ajustée à " + percentValue + "% (§e" + newQuantity + "§7 items)");
+            
+            // Rafraîchir le menu de vente si ouvert
+            if (plugin.getMenuManager().getMenu("sell") != null) {
+                plugin.getMenuManager().getMenu("sell").refresh(player, plugin);
+            }
+            
+        } catch (NumberFormatException e) {
+            plugin.getQuantumLogger().warning("Pourcentage invalide: " + percentage);
+            player.sendMessage("§cErreur: Pourcentage invalide!");
+        }
     }
 
     /**

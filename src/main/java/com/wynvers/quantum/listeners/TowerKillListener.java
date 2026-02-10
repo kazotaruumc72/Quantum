@@ -76,12 +76,18 @@ public class TowerKillListener implements Listener {
             return;
         }
         
+        // ========== DÉSACTIVER LES LOOTS VANILLA ==========
+        // Supprimer tous les drops vanilla
+        event.getDrops().clear();
+        // Garder l'XP vanilla à 0 car on gère notre propre système d'XP
+        event.setDroppedExp(0);
+        
         String mobId = mob.getMetadata("tower_mob").get(0).asString();
         String spawnerId = mob.hasMetadata("spawner_id") ? 
             mob.getMetadata("spawner_id").get(0).asString() : null;
         
         // ========== 1. EXPÉRIENCE ==========
-        giveExpForKill(killer, floor, mob, event.getDroppedExp());
+        giveExpForKill(killer, floor, mob, 0); // XP vanilla déjà à 0
         
         // ========== 2. LOOTS PAR MOB ==========
         lootManager.onMobKilled(towerId, mobId, killer, mob.getLocation());

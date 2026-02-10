@@ -149,6 +149,34 @@ public class MobSkillExecutor {
                 executeWither(mob, skillData);
                 break;
                 
+            case "blindness":
+                executeBlindness(mob, skillData);
+                break;
+                
+            case "darkness":
+                executeDarkness(mob, skillData);
+                break;
+                
+            case "explosion":
+                executeExplosion(mob, skillData);
+                break;
+                
+            case "lightning":
+                executeLightning(mob, skillData);
+                break;
+                
+            case "teleport":
+                executeTeleport(mob, skillData);
+                break;
+                
+            case "knockback":
+                executeKnockback(mob, skillData);
+                break;
+                
+            case "pull":
+                executePull(mob, skillData);
+                break;
+                
             default:
                 plugin.getQuantumLogger().warning("Unknown skill effect: " + skillId);
         }
@@ -360,6 +388,279 @@ public class MobSkillExecutor {
                 1 // Niveau 2
             ));
         });
+    }
+    
+    /**
+     * BLINDNESS - Applique la cécité aux joueurs proches
+     */
+    private void executeBlindness(LivingEntity mob, Map<String, Object> skillData) {
+        int duration = skillData.containsKey("duration") 
+            ? ((Number) skillData.get("duration")).intValue() 
+            : 5; // secondes
+        
+        double radius = skillData.containsKey("radius") 
+            ? ((Number) skillData.get("radius")).doubleValue() 
+            : 10.0; // rayon en blocs
+        
+        getValidTargetPlayers(mob.getLocation(), radius).forEach(player -> {
+            player.addPotionEffect(new PotionEffect(
+                PotionEffectType.BLINDNESS, 
+                duration * 20, 
+                0 // Niveau 1
+            ));
+        });
+    }
+    
+    /**
+     * DARKNESS - Applique l'effet d'obscurité aux joueurs proches (Minecraft 1.19+)
+     */
+    private void executeDarkness(LivingEntity mob, Map<String, Object> skillData) {
+        int duration = skillData.containsKey("duration") 
+            ? ((Number) skillData.get("duration")).intValue() 
+            : 5; // secondes
+        
+        double radius = skillData.containsKey("radius") 
+            ? ((Number) skillData.get("radius")).doubleValue() 
+            : 10.0; // rayon en blocs
+        
+        getValidTargetPlayers(mob.getLocation(), radius).forEach(player -> {
+            // Vérifier si l'effet DARKNESS existe (Minecraft 1.19+)
+            try {
+                PotionEffectType darknessType = PotionEffectType.getByName("DARKNESS");
+                if (darknessType != null) {
+                    player.addPotionEffect(new PotionEffect(
+                        darknessType, 
+                        duration * 20, 
+                        0 // Niveau 1
+                    ));
+                } else {
+                    // Fallback: utiliser blindness pour versions anciennes
+                    player.addPotionEffect(new PotionEffect(
+                        PotionEffectType.BLINDNESS, 
+                        duration * 20, 
+                        0
+                    ));
+                }
+            } catch (Exception e) {
+                // Fallback si DARKNESS n'existe pas
+                player.addPotionEffect(new PotionEffect(
+                    PotionEffectType.BLINDNESS, 
+                    duration * 20, 
+                    0
+                ));
+            }
+        });
+    }
+    
+    /**
+     * EXPLOSION - Crée une explosion à la position du mob
+     */
+    private void executeExplosion(LivingEntity mob, Map<String, Object> skillData) {
+        double damage = skillData.containsKey("damage") 
+            ? ((Number) skillData.get("damage")).doubleValue() 
+            : 10.0; // dégâts
+        
+        double radius = skillData.containsKey("radius") 
+            ? ((Number) skillData.get("radius")).doubleValue() 
+            : 3.0; // rayon en blocs
+        
+        Location mobLoc = mob.getLocation();
+        
+        // Créer l'explosion visuelle (sans dégâts de terrain)
+        mobLoc.getWorld().createExplosion(mobLoc, 0.0f, false, false);
+        
+        // Appliquer les dégâts manuellement aux joueurs proches
+        getValidTargetPlayers(mobLoc, radius).forEach(player -> {
+            double distance = player.getLocation().distance(mobLoc);
+            double damageMultiplier = 1.0 - (distance / radius);
+            double finalDamage = damage * Math.max(0.1, damageMultiplier);
+            
+            player.damage(finalDamage);
+            
+            // Effet de knockback
+            org.bukkit.util.Vector direction = player.getLocation().toVector()
+                .subtract(mobLoc.toVector())
+                .normalize()
+                .multiply(1.5);
+            player.setVelocity(direction);
+        });
+        
+        // Particules d'explosion
+        mobLoc.getWorld().spawnParticle(
+            org.bukkit.Particle.EXPLOSION_HUGE,
+            mobLoc,
+            3, 0.5, 0.5, 0.5, 0.1
+        );
+        
+        // Son d'explosion
+        mobLoc.getWorld().playSound(mobLoc, org.bukkit.Sound.ENTITY_GENERIC_EXPLODE, 2.0f, 1.0f);
+    }
+    
+    /**
+     * LIGHTNING - Fait tomber la foudre sur les joueurs proches
+     */
+    private void executeLightning(LivingEntity mob, Map<String, Object> skillData) {
+        double damage = skillData.containsKey("damage") 
+            ? ((Number) skillData.get("damage")).doubleValue() 
+            : 5.0; // dégâts par défaut
+        
+        double radius = skillData.containsKey("radius") 
+            ? ((Number) skillData.get("radius")).doubleValue() 
+            : 15.0; // rayon en blocs
+        
+        getValidTargetPlayers(mob.getLocation(), radius).forEach(player -> {
+            Location playerLoc = player.getLocation();
+            
+            // Foudre visuelle
+            playerLoc.getWorld().strikeLightningEffect(playerLoc);
+            
+            // Dégâts
+            player.damage(damage);
+            
+            // Effet sonore
+            player.playSound(playerLoc, org.bukkit.Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 1.0f);
+        });
+    }
+    
+    /**
+     * TELEPORT - Téléporte le mob aléatoirement près d'un joueur (max 5 blocks)
+     */
+    private void executeTeleport(LivingEntity mob, Map<String, Object> skillData) {
+        double maxDistance = 5.0; // Limite fixe à 5 blocs comme demandé
+        
+        List<Player> targets = getValidTargetPlayers(mob.getLocation(), 20.0);
+        if (targets.isEmpty()) {
+            return;
+        }
+        
+        // Choisir un joueur aléatoire comme cible
+        Player target = targets.get(ThreadLocalRandom.current().nextInt(targets.size()));
+        Location targetLoc = target.getLocation();
+        Location mobLoc = mob.getLocation();
+        
+        // Générer une position aléatoire dans un rayon de 5 blocs
+        double angle = ThreadLocalRandom.current().nextDouble() * 2 * Math.PI;
+        double distance = ThreadLocalRandom.current().nextDouble() * maxDistance;
+        
+        double offsetX = Math.cos(angle) * distance;
+        double offsetZ = Math.sin(angle) * distance;
+        
+        Location teleportLoc = targetLoc.clone().add(offsetX, 0, offsetZ);
+        
+        // Garder la hauteur proche de la position actuelle du mob pour rester dans la tour
+        // Chercher un emplacement sûr dans une plage de +/- 3 blocs verticalement
+        teleportLoc.setY(mobLoc.getY());
+        
+        // Trouver un bloc solide sous le mob (max 5 blocs vers le bas)
+        for (int i = 0; i < 5; i++) {
+            Location checkLoc = teleportLoc.clone().subtract(0, i, 0);
+            if (checkLoc.getBlock().getType().isSolid()) {
+                teleportLoc.setY(checkLoc.getY() + 1);
+                break;
+            }
+        }
+        
+        // Vérifier que la destination est sûre (pas dans un mur)
+        if (teleportLoc.getBlock().getType().isSolid() || 
+            teleportLoc.clone().add(0, 1, 0).getBlock().getType().isSolid()) {
+            // Destination non sûre, annuler la téléportation
+            return;
+        }
+        
+        // Particules au départ
+        mob.getWorld().spawnParticle(
+            org.bukkit.Particle.PORTAL,
+            mob.getLocation().add(0, 1, 0),
+            50, 0.5, 0.5, 0.5, 0.5
+        );
+        
+        // Téléportation
+        mob.teleport(teleportLoc);
+        
+        // Particules à l'arrivée
+        mob.getWorld().spawnParticle(
+            org.bukkit.Particle.PORTAL,
+            teleportLoc.add(0, 1, 0),
+            50, 0.5, 0.5, 0.5, 0.5
+        );
+        
+        // Son de téléportation
+        mob.getWorld().playSound(teleportLoc, org.bukkit.Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
+    }
+    
+    /**
+     * KNOCKBACK - Repousse les joueurs loin du mob
+     */
+    private void executeKnockback(LivingEntity mob, Map<String, Object> skillData) {
+        double strength = skillData.containsKey("strength") 
+            ? ((Number) skillData.get("strength")).doubleValue() 
+            : 2.0; // force du knockback
+        
+        double radius = skillData.containsKey("radius") 
+            ? ((Number) skillData.get("radius")).doubleValue() 
+            : 8.0; // rayon en blocs
+        
+        Location mobLoc = mob.getLocation();
+        
+        getValidTargetPlayers(mobLoc, radius).forEach(player -> {
+            // Calculer le vecteur de direction (depuis mob vers joueur)
+            org.bukkit.util.Vector direction = player.getLocation().toVector()
+                .subtract(mobLoc.toVector())
+                .normalize()
+                .multiply(strength);
+            
+            // Ajouter un peu de hauteur pour le knockback
+            direction.setY(0.5);
+            
+            // Appliquer le knockback
+            player.setVelocity(direction);
+            
+            // Particules
+            player.getWorld().spawnParticle(
+                org.bukkit.Particle.EXPLOSION_NORMAL,
+                player.getLocation(),
+                20, 0.5, 0.5, 0.5, 0.1
+            );
+        });
+        
+        // Son de knockback
+        mobLoc.getWorld().playSound(mobLoc, org.bukkit.Sound.ENTITY_IRON_GOLEM_ATTACK, 1.0f, 0.8f);
+    }
+    
+    /**
+     * PULL - Attire les joueurs vers le mob
+     */
+    private void executePull(LivingEntity mob, Map<String, Object> skillData) {
+        double strength = skillData.containsKey("strength") 
+            ? ((Number) skillData.get("strength")).doubleValue() 
+            : 2.0; // force de l'attraction
+        
+        double radius = skillData.containsKey("radius") 
+            ? ((Number) skillData.get("radius")).doubleValue() 
+            : 15.0; // rayon en blocs
+        
+        Location mobLoc = mob.getLocation();
+        
+        getValidTargetPlayers(mobLoc, radius).forEach(player -> {
+            // Calculer le vecteur de direction (depuis joueur vers mob)
+            org.bukkit.util.Vector direction = mobLoc.toVector()
+                .subtract(player.getLocation().toVector())
+                .normalize()
+                .multiply(strength);
+            
+            // Appliquer l'attraction
+            player.setVelocity(direction);
+            
+            // Particules
+            player.getWorld().spawnParticle(
+                org.bukkit.Particle.SMOKE_NORMAL,
+                player.getLocation().add(0, 1, 0),
+                30, 0.3, 0.5, 0.3, 0.05
+            );
+        });
+        
+        // Son d'attraction
+        mobLoc.getWorld().playSound(mobLoc, org.bukkit.Sound.ENTITY_WITHER_SHOOT, 1.0f, 1.5f);
     }
     
     // ==================== HELPERS ====================

@@ -439,7 +439,20 @@ public class HealthBarManager {
         // Récupérer le nom d'origine du mob
         String originalName = entity.getCustomName();
         if (originalName != null && originalName.contains("\n")) {
-            originalName = originalName.split("\n")[0];
+            // Extraire le nom en sautant les newlines d'offset au début
+            String[] parts = originalName.split("\n");
+            // Trouver la première partie non-vide (le nom réel)
+            originalName = null;
+            for (String part : parts) {
+                if (!part.isEmpty()) {
+                    originalName = part;
+                    break;
+                }
+            }
+            // Si tous les parts sont vides, utiliser le display name par défaut
+            if (originalName == null) {
+                originalName = getDisplayName(entity, mobSection);
+            }
         }
         
         // Si pas de nom custom et qu'on ne doit pas override

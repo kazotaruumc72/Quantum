@@ -95,7 +95,7 @@ storage:
   # Messages de limite de stockage
   limit-reached:
     message1: "&cL'item %item_display_name% &cest arrivé à la limite de %limite%"
-    message2: "&cVous ne pouver pas stocker plus de %limite% &citems pour: %item_display_name%"
+    message2: "&cVous ne pouvez pas stocker plus de %limite% &citems pour: %item_display_name%"
   
   # Bouton: Fermer
   close:

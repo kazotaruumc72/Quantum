@@ -49,10 +49,14 @@ public class PlayerStorage {
         );
         
         if (newAmount > limit) {
-            // Send both limit messages
+            // Send both limit messages using MessagesManager
             String itemDisplayName = formatMaterialName(material);
-            player.sendMessage("§cL'item " + itemDisplayName + " §cest arrivé à la limite de " + limit);
-            player.sendMessage("§cVous ne pouver pas stocker plus de " + limit + " §citems pour: " + itemDisplayName);
+            Map<String, String> placeholders = new java.util.HashMap<>();
+            placeholders.put("item_display_name", itemDisplayName);
+            placeholders.put("limite", String.valueOf(limit));
+            
+            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached.message1", placeholders, false));
+            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached.message2", placeholders, false));
             return false;
         }
         
@@ -111,10 +115,14 @@ public class PlayerStorage {
         );
         
         if (newAmount > limit) {
-            // Send both limit messages
+            // Send both limit messages using MessagesManager
             String itemDisplayName = nexoId;
-            player.sendMessage("§cL'item " + itemDisplayName + " §cest arrivé à la limite de " + limit);
-            player.sendMessage("§cVous ne pouver pas stocker plus de " + limit + " §citems pour: " + itemDisplayName);
+            Map<String, String> placeholders = new java.util.HashMap<>();
+            placeholders.put("item_display_name", itemDisplayName);
+            placeholders.put("limite", String.valueOf(limit));
+            
+            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached.message1", placeholders, false));
+            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached.message2", placeholders, false));
             return false;
         }
         

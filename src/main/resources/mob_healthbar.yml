@@ -157,6 +157,23 @@ global:
     25: "&4"  # Rouge
     0: "&8"   # Gris foncé
 
+"Araignée mélee":
+  enabled: true
+  name_color: "&b"
+  bar_length: 20
+  show_percentage: true
+  show_numeric: false
+  format: CLASSIC
+  # Offset vertical pour les modèles ModelEngine (en blocs)
+  # Ajuste la hauteur d'affichage de la healthbar
+  modelengine_offset: 1.0
+  model: "spider_melee_am"
+  color_thresholds:
+    75: "&a"  # Lime
+    50: "&6"  # Orange
+    25: "&c"  # Rouge
+    0: "&c"   # Rouge foncé
+
 # ========================================
 #   MOBS HOSTILES - OVERWORLD
 # ========================================

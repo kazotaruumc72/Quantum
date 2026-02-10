@@ -238,12 +238,11 @@ public class TowerSpawnerConfig {
         // On ne veut voir que le modèle
         entity.setInvisible(true);
         
-        // ===== DÉSACTIVER LES SPAWNS DE ZOMBIES =====
-        // Si c'est un zombie, désactiver la capacité de spawner des renforts
+        // ===== DÉSACTIVER LE BURN AU SOLEIL =====
+        // Les zombies de tour sont des mobs spéciaux qui ne brûlent pas au soleil
         if (entity instanceof org.bukkit.entity.Zombie) {
             org.bukkit.entity.Zombie zombie = (org.bukkit.entity.Zombie) entity;
-            // Empêcher le zombie de spawner des renforts quand il est attaqué
-            zombie.setShouldBurnInDay(false); // Les zombies de tour ne brûlent pas au soleil
+            zombie.setShouldBurnInDay(false);
         }
 
         // ===== ModelEngine 4 =====

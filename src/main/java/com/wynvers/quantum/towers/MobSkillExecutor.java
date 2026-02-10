@@ -536,6 +536,7 @@ public class MobSkillExecutor {
         // Choisir un joueur aléatoire comme cible
         Player target = targets.get(ThreadLocalRandom.current().nextInt(targets.size()));
         Location targetLoc = target.getLocation();
+        Location mobLoc = mob.getLocation();
         
         // Générer une position aléatoire dans un rayon de 5 blocs
         double angle = ThreadLocalRandom.current().nextDouble() * 2 * Math.PI;
@@ -546,8 +547,25 @@ public class MobSkillExecutor {
         
         Location teleportLoc = targetLoc.clone().add(offsetX, 0, offsetZ);
         
-        // Trouver un emplacement sûr (au sol)
-        teleportLoc.setY(targetLoc.getWorld().getHighestBlockYAt(teleportLoc) + 1);
+        // Garder la hauteur proche de la position actuelle du mob pour rester dans la tour
+        // Chercher un emplacement sûr dans une plage de +/- 3 blocs verticalement
+        teleportLoc.setY(mobLoc.getY());
+        
+        // Trouver un bloc solide sous le mob (max 5 blocs vers le bas)
+        for (int i = 0; i < 5; i++) {
+            Location checkLoc = teleportLoc.clone().subtract(0, i, 0);
+            if (checkLoc.getBlock().getType().isSolid()) {
+                teleportLoc.setY(checkLoc.getY() + 1);
+                break;
+            }
+        }
+        
+        // Vérifier que la destination est sûre (pas dans un mur)
+        if (teleportLoc.getBlock().getType().isSolid() || 
+            teleportLoc.clone().add(0, 1, 0).getBlock().getType().isSolid()) {
+            // Destination non sûre, annuler la téléportation
+            return;
+        }
         
         // Particules au départ
         mob.getWorld().spawnParticle(

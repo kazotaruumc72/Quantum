@@ -77,20 +77,22 @@ public class TowerMobListener implements Listener {
         
         // Si c'est un zombie qui essaie de spawner un renfort
         if (event.getEntity() instanceof Zombie) {
+            Location spawnLoc = event.getLocation();
+            
             // Vérifier si le spawn est lié à un mob de tour
-            // En regardant les entités proches qui ont la metadata tower_mob
-            event.getEntity().getLocation().getNearbyEntities(20, 20, 20).stream()
+            // Les renforts spawent toujours très proche du zombie parent (< 10 blocs)
+            boolean nearTowerMob = spawnLoc.getNearbyEntities(10, 10, 10).stream()
                 .filter(e -> e instanceof LivingEntity)
                 .map(e -> (LivingEntity) e)
-                .filter(e -> e.hasMetadata("tower_mob"))
-                .findFirst()
-                .ifPresent(towerMob -> {
-                    // On a trouvé un mob de tour à proximité, annuler le spawn de renfort
-                    event.setCancelled(true);
-                    plugin.getQuantumLogger().debug(
-                        "Prevented reinforcement zombie spawn near tower mob"
-                    );
-                });
+                .anyMatch(e -> e.hasMetadata("tower_mob"));
+            
+            if (nearTowerMob) {
+                // On a trouvé un mob de tour à proximité, annuler le spawn de renfort
+                event.setCancelled(true);
+                plugin.getQuantumLogger().debug(
+                    "Prevented reinforcement zombie spawn near tower mob"
+                );
+            }
         }
     }
 }

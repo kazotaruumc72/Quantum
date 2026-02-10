@@ -57,7 +57,7 @@ Pour chaque mob custom dans `mob_healthbar.yml`, ajoutez le champ `modelengine_o
    - Mobs moyens (1-2 blocs) : `1.0 - 1.5`
    - Grands mobs (> 2 blocs) : `1.5 - 2.5`
 3. **Testez et ajustez** : Rechargez la config avec `/quantum reload` et ajustez l'offset
-4. **Chaque 0.3 correspond environ à une ligne de texte** en hauteur
+4. **Approximation** : Chaque 0.3 blocs d'offset ajoute environ une ligne de texte en hauteur (la conversion exacte dépend du rendu client)
 
 ## Fonctionnement Technique (Technical Details)
 
@@ -71,13 +71,15 @@ boolean hasModelEngine = ModelEngineAPI.getModeledEntity(entity.getUniqueId()) !
 
 ### Application de l'Offset
 
-L'offset est appliqué en ajoutant des lignes vides (`\n`) au-dessus du nom du mob :
+L'offset est appliqué en ajoutant des lignes vides (`\n`) au-dessus du nom du mob. Le calcul utilise une constante de conversion (BLOCKS_PER_NEWLINE = 0.3) qui est une approximation basée sur le rendu client :
 
 ```java
-int numLines = (int) Math.round(offset / 0.3);
+int numLines = (int) Math.round(offset / BLOCKS_PER_NEWLINE);
 String offsetNewlines = "\n".repeat(Math.max(0, numLines));
 String newName = offsetNewlines + originalName + "\n" + healthBar;
 ```
+
+**Note** : La conversion exacte peut varier selon la résolution et les paramètres d'affichage du client. Les valeurs recommandées sont des approximations qui fonctionnent dans la plupart des cas.
 
 ### Priorité de Configuration
 

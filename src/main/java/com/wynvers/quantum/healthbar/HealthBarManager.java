@@ -21,6 +21,10 @@ import java.util.UUID;
  */
 public class HealthBarManager {
     
+    // Facteur de conversion : nombre de blocs représentés par une ligne de texte
+    // Utilisé pour calculer l'offset vertical des healthbars ModelEngine
+    private static final double BLOCKS_PER_NEWLINE = 0.3;
+    
     private final Quantum plugin;
     private final Map<UUID, HealthBarMode> playerModes = new HashMap<>();
     private final DecimalFormat percentFormat = new DecimalFormat("0.0");
@@ -412,8 +416,8 @@ public class HealthBarManager {
             double offset = getModelEngineOffset(mobSection);
             if (offset > 0) {
                 // Ajouter des lignes vides proportionnelles à l'offset
-                // Chaque ligne représente environ 0.3 blocs de hauteur
-                int numLines = (int) Math.round(offset / 0.3);
+                // Utilise BLOCKS_PER_NEWLINE pour la conversion
+                int numLines = (int) Math.round(offset / BLOCKS_PER_NEWLINE);
                 offsetNewlines = "\n".repeat(Math.max(0, numLines));
             }
         }

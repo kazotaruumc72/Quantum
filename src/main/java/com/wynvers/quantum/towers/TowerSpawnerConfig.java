@@ -6,12 +6,10 @@ import com.ticxo.modelengine.api.model.ActiveModel;
 import com.ticxo.modelengine.api.model.ModeledEntity;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,10 +51,6 @@ public class TowerSpawnerConfig {
     // Région de spawn (optionnelle)
     private SpawnRegion spawnRegion;
 
-    // Offset vertical pour la barre de vie (en blocs)
-    // Utilisé pour positionner correctement la healthbar au-dessus des modèles ModelEngine
-    private double healthbarOffset;
-
     public TowerSpawnerConfig(String fullId, ConfigurationSection section) {
         this.fullId = fullId;
         loadFromConfig(section);
@@ -77,9 +71,6 @@ public class TowerSpawnerConfig {
         this.baseAmount = section.getInt("amount", 1);
         this.intervalSeconds = section.getInt("interval", 60);
         this.maxAlive = section.getInt("max_alive", 10);
-        
-        // Offset de la barre de vie (par défaut 0.0 = hauteur automatique)
-        this.healthbarOffset = section.getDouble("healthbar_offset", 0.0);
 
         // Scaling
         ConfigurationSection scalingSec = section.getConfigurationSection("scaling");
@@ -193,14 +184,6 @@ public class TowerSpawnerConfig {
 
     public SpawnRegion getSpawnRegion() {
         return spawnRegion;
-    }
-
-    /**
-     * Retourne l'offset vertical pour la barre de vie (en blocs).
-     * Utilisé pour positionner correctement la healthbar au-dessus des modèles ModelEngine.
-     */
-    public double getHealthbarOffset() {
-        return healthbarOffset;
     }
 
     /**

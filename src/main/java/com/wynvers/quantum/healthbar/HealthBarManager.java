@@ -233,11 +233,7 @@ public class HealthBarManager {
         StringBuilder bar = new StringBuilder();
         
         // Ajouter l'indicateur ModelEngine au début si applicable
-        if (hasModelEngine) {
-            String meIndicator = mobConfig.getString("symbols.modelengine.indicator", "⚙");
-            String meColor = mobConfig.getString("symbols.modelengine.color", "&7").replace("&", "§");
-            bar.append(meColor).append(meIndicator).append(" ");
-        }
+        bar.append(getModelEngineIndicator(hasModelEngine));
         
         bar.append("§8").append(leftBracket);
         for (int i = 0; i < barLength; i++) {
@@ -299,11 +295,7 @@ public class HealthBarManager {
         StringBuilder display = new StringBuilder();
         
         // Ajouter l'indicateur ModelEngine au début si applicable
-        if (hasModelEngine) {
-            String meIndicator = mobConfig.getString("symbols.modelengine.indicator", "⚙");
-            String meColor = mobConfig.getString("symbols.modelengine.color", "&7").replace("&", "§");
-            display.append(meColor).append(meIndicator).append(" ");
-        }
+        display.append(getModelEngineIndicator(hasModelEngine));
         
         display.append(color);
         
@@ -349,11 +341,7 @@ public class HealthBarManager {
         StringBuilder display = new StringBuilder();
         
         // Ajouter l'indicateur ModelEngine au début si applicable
-        if (hasModelEngine) {
-            String meIndicator = mobConfig.getString("symbols.modelengine.indicator", "⚙");
-            String meColor = mobConfig.getString("symbols.modelengine.color", "&7").replace("&", "§");
-            display.append(meColor).append(meIndicator).append(" ");
-        }
+        display.append(getModelEngineIndicator(hasModelEngine));
         
         display.append(color).append(percentFormat.format(health))
                .append("§7/")
@@ -479,5 +467,20 @@ public class HealthBarManager {
         }
         // Utiliser l'offset par défaut de la configuration globale
         return mobConfig.getDouble("global.default_modelengine_offset", 0.0);
+    }
+    
+    /**
+     * Récupère l'indicateur visuel ModelEngine formaté si applicable
+     * @param hasModelEngine Si l'entité utilise un modèle ModelEngine
+     * @return L'indicateur formaté avec couleur et espace, ou chaîne vide si pas de ModelEngine
+     */
+    private String getModelEngineIndicator(boolean hasModelEngine) {
+        if (!hasModelEngine) {
+            return "";
+        }
+        
+        String meIndicator = mobConfig.getString("symbols.modelengine.indicator", "⚙");
+        String meColor = mobConfig.getString("symbols.modelengine.color", "&7").replace("&", "§");
+        return meColor + meIndicator + " ";
     }
 }

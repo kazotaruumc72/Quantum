@@ -172,6 +172,23 @@ public class QuantumCommand implements CommandExecutor {
                             }
                             break;
 
+                        case "storage":
+                        case "storage.yml":
+                            if (plugin.getStorageManager() != null) {
+                                plugin.getStorageManager().reload();
+                                sender.sendMessage("§a§l✓ §astorage.yml rechargé!");
+                            }
+                            break;
+
+                        case "animations":
+                        case "animation":
+                        case "animations.yml":
+                            if (plugin.getAnimationManager() != null) {
+                                plugin.getAnimationManager().reload();
+                                sender.sendMessage("§a§l✓ §aanimations.yml rechargé!");
+                            }
+                            break;
+
                         default:
                             sender.sendMessage("§c⚠ Type de reload invalide!");
                             break;

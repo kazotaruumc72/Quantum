@@ -1,10 +1,10 @@
-# ModelEngine Health Bar Positioning Guide
+# Health Bar Positioning Guide (Hologram Offset)
 
 ## Problème / Problem
 
-Lorsque des mobs utilisent des modèles ModelEngine, la barre de vie doit être positionnée au-dessus du modèle custom qui peut être plus grand ou plus petit que l'entité vanilla invisible qui le porte.
+Lorsque des mobs utilisent des modèles ModelEngine ou d'autres systèmes, la barre de vie doit être positionnée au-dessus du modèle custom qui peut être plus grand ou plus petit que l'entité vanilla invisible qui le porte.
 
-When mobs use ModelEngine models, the health bar must be positioned above the custom model which can be larger or smaller than the invisible vanilla entity that carries it.
+When mobs use ModelEngine models or other systems, the health bar must be positioned above the custom model which can be larger or smaller than the invisible vanilla entity that carries it.
 
 ## Solution
 
@@ -57,15 +57,18 @@ Dans `mob_healthbar.yml`, un offset par défaut peut être défini :
 
 ```yaml
 global:
-  # Offset vertical par défaut pour les modèles ModelEngine (en blocs)
-  # Utilisé pour positionner la healthbar au-dessus des modèles custom
+  # Offset vertical par défaut pour les hologrammes de healthbar (en blocs)
+  # Utilisé pour positionner la healthbar au-dessus des mobs
   # Valeur positive = plus haut, 0.0 = au niveau de l'entité
-  default_modelengine_offset: 0.5
+  default_hologram_offset: 0.5
+  
+  # Note: L'ancien champ 'default_modelengine_offset' est toujours supporté
+  # pour la rétrocompatibilité, mais 'default_hologram_offset' est recommandé
 ```
 
 ### 2. Configuration Par Mob (Per-Mob Configuration)
 
-Pour chaque mob custom dans `mob_healthbar.yml`, ajoutez le champ `modelengine_offset` :
+Pour chaque mob custom dans `mob_healthbar.yml`, ajoutez le champ `hologram_offset` :
 
 ```yaml
 "Slime d'Eau":
@@ -75,9 +78,10 @@ Pour chaque mob custom dans `mob_healthbar.yml`, ajoutez le champ `modelengine_o
   show_percentage: true
   show_numeric: false
   format: CLASSIC
-  # Offset vertical pour les modèles ModelEngine (en blocs)
-  # Positionne la healthbar au-dessus du modèle
-  modelengine_offset: 1.0
+  # Offset vertical pour l'hologramme de healthbar (en blocs)
+  # Positionne la healthbar au-dessus du mob/modèle
+  hologram_offset: 1.0
+  # Note: L'ancien champ 'modelengine_offset' est toujours supporté
   color_thresholds:
     75: "&b"
     50: "&3"
@@ -116,7 +120,7 @@ L'offset est appliqué directement comme coordonnée Y lors du positionnement de
 
 ```java
 // L'offset est en blocs (1.0 = 1 bloc au-dessus de l'entité)
-Location displayLocation = mob.getLocation().add(0, modelengine_offset, 0);
+Location displayLocation = mob.getLocation().add(0, hologram_offset, 0);
 display.teleport(displayLocation);
 ```
 
@@ -136,9 +140,10 @@ display.teleport(mob.getLocation().add(0, yOffset, 0));
 
 ### Priorité de Configuration
 
-1. Si `modelengine_offset` est défini pour le mob spécifique → utilise cette valeur
-2. Sinon → utilise `global.default_modelengine_offset`
-3. Si aucun offset défini → `0.5` (offset par défaut)
+1. Si `hologram_offset` est défini pour le mob spécifique → utilise cette valeur
+2. Sinon, si `modelengine_offset` est défini (rétrocompatibilité) → utilise cette valeur
+3. Sinon → utilise `global.default_hologram_offset`
+4. Si aucun offset défini → `0.5` (offset par défaut)
 
 ## Exemples de Configuration (Configuration Examples)
 
@@ -146,28 +151,28 @@ display.teleport(mob.getLocation().add(0, yOffset, 0));
 
 ```yaml
 "Slime d'Eau":
-  modelengine_offset: 1.0  # 1 bloc au-dessus
+  hologram_offset: 1.0  # 1 bloc au-dessus
 ```
 
 ### Mob Moyen (Medium Mob) - Gardien
 
 ```yaml
 "Gardien de l'Eau":
-  modelengine_offset: 1.2  # 1.2 blocs au-dessus
+  hologram_offset: 1.2  # 1.2 blocs au-dessus
 ```
 
 ### Grand Mob (Large Mob) - Serviteur
 
 ```yaml
 "Serviteur d'Eau":
-  modelengine_offset: 1.5  # 1.5 blocs au-dessus
+  hologram_offset: 1.5  # 1.5 blocs au-dessus
 ```
 
 ### Boss (Boss)
 
 ```yaml
 "⚔ Chevalier de l'Eau ⚔":
-  modelengine_offset: 2.0  # 2 blocs au-dessus
+  hologram_offset: 2.0  # 2 blocs au-dessus
 ```
 
 ## Commandes (Commands)
@@ -187,19 +192,19 @@ display.teleport(mob.getLocation().add(0, yOffset, 0));
 ## Dépannage (Troubleshooting)
 
 ### La healthbar est trop haute
-→ Diminuez la valeur de `modelengine_offset` (ex: de 1.5 à 1.2)
+→ Diminuez la valeur de `hologram_offset` (ex: de 1.5 à 1.2)
 
 ### La healthbar est trop basse
-→ Augmentez la valeur de `modelengine_offset` (ex: de 1.0 à 1.3)
+→ Augmentez la valeur de `hologram_offset` (ex: de 1.0 à 1.3)
 
 ### La healthbar ne change pas après modification
 → Utilisez `/quantum reload` pour recharger la configuration
 
 ### L'offset ne s'applique pas
 → Vérifiez que :
-  1. ModelEngine est installé et chargé
-  2. Le mob a bien un modèle ModelEngine appliqué
-  3. Le nom du mob dans `mob_healthbar.yml` correspond EXACTEMENT au nom configuré dans `towers.yml`
+  1. Le nom du mob dans `mob_healthbar.yml` correspond EXACTEMENT au nom configuré dans `towers.yml`
+  2. Vous avez bien utilisé `hologram_offset` (ou l'ancien `modelengine_offset`)
+  3. La valeur est positive (les valeurs négatives peuvent causer des problèmes)
 
 ### La healthbar ne suit pas le mob
 → C'est normal, elle se met à jour toutes les 5 ticks (0.25 secondes). Si le problème persiste, redémarrez le serveur.

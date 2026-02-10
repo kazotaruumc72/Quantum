@@ -34,7 +34,7 @@ public class HealthBarManager {
     
     private final Quantum plugin;
     private final Map<UUID, HealthBarMode> playerModes = new HashMap<>();
-    private final DecimalFormat percentFormat = new DecimalFormat("0.0");
+    private final DecimalFormat percentFormat = new DecimalFormat("0"); // Changed from "0.0" to "0" to show only integers
     private File configFile;
     private FileConfiguration config;
     
@@ -91,9 +91,9 @@ public class HealthBarManager {
                     ConfigurationSection mobSection = getMobConfig(mob);
                     double yOffset = 0.5; // Défaut
                     if (hasModelEngine) {
-                        double modelEngineOffset = getModelEngineOffset(mobSection);
-                        if (modelEngineOffset > 0) {
-                            yOffset = modelEngineOffset;
+                        double hologramOffset = getHologramOffset(mobSection);
+                        if (hologramOffset > 0) {
+                            yOffset = hologramOffset;
                         }
                     }
                     
@@ -541,9 +541,9 @@ public class HealthBarManager {
         // Calculer l'offset vertical pour les modèles ModelEngine
         double baseOffset = 0.5; // Offset par défaut au-dessus de l'entité
         if (hasModelEngine) {
-            double modelEngineOffset = getModelEngineOffset(mobSection);
-            if (modelEngineOffset > 0) {
-                baseOffset = modelEngineOffset;
+            double hologramOffset = getHologramOffset(mobSection);
+            if (hologramOffset > 0) {
+                baseOffset = hologramOffset;
             }
         }
         
@@ -625,14 +625,23 @@ public class HealthBarManager {
     }
     
     /**
-     * Récupère l'offset vertical pour les modèles ModelEngine depuis la configuration
+     * Récupère l'offset vertical pour l'hologramme de healthbar depuis la configuration
      */
-    private double getModelEngineOffset(ConfigurationSection mobSection) {
+    private double getHologramOffset(ConfigurationSection mobSection) {
+        if (mobSection != null && mobSection.contains("hologram_offset")) {
+            return mobSection.getDouble("hologram_offset", 0.0);
+        }
+        // Backward compatibility: check for old modelengine_offset
         if (mobSection != null && mobSection.contains("modelengine_offset")) {
             return mobSection.getDouble("modelengine_offset", 0.0);
         }
         // Utiliser l'offset par défaut de la configuration globale
-        return mobConfig.getDouble("global.default_modelengine_offset", 0.0);
+        double defaultOffset = mobConfig.getDouble("global.default_hologram_offset", 0.0);
+        if (defaultOffset == 0.0) {
+            // Backward compatibility: check for old default_modelengine_offset
+            defaultOffset = mobConfig.getDouble("global.default_modelengine_offset", 0.0);
+        }
+        return defaultOffset;
     }
     
     /**

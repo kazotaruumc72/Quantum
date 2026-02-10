@@ -109,6 +109,7 @@ permissions:
       quantum.rune.*: true
       quantum.exp.admin: true
       quantum.healthbar.use: true
+      quantum.skills.bypass: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -248,3 +249,8 @@ permissions:
   quantum.healthbar.use:
     description: Allows changing health bar display mode
     default: true
+  
+  # Mob Skills system
+  quantum.skills.bypass:
+    description: Bypass skill title/subtitle spam (creative mode players always bypass, this permission allows non-creative players to also bypass)
+    default: op

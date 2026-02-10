@@ -171,6 +171,9 @@ public class HealthBarManager {
     /**
      * Génère la barre de vie formatée pour un mob
      * Méthode de compatibilité qui délègue à la méthode principale sans indicateur ModelEngine
+     * 
+     * Generates the formatted health bar for a mob
+     * Compatibility method that delegates to the main method without ModelEngine indicator
      */
     public String generateHealthBar(LivingEntity entity, HealthBarMode mode) {
         return generateHealthBar(entity, mode, false);

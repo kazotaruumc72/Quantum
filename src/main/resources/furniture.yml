@@ -1,0 +1,90 @@
+# ========================================
+#  QUANTUM - Furniture System Configuration
+# ========================================
+#
+# Système de furniture avec réapparition et loot
+# Basé sur l'API Nexo
+#
+# Format:
+#   furniture_id: ID unique du furniture
+#   nexo_id: ID de l'item Nexo
+#   respawn_time: Temps en secondes avant réapparition
+#   alternative_furniture: Liste de furnitures alternatifs qui peuvent apparaître
+#   drops: Liste des drops possibles avec % de chance
+
+furniture:
+  # Exemple: Arbre fruitier
+  fruit_tree:
+    nexo_id: "fruit_tree"
+    respawn_time: 300  # 5 minutes
+    alternative_furniture:
+      - furniture_id: "fruit_tree_bare"
+        chance: 30.0  # 30% de chance d'apparaître à la place
+      - furniture_id: "fruit_tree_small"
+        chance: 20.0  # 20% de chance
+    drops:
+      - nexo_id: "apple_golden"
+        min_amount: 1
+        max_amount: 3
+        chance: 10.0  # 10% de chance
+      - nexo_id: "apple_normal"
+        min_amount: 2
+        max_amount: 5
+        chance: 60.0  # 60% de chance
+      - minecraft: "APPLE"
+        min_amount: 1
+        max_amount: 2
+        chance: 90.0  # 90% de chance
+  
+  # Arbre fruitier sans fruits
+  fruit_tree_bare:
+    nexo_id: "fruit_tree_bare"
+    respawn_time: 600  # 10 minutes
+    alternative_furniture:
+      - furniture_id: "fruit_tree"
+        chance: 70.0  # 70% de revenir à l'état normal
+    drops:
+      - minecraft: "STICK"
+        min_amount: 1
+        max_amount: 3
+        chance: 50.0
+  
+  # Petit arbre fruitier
+  fruit_tree_small:
+    nexo_id: "fruit_tree_small"
+    respawn_time: 450  # 7.5 minutes
+    alternative_furniture:
+      - furniture_id: "fruit_tree"
+        chance: 50.0
+    drops:
+      - nexo_id: "apple_normal"
+        min_amount: 1
+        max_amount: 2
+        chance: 40.0
+  
+  # Exemple: Coffre mystérieux
+  mystery_chest:
+    nexo_id: "mystery_chest"
+    respawn_time: 1200  # 20 minutes
+    alternative_furniture:
+      - furniture_id: "mystery_chest"
+        chance: 100.0  # Réapparaît toujours au même endroit
+    drops:
+      - nexo_id: "rare_gem"
+        min_amount: 1
+        max_amount: 1
+        chance: 5.0  # 5% drop rare
+      - nexo_id: "common_coin"
+        min_amount: 10
+        max_amount: 50
+        chance: 80.0
+      - minecraft: "DIAMOND"
+        min_amount: 1
+        max_amount: 3
+        chance: 15.0
+
+# Messages
+messages:
+  furniture_broken: "&aVous avez cassé: &e{furniture_name}"
+  furniture_respawned: "&7Un furniture a réapparu à vos pieds"
+  drop_received: "&a+{amount}x &e{item_name}"

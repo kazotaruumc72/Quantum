@@ -6,6 +6,15 @@ import com.wynvers.quantum.armor.DungeonArmor;
 import com.wynvers.quantum.armor.RuneApplyListener;
 import com.wynvers.quantum.armor.RuneItem;
 import com.wynvers.quantum.armor.RuneType;
+import com.wynvers.quantum.furniture.FurnitureManager;
+import com.wynvers.quantum.furniture.FurnitureListener;
+import com.wynvers.quantum.crops.CustomCropManager;
+import com.wynvers.quantum.crops.CustomCropListener;
+import com.wynvers.quantum.tools.ToolManager;
+import com.wynvers.quantum.tools.ToolListener;
+import com.wynvers.quantum.tools.StructureManager;
+import com.wynvers.quantum.weapon.DungeonWeapon;
+import com.wynvers.quantum.weapon.DungeonWeaponListener;
 import com.wynvers.quantum.commands.*;
 import com.wynvers.quantum.database.DatabaseManager;
 import com.wynvers.quantum.healthbar.HealthBarListener;
@@ -99,6 +108,13 @@ public final class Quantum extends JavaPlugin {
     private DungeonArmor dungeonArmor;     // Dungeon armor system
     private ArmorManager armorManager;
     private RuneItem runeItem;
+    
+    // NEW: Furniture, Crops, Tools, and Weapon systems
+    private FurnitureManager furnitureManager;
+    private CustomCropManager customCropManager;
+    private ToolManager toolManager;
+    private StructureManager structureManager;
+    private DungeonWeapon dungeonWeapon;
 
     // Utils
     private ActionExecutor actionExecutor;
@@ -193,6 +209,9 @@ public final class Quantum extends JavaPlugin {
 
         // Managers généraux
         initializeManagers();
+        
+        // NEW: Furniture, Crops, Tools, and Weapon systems
+        initializeNewSystems();
 
         // PlaceholderAPI
         registerPlaceholderExpansion();
@@ -257,6 +276,13 @@ public final class Quantum extends JavaPlugin {
         extractResource("orders_template.yml");
         extractResource("messages.yml");
         extractResource("messages_gui.yml");
+        
+        // NEW: Furniture, Crops, Tools, and Weapon configs
+        extractResource("furniture.yml");
+        extractResource("custom_crops.yml");
+        extractResource("tools.yml");
+        extractResource("structures.yml");
+        extractResource("dungeon_weapon.yml");
 
         // Ancien zones.yml (optionnel, plus utilisé par les tours)
         extractResource("zones.yml");
@@ -407,6 +433,33 @@ public final class Quantum extends JavaPlugin {
         this.menuManager = new MenuManager(this);
         logger.success("✓ Menu Manager (" + menuManager.getMenuCount() + " menus loaded)");
     }
+    
+    // ───────────────────── NEW Systems Initialization ─────────────────────
+    
+    private void initializeNewSystems() {
+        logger.info("Initializing new systems (Furniture, Crops, Tools, Weapon)...");
+        
+        // Furniture System
+        this.furnitureManager = new FurnitureManager(this);
+        getServer().getPluginManager().registerEvents(new FurnitureListener(this, furnitureManager), this);
+        logger.success("✓ Furniture System initialized!");
+        
+        // Custom Crops System
+        this.customCropManager = new CustomCropManager(this);
+        getServer().getPluginManager().registerEvents(new CustomCropListener(this, customCropManager), this);
+        logger.success("✓ Custom Crops System initialized!");
+        
+        // Tools System
+        this.toolManager = new ToolManager(this);
+        this.structureManager = new StructureManager(this);
+        getServer().getPluginManager().registerEvents(new ToolListener(this, toolManager), this);
+        logger.success("✓ Tools System initialized! (Pickaxe, Axe, Hoe)");
+        
+        // Dungeon Weapon System
+        this.dungeonWeapon = new DungeonWeapon(this);
+        getServer().getPluginManager().registerEvents(new DungeonWeaponListener(this, dungeonWeapon), this);
+        logger.success("✓ Dungeon Weapon System initialized!");
+    }
 
     // ───────────────────── PlaceholderAPI ─────────────────────
 
@@ -490,6 +543,17 @@ public final class Quantum extends JavaPlugin {
             getCommand("healthbar").setExecutor(new HealthBarCommand(this, healthBarManager));
             getCommand("healthbar").setTabCompleter(new HealthBarTabCompleter());
             logger.success("✓ HealthBar Command + TabCompleter");
+        }
+        
+        // NEW: Tool and Weapon Commands
+        if (toolManager != null) {
+            getCommand("tool").setExecutor(new ToolCommand(this));
+            logger.success("✓ Tool Command");
+        }
+        
+        if (dungeonWeapon != null) {
+            getCommand("weapon").setExecutor(new WeaponCommand(this));
+            logger.success("✓ Weapon Command");
         }
 
         logger.success("✓ Commands registered");
@@ -757,5 +821,27 @@ public final class Quantum extends JavaPlugin {
 
     public RuneItem getRuneItem() {
         return runeItem;
+    }
+    
+    // NEW: Getters for Furniture, Crops, Tools, and Weapon systems
+    
+    public FurnitureManager getFurnitureManager() {
+        return furnitureManager;
+    }
+    
+    public CustomCropManager getCustomCropManager() {
+        return customCropManager;
+    }
+    
+    public ToolManager getToolManager() {
+        return toolManager;
+    }
+    
+    public StructureManager getStructureManager() {
+        return structureManager;
+    }
+    
+    public DungeonWeapon getDungeonWeapon() {
+        return dungeonWeapon;
     }
 }

@@ -1,0 +1,127 @@
+# ========================================
+#  QUANTUM - Custom Crops System Configuration
+# ========================================
+#
+# Système de cultures personnalisées avec animations de croissance
+# Compatible avec tous les types de houe
+# Basé sur l'API Nexo pour les modèles
+#
+# Format:
+#   crop_id: ID unique de la culture
+#   nexo_id_base: ID Nexo de la graine/base
+#   growth_stages: Liste des stades de croissance (modèles Nexo)
+#   growth_time_per_stage: Temps en secondes par stade
+#   commands: Commandes à exécuter lors de la récolte
+#   drops: Drops lors de la récolte avec la houe
+
+crops:
+  # Exemple: Blé magique
+  magic_wheat:
+    display_name: "&eBlé Magique"
+    nexo_id_base: "magic_wheat_seed"
+    growth_stages:
+      - stage: 1
+        nexo_id: "magic_wheat_stage1"
+        duration: 120  # 2 minutes
+      - stage: 2
+        nexo_id: "magic_wheat_stage2"
+        duration: 180  # 3 minutes
+      - stage: 3
+        nexo_id: "magic_wheat_stage3"
+        duration: 240  # 4 minutes
+      - stage: 4
+        nexo_id: "magic_wheat_stage4"
+        duration: 300  # 5 minutes (mature)
+    
+    # Commandes exécutées lors de la récolte (utilise {player} comme placeholder)
+    harvest_commands:
+      - "give {player} diamond 1"
+      - "playsound minecraft:entity.player.levelup player {player}"
+    
+    # Drops lors de la récolte
+    drops:
+      - nexo_id: "magic_wheat"
+        min_amount: 2
+        max_amount: 4
+        chance: 100.0
+      - nexo_id: "magic_wheat_seed"
+        min_amount: 1
+        max_amount: 2
+        chance: 80.0
+      - minecraft: "WHEAT"
+        min_amount: 1
+        max_amount: 3
+        chance: 50.0
+  
+  # Exemple: Carotte mystique
+  mystic_carrot:
+    display_name: "&6Carotte Mystique"
+    nexo_id_base: "mystic_carrot_seed"
+    growth_stages:
+      - stage: 1
+        nexo_id: "mystic_carrot_stage1"
+        duration: 150
+      - stage: 2
+        nexo_id: "mystic_carrot_stage2"
+        duration: 200
+      - stage: 3
+        nexo_id: "mystic_carrot_stage3"
+        duration: 250
+    
+    harvest_commands:
+      - "give {player} gold_ingot 2"
+    
+    drops:
+      - nexo_id: "mystic_carrot"
+        min_amount: 1
+        max_amount: 3
+        chance: 100.0
+      - nexo_id: "mystic_carrot_seed"
+        min_amount: 1
+        max_amount: 1
+        chance: 60.0
+  
+  # Exemple: Tomate enchantée
+  enchanted_tomato:
+    display_name: "&cTomate Enchantée"
+    nexo_id_base: "enchanted_tomato_seed"
+    growth_stages:
+      - stage: 1
+        nexo_id: "enchanted_tomato_stage1"
+        duration: 100
+      - stage: 2
+        nexo_id: "enchanted_tomato_stage2"
+        duration: 150
+      - stage: 3
+        nexo_id: "enchanted_tomato_stage3"
+        duration: 200
+      - stage: 4
+        nexo_id: "enchanted_tomato_stage4"
+        duration: 250
+    
+    harvest_commands:
+      - "give {player} emerald 1"
+      - "title {player} title &aRécolte!"
+      - "title {player} subtitle &7Vous avez récolté des tomates enchantées"
+    
+    drops:
+      - nexo_id: "enchanted_tomato"
+        min_amount: 2
+        max_amount: 5
+        chance: 100.0
+      - nexo_id: "enchanted_tomato_seed"
+        min_amount: 0
+        max_amount: 2
+        chance: 70.0
+      - minecraft: "EXPERIENCE_BOTTLE"
+        min_amount: 1
+        max_amount: 1
+        chance: 25.0
+
+# Messages
+messages:
+  crop_planted: "&aVous avez planté: &e{crop_name}"
+  crop_not_mature: "&cCette culture n'est pas encore mature!"
+  crop_harvested: "&aVous avez récolté: &e{crop_name}"
+  crop_growing: "&7Votre culture pousse... Stade {stage}/{max_stage}"
+  invalid_crop: "&cCette culture n'existe pas!"

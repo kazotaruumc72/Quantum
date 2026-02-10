@@ -442,15 +442,17 @@ public class HealthBarManager {
             // Extraire le nom en sautant les newlines d'offset au début
             String[] parts = originalName.split("\n");
             // Trouver la première partie non-vide (le nom réel)
-            originalName = null;
+            String extractedName = null;
             for (String part : parts) {
                 if (!part.isEmpty()) {
-                    originalName = part;
+                    extractedName = part;
                     break;
                 }
             }
-            // Si tous les parts sont vides, utiliser le display name par défaut
-            if (originalName == null) {
+            // Si toutes les parties sont vides, utiliser le display name par défaut
+            if (extractedName != null) {
+                originalName = extractedName;
+            } else {
                 originalName = getDisplayName(entity, mobSection);
             }
         }

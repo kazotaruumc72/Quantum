@@ -51,7 +51,7 @@ public class HealthBarListener implements Listener {
         //   et le modèle ModelEngine sont appliqués APRÈS l'EntitySpawnEvent
         // - Le délai permet à la configuration complète du mob (nom + modèle) d'être appliquée
         //   avant que la healthbar ne soit générée
-        // - Sans ce délai, la healthbar serait calculée avec un nom vide ou incorrecte
+        // - Sans ce délai, la healthbar serait calculée avec un nom vide ou incorrect
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             if (entity.isValid() && !entity.isDead()) {
                 // Mettre à jour pour tous les joueurs dans un rayon de 50 blocs

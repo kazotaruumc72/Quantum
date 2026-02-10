@@ -172,7 +172,7 @@ global:
     75: "&a"  # Lime
     50: "&6"  # Orange
     25: "&c"  # Rouge
-    0: "&c"   # Rouge foncé
+    0: "&c"   # Rouge
 
 # ========================================
 #   MOBS HOSTILES - OVERWORLD

@@ -318,10 +318,16 @@ public class TowerManager {
         
         plugin.getQuantumLogger().info("Player " + player.getName() + " entered " + towerId + " floor " + floor);
 
-        // Desactiver le scoreboard quand le joueur entre dans une tour
+        // Désactiver le scoreboard normal et activer le scoreboard de tour
         ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
         if (scoreboardManager != null) {
             scoreboardManager.disableScoreboard(player);
+        }
+        
+        // Activer le scoreboard de tour avec mise à jour en temps réel
+        TowerScoreboardHandler towerScoreboardHandler = plugin.getTowerScoreboardHandler();
+        if (towerScoreboardHandler != null) {
+            towerScoreboardHandler.enableTowerScoreboard(player, towerId);
         }
         
         // Demarrer les spawners
@@ -339,6 +345,12 @@ public class TowerManager {
         progress.setCurrentTower(null);
         progress.setCurrentFloor(0);
         progress.resetKills();
+    
+        // Désactiver le scoreboard de tour
+        TowerScoreboardHandler towerScoreboardHandler = plugin.getTowerScoreboardHandler();
+        if (towerScoreboardHandler != null) {
+            towerScoreboardHandler.disableTowerScoreboard(player);
+        }
     
         // Reactiver et recreer le scoreboard classique quand le joueur quitte la tour
         ScoreboardManager scoreboardManager = plugin.getScoreboardManager();

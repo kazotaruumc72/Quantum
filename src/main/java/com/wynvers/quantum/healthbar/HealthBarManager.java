@@ -170,6 +170,7 @@ public class HealthBarManager {
     
     /**
      * Génère la barre de vie formatée pour un mob
+     * Méthode de compatibilité qui délègue à la méthode principale sans indicateur ModelEngine
      */
     public String generateHealthBar(LivingEntity entity, HealthBarMode mode) {
         return generateHealthBar(entity, mode, false);
@@ -177,6 +178,10 @@ public class HealthBarManager {
     
     /**
      * Génère la barre de vie formatée pour un mob avec indicateur ModelEngine optionnel
+     * @param entity L'entité pour laquelle générer la barre de vie
+     * @param mode Le mode d'affichage (PERCENTAGE, HEARTS, etc.)
+     * @param hasModelEngine Si true, ajoute un indicateur visuel pour signaler un modèle ModelEngine
+     * @return La chaîne formatée de la barre de vie
      */
     public String generateHealthBar(LivingEntity entity, HealthBarMode mode, boolean hasModelEngine) {
         double health = entity.getHealth();

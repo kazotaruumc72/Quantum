@@ -56,11 +56,11 @@ global:
   # CONTAINS: Le display_name peut contenir le nom (plus flexible)
   matching_mode: EXACT
   
-  # Offset vertical par défaut pour les modèles ModelEngine (en blocs)
-  # Utilisé pour positionner la healthbar au-dessus des modèles custom
+  # Offset vertical par défaut pour les hologrammes de healthbar (en blocs)
+  # Utilisé pour positionner la healthbar au-dessus des mobs
   # Valeur négative = plus bas, positive = plus haut
   # 0.0 = désactivé (utilise la position native de l'entité)
-  default_modelengine_offset: 0.5
+  default_hologram_offset: 0.5
 
 # ========================================
 #   MOBS CUSTOM - TOUR DE L'EAU
@@ -73,9 +73,9 @@ global:
   show_percentage: true
   show_numeric: false
   format: CLASSIC
-  # Offset vertical pour les modèles ModelEngine (en blocs)
+  # Offset vertical pour l'hologramme de healthbar (en blocs)
   # Ajuste la hauteur d'affichage de la healthbar
-  modelengine_offset: 1.0
+  hologram_offset: 1.0
   color_thresholds:
     75: "&b"  # Cyan clair
     50: "&3"  # Cyan
@@ -89,7 +89,7 @@ global:
   show_percentage: true
   show_numeric: true
   format: CLASSIC
-  modelengine_offset: 1.2
+  hologram_offset: 1.2
   color_thresholds:
     75: "&b"
     50: "&3"
@@ -103,7 +103,7 @@ global:
   show_percentage: true
   show_numeric: false
   format: CLASSIC
-  modelengine_offset: 1.5
+  hologram_offset: 1.5
   color_thresholds:
     75: "&b"
     50: "&3"
@@ -117,7 +117,7 @@ global:
   show_percentage: true
   show_numeric: true
   format: BOSS_BAR
-  modelengine_offset: 2.0
+  hologram_offset: 2.0
   color_thresholds:
     90: "&b"
     75: "&3"
@@ -136,7 +136,7 @@ global:
   show_percentage: true
   show_numeric: false
   format: CLASSIC
-  modelengine_offset: 0.8
+  hologram_offset: 0.8
   color_thresholds:
     75: "&6"  # Or
     50: "&c"  # Rouge clair
@@ -150,7 +150,7 @@ global:
   show_percentage: true
   show_numeric: false
   format: CLASSIC
-  modelengine_offset: 0.6
+  hologram_offset: 0.6
   color_thresholds:
     75: "&6"  # Or
     50: "&c"  # Rouge clair
@@ -164,9 +164,9 @@ global:
   show_percentage: true
   show_numeric: false
   format: CLASSIC
-  # Offset vertical pour les modèles ModelEngine (en blocs)
+  # Offset vertical pour l'hologramme de healthbar (en blocs)
   # Ajuste la hauteur d'affichage de la healthbar
-  modelengine_offset: 1.0
+  hologram_offset: 1.0
   model: "spider_melee_am"
   color_thresholds:
     75: "&a"  # Lime
@@ -717,7 +717,7 @@ WARDEN:
 #   show_percentage: true      # Afficher %
 #   show_numeric: false        # Afficher 100/100 HP
 #   format: CLASSIC            # CLASSIC, HEARTS, BOSS_BAR, NUMERIC
-#   modelengine_offset: 1.0    # Offset vertical pour ModelEngine (en blocs, optionnel)
+#   hologram_offset: 1.0    # Offset vertical pour l'hologramme de healthbar (en blocs, optionnel)
 #   model: "model_id"          # ID du modèle ModelEngine à appliquer (optionnel)
 #                              # Si spécifié, le modèle sera automatiquement appliqué au spawn
 #                              # Le modèle doit exister dans ModelEngine pour être appliqué

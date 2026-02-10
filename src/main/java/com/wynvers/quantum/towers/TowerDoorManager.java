@@ -344,18 +344,16 @@ public class TowerDoorManager {
     
     private static class BlockSnapshot {
         private final Location location;
-        private final Material type;
-        private final byte data;
+        private final org.bukkit.block.data.BlockData blockData;
         
         public BlockSnapshot(Block block) {
             this.location = block.getLocation();
-            this.type = block.getType();
-            this.data = block.getData();
+            this.blockData = block.getBlockData().clone();
         }
         
         public void restore() {
             Block block = location.getBlock();
-            block.setType(type, false);
+            block.setBlockData(blockData, false);
         }
     }
 }

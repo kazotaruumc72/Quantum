@@ -8,9 +8,42 @@ When mobs use ModelEngine models, the health bar appears at the wrong height bec
 
 ## Solution
 
-La solution implémentée ajoute un système d'offset vertical configurable pour positionner correctement les barres de vie au-dessus des modèles ModelEngine.
+La solution implémentée ajoute deux fonctionnalités principales :
+1. Un système d'offset vertical configurable pour positionner correctement les barres de vie au-dessus des modèles ModelEngine
+2. Un indicateur visuel sur la healthbar pour identifier facilement les mobs avec modèles ModelEngine
 
-The implemented solution adds a configurable vertical offset system to correctly position health bars above ModelEngine models.
+The implemented solution adds two main features:
+1. A configurable vertical offset system to correctly position health bars above ModelEngine models
+2. A visual indicator on the healthbar to easily identify mobs with ModelEngine models
+
+## Indicateur Visuel ModelEngine / ModelEngine Visual Indicator
+
+Les mobs utilisant des modèles ModelEngine affichent automatiquement un symbole spécial (⚙ par défaut) au début de leur barre de vie, permettant de les identifier rapidement.
+
+Mobs using ModelEngine models automatically display a special symbol (⚙ by default) at the beginning of their health bar, allowing them to be quickly identified.
+
+### Personnalisation de l'Indicateur / Customizing the Indicator
+
+Dans `mob_healthbar.yml`, section `symbols` :
+
+```yaml
+symbols:
+  modelengine:
+    # Symbole affiché pour les mobs avec ModelEngine
+    # Symbol displayed for mobs with ModelEngine
+    indicator: "⚙"
+    # Couleur de l'indicateur (codes couleur Minecraft)
+    # Indicator color (Minecraft color codes)
+    color: "&7"
+```
+
+**Exemples de symboles / Symbol Examples:**
+- `⚙` - Engrenage (par défaut / default)
+- `⚡` - Éclair / Lightning
+- `✦` - Étoile / Star
+- `⬟` - Hexagone / Hexagon
+- `●` - Cercle plein / Filled circle
+- `◆` - Diamant / Diamond
 
 ## Configuration
 

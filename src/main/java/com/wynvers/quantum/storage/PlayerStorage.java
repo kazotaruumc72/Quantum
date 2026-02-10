@@ -2,6 +2,7 @@ package com.wynvers.quantum.storage;
 
 import com.wynvers.quantum.Quantum;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,8 +27,49 @@ public class PlayerStorage {
     
     // === VANILLA ITEMS ===
     
-    public void addItem(Material material, int amount) {
+    /**
+     * Add item without limit checking (for internal use)
+     */
+    private void addItemInternal(Material material, int amount) {
         vanillaItems.merge(material, amount, Integer::sum);
+    }
+    
+    /**
+     * Add item with limit checking and messaging
+     * @param plugin Quantum plugin instance
+     * @param player Player adding the item
+     * @param material Material type
+     * @param amount Amount to add
+     * @return true if successful, false if limit reached
+     */
+    public boolean addItem(Quantum plugin, Player player, Material material, int amount) {
+        int currentAmount = getAmount(material);
+        int newAmount = currentAmount + amount;
+        int limit = plugin.getStorageUpgradeManager().getMaxStacks(
+            plugin.getStorageUpgradeManager().getState(player)
+        );
+        
+        if (newAmount > limit) {
+            // Send both limit messages using MessagesManager
+            String itemDisplayName = formatMaterialName(material);
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("item_display_name", itemDisplayName);
+            placeholders.put("limite", String.valueOf(limit));
+            
+            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached-1", placeholders, false));
+            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached-2", placeholders, false));
+            return false;
+        }
+        
+        addItemInternal(material, amount);
+        return true;
+    }
+    
+    /**
+     * Add item without limit checking (legacy method for backwards compatibility)
+     */
+    public void addItem(Material material, int amount) {
+        addItemInternal(material, amount);
     }
     
     public void removeItem(Material material, int amount) {
@@ -51,8 +93,60 @@ public class PlayerStorage {
     
     // === NEXO ITEMS ===
     
-    public void addNexoItem(String nexoId, int amount) {
+    /**
+     * Add Nexo item without limit checking (for internal use)
+     */
+    private void addNexoItemInternal(String nexoId, int amount) {
         nexoItems.merge(nexoId, amount, Integer::sum);
+    }
+    
+    /**
+     * Add Nexo item with limit checking and messaging
+     * @param plugin Quantum plugin instance
+     * @param player Player adding the item
+     * @param nexoId Nexo item ID
+     * @param amount Amount to add
+     * @return true if successful, false if limit reached
+     */
+    public boolean addNexoItem(Quantum plugin, Player player, String nexoId, int amount) {
+        int currentAmount = getNexoAmount(nexoId);
+        int newAmount = currentAmount + amount;
+        int limit = plugin.getStorageUpgradeManager().getMaxStacks(
+            plugin.getStorageUpgradeManager().getState(player)
+        );
+        
+        if (newAmount > limit) {
+            // Send both limit messages using MessagesManager
+            // Try to get display name from Nexo, fallback to nexoId
+            String itemDisplayName = nexoId;
+            try {
+                // Attempt to get Nexo item display name if available
+                org.bukkit.inventory.ItemStack nexoItem = com.nexomc.nexo.api.NexoItems.itemFromId(nexoId);
+                if (nexoItem != null && nexoItem.hasItemMeta() && nexoItem.getItemMeta().hasDisplayName()) {
+                    itemDisplayName = nexoItem.getItemMeta().getDisplayName();
+                }
+            } catch (Exception e) {
+                // Fallback to nexoId if any error occurs
+            }
+            
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("item_display_name", itemDisplayName);
+            placeholders.put("limite", String.valueOf(limit));
+            
+            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached-1", placeholders, false));
+            player.sendMessage(plugin.getMessagesManager().get("storage.limit-reached-2", placeholders, false));
+            return false;
+        }
+        
+        addNexoItemInternal(nexoId, amount);
+        return true;
+    }
+    
+    /**
+     * Add Nexo item without limit checking (legacy method for backwards compatibility)
+     */
+    public void addNexoItem(String nexoId, int amount) {
+        addNexoItemInternal(nexoId, amount);
     }
     
     public void removeNexoItem(String nexoId, int amount) {
@@ -409,6 +503,29 @@ public class PlayerStorage {
         } catch (SQLException e) {
             plugin.getQuantumLogger().error("Failed to save storage for " + uuid + ": " + e.getMessage());
         }
+    }
+    
+    /**
+     * Format material name to display name (e.g., DIAMOND_SWORD -> Diamond Sword)
+     */
+    private String formatMaterialName(Material material) {
+        String[] words = material.name().toLowerCase().split("_");
+        StringBuilder formatted = new StringBuilder();
+        for (String word : words) {
+            // Skip empty words (e.g., from consecutive underscores)
+            if (word.isEmpty()) {
+                continue;
+            }
+            
+            if (formatted.length() > 0) {
+                formatted.append(" ");
+            }
+            formatted.append(Character.toUpperCase(word.charAt(0)));
+            if (word.length() > 1) {
+                formatted.append(word.substring(1));
+            }
+        }
+        return formatted.toString();
     }
     
     public UUID getUuid() {

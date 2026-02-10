@@ -121,7 +121,7 @@ public class PlayerStorage {
             String itemDisplayName = nexoId;
             try {
                 // Attempt to get Nexo item display name if available
-                org.bukkit.inventory.ItemStack nexoItem = com.nexomc.nexo.api.NexoItems.itemFromId(nexoId);
+                org.bukkit.inventory.ItemStack nexoItem = com.nexomc.nexo.api.NexoItems.itemFromId(nexoId).build();
                 if (nexoItem != null && nexoItem.hasItemMeta() && nexoItem.getItemMeta().hasDisplayName()) {
                     itemDisplayName = nexoItem.getItemMeta().getDisplayName();
                 }

@@ -1,0 +1,146 @@
+# ========================================
+#  QUANTUM - Structure Definitions
+# ========================================
+#
+# Définition des structures pour le système de hache
+# Chaque structure a plusieurs états de dégradation
+# États: whole (entier), good (bon état), damaged (abimé), stump (souche)
+
+structures:
+  # Grand chêne
+  oak_tree_large:
+    display_name: "&2Grand Chêne"
+    
+    # État complet (whole)
+    whole:
+      blocks:
+        # Format: "x,y,z:type" où type peut être "minecraft:block" ou "nexo:id"
+        - "0,0,0:minecraft:OAK_LOG"
+        - "0,1,0:minecraft:OAK_LOG"
+        - "0,2,0:minecraft:OAK_LOG"
+        - "0,3,0:minecraft:OAK_LOG"
+        - "0,4,0:minecraft:OAK_LOG"
+        - "-1,4,0:minecraft:OAK_LEAVES"
+        - "1,4,0:minecraft:OAK_LEAVES"
+        - "0,4,-1:minecraft:OAK_LEAVES"
+        - "0,4,1:minecraft:OAK_LEAVES"
+        - "-1,5,0:minecraft:OAK_LEAVES"
+        - "1,5,0:minecraft:OAK_LEAVES"
+        - "0,5,-1:minecraft:OAK_LEAVES"
+        - "0,5,1:minecraft:OAK_LEAVES"
+        - "0,5,0:minecraft:OAK_LEAVES"
+    
+    # Bon état (good)
+    good:
+      blocks:
+        - "0,0,0:minecraft:OAK_LOG"
+        - "0,1,0:minecraft:OAK_LOG"
+        - "0,2,0:minecraft:OAK_LOG"
+        - "0,3,0:minecraft:OAK_LOG"
+        - "-1,3,0:minecraft:OAK_LEAVES"
+        - "1,3,0:minecraft:OAK_LEAVES"
+        - "0,3,-1:minecraft:OAK_LEAVES"
+        - "0,3,1:minecraft:OAK_LEAVES"
+        - "0,4,0:minecraft:OAK_LEAVES"
+    
+    # Abîmé (damaged)
+    damaged:
+      blocks:
+        - "0,0,0:minecraft:OAK_LOG"
+        - "0,1,0:minecraft:OAK_LOG"
+        - "0,2,0:minecraft:OAK_LOG"
+        - "-1,2,0:minecraft:OAK_LEAVES"
+        - "1,2,0:minecraft:OAK_LEAVES"
+    
+    # Souche (stump)
+    stump:
+      blocks:
+        - "0,0,0:minecraft:OAK_LOG"
+  
+  # Sapin enneigé
+  spruce_tree_snow:
+    display_name: "&bSapin Enneigé"
+    
+    whole:
+      blocks:
+        - "0,0,0:minecraft:SPRUCE_LOG"
+        - "0,1,0:minecraft:SPRUCE_LOG"
+        - "0,2,0:minecraft:SPRUCE_LOG"
+        - "0,3,0:minecraft:SPRUCE_LOG"
+        - "0,4,0:minecraft:SPRUCE_LOG"
+        - "0,5,0:minecraft:SPRUCE_LOG"
+        - "-1,3,0:minecraft:SPRUCE_LEAVES"
+        - "1,3,0:minecraft:SPRUCE_LEAVES"
+        - "0,3,-1:minecraft:SPRUCE_LEAVES"
+        - "0,3,1:minecraft:SPRUCE_LEAVES"
+        - "-1,4,0:minecraft:SPRUCE_LEAVES"
+        - "1,4,0:minecraft:SPRUCE_LEAVES"
+        - "0,4,-1:minecraft:SPRUCE_LEAVES"
+        - "0,4,1:minecraft:SPRUCE_LEAVES"
+        - "0,5,0:minecraft:SPRUCE_LEAVES"
+        - "-1,5,0:minecraft:SNOW"
+        - "1,5,0:minecraft:SNOW"
+    
+    good:
+      blocks:
+        - "0,0,0:minecraft:SPRUCE_LOG"
+        - "0,1,0:minecraft:SPRUCE_LOG"
+        - "0,2,0:minecraft:SPRUCE_LOG"
+        - "0,3,0:minecraft:SPRUCE_LOG"
+        - "0,4,0:minecraft:SPRUCE_LOG"
+        - "-1,3,0:minecraft:SPRUCE_LEAVES"
+        - "1,3,0:minecraft:SPRUCE_LEAVES"
+        - "0,3,-1:minecraft:SPRUCE_LEAVES"
+        - "0,3,1:minecraft:SPRUCE_LEAVES"
+        - "0,4,0:minecraft:SPRUCE_LEAVES"
+    
+    damaged:
+      blocks:
+        - "0,0,0:minecraft:SPRUCE_LOG"
+        - "0,1,0:minecraft:SPRUCE_LOG"
+        - "0,2,0:minecraft:SPRUCE_LOG"
+        - "-1,2,0:minecraft:SPRUCE_LEAVES"
+        - "1,2,0:minecraft:SPRUCE_LEAVES"
+    
+    stump:
+      blocks:
+        - "0,0,0:minecraft:SPRUCE_LOG"
+  
+  # Arbre avec Nexo (exemple)
+  magic_tree:
+    display_name: "&5Arbre Magique"
+    
+    whole:
+      blocks:
+        - "0,0,0:nexo:magic_log"
+        - "0,1,0:nexo:magic_log"
+        - "0,2,0:nexo:magic_log"
+        - "0,3,0:nexo:magic_log"
+        - "-1,3,0:nexo:magic_leaves"
+        - "1,3,0:nexo:magic_leaves"
+        - "0,3,-1:nexo:magic_leaves"
+        - "0,3,1:nexo:magic_leaves"
+        - "0,4,0:nexo:magic_leaves"
+    
+    good:
+      blocks:
+        - "0,0,0:nexo:magic_log"
+        - "0,1,0:nexo:magic_log"
+        - "0,2,0:nexo:magic_log"
+        - "-1,2,0:nexo:magic_leaves"
+        - "1,2,0:nexo:magic_leaves"
+    
+    damaged:
+      blocks:
+        - "0,0,0:nexo:magic_log"
+        - "0,1,0:nexo:magic_log"
+    
+    stump:
+      blocks:
+        - "0,0,0:nexo:magic_log"
+
+# Messages
+messages:
+  structure_detected: "&7Structure détectée: &e{structure_name}"
+  structure_whole_to_stump: "&a✓ Structure coupée d'un coup! (Entier → Souche)"
+  structure_transition: "&7État de la structure: &e{from_state} &7→ &e{to_state}"

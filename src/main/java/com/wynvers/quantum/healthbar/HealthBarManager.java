@@ -1,6 +1,8 @@
 package com.wynvers.quantum.healthbar;
 
+import com.ticxo.modelengine.api.ModelEngineAPI;
 import com.wynvers.quantum.Quantum;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -393,10 +395,44 @@ public class HealthBarManager {
             // Garder le nom custom d'origine
         }
         
-        // Construire le nouveau nom avec la barre de vie
-        String newName = originalName + "\n" + healthBar;
+        // Vérifier si l'entité utilise un modèle ModelEngine
+        boolean hasModelEngine = false;
+        if (Bukkit.getPluginManager().getPlugin("ModelEngine") != null) {
+            try {
+                hasModelEngine = ModelEngineAPI.getModeledEntity(entity.getUniqueId()) != null;
+            } catch (Exception e) {
+                // ModelEngine n'est pas chargé ou l'entité n'a pas de modèle
+                hasModelEngine = false;
+            }
+        }
+        
+        // Calculer l'offset pour les modèles ModelEngine
+        String offsetNewlines = "";
+        if (hasModelEngine) {
+            double offset = getModelEngineOffset(mobSection);
+            if (offset > 0) {
+                // Ajouter des lignes vides proportionnelles à l'offset
+                // Chaque ligne représente environ 0.3 blocs de hauteur
+                int numLines = (int) Math.round(offset / 0.3);
+                offsetNewlines = "\n".repeat(Math.max(0, numLines));
+            }
+        }
+        
+        // Construire le nouveau nom avec la barre de vie et l'offset
+        String newName = offsetNewlines + originalName + "\n" + healthBar;
         
         entity.setCustomName(newName);
         entity.setCustomNameVisible(true);
+    }
+    
+    /**
+     * Récupère l'offset vertical pour les modèles ModelEngine depuis la configuration
+     */
+    private double getModelEngineOffset(ConfigurationSection mobSection) {
+        if (mobSection != null && mobSection.contains("modelengine_offset")) {
+            return mobSection.getDouble("modelengine_offset", 0.0);
+        }
+        // Utiliser l'offset par défaut de la configuration globale
+        return mobConfig.getDouble("global.default_modelengine_offset", 0.0);
     }
 }

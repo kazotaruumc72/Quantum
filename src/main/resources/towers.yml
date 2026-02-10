@@ -10,6 +10,7 @@
 # - Animations Model Engine (spawn, idle, walk, attack, death)
 # - Scaling automatique par nombre de runs
 # - display_name: Nom affiché au-dessus du mob (utilisé par mob_healthbar.yml)
+# - healthbar_offset: Offset vertical de la healthbar (OPTIONNEL, voir mob_healthbar.yml)
 # - ⚠️ Régions de spawn OBLIGATOIRES (voir notes en fin de fichier)
 
 towers:

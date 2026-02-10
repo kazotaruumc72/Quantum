@@ -181,12 +181,16 @@ public class DungeonWeapon {
                     int enchantLevel = ((Number) enchantMap.get("level")).intValue();
                     
                     try {
-                        Enchantment enchantment = Enchantment.getByName(enchantName);
+                        // Use NamespacedKey for compatibility with newer Minecraft versions
+                        NamespacedKey key = NamespacedKey.minecraft(enchantName.toLowerCase());
+                        Enchantment enchantment = Enchantment.getByKey(key);
                         if (enchantment != null) {
                             meta.addEnchant(enchantment, enchantLevel, true);
+                        } else {
+                            plugin.getLogger().warning("Invalid enchantment: " + enchantName);
                         }
                     } catch (Exception e) {
-                        plugin.getLogger().warning("Invalid enchantment: " + enchantName);
+                        plugin.getLogger().warning("Error applying enchantment " + enchantName + ": " + e.getMessage());
                     }
                 }
             }

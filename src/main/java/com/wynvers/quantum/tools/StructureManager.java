@@ -119,6 +119,8 @@ public class StructureManager {
             Material material = Material.matchMaterial(block.getId());
             if (material != null) {
                 location.getBlock().setType(material);
+            } else {
+                plugin.getLogger().warning("Material '" + block.getId() + "' not found in structure configuration");
             }
         } else if ("nexo".equalsIgnoreCase(block.getType())) {
             // TODO: Utiliser NexoBlocks pour placer un bloc Nexo

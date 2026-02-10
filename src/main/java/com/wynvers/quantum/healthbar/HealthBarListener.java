@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -61,6 +62,18 @@ public class HealthBarListener implements Listener {
                     .forEach(player -> healthBarManager.updateMobHealthDisplay(entity, player));
             }
         }, 2L);
+    }
+    
+    /**
+     * Quand un mob meurt, nettoyer son affichage de healthbar
+     */
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onEntityDeath(EntityDeathEvent event) {
+        LivingEntity entity = event.getEntity();
+        if (entity instanceof Player) return;
+        
+        // Nettoyer immédiatement la TextDisplay
+        healthBarManager.removeHealthDisplay(entity);
     }
     
     /**

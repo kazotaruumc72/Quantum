@@ -718,6 +718,9 @@ WARDEN:
 #   show_numeric: false        # Afficher 100/100 HP
 #   format: CLASSIC            # CLASSIC, HEARTS, BOSS_BAR, NUMERIC
 #   modelengine_offset: 1.0    # Offset vertical pour ModelEngine (en blocs, optionnel)
+#   model: "model_id"          # ID du modèle ModelEngine à appliquer (optionnel)
+#                              # Si spécifié, le modèle sera automatiquement appliqué au spawn
+#                              # Le modèle doit exister dans ModelEngine pour être appliqué
 #   color_thresholds:
 #     75: "&a"                 # Couleur à 75%+ de vie
 #     50: "&e"                 # Couleur à 50-75% de vie

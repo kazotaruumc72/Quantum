@@ -34,6 +34,14 @@ public class HealthBarListener implements Listener {
         
         LivingEntity entity = (LivingEntity) event.getEntity();
         
+        // Appliquer le modèle ModelEngine si configuré
+        // Délai court pour s'assurer que l'entité est bien chargée avant d'appliquer le modèle
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (entity.isValid() && !entity.isDead()) {
+                healthBarManager.applyModelEngineModel(entity);
+            }
+        }, 1L);
+        
         // Mettre à jour pour tous les joueurs dans un rayon de 50 blocs
         entity.getWorld().getNearbyEntities(entity.getLocation(), 50, 50, 50).stream()
             .filter(e -> e instanceof Player)

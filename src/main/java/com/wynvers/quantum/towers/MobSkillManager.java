@@ -4,6 +4,7 @@ import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.utils.ScoreboardUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -185,6 +186,11 @@ public class MobSkillManager {
      * @param subtitleText Texte du subtitle
      */
     private void sendTitle(Player player, String titleText, String subtitleText) {
+        // Ne pas afficher les titles aux joueurs en mode créatif ou ayant la permission de bypass
+        if (player.getGameMode() == GameMode.CREATIVE || player.hasPermission("quantum.skills.bypass")) {
+            return;
+        }
+        
         // Convertir les codes couleur Minecraft (&) en composants Adventure
         String coloredTitle = ScoreboardUtils.color(titleText);
         String coloredSubtitle = ScoreboardUtils.color(subtitleText);

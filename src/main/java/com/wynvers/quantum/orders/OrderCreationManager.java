@@ -275,6 +275,22 @@ public class OrderCreationManager {
     }
     
     /**
+     * Ouvre un menu avec la session de création d'ordre active
+     * @param player Le joueur
+     * @param menuId L'ID du menu à ouvrir (ex: "order_quantity", "order_price")
+     * @param displayItem L'item à afficher dans le menu
+     */
+    public void openMenuWithSession(Player player, String menuId, ItemStack displayItem) {
+        OrderCreationSession session = getSession(player);
+        if (session == null) {
+            player.sendMessage("§c⚠ Aucune session de création d'ordre active!");
+            return;
+        }
+        
+        plugin.getMenuManager().openMenuWithSession(player, menuId, session, displayItem);
+    }
+    
+    /**
      * Classe interne: Fourchette de prix
      */
     public static class PriceRange {

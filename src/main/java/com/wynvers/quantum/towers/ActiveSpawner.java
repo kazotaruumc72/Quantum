@@ -19,7 +19,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 /**
@@ -120,19 +119,16 @@ public class ActiveSpawner implements Listener {
         World world = player.getWorld();
         if (world == null) return null;
     
-        Location spawnLoc;
-        if (config.getSpawnRegion() != null) {
-            // Spawn dans la région configurée
-            spawnLoc = config.getSpawnRegion().getRandomLocation(world);
-        } else {
-            // Fallback: ancien comportement, près du joueur
-            Location base = player.getLocation();
-            spawnLoc = base.clone().add(
-                    ThreadLocalRandom.current().nextDouble(-3, 3),
-                    0,
-                    ThreadLocalRandom.current().nextDouble(-3, 3)
-            );
+        // Vérifier que la région de spawn est configurée
+        if (config.getSpawnRegion() == null) {
+            // Région non configurée - ne pas spawner de mob
+            plugin.getLogger().warning("[TowerSpawner] Aucune région de spawn configurée pour le spawner '" 
+                + config.getFullId() + "'. Utilisez /quantum mobspawnzone create pour définir une zone.");
+            return null;
         }
+        
+        // Spawn dans la région configurée uniquement
+        Location spawnLoc = config.getSpawnRegion().getRandomLocation(world);
     
         // ⭐ IMPORTANT : on utilise maintenant ModelEngine via TowerSpawnerConfig
         int runs = getRunsForPlayer();

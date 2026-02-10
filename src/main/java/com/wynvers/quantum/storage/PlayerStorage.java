@@ -511,11 +511,18 @@ public class PlayerStorage {
         String[] words = material.name().toLowerCase().split("_");
         StringBuilder formatted = new StringBuilder();
         for (String word : words) {
+            // Skip empty words (e.g., from consecutive underscores)
+            if (word.isEmpty()) {
+                continue;
+            }
+            
             if (formatted.length() > 0) {
                 formatted.append(" ");
             }
             formatted.append(Character.toUpperCase(word.charAt(0)));
-            formatted.append(word.substring(1));
+            if (word.length() > 1) {
+                formatted.append(word.substring(1));
+            }
         }
         return formatted.toString();
     }

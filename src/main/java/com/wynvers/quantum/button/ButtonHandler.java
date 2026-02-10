@@ -1,6 +1,7 @@
 package com.wynvers.quantum.button;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.sell.SellSession;
 import com.wynvers.quantum.storage.StorageMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -14,6 +15,7 @@ import java.util.Map;
 public class ButtonHandler {
 
     private final Quantum plugin;
+    private static final int MIN_SELL_QUANTITY = 1;
 
     public ButtonHandler(Quantum plugin) {
         this.plugin = plugin;
@@ -104,7 +106,7 @@ public class ButtonHandler {
         String percentage = parameters.getOrDefault("percentage", "100");
         
         // Récupérer la session de vente active et la stocker pour éviter les problèmes de concurrence
-        var sellSession = plugin.getSellManager().getSession(player);
+        SellSession sellSession = plugin.getSellManager().getSession(player);
         if (sellSession == null) {
             player.sendMessage("§cErreur: Aucune session de vente active.");
             return;
@@ -127,7 +129,7 @@ public class ButtonHandler {
             }
             
             // Calculer la nouvelle quantité basée sur le pourcentage
-            int newQuantity = Math.max(1, (int) Math.ceil(maxQuantity * percentValue / 100.0));
+            int newQuantity = Math.max(MIN_SELL_QUANTITY, (int) Math.ceil(maxQuantity * percentValue / 100.0));
             
             // Mettre à jour la quantité dans la session
             sellSession.setQuantity(newQuantity);

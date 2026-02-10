@@ -26,8 +26,45 @@ public class PlayerStorage {
     
     // === VANILLA ITEMS ===
     
-    public void addItem(Material material, int amount) {
+    /**
+     * Add item without limit checking (for internal use)
+     */
+    private void addItemInternal(Material material, int amount) {
         vanillaItems.merge(material, amount, Integer::sum);
+    }
+    
+    /**
+     * Add item with limit checking and messaging
+     * @param plugin Quantum plugin instance
+     * @param player Player adding the item
+     * @param material Material type
+     * @param amount Amount to add
+     * @return true if successful, false if limit reached
+     */
+    public boolean addItem(Quantum plugin, org.bukkit.entity.Player player, Material material, int amount) {
+        int currentAmount = getAmount(material);
+        int newAmount = currentAmount + amount;
+        int limit = plugin.getStorageUpgradeManager().getMaxStacks(
+            plugin.getStorageUpgradeManager().getState(player)
+        );
+        
+        if (newAmount > limit) {
+            // Send both limit messages
+            String itemDisplayName = formatMaterialName(material);
+            player.sendMessage("§cL'item " + itemDisplayName + " §cest arrivé à la limite de " + limit);
+            player.sendMessage("§cVous ne pouver pas stocker plus de " + limit + " §citems pour: " + itemDisplayName);
+            return false;
+        }
+        
+        addItemInternal(material, amount);
+        return true;
+    }
+    
+    /**
+     * Add item without limit checking (legacy method for backwards compatibility)
+     */
+    public void addItem(Material material, int amount) {
+        addItemInternal(material, amount);
     }
     
     public void removeItem(Material material, int amount) {
@@ -51,8 +88,45 @@ public class PlayerStorage {
     
     // === NEXO ITEMS ===
     
-    public void addNexoItem(String nexoId, int amount) {
+    /**
+     * Add Nexo item without limit checking (for internal use)
+     */
+    private void addNexoItemInternal(String nexoId, int amount) {
         nexoItems.merge(nexoId, amount, Integer::sum);
+    }
+    
+    /**
+     * Add Nexo item with limit checking and messaging
+     * @param plugin Quantum plugin instance
+     * @param player Player adding the item
+     * @param nexoId Nexo item ID
+     * @param amount Amount to add
+     * @return true if successful, false if limit reached
+     */
+    public boolean addNexoItem(Quantum plugin, org.bukkit.entity.Player player, String nexoId, int amount) {
+        int currentAmount = getNexoAmount(nexoId);
+        int newAmount = currentAmount + amount;
+        int limit = plugin.getStorageUpgradeManager().getMaxStacks(
+            plugin.getStorageUpgradeManager().getState(player)
+        );
+        
+        if (newAmount > limit) {
+            // Send both limit messages
+            String itemDisplayName = nexoId;
+            player.sendMessage("§cL'item " + itemDisplayName + " §cest arrivé à la limite de " + limit);
+            player.sendMessage("§cVous ne pouver pas stocker plus de " + limit + " §citems pour: " + itemDisplayName);
+            return false;
+        }
+        
+        addNexoItemInternal(nexoId, amount);
+        return true;
+    }
+    
+    /**
+     * Add Nexo item without limit checking (legacy method for backwards compatibility)
+     */
+    public void addNexoItem(String nexoId, int amount) {
+        addNexoItemInternal(nexoId, amount);
     }
     
     public void removeNexoItem(String nexoId, int amount) {
@@ -409,6 +483,22 @@ public class PlayerStorage {
         } catch (SQLException e) {
             plugin.getQuantumLogger().error("Failed to save storage for " + uuid + ": " + e.getMessage());
         }
+    }
+    
+    /**
+     * Format material name to display name (e.g., DIAMOND_SWORD -> Diamond Sword)
+     */
+    private String formatMaterialName(Material material) {
+        String[] words = material.name().toLowerCase().split("_");
+        StringBuilder formatted = new StringBuilder();
+        for (String word : words) {
+            if (formatted.length() > 0) {
+                formatted.append(" ");
+            }
+            formatted.append(Character.toUpperCase(word.charAt(0)));
+            formatted.append(word.substring(1));
+        }
+        return formatted.toString();
     }
     
     public UUID getUuid() {

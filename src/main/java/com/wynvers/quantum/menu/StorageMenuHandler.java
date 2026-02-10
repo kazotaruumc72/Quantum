@@ -144,29 +144,34 @@ public class StorageMenuHandler {
         // Check if it's a Nexo item
         String nexoId = NexoItems.idFromItem(cursorItem);
         String itemName;
+        boolean success;
 
         if (nexoId != null) {
-            storage.addNexoItem(nexoId, amount);
+            success = storage.addNexoItem(plugin, player, nexoId, amount);
             itemName = nexoId;
         } else {
-            storage.addItem(cursorItem.getType(), amount);
+            success = storage.addItem(plugin, player, cursorItem.getType(), amount);
             itemName = cursorItem.getType().name();
         }
 
-        // Send message from messages.yml
-        Map<String, String> placeholders = new HashMap<>();
-        placeholders.put("amount", String.valueOf(amount));
-        placeholders.put("item", itemName);
-        player.sendMessage(plugin.getMessagesManager().get("storage.deposited", placeholders, false));
+        // Only send success message and remove items if addition was successful
+        if (success) {
+            // Send message from messages.yml
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("amount", String.valueOf(amount));
+            placeholders.put("item", itemName);
+            player.sendMessage(plugin.getMessagesManager().get("storage.deposited", placeholders, false));
 
-        // Remove from cursor
-        cursorItem.setAmount(cursorItem.getAmount() - amount);
-        player.setItemOnCursor(cursorItem);
+            // Remove from cursor
+            cursorItem.setAmount(cursorItem.getAmount() - amount);
+            player.setItemOnCursor(cursorItem);
 
-        // Save and refresh
-        storage.save(plugin);
-        player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1.0f, 1.2f);
-        refreshMenu(player);
+            // Save and refresh
+            storage.save(plugin);
+            player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 1.0f, 1.2f);
+            refreshMenu(player);
+        }
+        // If not successful, the limit messages were already sent in addItem/addNexoItem
     }
 
     /**

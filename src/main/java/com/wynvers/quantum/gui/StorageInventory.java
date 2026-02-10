@@ -115,10 +115,10 @@ public class StorageInventory {
     private void addNavigationButtons() {
         // Previous page button
         if (page > 0) {
-            ItemStack prev = new ItemStack(Material.ARROW);
+            ItemStack prev = new ItemStack(Material.WRITTEN_BOOK);
             ItemMeta meta = prev.getItemMeta();
             if (meta != null) {
-                meta.setDisplayName("§e← Page précédente");
+                meta.setDisplayName("§eStorage page " + page);
                 prev.setItemMeta(meta);
             }
             inventory.setItem(48, prev);
@@ -140,10 +140,10 @@ public class StorageInventory {
         // Next page button
         int totalItems = storage.getVanillaItems().size() + storage.getNexoItems().size();
         if ((page + 1) * ITEMS_PER_PAGE < totalItems) {
-            ItemStack next = new ItemStack(Material.ARROW);
+            ItemStack next = new ItemStack(Material.WRITTEN_BOOK);
             ItemMeta nextMeta = next.getItemMeta();
             if (nextMeta != null) {
-                nextMeta.setDisplayName("§eP age suivante →");
+                nextMeta.setDisplayName("§eStorage page " + (page + 2));
                 next.setItemMeta(nextMeta);
             }
             inventory.setItem(50, next);

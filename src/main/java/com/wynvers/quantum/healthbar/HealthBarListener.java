@@ -35,7 +35,10 @@ public class HealthBarListener implements Listener {
         LivingEntity entity = (LivingEntity) event.getEntity();
         
         // Appliquer le modèle ModelEngine si configuré
-        // Délai court pour s'assurer que l'entité est bien chargée avant d'appliquer le modèle
+        // Délai de 1 tick nécessaire car:
+        // - L'entité doit être complètement initialisée dans le monde avant l'application du modèle
+        // - ModelEngine nécessite que l'entité soit dans la liste des entités du monde
+        // - Sans ce délai, ModelEngineAPI peut recevoir une entité en état "loading" et échouer silencieusement
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             if (entity.isValid() && !entity.isDead()) {
                 healthBarManager.applyModelEngineModel(entity);

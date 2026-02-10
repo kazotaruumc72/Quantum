@@ -518,13 +518,14 @@ public class HealthBarManager {
         
         try {
             // Vérifier si l'entité a déjà un modèle
+            // Retourne false silencieusement car c'est un cas normal (modèle déjà appliqué par un autre système)
             if (ModelEngineAPI.getModeledEntity(entity.getUniqueId()) != null) {
-                return false; // Déjà un modèle appliqué
+                return false; // Déjà un modèle appliqué, pas besoin de logger
             }
             
             // Créer et appliquer le modèle
-            var modeledEntity = ModelEngineAPI.createModeledEntity(entity);
-            var activeModel = ModelEngineAPI.createActiveModel(modelId);
+            ModeledEntity modeledEntity = ModelEngineAPI.createModeledEntity(entity);
+            ActiveModel activeModel = ModelEngineAPI.createActiveModel(modelId);
             
             if (activeModel == null) {
                 plugin.getQuantumLogger().warning("ModelEngine model not found: " + modelId + " for mob: " + entity.getType());

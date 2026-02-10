@@ -21,9 +21,10 @@ import java.util.UUID;
  */
 public class HealthBarManager {
     
-    // Facteur de conversion : nombre de blocs représentés par une ligne de texte
-    // Utilisé pour calculer l'offset vertical des healthbars ModelEngine
-    private static final double BLOCKS_PER_NEWLINE = 0.3;
+    // Espacement vertical ajouté par chaque ligne de texte (newline)
+    // Chaque '\n' ajoute environ 0.3 blocs de hauteur verticale
+    // Cette valeur est une approximation basée sur le rendu client
+    private static final double VERTICAL_SPACING_PER_NEWLINE = 0.3;
     
     private final Quantum plugin;
     private final Map<UUID, HealthBarMode> playerModes = new HashMap<>();
@@ -404,8 +405,11 @@ public class HealthBarManager {
         if (Bukkit.getPluginManager().getPlugin("ModelEngine") != null) {
             try {
                 hasModelEngine = ModelEngineAPI.getModeledEntity(entity.getUniqueId()) != null;
-            } catch (Exception e) {
-                // ModelEngine n'est pas chargé ou l'entité n'a pas de modèle
+            } catch (IllegalStateException e) {
+                // ModelEngine n'est pas complètement chargé
+                hasModelEngine = false;
+            } catch (NullPointerException e) {
+                // L'entité n'a pas de modèle ModelEngine
                 hasModelEngine = false;
             }
         }
@@ -416,8 +420,8 @@ public class HealthBarManager {
             double offset = getModelEngineOffset(mobSection);
             if (offset > 0) {
                 // Ajouter des lignes vides proportionnelles à l'offset
-                // Utilise BLOCKS_PER_NEWLINE pour la conversion
-                int numLines = (int) Math.round(offset / BLOCKS_PER_NEWLINE);
+                // Chaque '\n' ajoute environ VERTICAL_SPACING_PER_NEWLINE blocs de hauteur
+                int numLines = (int) Math.round(offset / VERTICAL_SPACING_PER_NEWLINE);
                 offsetNewlines = "\n".repeat(Math.max(0, numLines));
             }
         }

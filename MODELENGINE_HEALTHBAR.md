@@ -57,7 +57,7 @@ Pour chaque mob custom dans `mob_healthbar.yml`, ajoutez le champ `modelengine_o
    - Mobs moyens (1-2 blocs) : `1.0 - 1.5`
    - Grands mobs (> 2 blocs) : `1.5 - 2.5`
 3. **Testez et ajustez** : Rechargez la config avec `/quantum reload` et ajustez l'offset
-4. **Approximation** : Chaque 0.3 blocs d'offset ajoute environ une ligne de texte en hauteur (la conversion exacte dépend du rendu client)
+4. **Conversion approximative** : Chaque ligne de texte (newline) ajoute environ 0.3 blocs de hauteur verticale. Ainsi, un offset de 0.9 blocs ajoutera environ 3 lignes vides au-dessus du nom du mob. La conversion exacte dépend du rendu client.
 
 ## Fonctionnement Technique (Technical Details)
 
@@ -71,13 +71,19 @@ boolean hasModelEngine = ModelEngineAPI.getModeledEntity(entity.getUniqueId()) !
 
 ### Application de l'Offset
 
-L'offset est appliqué en ajoutant des lignes vides (`\n`) au-dessus du nom du mob. Le calcul utilise une constante de conversion (BLOCKS_PER_NEWLINE = 0.3) qui est une approximation basée sur le rendu client :
+L'offset est appliqué en ajoutant des lignes vides (`\n`) au-dessus du nom du mob. Le calcul utilise une constante de conversion (VERTICAL_SPACING_PER_NEWLINE = 0.3) qui représente l'espacement vertical approximatif ajouté par chaque newline :
 
 ```java
-int numLines = (int) Math.round(offset / BLOCKS_PER_NEWLINE);
+// Chaque '\n' ajoute environ 0.3 blocs de hauteur verticale
+int numLines = (int) Math.round(offset / VERTICAL_SPACING_PER_NEWLINE);
 String offsetNewlines = "\n".repeat(Math.max(0, numLines));
 String newName = offsetNewlines + originalName + "\n" + healthBar;
 ```
+
+**Exemples de conversion** :
+- Offset 0.3 blocs → 1 ligne vide
+- Offset 0.9 blocs → 3 lignes vides
+- Offset 1.5 blocs → 5 lignes vides
 
 **Note** : La conversion exacte peut varier selon la résolution et les paramètres d'affichage du client. Les valeurs recommandées sont des approximations qui fonctionnent dans la plupart des cas.
 

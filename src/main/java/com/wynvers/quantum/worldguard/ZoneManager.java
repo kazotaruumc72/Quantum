@@ -17,9 +17,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -120,6 +122,54 @@ public class ZoneManager implements Listener {
             handleLeaveTower(player);
             currentRegion.remove(uuid);
         }
+    }
+
+    /**
+     * Handle player death in tower - reset kill counter
+     */
+    @EventHandler
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        UUID uuid = player.getUniqueId();
+
+        // If player is in a tower when they die, reset their kill counter
+        if (currentRegion.containsKey(uuid)) {
+            String regionName = currentRegion.get(uuid);
+            if (isTowerRegion(regionName)) {
+                // Reset kill counter
+                towerManager.getProgress(uuid).resetKills();
+                plugin.getQuantumLogger().info("Player " + player.getName() + " died in tower - kill counter reset");
+            }
+        }
+    }
+
+    /**
+     * Handle player respawn - if they respawn outside tower, clean up
+     */
+    @EventHandler
+    public void onPlayerRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        Location respawnLoc = event.getRespawnLocation();
+        
+        // Check 1 tick after respawn to see if they're still in a tower
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (player.isOnline()) {
+                    Location currentLoc = player.getLocation();
+                    String regionName = getWorldGuardRegionAt(currentLoc);
+                    UUID uuid = player.getUniqueId();
+                    String previousRegion = currentRegion.get(uuid);
+                    
+                    // If they were in a tower but respawned outside, clean up
+                    if (previousRegion != null && isTowerRegion(previousRegion) &&
+                        (regionName == null || !isTowerRegion(regionName))) {
+                        handleLeaveTower(player);
+                        currentRegion.remove(uuid);
+                    }
+                }
+            }
+        }.runTaskLater(plugin, 1L);
     }
 
     /**

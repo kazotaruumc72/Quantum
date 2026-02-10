@@ -1,6 +1,7 @@
 package com.wynvers.quantum.button;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.menu.Menu;
 import com.wynvers.quantum.sell.SellSession;
 import com.wynvers.quantum.storage.StorageMode;
 import org.bukkit.Sound;
@@ -58,8 +59,9 @@ public class ButtonHandler {
      */
     private void handleStorageButton(Player player, Map<String, String> parameters) {
         // Ouvre le menu de stockage pour le joueur
-        if (plugin.getMenuManager().getMenu("storage") != null) {
-            plugin.getMenuManager().getMenu("storage").open(player, plugin);
+        Menu storageMenu = plugin.getMenuManager().getMenu("storage");
+        if (storageMenu != null) {
+            storageMenu.open(player, plugin);
             player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
         } else {
             plugin.getQuantumLogger().warning("Menu 'storage' non trouvé!");
@@ -93,8 +95,9 @@ public class ButtonHandler {
         player.sendMessage("§8[§6Quantum§8] §7Mode changé en " + modeDisplay);
         
         // Rafraîchir le menu storage si ouvert
-        if (plugin.getMenuManager().getMenu("storage") != null) {
-            plugin.getMenuManager().getMenu("storage").refresh(player, plugin);
+        Menu storageMenu = plugin.getMenuManager().getMenu("storage");
+        if (storageMenu != null) {
+            storageMenu.refresh(player, plugin);
         }
     }
 
@@ -141,8 +144,9 @@ public class ButtonHandler {
             player.sendMessage("§8[§6Quantum§8] §7Quantité ajustée à " + percentValue + "% (§e" + newQuantity + "§7 items)");
             
             // Rafraîchir le menu de vente si ouvert
-            if (plugin.getMenuManager().getMenu("sell") != null) {
-                plugin.getMenuManager().getMenu("sell").refresh(player, plugin);
+            Menu sellMenu = plugin.getMenuManager().getMenu("sell");
+            if (sellMenu != null) {
+                sellMenu.refresh(player, plugin);
             }
             
         } catch (NumberFormatException e) {

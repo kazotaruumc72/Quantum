@@ -404,12 +404,10 @@ public class HealthBarManager {
         boolean hasModelEngine = false;
         if (Bukkit.getPluginManager().getPlugin("ModelEngine") != null) {
             try {
+                // ModelEngineAPI.getModeledEntity() retourne null si l'entité n'a pas de modèle
                 hasModelEngine = ModelEngineAPI.getModeledEntity(entity.getUniqueId()) != null;
             } catch (IllegalStateException e) {
                 // ModelEngine n'est pas complètement chargé
-                hasModelEngine = false;
-            } catch (NullPointerException e) {
-                // L'entité n'a pas de modèle ModelEngine
                 hasModelEngine = false;
             }
         }

@@ -187,7 +187,7 @@ items:
       - '&7  • &aAlphabétique (A → Z)'
       - '&7  • &bQuantité (élevé → bas)'
       - '&7  • &6Prix (élevé → bas)'
-      - '&7  • &eRécent (nouveau → ancien)'
+      - '&7  • &eRécent (récent → ancien)'
       - ' '
       - '&e► Cliquez pour changer le tri'
     button_type: QUANTUM_STORAGE_SORT

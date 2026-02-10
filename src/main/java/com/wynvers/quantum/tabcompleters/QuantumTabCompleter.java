@@ -176,7 +176,12 @@ public class QuantumTabCompleter implements TabCompleter {
                 "orders_template.yml",
                 "stats",
                 "statistics",
-                "statistics.yml"
+                "statistics.yml",
+                "storage",
+                "storage.yml",
+                "animations",
+                "animation",
+                "animations.yml"
             );
             
             String input = args[1].toLowerCase();

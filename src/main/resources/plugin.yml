@@ -252,5 +252,5 @@ permissions:
   
   # Mob Skills system
   quantum.skills.bypass:
-    description: Bypass skill title/subtitle spam (automatically applies to creative mode players)
+    description: Bypass skill title/subtitle spam (creative mode players always bypass, this permission allows non-creative players to also bypass)
     default: op

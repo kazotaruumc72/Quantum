@@ -61,7 +61,10 @@ public class HealthBarManager {
      */
     private void startPositionUpdateTask() {
         // Mise à jour toutes les 5 ticks (4 fois par seconde) pour un mouvement fluide
-        updateTaskId = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+        updateTaskId = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
+            // Collection pour stocker les entrées invalides à supprimer
+            java.util.List<UUID> toRemove = new java.util.ArrayList<>();
+            
             // Itérer sur toutes les healthbars actives
             mobHealthDisplays.forEach((mobUUID, displayUUID) -> {
                 org.bukkit.entity.Entity mobEntity = Bukkit.getEntity(mobUUID);
@@ -94,14 +97,22 @@ public class HealthBarManager {
                         }
                     }
                     
-                    // Mettre à jour la position
+                    // Mettre à jour la position si le mob a bougé
+                    // Utilise distanceSquared pour éviter le coût de la racine carrée
                     Location newLoc = mob.getLocation().add(0, yOffset, 0);
-                    if (!display.getLocation().equals(newLoc)) {
+                    if (newLoc.distanceSquared(display.getLocation()) > 0.01) {
                         display.teleport(newLoc);
                     }
+                } else {
+                    // Marquer pour suppression
+                    toRemove.add(mobUUID);
                 }
             });
-        }, 5L, 5L); // 5 ticks de délai initial, puis toutes les 5 ticks
+            
+            // Supprimer les entrées invalides
+            toRemove.forEach(mobHealthDisplays::remove);
+            
+        }, 5L, 5L).getTaskId(); // 5 ticks de délai initial, puis toutes les 5 ticks
     }
     
     /**
@@ -518,7 +529,8 @@ public class HealthBarManager {
         if (originalName == null || originalName.isEmpty()) {
             originalName = getDisplayName(entity, mobSection);
         } else if (!mobConfig.getBoolean("global.override_custom_names", false)) {
-            // Garder le nom custom existant (enlever les anciennes newlines si présentes)
+            // Backward compatibility: enlever les anciennes newlines si présentes
+            // (du système précédent qui utilisait des newlines dans setCustomName)
             originalName = originalName.replace("\n", "").trim();
         }
         

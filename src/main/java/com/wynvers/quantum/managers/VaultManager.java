@@ -100,4 +100,12 @@ public class VaultManager {
         if (!isEnabled()) return "$";
         return economy.currencyNamePlural();
     }
+    
+    /**
+     * R\u00e9cup\u00e8re l'instance Economy de Vault
+     * @return Economy instance or null
+     */
+    public Economy getEconomy() {
+        return economy;
+    }
 }

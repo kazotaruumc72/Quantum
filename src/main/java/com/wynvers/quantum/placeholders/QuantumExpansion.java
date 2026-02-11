@@ -33,7 +33,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
     // Key: towerId + "|" + floor (using | as delimiter to avoid collisions with tower IDs)
     // Value: required kills
     private final Map<String, Integer> killRequirementsCache = new ConcurrentHashMap<>();
-    private long lastCacheRefresh = 0;
+    private volatile long lastCacheRefresh = 0;
     private static final long CACHE_TTL = 300000; // 5 minutes in milliseconds
     
     public QuantumExpansion(Quantum plugin) {

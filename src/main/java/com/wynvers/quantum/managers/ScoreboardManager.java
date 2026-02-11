@@ -138,7 +138,8 @@ public class ScoreboardManager {
         // Single PlaceholderAPI call for all lines
         String parsedBatch = PlaceholderAPI.setPlaceholders(player, batchText.toString());
         // Normalize line endings and split - handle both \r\n and \n
-        String[] parsedLines = parsedBatch.replace("\r\n", "\n").split("\n", -1);
+        // Use limit to ensure we get exactly the expected number of lines
+        String[] parsedLines = parsedBatch.replace("\r\n", "\n").split("\n", lines.size());
         
         // Ensure we got the expected number of lines
         if (parsedLines.length != lines.size()) {

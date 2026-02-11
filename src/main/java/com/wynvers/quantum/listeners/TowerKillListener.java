@@ -15,6 +15,8 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -31,6 +33,11 @@ public class TowerKillListener implements Listener {
     private final PlayerLevelManager levelManager;
     private final TowerDoorManager doorManager;
     private final TowerLootManager lootManager;
+    
+    // Cache for required kills to avoid repeated file reads
+    private final Map<String, Integer> requiredKillsCache = new HashMap<>();
+    private long lastCacheRefresh = 0;
+    private static final long CACHE_REFRESH_INTERVAL = 300000; // 5 minutes in milliseconds
 
     public TowerKillListener(Quantum plugin, TowerManager towerManager, 
                             PlayerLevelManager levelManager,
@@ -236,8 +243,38 @@ public class TowerKillListener implements Listener {
     /**
      * Récupère le nombre total de kills requis pour un étage depuis towers.yml
      * (même logique que dans QuantumExpansion#getRequiredKills)
+     * Uses caching to avoid repeated file reads
      */
     private int getRequiredKills(String towerId, int floor) {
+        // Check if cache needs refresh
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastCacheRefresh > CACHE_REFRESH_INTERVAL) {
+            requiredKillsCache.clear();
+            lastCacheRefresh = currentTime;
+        }
+        
+        // Generate cache key
+        String cacheKey = towerId + ":" + floor;
+        
+        // Check cache
+        Integer cached = requiredKillsCache.get(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
+        
+        // Not in cache, load from file
+        int result = loadRequiredKillsFromFile(towerId, floor);
+        
+        // Cache the result
+        requiredKillsCache.put(cacheKey, result);
+        
+        return result;
+    }
+    
+    /**
+     * Loads required kills from towers.yml file
+     */
+    private int loadRequiredKillsFromFile(String towerId, int floor) {
         try {
             File towersFile = new File(plugin.getDataFolder(), "towers.yml");
             if (!towersFile.exists()) return 0;

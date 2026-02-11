@@ -46,6 +46,7 @@ public class ZoneManager implements Listener {
     private final TowerScoreboardHandler scoreboardHandler;
 
     private final Map<UUID, String> currentRegion = new HashMap<>();
+    private final Map<String, Boolean> regionIsTowerCache = new HashMap<>();
     private static final String BYPASS_PERMISSION = "quantum.tower.bypass";
 
     public ZoneManager(Quantum plugin) {
@@ -56,11 +57,6 @@ public class ZoneManager implements Listener {
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         plugin.getQuantumLogger().success("ZoneManager (tours) initialized");
-        
-        // DEBUG: Log initialization
-        plugin.getQuantumLogger().info("[DEBUG] ZoneManager created - towerManager: " + (towerManager != null));
-        plugin.getQuantumLogger().info("[DEBUG] ZoneManager created - levelManager: " + (levelManager != null));
-        plugin.getQuantumLogger().info("[DEBUG] ZoneManager created - scoreboardHandler: " + (scoreboardHandler != null));
     }
 
     @EventHandler
@@ -179,10 +175,6 @@ public class ZoneManager implements Listener {
         UUID uuid = player.getUniqueId();
         String previousRegion = currentRegion.get(uuid);
         String newRegion = getWorldGuardRegionAt(to);
-        
-        // DEBUG: Log region change check
-        plugin.getQuantumLogger().info("[DEBUG] checkRegionChange for " + player.getName() + 
-                ": previousRegion=" + previousRegion + ", newRegion=" + newRegion);
 
         // Pas de changement de region
         if (Objects.equals(previousRegion, newRegion)) {
@@ -256,8 +248,6 @@ public class ZoneManager implements Listener {
         );
 
         for (ProtectedRegion region : set) {
-            // Retirer ou commenter cette ligne :
-            // plugin.getQuantumLogger().info("[DEBUG] Found WorldGuard region: " + region.getId());
             return region.getId();
         }
         return null;
@@ -266,13 +256,26 @@ public class ZoneManager implements Listener {
     /**
      * Verifie si le nom de region correspond a une region de tour
      * via TowerManager.getTowerByRegion(...)
+     * Uses caching to avoid repeated lookups
      */
     private boolean isTowerRegion(String regionName) {
         if (regionName == null) return false;
+        
+        // Check cache first
+        Boolean cached = regionIsTowerCache.get(regionName);
+        if (cached != null) {
+            return cached;
+        }
+        
+        // Not in cache, perform lookup
         String towerId = towerManager.getTowerByRegion(regionName);
         int floor = towerManager.getFloorByRegion(regionName);
-    
-        return towerId != null && floor >= 0;  // ← Note: >= 0 au lieu de > 0
+        boolean result = towerId != null && floor >= 0;  // ← Note: >= 0 au lieu de > 0
+        
+        // Cache the result
+        regionIsTowerCache.put(regionName, result);
+        
+        return result;
     }
 
     /**
@@ -280,11 +283,6 @@ public class ZoneManager implements Listener {
      * @return true si le joueur est autorise a entrer
      */
     private boolean handleEnterTowerRegion(Player player, String regionName, Location from) {
-        // DEBUG: Log enter attempt
-        plugin.getQuantumLogger().info("[DEBUG] handleEnterTowerRegion for " + player.getName() + 
-                " in region " + regionName);
-        plugin.getQuantumLogger().info("[DEBUG] Player has bypass: " + player.hasPermission(BYPASS_PERMISSION));
-        
         if (player.hasPermission(BYPASS_PERMISSION)) {
             return enterWithoutLevelCheck(player, regionName);
         }

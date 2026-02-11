@@ -48,6 +48,10 @@ public class ActiveSpawner implements Listener {
 
     public void start() {
         int periodTicks = config.getIntervalSeconds() * 20;
+        
+        // Cleanup task runs less frequently (every 5 seconds) to reduce overhead
+        final int cleanupInterval = 100; // 5 seconds in ticks
+        final int[] tickCounter = {0};
 
         this.task = new BukkitRunnable() {
             @Override
@@ -57,11 +61,12 @@ public class ActiveSpawner implements Listener {
                     return;
                 }
 
-                // Nettoyage des morts
-                aliveMobs.removeIf(uuid -> {
-                    Entity e = Bukkit.getEntity(uuid);
-                    return e == null || e.isDead();
-                });
+                // Nettoyage des morts - only run every 5 seconds instead of every spawn interval
+                tickCounter[0] += periodTicks;
+                if (tickCounter[0] >= cleanupInterval) {
+                    tickCounter[0] = 0;
+                    cleanupDeadMobs();
+                }
 
                 if (aliveMobs.size() >= config.getMaxAlive()) {
                     return;
@@ -87,6 +92,22 @@ public class ActiveSpawner implements Listener {
                 }
             }
         }.runTaskTimer(plugin, 0L, periodTicks);
+    }
+    
+    /**
+     * Nettoie les mobs morts de la liste aliveMobs
+     * Optimisé pour réduire le nombre d'appels à Bukkit.getEntity()
+     */
+    private void cleanupDeadMobs() {
+        // Use iterator for better performance than removeIf with Entity lookup
+        Iterator<UUID> iterator = aliveMobs.iterator();
+        while (iterator.hasNext()) {
+            UUID uuid = iterator.next();
+            Entity e = Bukkit.getEntity(uuid);
+            if (e == null || e.isDead()) {
+                iterator.remove();
+            }
+        }
     }
 
     public void stop() {

@@ -45,8 +45,8 @@ public class ToolTabCompleter implements TabCompleter {
         
         if (args.length == 3) {
             if (args[0].equalsIgnoreCase("give")) {
-                // Niveau de l'outil (exemple: 1)
-                List<String> levels = Arrays.asList("1");
+                // Niveau de l'outil (note: actuellement seul le niveau 1 est utilisé)
+                List<String> levels = Arrays.asList("1", "2", "3", "4", "5");
                 StringUtil.copyPartialMatches(args[2], levels, completions);
                 return completions;
             }

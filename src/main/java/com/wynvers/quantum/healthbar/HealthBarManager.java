@@ -73,8 +73,8 @@ public class HealthBarManager {
      * Démarre une tâche périodique pour mettre à jour les positions des TextDisplay
      */
     private void startPositionUpdateTask() {
-        // Mise à jour toutes les 10 ticks (2 fois par seconde) pour un mouvement fluide et optimisé
-        // Réduit de 5 ticks à 10 ticks pour améliorer les performances
+        // Mise à jour toutes les 3 ticks (~6.6 fois par seconde) pour un mouvement très fluide
+        // Optimisé avec seuil de distance pour éviter les mises à jour inutiles
         updateTaskId = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
             // Collection pour stocker les entrées invalides à supprimer
             java.util.List<UUID> toRemove = new java.util.ArrayList<>();
@@ -91,9 +91,6 @@ public class HealthBarManager {
                     LivingEntity mob = (LivingEntity) mobEntity;
                     TextDisplay display = (TextDisplay) displayEntity;
                     
-                    // Vérifier si l'entité a ModelEngine (utiliser cache)
-                    boolean hasModelEngine = getModelEngineStatus(mob);
-                    
                     // Calculer l'offset (utiliser cache pour config)
                     ConfigurationSection mobSection = getCachedMobConfig(mob);
                     double yOffset = 0.5; // Défaut
@@ -102,13 +99,17 @@ public class HealthBarManager {
                     double hologramOffset = getHologramOffset(mobSection);
                     if (hologramOffset > 0) {
                         yOffset = hologramOffset;
+                    } else {
+                        // Si aucun offset configuré, utiliser la hauteur de l'entité + petit offset
+                        // Cela fonctionne mieux pour les mobs ModelEngine avec des modèles de différentes tailles
+                        yOffset = mob.getHeight() + 0.3;
                     }
                     
                     // Mettre à jour la position seulement si le mob a bougé de manière significative
                     // Note: distanceSquared retourne le carré de la distance
-                    // 0.0025 = (0.05)^2, so threshold is 0.05 blocks of real distance
+                    // 0.0001 = (0.01)^2, threshold de 0.01 bloc (1cm) pour un mouvement plus fluide
                     Location newLoc = mob.getLocation().add(0, yOffset, 0);
-                    if (newLoc.distanceSquared(display.getLocation()) > 0.0025) {
+                    if (newLoc.distanceSquared(display.getLocation()) > 0.0001) {
                         display.teleport(newLoc);
                     }
                 } else {
@@ -120,7 +121,7 @@ public class HealthBarManager {
             // Supprimer les entrées invalides et nettoyer les caches
             toRemove.forEach(this::removeMobFromCaches);
             
-        }, 10L, 10L).getTaskId(); // 10 ticks de délai initial, puis toutes les 10 ticks
+        }, 3L, 3L).getTaskId(); // 3 ticks de délai initial, puis toutes les 3 ticks (~6.6 fois/sec)
     }
     
     /**
@@ -623,6 +624,10 @@ public class HealthBarManager {
         double hologramOffset = getHologramOffset(mobSection);
         if (hologramOffset > 0) {
             baseOffset = hologramOffset;
+        } else {
+            // Si aucun offset configuré, utiliser la hauteur de l'entité + petit offset
+            // Cela fonctionne mieux pour les mobs ModelEngine avec des modèles de différentes tailles
+            baseOffset = entity.getHeight() + 0.3;
         }
         
         // Créer ou mettre à jour la TextDisplay entity

@@ -4,6 +4,11 @@
 
 Le système de métiers (Jobs) ajoute une progression de compétences complète au plugin Quantum. Les joueurs peuvent choisir un métier, gagner de l'expérience en interagissant avec des structures, monter en niveau et débloquer des récompenses.
 
+**Améliorations récentes (inspirées de UniverseJobs):**
+- ✨ **Système de preview des actions** - Aperçu des récompenses avant d'interagir avec une structure
+- ✨ **Affichage amélioré des récompenses** - Preview détaillée avec icônes et formatage moderne
+- ✨ **Indicateurs visuels** - Barres de progression et multiplicateurs de boosters
+
 ## Fonctionnalités principales
 
 ### 1. **Système de métiers**
@@ -15,7 +20,8 @@ Le système de métiers (Jobs) ajoute une progression de compétences complète 
 - **Nouveau:** Système d'actions personnalisables (break, place, hit, fish, drink, eat, kill)
 
 ### 2. **Interaction avec les structures**
-- Les joueurs peuvent taper (clic gauche) sur des structures définies dans `structures.yml`
+- **Clic droit** sur une structure: Affiche une preview des récompenses potentielles
+- **Clic gauche** sur une structure: Exécute l'action et récolte les récompenses
 - Chaque tap dégrade la structure d'un état:
   - WHOLE (entier) → GOOD (bon état) → DAMAGED (abîmé) → STUMP (souche)
 - Récompenses différentes selon l'état de la structure:
@@ -68,6 +74,19 @@ valid_nexo_furniture:
 ```
 
 Lorsqu'un joueur interagit avec un block ou furniture Nexo valide pour son métier, il gagne de l'XP et de l'argent selon les récompenses configurées dans `action_rewards.nexo_block` et `action_rewards.nexo_furniture`.
+
+### 2.1 **Preview des actions (NOUVEAU)**
+Lorsque le joueur effectue un clic droit sur une structure:
+- Affichage dans l'action bar avec icônes colorés
+- Indication de l'état de la structure
+- XP et argent potentiels à gagner
+- Indicateurs de boosters actifs (✦) si applicable
+- Vérification de la validité de la structure pour le métier
+
+Exemple d'affichage:
+```
+█ ⛏ Bûcheron » +15 XP ✦ │ +10.0$ ✦
+```
 
 ### 3. **Système de récompenses**
 Les récompenses sont automatiquement distribuées lorsque le joueur atteint un certain niveau. Types de récompenses supportés:
@@ -206,7 +225,28 @@ Affiche les détails d'un métier spécifique (structures valides, niveau max, e
 Exemple: `/job info miner`
 
 #### `/job rewards` - Voir les prochaines récompenses
-Affiche les récompenses des 10 prochains niveaux.
+Affiche les récompenses des 10 prochains niveaux avec un formatage amélioré.
+
+**Nouvelle fonctionnalité:**
+- Affichage avec icônes colorés (💰, 📦, ⚔, ✦)
+- Indication "Donjon" pour les boosters dungeon_only
+- Présentation organisée par niveau
+
+#### `/job rewards preview [niveaux]` - Preview détaillé des récompenses (NOUVEAU)
+Affiche un aperçu détaillé et formaté des prochaines récompenses.
+- **niveaux**: Nombre de niveaux à afficher (1-10, défaut: 3)
+
+Affiche:
+- Barre de progression visuelle
+- XP totale nécessaire pour chaque niveau
+- Récompenses avec descriptions détaillées et icônes
+- Indicateurs pour les boosters dungeon_only
+
+Exemple: 
+```
+/job rewards preview
+/job rewards preview 5
+```
 
 ### Commandes admin
 
@@ -332,6 +372,81 @@ messages:
   booster_activated: "&a✓ Booster activé: {booster_name} &7(x{multiplier})"
   booster_expired: "&c✗ Votre booster {booster_name} a expiré!"
 ```
+
+## Système de Preview des Actions (NOUVEAU)
+
+Le système de preview, inspiré de UniverseJobs, permet aux joueurs de voir exactement ce qu'ils vont gagner avant d'effectuer une action.
+
+### Fonctionnalités
+
+#### Preview instantanée (Action Bar)
+- **Activation**: Clic droit sur une structure
+- **Affichage**: Dans l'action bar du joueur
+- **Informations affichées**:
+  - Icône de l'état de la structure (█ ▓ ▒ ░)
+  - Nom du métier avec couleur
+  - XP et argent potentiels
+  - Indicateurs de boosters actifs (✦)
+  - Validation de la structure pour le métier
+
+#### Preview détaillée (Chat)
+- **Activation**: `/job rewards preview [niveaux]`
+- **Affichage**: Dans le chat avec formatage avancé
+- **Informations affichées**:
+  - Niveau et progression actuels
+  - Barre de progression visuelle
+  - Prochaines récompenses par niveau
+  - XP totale nécessaire pour chaque récompense
+  - Descriptions détaillées avec icônes
+
+### Exemples visuels
+
+#### Preview d'action (Action Bar):
+```
+█ ⛏ Bûcheron » +10 XP │ +5.0$
+▓ ⛏ Bûcheron » +7 XP │ +3.0$
+▒ ⛏ Bûcheron » +15 XP ✦ │ +10.0$ ✦  (avec boosters)
+⚠ Structure invalide pour votre métier
+```
+
+#### Preview détaillée (Chat):
+```
+╔═══════════════════════════════════════╗
+║  Aperçu des Récompenses              ║
+╚═══════════════════════════════════════╝
+
+Métier: ⛏ Bûcheron
+Niveau: 5/100
+XP: 85/110
+[███████████████████████░░░░░░░░░░░] 77.3%
+
+▸ Prochaines récompenses:
+
+  ◆ Niveau 10 (135 XP restants)
+    • 💰 100$ d'argent
+    • 📦 magic_log x5 (Item Nexo)
+
+  ◆ Niveau 15 (589 XP restants)
+    • ✦ Booster XP x1.5 - 1h (Donjon uniquement)
+```
+
+### Indicateurs visuels
+
+- **États de structure**: 
+  - █ WHOLE (entier)
+  - ▓ GOOD (bon état)
+  - ▒ DAMAGED (abîmé)
+  - ░ STUMP (souche)
+
+- **Types de récompenses**:
+  - 💰 Argent
+  - 📦 Items Nexo
+  - ⚔ Items MythicMobs
+  - ✦ Boosters (XP/Argent)
+  - ⚙ Commandes spéciales
+
+- **Multiplicateurs actifs**:
+  - ✦ Indique qu'un booster est actif
 
 ## Notes techniques
 

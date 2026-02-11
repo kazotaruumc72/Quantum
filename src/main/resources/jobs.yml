@@ -239,3 +239,9 @@ messages:
   job_left: "&cVous avez quitté le métier: {job_name}"
   action_performed: "&7+{exp} XP {job_name} &7| +{money}$"
   nexo_interaction: "&7+{exp} XP {job_name} &7| +{money}$ &7({nexo_id})"
+  
+  # Messages pour le système de preview (NOUVEAU)
+  preview_hint: "&8[&7Clic droit pour aperçu&8]"
+  preview_no_job: "&c⚠ Aucun métier sélectionné"
+  preview_invalid_structure: "&c⚠ Structure invalide pour votre métier"
+  preview_no_rewards: "&7Aucune récompense"

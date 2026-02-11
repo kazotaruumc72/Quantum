@@ -98,6 +98,22 @@
 - **Protection GUI** - Items non déplaçables automatiquement
 - **Système de cache** - Optimisation des performances
 
+### 💼 Système de Jobs (Métiers)
+
+- **✨ NEW: Preview des Actions** - Aperçu des récompenses avant interaction (inspiré de UniverseJobs)
+- **✨ NEW: Affichage amélioré** - Récompenses avec icônes et couleurs
+- **Progression de métiers** - Système de niveaux et XP
+- **Récompenses automatiques** - Items, argent, boosters par niveau
+- **Interaction avec structures** - Tapez des structures pour gagner XP
+- **Boosters** - Multiplicateurs d'XP et d'argent
+- **Preview détaillée** - Commande `/job rewards preview` avec barre de progression
+- **Action Bar** - Preview instantanée sur clic droit
+- **Support dungeon** - Boosters spécifiques aux donjons
+
+📚 **Documentation complète**: 
+- [JOBS_SYSTEM.md](JOBS_SYSTEM.md) - Documentation complète
+- [JOBS_PREVIEW_SYSTEM.md](JOBS_PREVIEW_SYSTEM.md) - Guide du système de preview
+
 ---
 
 ## 📦 Installation

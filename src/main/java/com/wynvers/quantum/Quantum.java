@@ -569,12 +569,14 @@ public final class Quantum extends JavaPlugin {
         // NEW: Tool and Weapon Commands
         if (toolManager != null) {
             getCommand("tool").setExecutor(new ToolCommand(this));
-            logger.success("✓ Tool Command");
+            getCommand("tool").setTabCompleter(new ToolTabCompleter());
+            logger.success("✓ Tool Command + TabCompleter");
         }
         
         if (dungeonWeapon != null) {
             getCommand("weapon").setExecutor(new WeaponCommand(this));
-            logger.success("✓ Weapon Command");
+            getCommand("weapon").setTabCompleter(new WeaponTabCompleter());
+            logger.success("✓ Weapon Command + TabCompleter");
         }
         
         // Jobs Commands

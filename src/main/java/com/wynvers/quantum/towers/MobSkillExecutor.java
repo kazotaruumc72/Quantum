@@ -27,6 +27,21 @@ public class MobSkillExecutor {
     private final Map<UUID, List<BukkitTask>> mobSkillTasks = new HashMap<>();
     private final TemporaryStructureManager structureManager;
     
+    // Cache for nearby players to reduce repeated lookups
+    private static class CachedPlayerList {
+        final List<Player> players;
+        final long timestamp;
+        
+        CachedPlayerList(List<Player> players, long timestamp) {
+            this.players = players;
+            this.timestamp = timestamp;
+        }
+    }
+    
+    private final Map<String, CachedPlayerList> nearbyPlayersCache = new HashMap<>();
+    private static final long CACHE_VALIDITY_MS = 500; // Cache valid for 500ms
+    private static final double GRID_PRECISION = 4.0; // Grid size for caching (in blocks)
+    
     public MobSkillExecutor(Quantum plugin) {
         this.plugin = plugin;
         this.structureManager = new TemporaryStructureManager(plugin);
@@ -677,6 +692,7 @@ public class MobSkillExecutor {
     /**
      * Récupère tous les joueurs VALIDES dans un rayon
      * Exclut les joueurs en créatif et spectateur
+     * Uses caching to reduce overhead
      * 
      * @param center Centre de la zone
      * @param radius Rayon en blocs
@@ -687,7 +703,23 @@ public class MobSkillExecutor {
             return new ArrayList<>();
         }
         
-        return center.getWorld().getNearbyEntities(center, radius, radius, radius)
+        // For skills execution, use grid-based caching with configurable precision
+        // This provides good balance between cache hits and accuracy
+        int gridX = (int) Math.floor(center.getX() / GRID_PRECISION);
+        int gridY = (int) Math.floor(center.getY() / GRID_PRECISION);
+        int gridZ = (int) Math.floor(center.getZ() / GRID_PRECISION);
+        String cacheKey = center.getWorld().getName() + ":" + gridX + ":" + gridY + ":" + gridZ;
+        
+        long now = System.currentTimeMillis();
+        CachedPlayerList cached = nearbyPlayersCache.get(cacheKey);
+        
+        // Check if cache is still valid
+        if (cached != null && (now - cached.timestamp) < CACHE_VALIDITY_MS) {
+            return cached.players;
+        }
+        
+        // Cache miss or expired, fetch fresh data
+        List<Player> players = center.getWorld().getNearbyEntities(center, radius, radius, radius)
             .stream()
             .filter(e -> e instanceof Player)
             .map(e -> (Player) e)
@@ -697,6 +729,11 @@ public class MobSkillExecutor {
                 return mode != GameMode.CREATIVE && mode != GameMode.SPECTATOR;
             })
             .collect(Collectors.toList());
+        
+        // Update cache
+        nearbyPlayersCache.put(cacheKey, new CachedPlayerList(players, now));
+        
+        return players;
     }
     
     /**
@@ -738,6 +775,9 @@ public class MobSkillExecutor {
     public void shutdown() {
         mobSkillTasks.values().forEach(tasks -> tasks.forEach(BukkitTask::cancel));
         mobSkillTasks.clear();
+        
+        // Clean up cache
+        nearbyPlayersCache.clear();
         
         // Restaurer toutes les structures temporaires
         if (structureManager != null) {

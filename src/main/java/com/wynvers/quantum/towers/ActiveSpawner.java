@@ -34,6 +34,10 @@ public class ActiveSpawner implements Listener {
     private final Set<UUID> aliveMobs = new HashSet<>();
     
     private BukkitTask task;
+    private int cleanupTickCounter = 0; // Track ticks for cleanup optimization
+    
+    // Cleanup runs less frequently to reduce overhead
+    private static final int CLEANUP_INTERVAL_TICKS = 100; // 5 seconds
 
     public ActiveSpawner(Quantum plugin, TowerSpawnerConfig config, Player player, 
                          String towerId, TowerManager towerManager) {
@@ -57,11 +61,12 @@ public class ActiveSpawner implements Listener {
                     return;
                 }
 
-                // Nettoyage des morts
-                aliveMobs.removeIf(uuid -> {
-                    Entity e = Bukkit.getEntity(uuid);
-                    return e == null || e.isDead();
-                });
+                // Nettoyage des morts - only run every 5 seconds instead of every spawn interval
+                cleanupTickCounter += periodTicks;
+                if (cleanupTickCounter >= CLEANUP_INTERVAL_TICKS) {
+                    cleanupTickCounter = 0;
+                    cleanupDeadMobs();
+                }
 
                 if (aliveMobs.size() >= config.getMaxAlive()) {
                     return;
@@ -88,12 +93,29 @@ public class ActiveSpawner implements Listener {
             }
         }.runTaskTimer(plugin, 0L, periodTicks);
     }
+    
+    /**
+     * Nettoie les mobs morts de la liste aliveMobs
+     * Optimisé pour réduire le nombre d'appels à Bukkit.getEntity()
+     */
+    private void cleanupDeadMobs() {
+        // Use iterator for better performance than removeIf with Entity lookup
+        Iterator<UUID> iterator = aliveMobs.iterator();
+        while (iterator.hasNext()) {
+            UUID uuid = iterator.next();
+            Entity e = Bukkit.getEntity(uuid);
+            if (e == null || e.isDead()) {
+                iterator.remove();
+            }
+        }
+    }
 
     public void stop() {
         if (task != null) {
             task.cancel();
         }
         task = null;
+        cleanupTickCounter = 0; // Reset counter
         
         // Arrêter tous les skills des mobs vivants
         MobSkillExecutor executor = plugin.getMobSkillExecutor();

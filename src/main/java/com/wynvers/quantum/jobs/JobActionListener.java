@@ -2,6 +2,8 @@ package com.wynvers.quantum.jobs;
 
 import com.nexomc.nexo.api.NexoBlocks;
 import com.nexomc.nexo.api.NexoFurniture;
+import com.nexomc.nexo.mechanics.custom_block.CustomBlockMechanic;
+import com.nexomc.nexo.mechanics.furniture.FurnitureMechanic;
 import com.wynvers.quantum.Quantum;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -43,8 +45,9 @@ public class JobActionListener implements Listener {
         Block block = event.getBlock();
         
         // Vérifier si c'est un bloc Nexo
-        String nexoId = NexoBlocks.blockMechanicId(block);
-        if (nexoId != null) {
+        CustomBlockMechanic blockMechanic = NexoBlocks.customBlockMechanic(block);
+        if (blockMechanic != null) {
+            String nexoId = blockMechanic.getItemID();
             jobManager.handleNexoInteraction(player, nexoId, false);
             return;
         }
@@ -77,8 +80,9 @@ public class JobActionListener implements Listener {
         Entity target = event.getEntity();
         
         // Vérifier si c'est une furniture Nexo
-        String furnitureId = NexoFurniture.furnitureId(target);
-        if (furnitureId != null) {
+        FurnitureMechanic furnitureMechanic = NexoFurniture.furnitureMechanic(target);
+        if (furnitureMechanic != null) {
+            String furnitureId = furnitureMechanic.getItemID();
             jobManager.handleNexoInteraction(player, furnitureId, true);
             return;
         }

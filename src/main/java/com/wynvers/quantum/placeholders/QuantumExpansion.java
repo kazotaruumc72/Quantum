@@ -257,7 +257,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
                     if (topPlayers.size() >= position) {
                         com.wynvers.quantum.jobs.JobData topPlayer = topPlayers.get(position - 1);
                         org.bukkit.OfflinePlayer offlinePlayer = 
-                            org.bukkit.Bukkit.getOfflinePlayer(topPlayer.getUuid());
+                            org.bukkit.Bukkit.getOfflinePlayer(topPlayer.getPlayerUUID());
                         return offlinePlayer.getName() != null ? offlinePlayer.getName() : "Unknown";
                     }
                 } catch (NumberFormatException e) {

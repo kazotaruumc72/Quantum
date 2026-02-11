@@ -13,6 +13,8 @@ To adjust health bar positioning for any mob, add this to `mob_healthbar.yml`:
 
 Then reload: `/quantum reload healthbar`
 
+**Note:** The old `modelengine_offset` setting is still supported for backward compatibility, but `hologram_offset` is now recommended as it works for all mobs.
+
 ## Display Formats
 
 Choose how the health bar looks:
@@ -96,8 +98,6 @@ global:
 ```
 
 Individual mob settings override this global default.
-
-**Note:** The old `modelengine_offset` settings still work for backward compatibility, but `hologram_offset` is now the recommended setting and works for all mobs.
 
 ## How It Works
 

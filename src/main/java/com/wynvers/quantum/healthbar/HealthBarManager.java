@@ -503,6 +503,9 @@ public class HealthBarManager {
     /**
      * Affichage pourcentage uniquement (sans barre)
      * Displays only the percentage number without the health bar visual
+     * 
+     * Note: health and maxHealth parameters are kept for signature consistency with generateClassicDisplay,
+     * even though percentage is pre-calculated and passed in
      */
     private String generatePercentageOnlyDisplay(LivingEntity entity, double health, double maxHealth,
                                                  double percentage, ConfigurationSection mobSection, 

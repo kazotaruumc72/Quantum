@@ -103,14 +103,12 @@ public class JobManager {
     private void createTables() {
         try (Connection conn = databaseManager.getConnection()) {
             // Table pour les données de métier des joueurs
-            String createJobsTable = """
-                CREATE TABLE IF NOT EXISTS quantum_player_jobs (
-                    uuid VARCHAR(36) PRIMARY KEY,
-                    job_id VARCHAR(50) NOT NULL,
-                    level INT NOT NULL DEFAULT 1,
-                    exp INT NOT NULL DEFAULT 0
-                )
-            """;
+            String createJobsTable = "CREATE TABLE IF NOT EXISTS quantum_player_jobs (" +
+                    "uuid VARCHAR(36) PRIMARY KEY," +
+                    "job_id VARCHAR(50) NOT NULL," +
+                    "level INT NOT NULL DEFAULT 1," +
+                    "exp INT NOT NULL DEFAULT 0" +
+                    ")";
             
             try (PreparedStatement ps = conn.prepareStatement(createJobsTable)) {
                 ps.executeUpdate();

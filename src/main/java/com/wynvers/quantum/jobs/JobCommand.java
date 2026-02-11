@@ -66,7 +66,7 @@ public class JobCommand implements CommandExecutor {
             default:
                 player.sendMessage(ChatColor.RED + "Sous-commande inconnue. Usage:");
                 player.sendMessage(ChatColor.GRAY + "/job - Afficher vos informations de métier");
-                player.sendMessage(ChatColor.GRAY + "/job select <métier> - Choisir un métier");
+                player.sendMessage(ChatColor.GRAY + "/job select|choose <métier> - Choisir un métier");
                 player.sendMessage(ChatColor.GRAY + "/job list - Lister tous les métiers");
                 player.sendMessage(ChatColor.GRAY + "/job info [métier] - Info sur un métier");
                 player.sendMessage(ChatColor.GRAY + "/job rewards - Voir les prochaines récompenses");

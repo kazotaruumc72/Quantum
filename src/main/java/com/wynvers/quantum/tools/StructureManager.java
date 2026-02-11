@@ -159,6 +159,8 @@ public class StructureManager {
     
     /**
      * Vérifie si une structure correspond aux blocs à une position donnée
+     * Note: Currently only checks Minecraft blocks. Nexo block verification
+     * will be added in a future update when NexoBlocks API is available.
      */
     private boolean matchesStructure(Location baseLocation, List<StructureBlock> blocks) {
         for (StructureBlock block : blocks) {
@@ -170,7 +172,8 @@ public class StructureManager {
                     return false;
                 }
             }
-            // TODO: Vérifier les blocs Nexo
+            // TODO: Vérifier les blocs Nexo quand l'API sera disponible
+            // For now, Nexo blocks in structures will not be detected correctly
         }
         
         return true;

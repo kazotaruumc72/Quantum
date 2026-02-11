@@ -21,12 +21,12 @@ public class ToolListener implements Listener {
     
     private final Quantum plugin;
     private final ToolManager toolManager;
-    private final StructureManager structureManager;
+    private final StructureManager structureManager;  // Can be null if not initialized
     
     public ToolListener(Quantum plugin, ToolManager toolManager) {
         this.plugin = plugin;
         this.toolManager = toolManager;
-        this.structureManager = plugin.getStructureManager();
+        this.structureManager = plugin.getStructureManager();  // May be null
     }
     
     @EventHandler

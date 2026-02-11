@@ -143,7 +143,7 @@ public class JobAdminCommand implements CommandExecutor {
         }
         
         jobManager.addExp(target.getUniqueId(), amount);
-        sender.sendMessage(ChatColor.GREEN + amount + " XP ajoutés à " + playerName);
+        sender.sendMessage(ChatColor.GREEN + String.valueOf(amount) + " XP ajoutés à " + playerName);
     }
     
     private void setPlayerLevel(CommandSender sender, String playerName, String levelStr) {

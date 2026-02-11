@@ -484,7 +484,7 @@ public class JobManager {
     private boolean isPlayerInDungeon(Player player) {
         // Vérifier si le joueur est dans une région de tour/donjon
         if (plugin.getTowerManager() != null) {
-            return plugin.getTowerManager().getCurrentTower(player.getUniqueId()) != null;
+            return plugin.getTowerManager().getPlayerTower(player) != null;
         }
         return false;
     }

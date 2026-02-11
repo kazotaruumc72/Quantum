@@ -215,12 +215,15 @@ public class StructureManager {
      * Retourne l'état suivant dans la dégradation
      */
     private StructureState getNextState(StructureState current) {
-        return switch (current) {
-            case WHOLE -> StructureState.GOOD;
-            case GOOD -> StructureState.DAMAGED;
-            case DAMAGED -> StructureState.STUMP;
-            case STUMP -> null;  // Pas de dégradation possible
-        };
+        if (current == StructureState.WHOLE) {
+            return StructureState.GOOD;
+        } else if (current == StructureState.GOOD) {
+            return StructureState.DAMAGED;
+        } else if (current == StructureState.DAMAGED) {
+            return StructureState.STUMP;
+        } else {
+            return null;  // Pas de dégradation possible
+        }
     }
     
     /**

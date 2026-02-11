@@ -137,13 +137,18 @@ public class MenuAction {
     private void playSound(Player player, String soundStr) {
         try {
             String[] parts = soundStr.split(":");
-            String soundName = parts[0].toLowerCase();
+            String soundInput = parts[0];
             
             // Use Registry API instead of deprecated valueOf()
+            // Convert from enum-style (e.g., ENTITY_PLAYER_LEVELUP) to lowercase with dots (e.g., entity.player.levelup)
+            String soundName = soundInput.toLowerCase().replace("_", ".");
+            
             Sound sound = Registry.SOUNDS.get(NamespacedKey.minecraft(soundName));
             
             if (sound == null) {
-                return; // Invalid sound, silently ignore
+                // Log warning for invalid sounds to aid debugging
+                Bukkit.getLogger().warning("[Quantum] Invalid sound: " + soundStr);
+                return;
             }
             
             float volume = parts.length > 1 ? Float.parseFloat(parts[1]) : 1.0f;

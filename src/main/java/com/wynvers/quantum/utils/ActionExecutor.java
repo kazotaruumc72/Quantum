@@ -428,9 +428,12 @@ public class ActionExecutor {
     private void playSound(Player player, String soundDef) {
         try {
             String[] parts = soundDef.split(":");
-            String soundName = parts[0].toLowerCase();
+            String soundInput = parts[0];
             
             // Use Registry API instead of deprecated valueOf()
+            // Convert from enum-style (e.g., UI_BUTTON_CLICK) to lowercase with dots (e.g., ui.button.click)
+            String soundName = soundInput.toLowerCase().replace("_", ".");
+            
             Sound sound = Registry.SOUNDS.get(NamespacedKey.minecraft(soundName));
             
             if (sound == null) {

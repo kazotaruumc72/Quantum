@@ -60,14 +60,14 @@ public class ScoreboardConfig {
      * Vérifie si le scoreboard est activé dans la config
      */
     public boolean isEnabled() {
-        return config.getBoolean("enabled", true);
+        return config.getBoolean("scoreboard.enabled", true);
     }
     
     /**
      * Récupère le titre du scoreboard
      */
     public String getTitle() {
-        return config.getString("title", "&6&lQUANTUM");
+        return config.getString("scoreboard.title", "&6&lQUANTUM");
     }
     
     /**
@@ -75,14 +75,14 @@ public class ScoreboardConfig {
      * Utilise uniquement les lignes définies dans scoreboard.yml
      */
     public List<String> getLines() {
-        return config.getStringList("lines");
+        return config.getStringList("scoreboard.lines");
     }
     
     /**
      * Récupère l'intervalle de mise à jour en ticks (20 ticks = 1 seconde)
      */
     public long getUpdateInterval() {
-        return config.getLong("update-interval", 20L);
+        return config.getLong("scoreboard.update_interval", 20L);
     }
     
     /**

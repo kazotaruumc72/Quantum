@@ -17,6 +17,7 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * PlaceholderAPI Expansion pour Quantum
@@ -27,6 +28,13 @@ public class QuantumExpansion extends PlaceholderExpansion {
     private final Quantum plugin;
     private final DecimalFormat priceFormat = new DecimalFormat("0.00");
     private final DecimalFormat percentFormat = new DecimalFormat("0.0");
+    
+    // Cache for tower kill requirements to avoid repeated YAML file reads
+    // Key: towerId + "|" + floor (using | as delimiter to avoid collisions with tower IDs)
+    // Value: required kills
+    private final Map<String, Integer> killRequirementsCache = new ConcurrentHashMap<>();
+    private volatile long lastCacheRefresh = 0;
+    private static final long CACHE_TTL = 300000; // 5 minutes in milliseconds
     
     public QuantumExpansion(Quantum plugin) {
         this.plugin = plugin;
@@ -76,12 +84,12 @@ public class QuantumExpansion extends PlaceholderExpansion {
         // === STORAGE STATS ===
         if (params.equals("storage_items")) {
             PlayerStorage storage = plugin.getStorageManager().getStorage(player);
-            return String.valueOf(storage.getUniqueItemCount());
+            return Integer.toString(storage.getUniqueItemCount());
         }
         
         if (params.equals("storage_total")) {
             PlayerStorage storage = plugin.getStorageManager().getStorage(player);
-            return String.valueOf(storage.getTotalItemCount());
+            return Integer.toString(storage.getTotalItemCount());
         }
         
         // === TOWER SYSTEM ===
@@ -146,6 +154,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
     
     /**
      * Handle tower-related placeholders
+     * Optimized with caching to reduce repeated calculations
      */
     private String handleTowerPlaceholder(Player player, String params) {
         TowerManager towerManager = plugin.getTowerManager();
@@ -174,7 +183,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
         // %quantum_tower_floor% - Current floor number
         if (params.equals("tower_floor")) {
             if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
-            return String.valueOf(progress.getCurrentFloor());
+            return Integer.toString(progress.getCurrentFloor());
         }
         
         // %quantum_tower_progress% - Current floor progress (5/25)
@@ -183,28 +192,36 @@ public class QuantumExpansion extends PlaceholderExpansion {
             TowerConfig tower = towerManager.getTower(currentTowerId);
             if (tower == null) return "0/0";
             int completed = progress.getFloorProgress(currentTowerId);
-            return completed + "/" + tower.getTotalFloors();
+            int total = tower.getTotalFloors();
+            return completed + "/" + total;
         }
         
         // %quantum_tower_kills_current% - Total kills in current floor
         if (params.equals("tower_kills_current")) {
             if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
             Map<String, Integer> kills = progress.getCurrentKills();
-            return String.valueOf(kills.values().stream().mapToInt(Integer::intValue).sum());
+            int sum = 0;
+            for (int count : kills.values()) {
+                sum += count;
+            }
+            return Integer.toString(sum);
         }
         
         // %quantum_tower_kills_required% - Required kills for current floor
         if (params.equals("tower_kills_required")) {
             if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
             int floor = progress.getCurrentFloor();
-            return String.valueOf(getRequiredKills(currentTowerId, floor));
+            return Integer.toString(getRequiredKills(currentTowerId, floor));
         }
         
         // %quantum_tower_kills_progress% - Kills progress (3/10)
         if (params.equals("tower_kills_progress")) {
             if (currentTowerId == null || currentTowerId.isEmpty()) return "0/0";
             Map<String, Integer> kills = progress.getCurrentKills();
-            int current = kills.values().stream().mapToInt(Integer::intValue).sum();
+            int current = 0;
+            for (int count : kills.values()) {
+                current += count;
+            }
             int required = getRequiredKills(currentTowerId, progress.getCurrentFloor());
             return current + "/" + required;
         }
@@ -213,11 +230,14 @@ public class QuantumExpansion extends PlaceholderExpansion {
         if (params.equals("tower_percentage")) {
             if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
             Map<String, Integer> kills = progress.getCurrentKills();
-            int current = kills.values().stream().mapToInt(Integer::intValue).sum();
+            int current = 0;
+            for (int count : kills.values()) {
+                current += count;
+            }
             int required = getRequiredKills(currentTowerId, progress.getCurrentFloor());
             if (required == 0) return "0";
             int percentage = (current * 100) / required;
-            return String.valueOf(Math.min(percentage, 100));
+            return Integer.toString(Math.min(percentage, 100));
         }
         
         // %quantum_tower_next_boss% - Next boss floor
@@ -227,7 +247,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
             if (tower == null) return "0";
             int currentFloor = progress.getFloorProgress(currentTowerId);
             int nextBoss = tower.getNextBossFloor(currentFloor);
-            return nextBoss == -1 ? "0" : String.valueOf(nextBoss);
+            return nextBoss == -1 ? "0" : Integer.toString(nextBoss);
         }
         
         // %quantum_tower_status% - Current status
@@ -276,12 +296,12 @@ public class QuantumExpansion extends PlaceholderExpansion {
         if (params.equals("towers_completed")) {
             if (towers.isEmpty()) return "0";
             int completed = progress.getCompletedTowersCount(towers);
-            return String.valueOf(completed);
+            return Integer.toString(completed);
         }
         
         // %quantum_towers_total% - Total number of towers configured (format: "4")
         if (params.equals("towers_total")) {
-            return String.valueOf(towers.size());
+            return Integer.toString(towers.size());
         }
         
         // %quantum_towers_percentage% - Overall towers completion percentage (50.0 or 0.0)
@@ -318,8 +338,35 @@ public class QuantumExpansion extends PlaceholderExpansion {
     /**
      * Get required kills for a floor from towers.yml configuration
      * Additionne le 'amount' de tous les spawners de l'étage
+     * Uses caching to avoid repeated YAML file reads
      */
     private int getRequiredKills(String towerId, int floor) {
+        // Check cache first - using | as delimiter to prevent collisions
+        String cacheKey = towerId + "|" + floor;
+        
+        // Refresh cache if TTL has expired
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastCacheRefresh > CACHE_TTL) {
+            killRequirementsCache.clear();
+            lastCacheRefresh = currentTime;
+        }
+        
+        // Return cached value if available
+        Integer cached = killRequirementsCache.get(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
+        
+        // Calculate and cache
+        int total = calculateRequiredKills(towerId, floor);
+        killRequirementsCache.put(cacheKey, total);
+        return total;
+    }
+    
+    /**
+     * Calculate required kills from YAML configuration
+     */
+    private int calculateRequiredKills(String towerId, int floor) {
         try {
             // Charger depuis towers.yml au lieu de zones.yml
             File towersFile = new File(plugin.getDataFolder(), "towers.yml");

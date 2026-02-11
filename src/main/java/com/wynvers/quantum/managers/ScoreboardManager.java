@@ -128,13 +128,34 @@ public class ScoreboardManager {
         UUID uuid = player.getUniqueId();
         Map<Integer, String> cachedLines = lineCache.computeIfAbsent(uuid, k -> new HashMap<>());
         
+        // Batch parse all placeholders at once to reduce PlaceholderAPI overhead
+        StringBuilder batchText = new StringBuilder();
+        for (int i = 0; i < lines.size(); i++) {
+            if (i > 0) batchText.append("\n");
+            batchText.append(lines.get(i));
+        }
+        
+        // Single PlaceholderAPI call for all lines
+        String parsedBatch = PlaceholderAPI.setPlaceholders(player, batchText.toString());
+        // Normalize line endings and split - handle both \r\n and \n
+        // Use limit to ensure we get exactly the expected number of lines
+        String[] parsedLines = parsedBatch.replace("\r\n", "\n").split("\n", lines.size());
+        
+        // Ensure we got the expected number of lines
+        if (parsedLines.length != lines.size()) {
+            // Fallback to per-line parsing if batch parsing fails
+            parsedLines = new String[lines.size()];
+            for (int i = 0; i < lines.size(); i++) {
+                parsedLines[i] = PlaceholderAPI.setPlaceholders(player, lines.get(i));
+            }
+        }
+        
         int lineNumber = lines.size();
-        for (String line : lines) {
+        for (int i = 0; i < lines.size(); i++) {
             Team team = board.getTeam("line_" + lineNumber);
             if (team != null) {
-                // Parse les placeholders PUIS applique les couleurs
-                String parsedLine = PlaceholderAPI.setPlaceholders(player, line);
-                String colored = ScoreboardUtils.color(parsedLine);
+                // Apply colors to the already parsed line
+                String colored = ScoreboardUtils.color(parsedLines[i]);
                 
                 // Vérifier si la ligne a changé depuis la dernière mise à jour
                 String cachedLine = cachedLines.get(lineNumber);

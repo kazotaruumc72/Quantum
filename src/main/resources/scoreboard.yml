@@ -28,3 +28,23 @@ scoreboard:
     - "  <white>%server_online%</white><gray>/<white>%server_max_players%</white>"
     - ""
     - "<dark_gray>━━━━━━━━━━━━━━━━━━━━"
+
+# Messages pour les commandes scoreboard
+messages:
+  scoreboard_enabled: "&aScoreboard activé!"
+  scoreboard_disabled: "&cScoreboard désactivé!"
+  
+  status:
+    enabled: "&aVotre scoreboard est activé"
+    disabled: "&cVotre scoreboard est désactivé"
+  
+  admin:
+    scoreboard_enabled: "&aScoreboard activé pour &e{player}"
+    scoreboard_disabled: "&cScoreboard désactivé pour &e{player}"
+  
+  errors:
+    player_only: "&cCette commande ne peut être exécutée que par un joueur!"
+    player_not_found: "&cJoueur &e{player} &cintrouvable!"
+    no_permission: "&cVous n'avez pas la permission d'utiliser cette commande!"
+    invalid_usage: "&cUtilisation: /qscoreboard [on|off|status] [joueur]"
+    invalid_action: "&cAction invalide! Utilisez: on, off ou status"

@@ -24,11 +24,18 @@ public class UpgradeableHoe extends UpgradeableTool {
     
     @Override
     public ItemStack createTool() {
-        var builder = NexoItems.itemFromId("quantum_hoe_level1");
-        if (builder == null) return null;
+        String nexoId = "quantum_hoe_level1";
+        var builder = NexoItems.itemFromId(nexoId);
+        if (builder == null) {
+            plugin.getQuantumLogger().error("Nexo item not found: " + nexoId + " - Please check that the item exists in your Nexo pack");
+            return null;
+        }
         
         ItemStack tool = builder.build();
-        if (tool == null) return null;
+        if (tool == null) {
+            plugin.getQuantumLogger().error("Failed to build Nexo item: " + nexoId + " - ItemBuilder returned null");
+            return null;
+        }
         
         ItemMeta meta = tool.getItemMeta();
         if (meta != null) {
@@ -84,10 +91,16 @@ public class UpgradeableHoe extends UpgradeableTool {
         
         String newNexoId = "quantum_hoe_level" + nextLevel;
         var builder = NexoItems.itemFromId(newNexoId);
-        if (builder == null) return false;
+        if (builder == null) {
+            plugin.getQuantumLogger().error("Nexo item not found: " + newNexoId + " - Please check that the item exists in your Nexo pack");
+            return false;
+        }
         
         ItemStack newTool = builder.build();
-        if (newTool == null) return false;
+        if (newTool == null) {
+            plugin.getQuantumLogger().error("Failed to build Nexo item: " + newNexoId + " - ItemBuilder returned null");
+            return false;
+        }
         
         ItemMeta oldMeta = tool.getItemMeta();
         ItemMeta newMeta = newTool.getItemMeta();

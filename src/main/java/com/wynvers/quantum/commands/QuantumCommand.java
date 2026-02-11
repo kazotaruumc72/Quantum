@@ -12,6 +12,7 @@ public class QuantumCommand implements CommandExecutor {
     private final StatsCommand statsCommand;
     private final StorageStatsCommand storageStatsCommand;
     private final QuantumTowerCommand towerCommand;
+    private final StructureCommand structureCommand;
 
     public QuantumCommand(Quantum plugin) {
         this.plugin = plugin;
@@ -25,6 +26,7 @@ public class QuantumCommand implements CommandExecutor {
             plugin.getNPCManager(), 
             plugin.getLootManager()
         );
+        this.structureCommand = new StructureCommand(plugin, plugin.getStructureSelectionManager());
     }
 
     @Override
@@ -52,6 +54,13 @@ public class QuantumCommand implements CommandExecutor {
         // Commandes Storage Stats
         if (subCommand.equals("storagestats") || subCommand.equals("sstats")) {
             return storageStatsCommand.onCommand(sender, command, label, args);
+        }
+        
+        // Structure commands - delegate to StructureCommand
+        if (subCommand.equals("structure")) {
+            String[] newArgs = new String[args.length - 1];
+            System.arraycopy(args, 1, newArgs, 0, args.length - 1);
+            return structureCommand.onCommand(sender, command, label, newArgs);
         }
         
         // Tower-related commands - delegate to QuantumTowerCommand
@@ -333,6 +342,9 @@ public class QuantumCommand implements CommandExecutor {
         sender.sendMessage("§e/quantum reload [all|runes|config|towers|price|messages|...]");
         sender.sendMessage("§e/quantum stats [category] §7- Afficher les statistiques");
         sender.sendMessage("§e/quantum storagestats §7- Stats du storage");
+        if (sender.hasPermission("quantum.structure.wand") || sender.hasPermission("quantum.admin")) {
+            sender.sendMessage("§e/quantum structure <wand|create> §7- Gestion des structures");
+        }
         if (sender.hasPermission("quantum.admin.orders")) {
             sender.sendMessage("§e/quantum orders button <create|delete>categorie <nom>");
         }

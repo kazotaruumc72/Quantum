@@ -121,6 +121,7 @@ permissions:
       quantum.healthbar.use: true
       quantum.tool.*: true
       quantum.weapon.*: true
+      quantum.structure.*: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -301,5 +302,21 @@ permissions:
   
   quantum.weapon.give:
     description: Give dungeon weapon to players
+    default: op
+  
+  # Structure system
+  quantum.structure.*:
+    description: All structure permissions
+    default: op
+    children:
+      quantum.structure.wand: true
+      quantum.structure.create: true
+  
+  quantum.structure.wand:
+    description: Get and use structure selection wand
+    default: op
+  
+  quantum.structure.create:
+    description: Create structures from selection
     default: op
 

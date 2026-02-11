@@ -2,6 +2,8 @@ package com.wynvers.quantum.menu;
 
 import com.wynvers.quantum.Quantum;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -135,7 +137,24 @@ public class MenuAction {
     private void playSound(Player player, String soundStr) {
         try {
             String[] parts = soundStr.split(":");
-            Sound sound = Sound.valueOf(parts[0].toUpperCase());
+            String soundInput = parts[0];
+            
+            // Use Registry API instead of deprecated valueOf()
+            // Support both enum-style (ENTITY_PLAYER_LEVELUP) and namespaced format (entity.player.levelup)
+            String soundName = soundInput.toLowerCase();
+            if (soundInput.contains("_")) {
+                // Convert from enum-style to namespaced: ENTITY_PLAYER_LEVELUP -> entity.player.levelup
+                soundName = soundName.replace("_", ".");
+            }
+            
+            Sound sound = Registry.SOUNDS.get(NamespacedKey.minecraft(soundName));
+            
+            if (sound == null) {
+                // Log warning for invalid sounds to aid debugging
+                Bukkit.getLogger().warning("[Quantum] Invalid sound: " + soundStr);
+                return;
+            }
+            
             float volume = parts.length > 1 ? Float.parseFloat(parts[1]) : 1.0f;
             float pitch = parts.length > 2 ? Float.parseFloat(parts[2]) : 1.0f;
             

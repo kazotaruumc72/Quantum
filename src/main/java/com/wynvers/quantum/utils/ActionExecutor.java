@@ -8,6 +8,8 @@ import com.wynvers.quantum.sell.SellSession;
 import com.wynvers.quantum.storage.PlayerStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -426,7 +428,22 @@ public class ActionExecutor {
     private void playSound(Player player, String soundDef) {
         try {
             String[] parts = soundDef.split(":");
-            Sound sound = Sound.valueOf(parts[0].toUpperCase());
+            String soundInput = parts[0];
+            
+            // Use Registry API instead of deprecated valueOf()
+            // Support both enum-style (UI_BUTTON_CLICK) and namespaced format (ui.button.click)
+            String soundName = soundInput.toLowerCase();
+            if (soundInput.contains("_")) {
+                // Convert from enum-style to namespaced: UI_BUTTON_CLICK -> ui.button.click
+                soundName = soundName.replace("_", ".");
+            }
+            
+            Sound sound = Registry.SOUNDS.get(NamespacedKey.minecraft(soundName));
+            
+            if (sound == null) {
+                plugin.getQuantumLogger().warning("Invalid sound: " + soundDef);
+                return;
+            }
             
             float volume = parts.length > 1 ? Float.parseFloat(parts[1]) : 1.0f;
             float pitch = parts.length > 2 ? Float.parseFloat(parts[2]) : 1.0f;

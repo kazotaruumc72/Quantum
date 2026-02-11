@@ -21,7 +21,7 @@ public class ScoreboardUtils {
     // Cache LRU pour les résultats de color() - optimisation performance
     // Thread-safe pour éviter les problèmes de concurrence avec les mises à jour asynchrones
     private static final int CACHE_SIZE = 256;
-    private static final Map<String, String> COLOR_CACHE = java.util.Collections.synchronizedMap(
+    private static final Map<String, String> COLOR_CACHE = Collections.synchronizedMap(
         new LinkedHashMap<String, String>(CACHE_SIZE, 0.75f, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {

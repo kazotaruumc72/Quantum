@@ -52,8 +52,8 @@ public class HealthBarManager {
     // Cache pour le status ModelEngine des mobs
     private final Map<UUID, Boolean> modelEngineCache = new HashMap<>();
     
-    // Cache du plugin ModelEngine (vérifié une seule fois)
-    private Boolean hasModelEnginePlugin = null;
+    // Status du plugin ModelEngine (initialisé une seule fois au démarrage)
+    private final boolean hasModelEnginePlugin;
     
     // Task ID pour le rafraîchissement périodique des positions
     private int updateTaskId = -1;
@@ -184,11 +184,10 @@ public class HealthBarManager {
     public void reload() {
         loadConfig();
         loadMobConfig();
-        // Nettoyer les caches après reload
+        // Nettoyer les caches après reload pour prendre en compte les changements de config
         mobConfigCache.clear();
         modelEngineCache.clear();
-        // Recalculer le status du plugin ModelEngine (en cas de reload/changement)
-        hasModelEnginePlugin = Bukkit.getPluginManager().getPlugin("ModelEngine") != null;
+        // Note: hasModelEnginePlugin n'est pas recalculé car le plugin ne change pas sans redémarrage
     }
     
     /**
@@ -260,7 +259,6 @@ public class HealthBarManager {
     private boolean getModelEngineStatus(LivingEntity mob) {
         UUID uuid = mob.getUniqueId();
         return modelEngineCache.computeIfAbsent(uuid, k -> {
-            // hasModelEnginePlugin est initialisé dans le constructeur, donc pas null ici
             if (!hasModelEnginePlugin) {
                 return false;
             }

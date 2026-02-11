@@ -19,7 +19,11 @@ public class ZoneExitCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        sender.sendMessage("[Quantum] La commande /zoneexit est désactivée (ancien système de zones).");
+        if (sender instanceof Player) {
+            plugin.getMessageManager().sendMessage((Player) sender, "commands.zone-exit-disabled");
+        } else {
+            sender.sendMessage("[Quantum] La commande /zoneexit est désactivée (ancien système de zones).");
+        }
         return true;
     }
 }

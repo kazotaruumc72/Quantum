@@ -32,7 +32,7 @@ public class MenuCommand implements CommandExecutor {
         }
         
         if (args.length == 0) {
-            player.sendMessage("Usage: /menu <menu_name>");
+            plugin.getMessageManager().sendMessage(player, "commands.menu-usage");
             return true;
         }
         

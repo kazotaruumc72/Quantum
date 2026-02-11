@@ -295,3 +295,5 @@ commands:
   no-permission: "<red>✖ Vous n'avez pas la permission d'utiliser cette commande!</red>"
   invalid-player: "<red>✖ Joueur introuvable: <yellow>%player%</yellow></red>"
   menu-opened: "<green>✔ Menu ouvert: <yellow>%menu_name%</yellow></green>"
+  menu-usage: "<yellow>Usage: /menu <menu_name></yellow>"
+  zone-exit-disabled: "<red>[Quantum] La commande /zoneexit est désactivée (ancien système de zones).</red>"

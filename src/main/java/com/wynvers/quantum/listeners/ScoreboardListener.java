@@ -76,10 +76,10 @@ public class ScoreboardListener implements Listener {
     private void startScoreboardUpdate(Player player) {
         long updateInterval = scoreboardConfig.getUpdateInterval();
         
-        // Cache last update lines to avoid unnecessary updates
-        final List<String> lastLines = new ArrayList<>();
-        
         new BukkitRunnable() {
+            // Instance-level cache to track last lines for this specific player's task
+            private final List<String> lastLines = new ArrayList<>();
+            
             @Override
             public void run() {
                 // Vérifier si le joueur est toujours connecté

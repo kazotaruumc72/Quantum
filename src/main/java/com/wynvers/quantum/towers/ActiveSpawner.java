@@ -35,6 +35,9 @@ public class ActiveSpawner implements Listener {
     
     private BukkitTask task;
     private int cleanupTickCounter = 0; // Track ticks for cleanup optimization
+    
+    // Cleanup runs less frequently to reduce overhead
+    private static final int CLEANUP_INTERVAL_TICKS = 100; // 5 seconds
 
     public ActiveSpawner(Quantum plugin, TowerSpawnerConfig config, Player player, 
                          String towerId, TowerManager towerManager) {
@@ -49,9 +52,6 @@ public class ActiveSpawner implements Listener {
 
     public void start() {
         int periodTicks = config.getIntervalSeconds() * 20;
-        
-        // Cleanup task runs less frequently (every 5 seconds) to reduce overhead
-        final int cleanupInterval = 100; // 5 seconds in ticks
 
         this.task = new BukkitRunnable() {
             @Override
@@ -63,7 +63,7 @@ public class ActiveSpawner implements Listener {
 
                 // Nettoyage des morts - only run every 5 seconds instead of every spawn interval
                 cleanupTickCounter += periodTicks;
-                if (cleanupTickCounter >= cleanupInterval) {
+                if (cleanupTickCounter >= CLEANUP_INTERVAL_TICKS) {
                     cleanupTickCounter = 0;
                     cleanupDeadMobs();
                 }

@@ -47,10 +47,11 @@ public class ZoneManager implements Listener {
     private final TowerScoreboardHandler scoreboardHandler;
 
     private final Map<UUID, String> currentRegion = new HashMap<>();
-    private final Map<String, Boolean> regionIsTowerCache = new LinkedHashMap<String, Boolean>(100, 0.75f, true) {
+    private static final int REGION_CACHE_SIZE = 100;
+    private final Map<String, Boolean> regionIsTowerCache = new LinkedHashMap<String, Boolean>(REGION_CACHE_SIZE, 0.75f, true) {
         @Override
         protected boolean removeEldestEntry(Map.Entry<String, Boolean> eldest) {
-            return size() > 100; // Keep cache bounded to 100 entries
+            return size() > REGION_CACHE_SIZE;
         }
     };
     private static final String BYPASS_PERMISSION = "quantum.tower.bypass";

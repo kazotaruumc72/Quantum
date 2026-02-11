@@ -96,7 +96,10 @@ public class ToolListener implements Listener {
      */
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getAction() != Action.LEFT_CLICK_BLOCK) return;
+        // Vérifier que c'est un clic sur un bloc
+        if (event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
         if (event.getClickedBlock() == null) return;
         
         Player player = event.getPlayer();
@@ -114,16 +117,26 @@ public class ToolListener implements Listener {
                 String structureId = structureInfo[0];
                 String stateName = structureInfo[1];
                 
-                // Trigger le job manager
-                jobManager.handleStructureTap(player, structureId, stateName);
+                // Right-click: Afficher la preview
+                if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                    jobManager.showStructureTapPreview(player, structureId, stateName);
+                    event.setCancelled(true);  // Annuler l'event pour éviter d'ouvrir des GUIs
+                    return;
+                }
                 
-                // Dégrader la structure
-                StructureManager.StructureState currentState = StructureManager.StructureState.valueOf(stateName);
-                StructureManager.StructureState newState = structureManager.degradeStructure(blockLocation, structureId, currentState);
-                
-                if (newState != null) {
-                    // Structure dégradée avec succès
-                    event.setCancelled(true);  // Annuler l'event de clic pour éviter la destruction normale du bloc
+                // Left-click: Exécuter l'action
+                if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+                    // Trigger le job manager
+                    jobManager.handleStructureTap(player, structureId, stateName);
+                    
+                    // Dégrader la structure
+                    StructureManager.StructureState currentState = StructureManager.StructureState.valueOf(stateName);
+                    StructureManager.StructureState newState = structureManager.degradeStructure(blockLocation, structureId, currentState);
+                    
+                    if (newState != null) {
+                        // Structure dégradée avec succès
+                        event.setCancelled(true);  // Annuler l'event de clic pour éviter la destruction normale du bloc
+                    }
                 }
             }
         }

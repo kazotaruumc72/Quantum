@@ -127,6 +127,14 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/libs/nexo-1.18.jar</systemPath>
         </dependency>
+        
+        <!-- MythicMobs -->
+        <dependency>
+            <groupId>io.lumine</groupId>
+            <artifactId>Mythic-Dist</artifactId>
+            <version>5.6.1</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

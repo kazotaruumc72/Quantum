@@ -46,8 +46,31 @@ public class ScoreboardUtils {
             return text;
         }
         
-        // Détecter si c'est du MiniMessage (contient < et >)
-        if (text.contains("<") && text.contains(">")) {
+        // Détecter si c'est du MiniMessage (contient des tags connus)
+        // On vérifie la présence de tags MiniMessage courants pour éviter les faux positifs
+        boolean isMiniMessage = text.contains("<") && text.contains(">") && (
+            text.contains("<gradient:") || 
+            text.contains("<bold>") || 
+            text.contains("<italic>") || 
+            text.contains("<underlined>") || 
+            text.contains("<strikethrough>") || 
+            text.contains("<obfuscated>") ||
+            text.contains("<color:") ||
+            // Named colors
+            text.contains("<black>") || text.contains("<dark_blue>") || 
+            text.contains("<dark_green>") || text.contains("<dark_aqua>") || 
+            text.contains("<dark_red>") || text.contains("<dark_purple>") || 
+            text.contains("<gold>") || text.contains("<gray>") || 
+            text.contains("<dark_gray>") || text.contains("<blue>") || 
+            text.contains("<green>") || text.contains("<aqua>") || 
+            text.contains("<red>") || text.contains("<light_purple>") || 
+            text.contains("<yellow>") || text.contains("<white>") ||
+            // Reset and other tags
+            text.contains("<reset>") || text.contains("<rainbow>") ||
+            text.contains("</") // Closing tags like </bold>, </gradient>, etc.
+        );
+        
+        if (isMiniMessage) {
             try {
                 // Parser le MiniMessage en Component
                 Component component = MINI_MESSAGE.deserialize(text);

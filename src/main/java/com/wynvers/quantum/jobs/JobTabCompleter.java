@@ -28,14 +28,15 @@ public class JobTabCompleter implements TabCompleter {
         List<String> completions = new ArrayList<>();
         
         if (args.length == 1) {
-            completions.addAll(Arrays.asList("select", "list", "info", "rewards"));
+            completions.addAll(Arrays.asList("join", "leave", "select", "list", "info", "rewards"));
             return filterCompletions(completions, args[0]);
         }
         
         if (args.length == 2) {
             String subCommand = args[0].toLowerCase();
             
-            if (subCommand.equals("select") || subCommand.equals("choose") || subCommand.equals("info")) {
+            if (subCommand.equals("select") || subCommand.equals("choose") || 
+                subCommand.equals("join") || subCommand.equals("info")) {
                 for (Job job : jobManager.getAllJobs()) {
                     completions.add(job.getId());
                 }

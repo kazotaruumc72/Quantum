@@ -158,3 +158,4 @@ messages:
   booster_expired: "&c✗ Votre booster {booster_name} a expiré!"
   already_has_job: "&cVous avez déjà un métier actif!"
   job_max_level: "&6✦ Vous avez atteint le niveau maximum de {job_name}!"
+  job_left: "&cVous avez quitté le métier: {job_name}"

@@ -211,6 +211,36 @@ public class JobManager {
     }
     
     /**
+     * Supprime le métier d'un joueur
+     */
+    public boolean removeJob(UUID uuid) {
+        JobData data = playerJobs.remove(uuid);
+        if (data == null) {
+            return false;
+        }
+        
+        // Supprimer également les boosters actifs
+        activeBoosters.remove(uuid);
+        
+        // Supprimer de la base de données
+        try (Connection conn = databaseManager.getConnection()) {
+            String query = "DELETE FROM quantum_player_jobs WHERE uuid = ?";
+            
+            try (PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setString(1, uuid.toString());
+                ps.executeUpdate();
+            }
+            
+        } catch (SQLException e) {
+            plugin.getQuantumLogger().error("Failed to remove job data for " + uuid + ": " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+        
+        return true;
+    }
+    
+    /**
      * Récupère le métier actif d'un joueur
      */
     public JobData getPlayerJob(UUID uuid) {

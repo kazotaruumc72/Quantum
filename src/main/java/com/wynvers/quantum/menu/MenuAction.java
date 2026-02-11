@@ -2,6 +2,8 @@ package com.wynvers.quantum.menu;
 
 import com.wynvers.quantum.Quantum;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
@@ -135,7 +137,15 @@ public class MenuAction {
     private void playSound(Player player, String soundStr) {
         try {
             String[] parts = soundStr.split(":");
-            Sound sound = Sound.valueOf(parts[0].toUpperCase());
+            String soundName = parts[0].toLowerCase();
+            
+            // Use Registry API instead of deprecated valueOf()
+            Sound sound = Registry.SOUNDS.get(NamespacedKey.minecraft(soundName));
+            
+            if (sound == null) {
+                return; // Invalid sound, silently ignore
+            }
+            
             float volume = parts.length > 1 ? Float.parseFloat(parts[1]) : 1.0f;
             float pitch = parts.length > 2 ? Float.parseFloat(parts[2]) : 1.0f;
             

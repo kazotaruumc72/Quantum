@@ -15,6 +15,12 @@ import com.wynvers.quantum.tools.ToolListener;
 import com.wynvers.quantum.tools.StructureManager;
 import com.wynvers.quantum.weapon.DungeonWeapon;
 import com.wynvers.quantum.weapon.DungeonWeaponListener;
+import com.wynvers.quantum.jobs.JobManager;
+import com.wynvers.quantum.jobs.JobListener;
+import com.wynvers.quantum.jobs.JobCommand;
+import com.wynvers.quantum.jobs.JobAdminCommand;
+import com.wynvers.quantum.jobs.JobTabCompleter;
+import com.wynvers.quantum.jobs.JobAdminTabCompleter;
 import com.wynvers.quantum.commands.*;
 import com.wynvers.quantum.database.DatabaseManager;
 import com.wynvers.quantum.healthbar.HealthBarListener;
@@ -115,6 +121,9 @@ public final class Quantum extends JavaPlugin {
     private ToolManager toolManager;
     private StructureManager structureManager;
     private DungeonWeapon dungeonWeapon;
+    
+    // Jobs System
+    private JobManager jobManager;
 
     // Utils
     private ActionExecutor actionExecutor;
@@ -283,6 +292,7 @@ public final class Quantum extends JavaPlugin {
         extractResource("tools.yml");
         extractResource("structures.yml");
         extractResource("dungeon_weapon.yml");
+        extractResource("jobs.yml");
 
         // Ancien zones.yml (optionnel, plus utilisé par les tours)
         extractResource("zones.yml");
@@ -459,6 +469,11 @@ public final class Quantum extends JavaPlugin {
         this.dungeonWeapon = new DungeonWeapon(this);
         getServer().getPluginManager().registerEvents(new DungeonWeaponListener(this, dungeonWeapon), this);
         logger.success("✓ Dungeon Weapon System initialized!");
+        
+        // Jobs System
+        this.jobManager = new JobManager(this, databaseManager);
+        getServer().getPluginManager().registerEvents(new JobListener(this, jobManager), this);
+        logger.success("✓ Jobs System initialized! (" + jobManager.getAllJobs().size() + " jobs available)");
     }
 
     // ───────────────────── PlaceholderAPI ─────────────────────
@@ -554,6 +569,15 @@ public final class Quantum extends JavaPlugin {
         if (dungeonWeapon != null) {
             getCommand("weapon").setExecutor(new WeaponCommand(this));
             logger.success("✓ Weapon Command");
+        }
+        
+        // Jobs Commands
+        if (jobManager != null) {
+            getCommand("job").setExecutor(new JobCommand(this, jobManager));
+            getCommand("job").setTabCompleter(new JobTabCompleter(jobManager));
+            getCommand("jobadmin").setExecutor(new JobAdminCommand(this, jobManager));
+            getCommand("jobadmin").setTabCompleter(new JobAdminTabCompleter(jobManager));
+            logger.success("✓ Job Commands + TabCompleters");
         }
 
         logger.success("✓ Commands registered");
@@ -846,6 +870,10 @@ public final class Quantum extends JavaPlugin {
         return structureManager;
     }
     
+    public JobManager getJobManager() {
+        return jobManager;
+    }
+
     public DungeonWeapon getDungeonWeapon() {
         return dungeonWeapon;
     }

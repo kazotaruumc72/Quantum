@@ -1,0 +1,160 @@
+# ========================================
+#  QUANTUM - Jobs System Configuration
+# ========================================
+#
+# Système de métiers complet avec progression
+# - Courbe d'XP identique au système de niveau du donjon
+# - Récompenses automatiques en serpent
+# - Actions onTap sur structures
+# - Support Nexo et MythicMobs
+
+# Configuration des jobs
+jobs:
+  # Bûcheron
+  lumberjack:
+    id: "lumberjack"
+    display_name: "&2⛏ Bûcheron"
+    description:
+      - "&7Coupez des arbres pour gagner"
+      - "&7de l'argent et de l'expérience."
+    icon: "minecraft:IRON_AXE"
+    max_level: 100
+    
+    # Structures valides pour ce job (depuis structures.yml)
+    valid_structures:
+      - "oak_tree_large"
+      - "spruce_tree_snow"
+      - "magic_tree"
+    
+    # Récompenses par niveau (placement automatique en serpent)
+    level_rewards:
+      # Niveau 5
+      5:
+        - type: "console_command"
+          value: "give {player} minecraft:diamond 1"
+        - type: "money"
+          value: "100"
+      
+      # Niveau 10
+      10:
+        - type: "player_command"
+          value: "say J'ai atteint le niveau 10 de bûcheron!"
+        - type: "nexo_item"
+          value: "magic_log"
+          amount: 5
+      
+      # Niveau 15
+      15:
+        - type: "exp_booster"
+          value: "1.5"
+          duration: 3600  # 1 heure en secondes
+          dungeon_only: true
+      
+      # Niveau 20
+      20:
+        - type: "money_booster"
+          value: "2.0"
+          duration: 7200  # 2 heures
+          dungeon_only: false
+      
+      # Niveau 25
+      25:
+        - type: "mythicmobs_item"
+          value: "EnchantedAxe"
+          amount: 1
+      
+      # Niveau 50
+      50:
+        - type: "console_command"
+          value: "lp user {player} permission set quantum.lumberjack.master true"
+        - type: "money"
+          value: "5000"
+  
+  # Mineur
+  miner:
+    id: "miner"
+    display_name: "&8⛏ Mineur"
+    description:
+      - "&7Minez des minerais pour"
+      - "&7progresser dans votre métier."
+    icon: "minecraft:IRON_PICKAXE"
+    max_level: 100
+    
+    valid_structures:
+      - "stone_deposit"
+      - "iron_deposit"
+      - "gold_deposit"
+    
+    level_rewards:
+      5:
+        - type: "money"
+          value: "150"
+      
+      10:
+        - type: "nexo_item"
+          value: "compressed_stone"
+          amount: 10
+      
+      15:
+        - type: "exp_booster"
+          value: "1.3"
+          duration: 1800
+          dungeon_only: true
+      
+      20:
+        - type: "console_command"
+          value: "give {player} minecraft:iron_ingot 32"
+
+# Configuration des récompenses par action
+action_rewards:
+  # Récompense pour avoir tapé une structure (par état de dégradation)
+  structure_tap:
+    whole:  # Structure entière
+      exp: 10
+      money: 5
+    good:   # Bon état
+      exp: 7
+      money: 3
+    damaged:  # Abîmée
+      exp: 5
+      money: 2
+    stump:  # Souche
+      exp: 2
+      money: 1
+
+# Types de boosters
+boosters:
+  exp_booster:
+    display_name: "&6✦ Booster d'XP"
+    lore:
+      - "&7Multiplie l'XP gagnée"
+      - "&7Multiplicateur: &e{multiplier}x"
+      - "&7Durée: &e{duration}"
+      - "&7"
+      - "&c&o{dungeon_note}"
+    dungeon_note_active: "Actif uniquement en donjon"
+    dungeon_note_inactive: "Actif partout"
+  
+  money_booster:
+    display_name: "&a$ Booster d'Argent"
+    lore:
+      - "&7Multiplie l'argent gagné"
+      - "&7Multiplicateur: &e{multiplier}x"
+      - "&7Durée: &e{duration}"
+      - "&7"
+      - "&c&o{dungeon_note}"
+    dungeon_note_active: "Actif uniquement en donjon"
+    dungeon_note_inactive: "Actif partout"
+
+# Messages
+messages:
+  job_selected: "&a✓ Vous avez sélectionné le métier: {job_name}"
+  job_level_up: "&6✦ Niveau supérieur! &7Vous êtes maintenant {job_name} &fniveau {level}&7!"
+  job_reward_received: "&a✓ Récompense débloquée: {reward}"
+  no_job_selected: "&cVous n'avez pas de métier sélectionné!"
+  structure_tapped: "&7+{exp} XP {job_name} &7| +{money}$"
+  invalid_structure: "&cCette structure ne correspond pas à votre métier!"
+  booster_activated: "&a✓ Booster activé: {booster_name} &7(x{multiplier})"
+  booster_expired: "&c✗ Votre booster {booster_name} a expiré!"
+  already_has_job: "&cVous avez déjà un métier actif!"
+  job_max_level: "&6✦ Vous avez atteint le niveau maximum de {job_name}!"

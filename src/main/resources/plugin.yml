@@ -100,6 +100,17 @@ commands:
     description: Manage dungeon weapon
     usage: /weapon <upgrade|info|give>
     aliases: [dweapon, darme, arme]
+  
+  job:
+    description: Manage your job
+    usage: /job [select|list|info|rewards] [args]
+    aliases: [metier, jobs, metiers]
+  
+  jobadmin:
+    description: Manage player jobs (admin)
+    usage: /jobadmin <set|addexp|setlevel|reset|info|reload> [args]
+    aliases: [jadmin, jobsadmin]
+    permission: quantum.job.admin
 
 permissions:
   quantum.*:
@@ -121,6 +132,7 @@ permissions:
       quantum.healthbar.use: true
       quantum.tool.*: true
       quantum.weapon.*: true
+      quantum.job.*: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -301,5 +313,21 @@ permissions:
   
   quantum.weapon.give:
     description: Give dungeon weapon to players
+    default: op
+  
+  # Jobs system
+  quantum.job.*:
+    description: All job permissions
+    default: true
+    children:
+      quantum.job.use: true
+      quantum.job.admin: true
+  
+  quantum.job.use:
+    description: Use job system
+    default: true
+  
+  quantum.job.admin:
+    description: Admin job commands
     default: op
 

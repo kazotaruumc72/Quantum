@@ -158,3 +158,9 @@ messages:
   booster_expired: "&c✗ Votre booster {booster_name} a expiré!"
   already_has_job: "&cVous avez déjà un métier actif!"
   job_max_level: "&6✦ Vous avez atteint le niveau maximum de {job_name}!"
+  
+  # Messages pour le système de preview (NOUVEAU)
+  preview_hint: "&8[&7Clic droit pour aperçu&8]"
+  preview_no_job: "&c⚠ Aucun métier sélectionné"
+  preview_invalid_structure: "&c⚠ Structure invalide pour votre métier"
+  preview_no_rewards: "&7Aucune récompense"

@@ -22,6 +22,10 @@ public class ScoreboardManager {
     private final Map<UUID, Scoreboard> previousBoards = new HashMap<>();
     private final Map<UUID, Boolean> scoreboardEnabled = new HashMap<>();
     
+    // Cache pour les lignes parsées et colorées par joueur
+    // Key: UUID du joueur, Value: Map<lineNumber, parsedAndColoredText>
+    private final Map<UUID, Map<Integer, String>> lineCache = new HashMap<>();
+    
     public ScoreboardManager(Quantum plugin) {
         this.plugin = plugin;
     }
@@ -120,6 +124,9 @@ public class ScoreboardManager {
         Scoreboard board = playerBoards.get(player.getUniqueId());
         if (board == null) return;
         
+        UUID uuid = player.getUniqueId();
+        Map<Integer, String> cachedLines = lineCache.computeIfAbsent(uuid, k -> new HashMap<>());
+        
         int lineNumber = lines.size();
         for (String line : lines) {
             Team team = board.getTeam("line_" + lineNumber);
@@ -127,13 +134,22 @@ public class ScoreboardManager {
                 // Parse les placeholders PUIS applique les couleurs
                 String parsedLine = PlaceholderAPI.setPlaceholders(player, line);
                 String colored = ScoreboardUtils.color(parsedLine);
-                if (colored.length() <= 64) {
-                    team.setPrefix(colored);
-                    team.setSuffix("");
-                } else {
-                    team.setPrefix(colored.substring(0, 64));
-                    String suffix = colored.substring(64, Math.min(colored.length(), 128));
-                    team.setSuffix(suffix);
+                
+                // Vérifier si la ligne a changé depuis la dernière mise à jour
+                String cachedLine = cachedLines.get(lineNumber);
+                if (cachedLine == null || !cachedLine.equals(colored)) {
+                    // La ligne a changé, mettre à jour
+                    if (colored.length() <= 64) {
+                        team.setPrefix(colored);
+                        team.setSuffix("");
+                    } else {
+                        team.setPrefix(colored.substring(0, 64));
+                        String suffix = colored.substring(64, Math.min(colored.length(), 128));
+                        team.setSuffix(suffix);
+                    }
+                    
+                    // Mettre à jour le cache
+                    cachedLines.put(lineNumber, colored);
                 }
             }
             lineNumber--;
@@ -162,6 +178,7 @@ public class ScoreboardManager {
         playerBoards.remove(uuid);
         previousBoards.remove(uuid);
         scoreboardEnabled.remove(uuid);
+        lineCache.remove(uuid); // Nettoyer aussi le cache des lignes
     }
     
     /**

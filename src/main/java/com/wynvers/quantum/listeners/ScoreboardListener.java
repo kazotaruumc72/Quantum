@@ -11,6 +11,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -76,6 +77,9 @@ public class ScoreboardListener implements Listener {
         long updateInterval = scoreboardConfig.getUpdateInterval();
         
         new BukkitRunnable() {
+            // Instance-level cache to track last lines for this specific player's task
+            private final List<String> lastLines = new ArrayList<>();
+            
             @Override
             public void run() {
                 // Vérifier si le joueur est toujours connecté
@@ -102,9 +106,16 @@ public class ScoreboardListener implements Listener {
                     return;
                 }
                 
-                // Mettre à jour avec les lignes brutes - ScoreboardManager gère PlaceholderAPI et MiniMessage
+                // Get current lines
                 List<String> lines = scoreboardConfig.getLines();
-                scoreboardManager.updateAllLines(player, lines);
+                
+                // Only update if lines have changed (reduces unnecessary updates)
+                if (!lines.equals(lastLines)) {
+                    lastLines.clear();
+                    lastLines.addAll(lines);
+                    // Mettre à jour avec les lignes brutes - ScoreboardManager gère PlaceholderAPI et MiniMessage
+                    scoreboardManager.updateAllLines(player, lines);
+                }
             }
         }.runTaskTimer(plugin, updateInterval, updateInterval);
     }

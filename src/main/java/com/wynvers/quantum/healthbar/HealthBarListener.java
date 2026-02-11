@@ -20,6 +20,9 @@ public class HealthBarListener implements Listener {
     private final Quantum plugin;
     private final HealthBarManager healthBarManager;
     
+    // Configurable radius for health bar updates (reduced from 50 to 32 blocks)
+    private static final double HEALTH_BAR_UPDATE_RADIUS = 32.0;
+    
     public HealthBarListener(Quantum plugin, HealthBarManager healthBarManager) {
         this.plugin = plugin;
         this.healthBarManager = healthBarManager;
@@ -55,13 +58,21 @@ public class HealthBarListener implements Listener {
         // - Sans ce délai, la healthbar serait calculée avec un nom vide ou incorrect
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             if (entity.isValid() && !entity.isDead()) {
-                // Mettre à jour pour tous les joueurs dans un rayon de 50 blocs
-                entity.getWorld().getNearbyEntities(entity.getLocation(), 50, 50, 50).stream()
-                    .filter(e -> e instanceof Player)
-                    .map(e -> (Player) e)
-                    .forEach(player -> healthBarManager.updateMobHealthDisplay(entity, player));
+                // Mettre à jour pour tous les joueurs dans le rayon configuré
+                updateHealthBarForNearbyPlayers(entity);
             }
         }, 2L);
+    }
+    
+    /**
+     * Update health bar for all nearby players within configured radius
+     */
+    private void updateHealthBarForNearbyPlayers(LivingEntity entity) {
+        entity.getWorld().getNearbyEntities(entity.getLocation(), 
+                HEALTH_BAR_UPDATE_RADIUS, HEALTH_BAR_UPDATE_RADIUS, HEALTH_BAR_UPDATE_RADIUS).stream()
+            .filter(e -> e instanceof Player)
+            .map(e -> (Player) e)
+            .forEach(player -> healthBarManager.updateMobHealthDisplay(entity, player));
     }
     
     /**
@@ -89,11 +100,8 @@ public class HealthBarListener implements Listener {
         // Mettre à jour après les dégâts
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             if (entity.isValid() && !entity.isDead()) {
-                // Mettre à jour pour tous les joueurs dans un rayon de 50 blocs
-                entity.getWorld().getNearbyEntities(entity.getLocation(), 50, 50, 50).stream()
-                    .filter(e -> e instanceof Player)
-                    .map(e -> (Player) e)
-                    .forEach(player -> healthBarManager.updateMobHealthDisplay(entity, player));
+                // Mettre à jour pour tous les joueurs dans le rayon configuré
+                updateHealthBarForNearbyPlayers(entity);
             }
         }, 1L);
     }
@@ -111,10 +119,7 @@ public class HealthBarListener implements Listener {
         // Mettre à jour après la régénération
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             if (entity.isValid() && !entity.isDead()) {
-                entity.getWorld().getNearbyEntities(entity.getLocation(), 50, 50, 50).stream()
-                    .filter(e -> e instanceof Player)
-                    .map(e -> (Player) e)
-                    .forEach(player -> healthBarManager.updateMobHealthDisplay(entity, player));
+                updateHealthBarForNearbyPlayers(entity);
             }
         }, 1L);
     }
@@ -130,7 +135,7 @@ public class HealthBarListener implements Listener {
         plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
             player.getWorld().getLivingEntities().stream()
                 .filter(entity -> !(entity instanceof Player))
-                .filter(entity -> entity.getLocation().distance(player.getLocation()) <= 50)
+                .filter(entity -> entity.getLocation().distance(player.getLocation()) <= HEALTH_BAR_UPDATE_RADIUS)
                 .forEach(entity -> healthBarManager.updateMobHealthDisplay(entity, player));
         }, 20L);
     }

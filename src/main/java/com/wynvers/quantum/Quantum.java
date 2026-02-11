@@ -13,6 +13,8 @@ import com.wynvers.quantum.crops.CustomCropListener;
 import com.wynvers.quantum.tools.ToolManager;
 import com.wynvers.quantum.tools.ToolListener;
 import com.wynvers.quantum.tools.StructureManager;
+import com.wynvers.quantum.tools.StructureSelectionManager;
+import com.wynvers.quantum.tools.StructureSelectionListener;
 import com.wynvers.quantum.weapon.DungeonWeapon;
 import com.wynvers.quantum.weapon.DungeonWeaponListener;
 import com.wynvers.quantum.commands.*;
@@ -114,6 +116,7 @@ public final class Quantum extends JavaPlugin {
     private CustomCropManager customCropManager;
     private ToolManager toolManager;
     private StructureManager structureManager;
+    private StructureSelectionManager structureSelectionManager;
     private DungeonWeapon dungeonWeapon;
 
     // Utils
@@ -452,8 +455,11 @@ public final class Quantum extends JavaPlugin {
         // Tools System
         this.toolManager = new ToolManager(this);
         this.structureManager = new StructureManager(this);
+        this.structureSelectionManager = new StructureSelectionManager();
         getServer().getPluginManager().registerEvents(new ToolListener(this, toolManager), this);
+        getServer().getPluginManager().registerEvents(new StructureSelectionListener(this, structureSelectionManager), this);
         logger.success("✓ Tools System initialized! (Pickaxe, Axe, Hoe)");
+        logger.success("✓ Structure Selection System initialized!");
         
         // Dungeon Weapon System
         this.dungeonWeapon = new DungeonWeapon(this);
@@ -844,6 +850,10 @@ public final class Quantum extends JavaPlugin {
     
     public StructureManager getStructureManager() {
         return structureManager;
+    }
+    
+    public StructureSelectionManager getStructureSelectionManager() {
+        return structureSelectionManager;
     }
     
     public DungeonWeapon getDungeonWeapon() {

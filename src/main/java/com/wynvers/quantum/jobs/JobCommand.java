@@ -40,11 +40,17 @@ public class JobCommand implements CommandExecutor {
         switch (subCommand) {
             case "select":
             case "choose":
+            case "join":
                 if (args.length < 2) {
-                    player.sendMessage(ChatColor.RED + "Usage: /job select <métier>");
+                    player.sendMessage(ChatColor.RED + "Usage: /job join <métier>");
                     return true;
                 }
                 selectJob(player, args[1]);
+                break;
+                
+            case "leave":
+            case "quit":
+                leaveJob(player);
                 break;
                 
             case "list":
@@ -79,7 +85,8 @@ public class JobCommand implements CommandExecutor {
             default:
                 player.sendMessage(ChatColor.RED + "Sous-commande inconnue. Usage:");
                 player.sendMessage(ChatColor.GRAY + "/job - Afficher vos informations de métier");
-                player.sendMessage(ChatColor.GRAY + "/job select|choose <métier> - Choisir un métier");
+                player.sendMessage(ChatColor.GRAY + "/job join <métier> - Rejoindre un métier");
+                player.sendMessage(ChatColor.GRAY + "/job leave - Quitter votre métier");
                 player.sendMessage(ChatColor.GRAY + "/job list - Lister tous les métiers");
                 player.sendMessage(ChatColor.GRAY + "/job info [métier] - Info sur un métier");
                 player.sendMessage(ChatColor.GRAY + "/job rewards - Voir les prochaines récompenses");
@@ -149,6 +156,25 @@ public class JobCommand implements CommandExecutor {
         if (jobManager.setJob(player.getUniqueId(), jobId.toLowerCase())) {
             String message = jobManager.getConfig().getString("messages.job_selected", "")
                 .replace("{job_name}", job.getDisplayName());
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+        }
+    }
+    
+    private void leaveJob(Player player) {
+        JobData currentJob = jobManager.getPlayerJob(player.getUniqueId());
+        
+        if (currentJob == null) {
+            player.sendMessage(jobManager.getConfig().getString("messages.no_job_selected", ""));
+            return;
+        }
+        
+        Job job = jobManager.getJob(currentJob.getJobId());
+        String jobName = job != null ? job.getDisplayName() : currentJob.getJobId();
+        
+        if (jobManager.removeJob(player.getUniqueId())) {
+            String message = jobManager.getConfig().getString("messages.job_left", 
+                "&cVous avez quitté le métier: {job_name}")
+                .replace("{job_name}", jobName);
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
         }
     }

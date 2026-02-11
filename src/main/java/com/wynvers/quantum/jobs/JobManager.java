@@ -6,6 +6,7 @@ import com.wynvers.quantum.database.DatabaseManager;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -77,8 +78,20 @@ public class JobManager {
             String icon = jobSection.getString("icon", "minecraft:STONE");
             int maxLevel = jobSection.getInt("max_level", 100);
             List<String> validStructures = jobSection.getStringList("valid_structures");
+            List<String> validNexoBlocks = jobSection.getStringList("valid_nexo_blocks");
+            List<String> validNexoFurniture = jobSection.getStringList("valid_nexo_furniture");
             
-            Job job = new Job(jobId, displayName, description, icon, maxLevel, validStructures);
+            // Charger les actions autorisées
+            Map<String, Boolean> allowedActions = new HashMap<>();
+            ConfigurationSection actionsSection = jobSection.getConfigurationSection("allowed_actions");
+            if (actionsSection != null) {
+                for (String actionType : actionsSection.getKeys(false)) {
+                    allowedActions.put(actionType, actionsSection.getBoolean(actionType));
+                }
+            }
+            
+            Job job = new Job(jobId, displayName, description, icon, maxLevel, 
+                validStructures, validNexoBlocks, validNexoFurniture, allowedActions);
             
             // Charger les récompenses de niveau
             ConfigurationSection rewardsSection = jobSection.getConfigurationSection("level_rewards");
@@ -210,6 +223,36 @@ public class JobManager {
         // Créer ou remplacer les données de métier
         JobData data = new JobData(uuid, jobId, 1, 0);
         playerJobs.put(uuid, data);
+        
+        return true;
+    }
+    
+    /**
+     * Supprime le métier d'un joueur
+     */
+    public boolean removeJob(UUID uuid) {
+        JobData data = playerJobs.remove(uuid);
+        if (data == null) {
+            return false;
+        }
+        
+        // Supprimer également les boosters actifs
+        activeBoosters.remove(uuid);
+        
+        // Supprimer de la base de données
+        try (Connection conn = databaseManager.getConnection()) {
+            String query = "DELETE FROM quantum_player_jobs WHERE uuid = ?";
+            
+            try (PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setString(1, uuid.toString());
+                ps.executeUpdate();
+            }
+            
+        } catch (SQLException e) {
+            plugin.getQuantumLogger().error("Failed to remove job data for " + uuid + ": " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
         
         return true;
     }
@@ -483,6 +526,123 @@ public class JobManager {
     }
     
     /**
+     * Traite une action générique pour un job
+     * @param player Le joueur qui effectue l'action
+     * @param actionType Type d'action (break, place, hit, fish, drink, eat, kill)
+     * @param itemId ID de l'item/block concerné (optionnel)
+     */
+    public void handleAction(Player player, String actionType, String itemId) {
+        JobData jobData = playerJobs.get(player.getUniqueId());
+        if (jobData == null) {
+            return; // Pas de message si pas de job, on laisse le joueur jouer normalement
+        }
+        
+        Job job = jobs.get(jobData.getJobId());
+        if (job == null) return;
+        
+        // Vérifier si l'action est autorisée pour ce métier
+        if (!job.isActionAllowed(actionType)) {
+            return; // Action non autorisée pour ce job, on ignore silencieusement
+        }
+        
+        // Récupérer les récompenses de l'action
+        ConfigurationSection actionRewards = config.getConfigurationSection("action_rewards." + actionType);
+        if (actionRewards == null) return;
+        
+        int baseExp = actionRewards.getInt("exp", 0);
+        double baseMoney = actionRewards.getDouble("money", 0.0);
+        
+        // Vérifier si le joueur est dans un donjon
+        boolean inDungeon = isPlayerInDungeon(player);
+        
+        // Appliquer les multiplicateurs
+        double expMultiplier = getExpMultiplier(player.getUniqueId(), inDungeon);
+        double moneyMultiplier = getMoneyMultiplier(player.getUniqueId(), inDungeon);
+        
+        int finalExp = (int) (baseExp * expMultiplier);
+        double finalMoney = baseMoney * moneyMultiplier;
+        
+        // Donner XP et argent
+        if (finalExp > 0) {
+            addExp(player.getUniqueId(), finalExp);
+        }
+        
+        Economy economy = plugin.getVaultManager().getEconomy();
+        if (economy != null && finalMoney > 0) {
+            economy.depositPlayer(player, finalMoney);
+        }
+        
+        // Message si des récompenses ont été données
+        if (finalExp > 0 || finalMoney > 0) {
+            String message = config.getString("messages.action_performed", 
+                "&7+{exp} XP {job_name} &7| +{money}$")
+                .replace("{exp}", String.valueOf(finalExp))
+                .replace("{job_name}", job.getDisplayName())
+                .replace("{money}", String.format("%.1f", finalMoney))
+                .replace("{action}", actionType);
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+        }
+    }
+    
+    /**
+     * Traite l'interaction avec un block/furniture Nexo
+     */
+    public void handleNexoInteraction(Player player, String nexoId, boolean isFurniture) {
+        JobData jobData = playerJobs.get(player.getUniqueId());
+        if (jobData == null) {
+            return;
+        }
+        
+        Job job = jobs.get(jobData.getJobId());
+        if (job == null) return;
+        
+        // Vérifier si le block/furniture est valide pour ce métier
+        boolean isValid = isFurniture ? job.isValidNexoFurniture(nexoId) : job.isValidNexoBlock(nexoId);
+        if (!isValid) {
+            return;
+        }
+        
+        // Utiliser les récompenses de nexo_interaction
+        String sectionKey = isFurniture ? "nexo_furniture" : "nexo_block";
+        ConfigurationSection actionRewards = config.getConfigurationSection("action_rewards." + sectionKey);
+        if (actionRewards == null) return;
+        
+        int baseExp = actionRewards.getInt("exp", 0);
+        double baseMoney = actionRewards.getDouble("money", 0.0);
+        
+        // Vérifier si le joueur est dans un donjon
+        boolean inDungeon = isPlayerInDungeon(player);
+        
+        // Appliquer les multiplicateurs
+        double expMultiplier = getExpMultiplier(player.getUniqueId(), inDungeon);
+        double moneyMultiplier = getMoneyMultiplier(player.getUniqueId(), inDungeon);
+        
+        int finalExp = (int) (baseExp * expMultiplier);
+        double finalMoney = baseMoney * moneyMultiplier;
+        
+        // Donner XP et argent
+        if (finalExp > 0) {
+            addExp(player.getUniqueId(), finalExp);
+        }
+        
+        Economy economy = plugin.getVaultManager().getEconomy();
+        if (economy != null && finalMoney > 0) {
+            economy.depositPlayer(player, finalMoney);
+        }
+        
+        // Message
+        if (finalExp > 0 || finalMoney > 0) {
+            String message = config.getString("messages.nexo_interaction", 
+                "&7+{exp} XP {job_name} &7| +{money}$")
+                .replace("{exp}", String.valueOf(finalExp))
+                .replace("{job_name}", job.getDisplayName())
+                .replace("{money}", String.format("%.1f", finalMoney))
+                .replace("{nexo_id}", nexoId);
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+        }
+    }
+    
+    /**
      * Vérifie si un joueur est dans un donjon
      */
     private boolean isPlayerInDungeon(Player player) {
@@ -522,6 +682,85 @@ public class JobManager {
                 }
             }
         }, 20L * 60L, 20L * 60L);  // Every 60 seconds
+    }
+    
+    /**
+     * Récupère le classement d'un joueur pour son métier actuel
+     * @return Position dans le classement (1 = premier), ou -1 si pas de métier
+     */
+    public int getPlayerRank(UUID uuid) {
+        JobData playerData = playerJobs.get(uuid);
+        if (playerData == null) {
+            return -1;
+        }
+        
+        String jobId = playerData.getJobId();
+        
+        // Récupérer tous les joueurs avec le même métier depuis la base de données
+        try (Connection conn = databaseManager.getConnection()) {
+            String query = "SELECT uuid, level, exp FROM quantum_player_jobs WHERE job_id = ? ORDER BY level DESC, exp DESC";
+            
+            try (PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setString(1, jobId);
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    int rank = 1;
+                    while (rs.next()) {
+                        if (rs.getString("uuid").equals(uuid.toString())) {
+                            return rank;
+                        }
+                        rank++;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getQuantumLogger().error("Failed to get player rank: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return -1;
+    }
+    
+    /**
+     * Récupère le top N des joueurs pour un métier donné
+     * @param jobId ID du métier
+     * @param limit Nombre de joueurs à récupérer
+     * @return Liste des données de joueurs, triée par niveau décroissant
+     */
+    public List<JobData> getTopPlayers(String jobId, int limit) {
+        List<JobData> topPlayers = new ArrayList<>();
+        
+        try (Connection conn = databaseManager.getConnection()) {
+            String query = "SELECT uuid, job_id, level, exp FROM quantum_player_jobs WHERE job_id = ? ORDER BY level DESC, exp DESC LIMIT ?";
+            
+            try (PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setString(1, jobId);
+                ps.setInt(2, limit);
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        UUID uuid = UUID.fromString(rs.getString("uuid"));
+                        String job = rs.getString("job_id");
+                        int level = rs.getInt("level");
+                        int exp = rs.getInt("exp");
+                        
+                        topPlayers.add(new JobData(uuid, job, level, exp));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getQuantumLogger().error("Failed to get top players: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return topPlayers;
+    }
+    
+    /**
+     * Récupère les boosters actifs d'un joueur
+     */
+    public List<ActiveBooster> getActiveBoosters(UUID uuid) {
+        return activeBoosters.getOrDefault(uuid, new ArrayList<>());
     }
     
     public void reload() {

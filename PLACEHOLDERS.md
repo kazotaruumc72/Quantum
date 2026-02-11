@@ -45,6 +45,52 @@
 
 ---
 
+### 💼 **Système de Métiers (Jobs System)**
+
+#### Informations du métier actuel
+
+| Placeholder | Description | Exemple de résultat |
+|------------|-------------|----------------------|
+| `%quantum_job_name%` | Nom du métier actuel | `Bûcheron`, `Aucun` |
+| `%quantum_job_level%` | Niveau du métier | `15` |
+| `%quantum_job_exp%` | Expérience actuelle | `450` |
+| `%quantum_job_exp_needed%` | Expérience nécessaire pour le prochain niveau | `1000` |
+| `%quantum_job_exp_progress%` | Progression de l'expérience | `450/1000` |
+| `%quantum_job_rank%` | Classement du joueur dans son métier | `3`, `N/A` |
+
+#### Boosters actifs
+
+| Placeholder | Description | Exemple de résultat |
+|------------|-------------|----------------------|
+| `%quantum_job_booster_exp%` | Multiplicateur d'XP actif | `1.5`, `1.0` |
+| `%quantum_job_booster_money%` | Multiplicateur d'argent actif | `2.0`, `1.0` |
+| `%quantum_job_boosters_active%` | Nombre de boosters actifs | `2`, `0` |
+
+**Notes sur les boosters:**
+- Les boosters "dungeon_only" sont pris en compte uniquement si le joueur est dans un donjon
+- Si aucun booster n'est actif, les multiplicateurs retournent `1.0`
+- Les multiplicateurs sont formatés avec 1 décimale
+
+#### Classements (Leaderboards)
+
+| Placeholder | Description | Exemple de résultat |
+|------------|-------------|----------------------|
+| `%quantum_job_top_<job>_<position>%` | Nom du joueur à la position N | `Kazotaruu`, `N/A` |
+| `%quantum_job_top_<job>_<position>_level%` | Niveau du joueur à la position N | `50`, `0` |
+
+**Exemples:**
+- `%quantum_job_top_lumberjack_1%` → Nom du #1 en bûcheron
+- `%quantum_job_top_miner_3%` → Nom du #3 en mineur
+- `%quantum_job_top_lumberjack_1_level%` → Niveau du #1 en bûcheron
+- `%quantum_job_top_miner_5_level%` → Niveau du #5 en mineur
+
+**Notes:**
+- Les classements sont calculés en temps réel depuis la base de données
+- Le tri est fait par niveau décroissant, puis par XP décroissante
+- Si la position demandée n'existe pas, retourne `N/A` pour le nom et `0` pour le niveau
+
+---
+
 ### 🏯 **Système de Tours (Tower System)**
 
 #### Progression globale

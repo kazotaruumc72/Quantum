@@ -23,7 +23,6 @@ public class ArmorManager {
     private final JavaPlugin plugin;
     private final DungeonArmor dungeonArmor;
     private final Map<Player, Map<RuneType, Integer>> playerRunes = new WeakHashMap<>();
-    private final Map<Player, Integer> playerRegenTicks = new WeakHashMap<>();
     
     public ArmorManager(JavaPlugin plugin, DungeonArmor dungeonArmor) {
         this.plugin = plugin;
@@ -67,7 +66,6 @@ public class ArmorManager {
         applySpeedBonus(player, combinedRunes);
         applyResistanceBonus(player, combinedRunes);
         applyJumpEffect(player); // <- nouveau : rune AGILITY = saut
-        initializeRegenTicks(player);
     }
     
     /**
@@ -176,14 +174,8 @@ public class ArmorManager {
     }
     
     /**
-     * Initialise le compteur de ticks pour la régén
-     */
-    private void initializeRegenTicks(Player player) {
-        playerRegenTicks.put(player, 0);
-    }
-    
-    /**
      * Timer principal pour les effets passifs (régén, etc)
+     * Optimisé pour exécuter toutes les 20 ticks (1 seconde) au lieu de chaque tick
      */
     private void startRegenTickTimer() {
         new BukkitRunnable() {
@@ -200,19 +192,13 @@ public class ArmorManager {
                         int level = runes.get(RuneType.REGENERATION);
                         double regenPerSecond = RuneType.REGENERATION.getRegeneration(level);
                         
-                        // Appliquer la régénération tous les 20 ticks (1 seconde)
-                        int ticks = playerRegenTicks.getOrDefault(player, 0);
-                        if (ticks >= 20) {
-                            double newHealth = Math.min(player.getMaxHealth(), player.getHealth() + regenPerSecond);
-                            player.setHealth(newHealth);
-                            playerRegenTicks.put(player, 0);
-                        } else {
-                            playerRegenTicks.put(player, ticks + 1);
-                        }
+                        // Appliquer la régénération directement (tâche exécutée toutes les secondes)
+                        double newHealth = Math.min(player.getMaxHealth(), player.getHealth() + regenPerSecond);
+                        player.setHealth(newHealth);
                     }
                 }
             }
-        }.runTaskTimer(plugin, 0, 1);
+        }.runTaskTimer(plugin, 20L, 20L); // Exécuter toutes les 20 ticks (1 seconde) au lieu de chaque tick
     }
     
     /**
@@ -220,7 +206,6 @@ public class ArmorManager {
      */
     public void clearArmorBonuses(Player player) {
         playerRunes.remove(player);
-        playerRegenTicks.remove(player);
         player.setWalkSpeed(0.2f); // Vitesse par défaut
         player.removePotionEffect(PotionEffectType.JUMP_BOOST); // on retire aussi le jump
     }

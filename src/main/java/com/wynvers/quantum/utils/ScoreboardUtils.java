@@ -5,6 +5,10 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Collections;
+
 public class ScoreboardUtils {
     
     // Instance statique de MiniMessage pour parsing
@@ -13,6 +17,18 @@ public class ScoreboardUtils {
     // Serializer pour convertir Component en legacy text (§c format)
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = 
         LegacyComponentSerializer.legacySection();
+    
+    // Cache LRU pour les résultats de color() - optimisation performance
+    // Thread-safe pour éviter les problèmes de concurrence avec les mises à jour asynchrones
+    private static final int CACHE_SIZE = 256;
+    private static final Map<String, String> COLOR_CACHE = Collections.synchronizedMap(
+        new LinkedHashMap<String, String>(CACHE_SIZE, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
+                return size() > CACHE_SIZE;
+            }
+        }
+    );
     
     /**
      * Génère un caractère invisible unique pour chaque ligne
@@ -46,6 +62,12 @@ public class ScoreboardUtils {
             return text;
         }
         
+        // Vérifier le cache d'abord pour éviter le re-parsing
+        String cached = COLOR_CACHE.get(text);
+        if (cached != null) {
+            return cached;
+        }
+        
         // Détecter si c'est du MiniMessage (contient des tags connus)
         // On vérifie la présence de tags MiniMessage courants pour éviter les faux positifs
         boolean isMiniMessage = text.contains("<") && text.contains(">") && (
@@ -70,19 +92,31 @@ public class ScoreboardUtils {
             text.contains("</") // Closing tags like </bold>, </gradient>, etc.
         );
         
+        String result;
         if (isMiniMessage) {
             try {
                 // Parser le MiniMessage en Component
                 Component component = MINI_MESSAGE.deserialize(text);
                 // Convertir le Component en format legacy (§c)
-                return LEGACY_SERIALIZER.serialize(component);
+                result = LEGACY_SERIALIZER.serialize(component);
             } catch (Exception e) {
                 // Si le parsing échoue, fallback sur legacy
-                return ChatColor.translateAlternateColorCodes('&', text);
+                result = ChatColor.translateAlternateColorCodes('&', text);
             }
+        } else {
+            // Sinon, traiter comme du legacy format (&c -> §c)
+            result = ChatColor.translateAlternateColorCodes('&', text);
         }
         
-        // Sinon, traiter comme du legacy format (&c -> §c)
-        return ChatColor.translateAlternateColorCodes('&', text);
+        // Mettre en cache le résultat
+        COLOR_CACHE.put(text, result);
+        return result;
+    }
+    
+    /**
+     * Vide le cache de coloration (utile lors du rechargement de la config)
+     */
+    public static void clearCache() {
+        COLOR_CACHE.clear();
     }
 }

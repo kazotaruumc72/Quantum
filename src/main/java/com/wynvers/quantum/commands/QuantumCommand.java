@@ -202,6 +202,8 @@ public class QuantumCommand implements CommandExecutor {
                         case "scoreboard.yml":
                             if (plugin.getScoreboardConfig() != null) {
                                 plugin.getScoreboardConfig().reload();
+                                // Vider le cache de couleurs pour forcer le re-parsing
+                                com.wynvers.quantum.utils.ScoreboardUtils.clearCache();
                                 sender.sendMessage("§a§l✓ §ascoreboard.yml rechargé!");
                             }
                             break;
@@ -333,6 +335,9 @@ public class QuantumCommand implements CommandExecutor {
         if (plugin.getToolManager() != null) plugin.getToolManager().reload();
         if (plugin.getStructureManager() != null) plugin.getStructureManager().reload();
         if (plugin.getDungeonWeapon() != null) plugin.getDungeonWeapon().reload();
+        
+        // Vider le cache de couleurs après tous les rechargements
+        com.wynvers.quantum.utils.ScoreboardUtils.clearCache();
 
         sender.sendMessage("§a§l✓ §aTout a été rechargé avec succès!");
     }

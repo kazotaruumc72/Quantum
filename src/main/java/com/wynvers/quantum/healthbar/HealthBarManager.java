@@ -60,7 +60,8 @@ public class HealthBarManager {
      * Démarre une tâche périodique pour mettre à jour les positions des TextDisplay
      */
     private void startPositionUpdateTask() {
-        // Mise à jour toutes les 5 ticks (4 fois par seconde) pour un mouvement fluide
+        // Mise à jour toutes les 10 ticks (2 fois par seconde) pour un mouvement fluide et optimisé
+        // Réduit de 5 ticks à 10 ticks pour améliorer les performances
         updateTaskId = plugin.getServer().getScheduler().runTaskTimer(plugin, () -> {
             // Collection pour stocker les entrées invalides à supprimer
             java.util.List<UUID> toRemove = new java.util.ArrayList<>();
@@ -97,10 +98,11 @@ public class HealthBarManager {
                         }
                     }
                     
-                    // Mettre à jour la position si le mob a bougé
-                    // Utilise distanceSquared pour éviter le coût de la racine carrée
+                    // Mettre à jour la position seulement si le mob a bougé de manière significative
+                    // Note: distanceSquared retourne le carré de la distance
+                    // 0.0025 = (0.05)^2, so threshold is 0.05 blocks of real distance
                     Location newLoc = mob.getLocation().add(0, yOffset, 0);
-                    if (newLoc.distanceSquared(display.getLocation()) > 0.01) {
+                    if (newLoc.distanceSquared(display.getLocation()) > 0.0025) {
                         display.teleport(newLoc);
                     }
                 } else {
@@ -112,7 +114,7 @@ public class HealthBarManager {
             // Supprimer les entrées invalides
             toRemove.forEach(mobHealthDisplays::remove);
             
-        }, 5L, 5L).getTaskId(); // 5 ticks de délai initial, puis toutes les 5 ticks
+        }, 10L, 10L).getTaskId(); // 10 ticks de délai initial, puis toutes les 10 ticks
     }
     
     /**

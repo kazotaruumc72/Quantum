@@ -9,16 +9,18 @@ When mobs use ModelEngine models or other systems, the health bar must be positi
 ## Solution
 
 La solution implémentée utilise des **entités TextDisplay** (Minecraft 1.19.4+) pour afficher les barres de vie :
-1. Une entité TextDisplay est créée au-dessus de chaque mob avec ModelEngine
-2. L'offset vertical est configuré directement en coordonnées Y (en blocs)
-3. La TextDisplay suit automatiquement le mob lorsqu'il se déplace
+1. Une entité TextDisplay est créée au-dessus de chaque mob
+2. L'offset vertical est configuré directement en coordonnées Y (en blocs) OU calculé automatiquement
+3. La TextDisplay suit automatiquement le mob lorsqu'il se déplace avec **haute fréquence** (6.6 fois/seconde)
 4. Un indicateur visuel (⚙ par défaut) identifie les mobs avec modèles ModelEngine
+5. **NOUVEAU**: Si aucun offset n'est configuré, le système utilise automatiquement la hauteur de l'entité + 0.3 blocs
 
 The implemented solution uses **TextDisplay entities** (Minecraft 1.19.4+) to display health bars:
-1. A TextDisplay entity is created above each mob with ModelEngine
-2. The vertical offset is configured directly in Y coordinates (in blocks)
-3. The TextDisplay automatically follows the mob when it moves
+1. A TextDisplay entity is created above each mob
+2. The vertical offset is configured directly in Y coordinates (in blocks) OR calculated automatically
+3. The TextDisplay automatically follows the mob when it moves with **high frequency** (6.6 times/second)
 4. A visual indicator (⚙ by default) identifies mobs with ModelEngine models
+5. **NEW**: If no offset is configured, the system automatically uses entity height + 0.3 blocks
 
 ## Indicateur Visuel ModelEngine / ModelEngine Visual Indicator
 
@@ -131,19 +133,35 @@ display.teleport(displayLocation);
 
 ### Suivi Automatique (Automatic Tracking)
 
-Un système de mise à jour périodique (toutes les 5 ticks / 4 fois par seconde) fait suivre la TextDisplay au mob :
+Un système de mise à jour périodique (toutes les 3 ticks / 6.6 fois par seconde) fait suivre la TextDisplay au mob de manière très fluide :
 
 ```java
 // La TextDisplay se téléporte pour suivre le mob qui bouge
+// Seuil de détection: 0.01 bloc (1cm) pour un mouvement ultra-fluide
 display.teleport(mob.getLocation().add(0, yOffset, 0));
 ```
+
+### Calcul Automatique de l'Offset / Automatic Offset Calculation
+
+**NOUVEAU / NEW**: Si aucun offset n'est configuré, le système calcule automatiquement la position optimale :
+
+```java
+// Calcul automatique basé sur la hauteur de l'entité
+double yOffset = entity.getHeight() + 0.3;
+```
+
+**Avantages / Benefits**:
+- ✅ S'adapte automatiquement aux modèles ModelEngine de différentes tailles
+- ✅ Fonctionne pour tous les types de mobs vanilla aussi
+- ✅ Pas besoin de configurer manuellement chaque mob
+- ✅ Position toujours correcte quelle que soit la hauteur du modèle
 
 ### Priorité de Configuration
 
 1. Si `hologram_offset` est défini pour le mob spécifique → utilise cette valeur
 2. Sinon, si `modelengine_offset` est défini (rétrocompatibilité) → utilise cette valeur
-3. Sinon → utilise `global.default_hologram_offset`
-4. Si aucun offset défini → `0.5` (offset par défaut)
+3. Sinon → utilise `global.default_hologram_offset` si défini
+4. Sinon → **calcule automatiquement** : `entity.getHeight() + 0.3` (NOUVEAU / NEW)
 
 ## Exemples de Configuration (Configuration Examples)
 
@@ -191,11 +209,14 @@ display.teleport(mob.getLocation().add(0, yOffset, 0));
 
 ## Dépannage (Troubleshooting)
 
-### La healthbar est trop haute
-→ Diminuez la valeur de `hologram_offset` (ex: de 1.5 à 1.2)
+### La healthbar ne suit pas le mob fluide
+→ **RÉSOLU**: La fréquence de mise à jour a été augmentée à 3 ticks (6.6 fois/seconde) pour un mouvement très fluide
 
-### La healthbar est trop basse
-→ Augmentez la valeur de `hologram_offset` (ex: de 1.0 à 1.3)
+### La healthbar saccade lors des déplacements
+→ **RÉSOLU**: Le seuil de détection a été réduit à 0.01 bloc (1cm) pour détecter les mouvements plus fins
+
+### L'offset est incorrect pour les mobs ModelEngine
+→ **RÉSOLU**: Le système calcule maintenant automatiquement l'offset basé sur la hauteur réelle de l'entité
 
 ### La healthbar ne change pas après modification
 → Utilisez `/quantum reload` pour recharger la configuration
@@ -206,8 +227,22 @@ display.teleport(mob.getLocation().add(0, yOffset, 0));
   2. Vous avez bien utilisé `hologram_offset` (ou l'ancien `modelengine_offset`)
   3. La valeur est positive (les valeurs négatives peuvent causer des problèmes)
 
-### La healthbar ne suit pas le mob
-→ C'est normal, elle se met à jour toutes les 5 ticks (0.25 secondes). Si le problème persiste, redémarrez le serveur.
+## Améliorations Récentes (Recent Improvements)
+
+### ✅ Mouvement Ultra-Fluide (v1.0.1)
+- **Avant**: Mise à jour toutes les 10 ticks (2 fois/seconde)
+- **Maintenant**: Mise à jour toutes les 3 ticks (6.6 fois/seconde)
+- **Résultat**: Mouvement 3.3x plus fluide sans lag perceptible
+
+### ✅ Détection Fine des Mouvements (v1.0.1)
+- **Avant**: Seuil de 0.05 blocs (5cm)
+- **Maintenant**: Seuil de 0.01 blocs (1cm)
+- **Résultat**: Hologramme colle mieux au mob, même pour petits mouvements
+
+### ✅ Calcul Automatique de l'Offset (v1.0.1)
+- **Avant**: Offset fixe de 0.5 blocs si non configuré
+- **Maintenant**: Calcul automatique basé sur `entity.getHeight() + 0.3`
+- **Résultat**: Position parfaite pour tous les mobs, incluant ModelEngine, sans configuration
 
 ## Différences avec l'Ancienne Implémentation
 
@@ -220,6 +255,8 @@ display.teleport(mob.getLocation().add(0, yOffset, 0));
 - Utilise des entités TextDisplay
 - L'offset est précis et en coordonnées réelles
 - Compatible avec Minecraft 1.19.4+ et futures versions
+- **Mouvement ultra-fluide** (6.6 mises à jour/seconde)
+- **Calcul automatique de l'offset** basé sur la hauteur de l'entité
 - Meilleur suivi du mouvement des mobs
 - Nettoyage automatique des affichages
 

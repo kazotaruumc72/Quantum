@@ -74,6 +74,7 @@ public final class Quantum extends JavaPlugin {
     private Logger logger;
     private ScoreboardManager scoreboardManager;
     private ScoreboardConfig scoreboardConfig;
+    private ScoreboardListener scoreboardListener;
 
     // Managers
     private DatabaseManager databaseManager;
@@ -357,7 +358,8 @@ public final class Quantum extends JavaPlugin {
         logger.success("✓ Storage Listener");
 
         if (scoreboardManager != null) {
-            Bukkit.getPluginManager().registerEvents(new ScoreboardListener(this), this);
+            scoreboardListener = new ScoreboardListener(this);
+            Bukkit.getPluginManager().registerEvents(scoreboardListener, this);
             logger.success("✓ Scoreboard Listener (auto-enable on join)");
         }
 
@@ -603,6 +605,11 @@ public final class Quantum extends JavaPlugin {
         if (animationManager != null) animationManager.stopAll();
         if (sellManager != null) sellManager.clearAllSessions();
 
+        if (scoreboardListener != null) {
+            scoreboardListener.shutdown();
+            logger.success("✓ Scoreboard listener stopped");
+        }
+        
         if (scoreboardHandler != null) {
             scoreboardHandler.shutdown();
             logger.success("✓ Tower scoreboards cleared");

@@ -3,6 +3,7 @@ package com.wynvers.quantum.listeners;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.managers.ScoreboardConfig;
 import com.wynvers.quantum.managers.ScoreboardManager;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -10,23 +11,27 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.List;
 
 /**
  * Listener qui gère l'affichage automatique du scoreboard
  * Utilise maintenant ScoreboardConfig pour charger depuis scoreboard.yml
+ * Optimisé pour utiliser une seule tâche partagée pour tous les joueurs
  */
 public class ScoreboardListener implements Listener {
     
     private final Quantum plugin;
     private final ScoreboardManager scoreboardManager;
     private final ScoreboardConfig scoreboardConfig;
+    private BukkitTask sharedUpdateTask;
     
     public ScoreboardListener(Quantum plugin) {
         this.plugin = plugin;
         this.scoreboardManager = plugin.getScoreboardManager();
         this.scoreboardConfig = plugin.getScoreboardConfig();
+        startSharedUpdateTask();
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -53,9 +58,6 @@ public class ScoreboardListener implements Listener {
                 
                 // Appliquer le scoreboard
                 scoreboardManager.setScoreboard(player, title, lines);
-                
-                // Démarrer la mise à jour automatique
-                startScoreboardUpdate(player);
             }
         }.runTaskLater(plugin, 1L);
     }
@@ -69,43 +71,48 @@ public class ScoreboardListener implements Listener {
     }
     
     /**
-     * Démarre la mise à jour automatique du scoreboard
-     * Utilise l'intervalle défini dans scoreboard.yml
+     * Démarre une tâche partagée unique qui met à jour tous les scoreboards
+     * Plus efficace que d'avoir une tâche par joueur
      */
-    private void startScoreboardUpdate(Player player) {
+    private void startSharedUpdateTask() {
         long updateInterval = scoreboardConfig.getUpdateInterval();
         
-        new BukkitRunnable() {
+        sharedUpdateTask = new BukkitRunnable() {
             @Override
             public void run() {
-                // Vérifier si le joueur est toujours connecté
-                if (!player.isOnline()) {
-                    cancel();
-                    return;
-                }
-                
                 // Vérifier si le scoreboard est toujours activé globalement
                 if (!scoreboardConfig.isEnabled()) {
-                    cancel();
                     return;
                 }
                 
-                // Vérifier si le scoreboard est toujours activé pour ce joueur
-                if (!scoreboardManager.isScoreboardEnabled(player)) {
-                    cancel();
-                    return;
-                }
-                
-                // Vérifier si le joueur a toujours le scoreboard
-                if (!scoreboardManager.hasScoreboard(player)) {
-                    cancel();
-                    return;
-                }
-                
-                // Mettre à jour avec les lignes brutes - ScoreboardManager gère PlaceholderAPI et MiniMessage
+                // Charger les lignes une seule fois pour tous les joueurs
                 List<String> lines = scoreboardConfig.getLines();
-                scoreboardManager.updateAllLines(player, lines);
+                
+                // Mettre à jour tous les joueurs en ligne avec un scoreboard
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    // Vérifier si le scoreboard est activé pour ce joueur
+                    if (!scoreboardManager.isScoreboardEnabled(player)) {
+                        continue;
+                    }
+                    
+                    // Vérifier si le joueur a un scoreboard
+                    if (!scoreboardManager.hasScoreboard(player)) {
+                        continue;
+                    }
+                    
+                    // Mettre à jour avec les lignes brutes - ScoreboardManager gère PlaceholderAPI et MiniMessage
+                    scoreboardManager.updateAllLines(player, lines);
+                }
             }
         }.runTaskTimer(plugin, updateInterval, updateInterval);
+    }
+    
+    /**
+     * Arrête la tâche partagée de mise à jour (appelé lors du unload du plugin)
+     */
+    public void shutdown() {
+        if (sharedUpdateTask != null && !sharedUpdateTask.isCancelled()) {
+            sharedUpdateTask.cancel();
+        }
     }
 }

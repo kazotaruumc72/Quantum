@@ -68,29 +68,28 @@ public class ScoreboardUtils {
             return cached;
         }
         
-        // Détecter si c'est du MiniMessage (contient des tags connus)
-        // On vérifie la présence de tags MiniMessage courants pour éviter les faux positifs
-        boolean isMiniMessage = text.contains("<") && text.contains(">") && (
-            text.contains("<gradient:") || 
-            text.contains("<bold>") || 
-            text.contains("<italic>") || 
-            text.contains("<underlined>") || 
-            text.contains("<strikethrough>") || 
-            text.contains("<obfuscated>") ||
-            text.contains("<color:") ||
-            // Named colors
-            text.contains("<black>") || text.contains("<dark_blue>") || 
-            text.contains("<dark_green>") || text.contains("<dark_aqua>") || 
-            text.contains("<dark_red>") || text.contains("<dark_purple>") || 
-            text.contains("<gold>") || text.contains("<gray>") || 
-            text.contains("<dark_gray>") || text.contains("<blue>") || 
-            text.contains("<green>") || text.contains("<aqua>") || 
-            text.contains("<red>") || text.contains("<light_purple>") || 
-            text.contains("<yellow>") || text.contains("<white>") ||
-            // Reset and other tags
-            text.contains("<reset>") || text.contains("<rainbow>") ||
-            text.contains("</") // Closing tags like </bold>, </gradient>, etc.
-        );
+        // Détecter si c'est du MiniMessage (contient des tags)
+        // Optimisé: vérifier d'abord les conditions de base avant les checks détaillés
+        boolean isMiniMessage = false;
+        if (text.indexOf('<') >= 0 && text.indexOf('>') > 0) {
+            // Quick check for common MiniMessage patterns
+            isMiniMessage = text.contains("<gradient:") || 
+                text.contains("<bold>") || 
+                text.contains("<italic>") || 
+                text.contains("<underlined>") || 
+                text.contains("<strikethrough>") || 
+                text.contains("<obfuscated>") ||
+                text.contains("<color:") ||
+                text.contains("<rainbow>") ||
+                text.contains("</") || // Closing tags
+                // Named colors (most common ones only)
+                text.contains("<gold>") || 
+                text.contains("<gray>") || 
+                text.contains("<aqua>") || 
+                text.contains("<red>") || 
+                text.contains("<yellow>") || 
+                text.contains("<white>");
+        }
         
         String result;
         if (isMiniMessage) {

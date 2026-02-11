@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Collections;
 
 public class ScoreboardUtils {
     
@@ -18,13 +19,16 @@ public class ScoreboardUtils {
         LegacyComponentSerializer.legacySection();
     
     // Cache LRU pour les résultats de color() - optimisation performance
+    // Thread-safe pour éviter les problèmes de concurrence avec les mises à jour asynchrones
     private static final int CACHE_SIZE = 256;
-    private static final Map<String, String> COLOR_CACHE = new LinkedHashMap<String, String>(CACHE_SIZE, 0.75f, true) {
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
-            return size() > CACHE_SIZE;
+    private static final Map<String, String> COLOR_CACHE = java.util.Collections.synchronizedMap(
+        new LinkedHashMap<String, String>(CACHE_SIZE, 0.75f, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
+                return size() > CACHE_SIZE;
+            }
         }
-    };
+    );
     
     /**
      * Génère un caractère invisible unique pour chaque ligne

@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ScoreboardManager - Gestion des scoreboards personnalisés
@@ -22,9 +23,9 @@ public class ScoreboardManager {
     private final Map<UUID, Scoreboard> previousBoards = new HashMap<>();
     private final Map<UUID, Boolean> scoreboardEnabled = new HashMap<>();
     
-    // Cache pour les lignes parsées et colorées par joueur
+    // Cache pour les lignes parsées et colorées par joueur - Thread-safe
     // Key: UUID du joueur, Value: Map<lineNumber, parsedAndColoredText>
-    private final Map<UUID, Map<Integer, String>> lineCache = new HashMap<>();
+    private final Map<UUID, Map<Integer, String>> lineCache = new ConcurrentHashMap<>();
     
     public ScoreboardManager(Quantum plugin) {
         this.plugin = plugin;

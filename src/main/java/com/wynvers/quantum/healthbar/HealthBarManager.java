@@ -99,9 +99,10 @@ public class HealthBarManager {
                     }
                     
                     // Mettre à jour la position seulement si le mob a bougé de manière significative
-                    // Augmente le seuil de distance de 0.01 à 0.05 pour réduire les mises à jour
+                    // Note: distanceSquared retourne le carré de la distance
+                    // 0.0025 = (0.05)^2, donc seuil de 0.05 blocs de distance réelle
                     Location newLoc = mob.getLocation().add(0, yOffset, 0);
-                    if (newLoc.distanceSquared(display.getLocation()) > 0.05) {
+                    if (newLoc.distanceSquared(display.getLocation()) > 0.0025) {
                         display.teleport(newLoc);
                     }
                 } else {

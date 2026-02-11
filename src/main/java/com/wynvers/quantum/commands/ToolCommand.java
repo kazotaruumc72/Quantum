@@ -80,10 +80,13 @@ public class ToolCommand implements CommandExecutor {
             int multiplier = toolManager.getPickaxe().getLootMultiplier(level);
             
             plugin.getMessageManager().sendMessage(player, "tools.info.pickaxe.header");
+            
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("level", String.valueOf(level));
-            placeholders.put("multiplier", String.valueOf(multiplier));
             plugin.getMessageManager().sendMessage(player, "tools.info.pickaxe.level", placeholders);
+            
+            placeholders.clear();
+            placeholders.put("multiplier", String.valueOf(multiplier));
             plugin.getMessageManager().sendMessage(player, "tools.info.pickaxe.multiplier", placeholders);
         } else if (toolManager.getAxe().isQuantumTool(item)) {
             int level = toolManager.getAxe().getLevel(item);
@@ -98,10 +101,13 @@ public class ToolCommand implements CommandExecutor {
             int maxDrops = toolManager.getHoe().getMaxRareDrops(level);
             
             plugin.getMessageManager().sendMessage(player, "tools.info.hoe.header");
+            
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("level", String.valueOf(level));
-            placeholders.put("max_drops", String.valueOf(maxDrops));
             plugin.getMessageManager().sendMessage(player, "tools.info.hoe.level", placeholders);
+            
+            placeholders.clear();
+            placeholders.put("max_drops", String.valueOf(maxDrops));
             plugin.getMessageManager().sendMessage(player, "tools.info.hoe.max-drops", placeholders);
         } else {
             plugin.getMessageManager().sendMessage(player, "tools.not-quantum-tool");

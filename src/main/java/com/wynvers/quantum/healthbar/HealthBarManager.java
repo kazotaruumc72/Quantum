@@ -371,11 +371,11 @@ public class HealthBarManager {
         
         int filledBars = (int) ((health / maxHealth) * barLength);
         
-        // Symboles depuis la config
-        String filledSymbol = mobConfig.getString("symbols.bar.filled", "|");
-        String emptySymbol = mobConfig.getString("symbols.bar.empty", "|");
-        String leftBracket = mobConfig.getString("symbols.bar.left_bracket", "[");
-        String rightBracket = mobConfig.getString("symbols.bar.right_bracket", "]");
+        // Symboles par défaut (la configuration bar a été retirée)
+        String filledSymbol = "|";
+        String emptySymbol = "|";
+        String leftBracket = "[";
+        String rightBracket = "]";
         
         StringBuilder bar = new StringBuilder();
         
@@ -399,7 +399,7 @@ public class HealthBarManager {
         }
         
         if (showPercentage) {
-            bar.append(" ").append(color).append(percentFormat.format(percentage)).append("%");
+            bar.append(" ").append(color).append(percentFormat.format(percentage));
         }
         
         // Afficher numérique si activé

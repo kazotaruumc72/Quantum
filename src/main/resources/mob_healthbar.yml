@@ -11,10 +11,10 @@
 # display_name: Nom personnalisé affiché au-dessus du mob
 # name_color: Couleur du nom (utiliser les codes couleur Minecraft)
 # bar_length: Longueur de la barre (nombre de caractères)
-# show_percentage: Afficher le pourcentage (true/false)
+# show_percentage: Afficher la valeur numérique du pourcentage de vie (ex: 100 sans le symbole %)
 # show_numeric: Afficher la vie numérique (ex: 20/20 HP)
 # format: Format de la barre
-#   - CLASSIC: [||||||||||||] 100%
+#   - CLASSIC: [||||||||||||] 100
 #   - HEARTS: ❤❤❤❤❤♡♡♡♡♡
 #   - BOSS_BAR: Utilise la boss bar native de Minecraft
 #   - NUMERIC: 20/20 HP
@@ -70,7 +70,7 @@ global:
   enabled: true
   name_color: "&b"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   # Offset vertical pour l'hologramme de healthbar (en blocs)
@@ -86,7 +86,7 @@ global:
   enabled: true
   name_color: "&3"
   bar_length: 25
-  show_percentage: true
+  show_percentage: false
   show_numeric: true
   format: CLASSIC
   hologram_offset: 1.2
@@ -100,7 +100,7 @@ global:
   enabled: true
   name_color: "&b"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   hologram_offset: 1.5
@@ -114,7 +114,7 @@ global:
   enabled: true
   name_color: "&3&l"
   bar_length: 40
-  show_percentage: true
+  show_percentage: false
   show_numeric: true
   format: BOSS_BAR
   hologram_offset: 2.0
@@ -133,7 +133,7 @@ global:
   enabled: true
   name_color: "&c"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   hologram_offset: 0.8
@@ -147,7 +147,7 @@ global:
   enabled: true
   name_color: "&c"
   bar_length: 15
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   hologram_offset: 0.6
@@ -161,7 +161,7 @@ global:
   enabled: true
   name_color: "&b"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   # Offset vertical pour l'hologramme de healthbar (en blocs)
@@ -182,7 +182,7 @@ ZOMBIE:
   enabled: true
   name_color: "&2"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -195,7 +195,7 @@ ZOMBIE_VILLAGER:
   enabled: true
   name_color: "&2"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -208,7 +208,7 @@ HUSK:
   enabled: true
   name_color: "&6"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -221,7 +221,7 @@ DROWNED:
   enabled: true
   name_color: "&3"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -234,7 +234,7 @@ SKELETON:
   enabled: true
   name_color: "&7"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -247,7 +247,7 @@ STRAY:
   enabled: true
   name_color: "&b"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -260,7 +260,7 @@ BOGGED:
   enabled: true
   name_color: "&2"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -273,7 +273,7 @@ CREEPER:
   enabled: true
   name_color: "&a"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -286,7 +286,7 @@ SPIDER:
   enabled: true
   name_color: "&8"
   bar_length: 15
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -299,7 +299,7 @@ CAVE_SPIDER:
   enabled: true
   name_color: "&8"
   bar_length: 15
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -312,7 +312,7 @@ ENDERMAN:
   enabled: true
   name_color: "&5"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -325,7 +325,7 @@ WITCH:
   enabled: true
   name_color: "&5"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -351,7 +351,7 @@ SLIME:
   enabled: true
   name_color: "&a"
   bar_length: 15
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -364,7 +364,7 @@ VINDICATOR:
   enabled: true
   name_color: "&8"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -377,7 +377,7 @@ EVOKER:
   enabled: true
   name_color: "&5"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -390,7 +390,7 @@ PILLAGER:
   enabled: true
   name_color: "&8"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -403,7 +403,7 @@ RAVAGER:
   enabled: true
   name_color: "&8&l"
   bar_length: 25
-  show_percentage: true
+  show_percentage: false
   show_numeric: true
   format: CLASSIC
   color_thresholds:
@@ -429,7 +429,7 @@ PHANTOM:
   enabled: true
   name_color: "&5"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -442,7 +442,7 @@ BREEZE:
   enabled: true
   name_color: "&b"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -459,7 +459,7 @@ BLAZE:
   enabled: true
   name_color: "&6"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -472,7 +472,7 @@ GHAST:
   enabled: true
   name_color: "&f"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -485,7 +485,7 @@ MAGMA_CUBE:
   enabled: true
   name_color: "&c"
   bar_length: 15
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -498,7 +498,7 @@ PIGLIN:
   enabled: true
   name_color: "&d"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -511,7 +511,7 @@ PIGLIN_BRUTE:
   enabled: true
   name_color: "&4&l"
   bar_length: 25
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -524,7 +524,7 @@ HOGLIN:
   enabled: true
   name_color: "&c"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -537,7 +537,7 @@ ZOGLIN:
   enabled: true
   name_color: "&8"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -550,7 +550,7 @@ WITHER_SKELETON:
   enabled: true
   name_color: "&8"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -580,7 +580,7 @@ SHULKER:
   enabled: true
   name_color: "&5"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -597,7 +597,7 @@ GUARDIAN:
   enabled: true
   name_color: "&3"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -610,7 +610,7 @@ ELDER_GUARDIAN:
   enabled: true
   name_color: "&3&l"
   bar_length: 25
-  show_percentage: true
+  show_percentage: false
   show_numeric: true
   format: CLASSIC
   color_thresholds:
@@ -640,7 +640,7 @@ POLAR_BEAR:
   enabled: true
   name_color: "&f"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: CLASSIC
   color_thresholds:
@@ -653,7 +653,7 @@ IRON_GOLEM:
   enabled: true
   name_color: "&7"
   bar_length: 20
-  show_percentage: true
+  show_percentage: false
   show_numeric: false
   format: HEARTS
   color_thresholds:
@@ -670,7 +670,7 @@ ENDER_DRAGON:
   enabled: true
   name_color: "&5&l"
   bar_length: 30
-  show_percentage: true
+  show_percentage: false
   show_numeric: true
   format: BOSS_BAR
   color_thresholds:
@@ -683,7 +683,7 @@ WITHER:
   enabled: true
   name_color: "&8&l"
   bar_length: 30
-  show_percentage: true
+  show_percentage: false
   show_numeric: true
   format: BOSS_BAR
   color_thresholds:
@@ -696,7 +696,7 @@ WARDEN:
   enabled: true
   name_color: "&1&l"
   bar_length: 30
-  show_percentage: true
+  show_percentage: false
   show_numeric: true
   format: HEARTS
   color_thresholds:
@@ -714,7 +714,7 @@ WARDEN:
 #   enabled: true
 #   name_color: "&c"           # Couleur du nom
 #   bar_length: 25             # Longueur de la barre
-#   show_percentage: true      # Afficher %
+#   show_percentage: false     # Afficher la valeur numérique du pourcentage de vie (ex: 100 sans le symbole %)
 #   show_numeric: false        # Afficher 100/100 HP
 #   format: CLASSIC            # CLASSIC, HEARTS, BOSS_BAR, NUMERIC
 #   hologram_offset: 1.0    # Offset vertical pour l'hologramme de healthbar (en blocs, optionnel)
@@ -731,12 +731,6 @@ WARDEN:
 #   Symboles personnalisés
 # ========================================
 symbols:
-  bar:
-    filled: "|"
-    empty: "|"
-    left_bracket: "["
-    right_bracket: "]"
-  
   hearts:
     full: "❤"
     half: "♡"

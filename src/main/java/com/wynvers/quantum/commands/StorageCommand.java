@@ -18,15 +18,13 @@ public class StorageCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage(plugin.getMessagesManager().get("only-player"));
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("Cette commande ne peut être exécutée que par un joueur!");
             return true;
         }
 
-        Player player = (Player) sender;
-
         if (!player.hasPermission("quantum.storage")) {
-            player.sendMessage(plugin.getMessagesManager().get("no-permission"));
+            plugin.getMessageManager().sendMessage(player, "system.no-permission");
             return true;
         }
         
@@ -41,7 +39,7 @@ public class StorageCommand implements CommandExecutor {
         if (storageMenu != null) {
             storageMenu.open(player, plugin);
         } else {
-            player.sendMessage("§cErreur: Menu storage non trouvé!");
+            plugin.getMessageManager().sendMessage(player, "error.menu.failed-to-open");
         }
 
         return true;

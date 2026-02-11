@@ -123,13 +123,13 @@ public class StorageListener implements Listener {
         int toWithdraw = Math.min(withdrawAmount, available);
         
         if (toWithdraw <= 0) {
-            player.sendMessage("§cNo items available!");
+            plugin.getMessageManager().sendMessage(player, "storage-advanced.no-items-available");
             return;
         }
         
         // Check inventory space
         if (!hasSpace(player, toWithdraw)) {
-            player.sendMessage("§cYour inventory is full!");
+            plugin.getMessageManager().sendMessage(player, "storage-advanced.inventory-full");
             return;
         }
         
@@ -139,7 +139,10 @@ public class StorageListener implements Listener {
         // Give to player
         giveItems(player, material, toWithdraw);
         
-        player.sendMessage("§a§l✓ §aWithdrawn §e" + toWithdraw + "x §f" + material.name());
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("quantity", String.valueOf(toWithdraw));
+        placeholders.put("item", material.name());
+        plugin.getMessageManager().sendMessage(player, "storage-advanced.withdrawn", placeholders);
         
         // Save and refresh GUI
         storage.save(plugin);
@@ -161,7 +164,7 @@ public class StorageListener implements Listener {
         String itemId = OrderCreationManager.getItemId(displayItem);
         if (itemId == null) {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
-            player.sendMessage("§c⚠ Item invalide!");
+            plugin.getMessageManager().sendMessage(player, "storage-advanced.invalid-item");
             return;
         }
         
@@ -184,7 +187,7 @@ public class StorageListener implements Listener {
         
         if (toSell <= 0) {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
-            player.sendMessage("§cAucun item disponible à vendre!");
+            plugin.getMessageManager().sendMessage(player, "storage-advanced.no-items-to-sell");
             return;
         }
         
@@ -196,7 +199,7 @@ public class StorageListener implements Listener {
             priceKey = itemId.substring(10).toUpperCase();
         } else {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
-            player.sendMessage("§c⚠ Format d'item non reconnu!");
+            plugin.getMessageManager().sendMessage(player, "storage-advanced.unrecognized-format");
             return;
         }
         
@@ -204,8 +207,9 @@ public class StorageListener implements Listener {
         
         if (pricePerItem <= 0) {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
-            player.sendMessage("§c⚠ Cet item ne peut pas être vendu!");
-            player.sendMessage("§7Prix non défini dans prices.yml pour: §e" + priceKey);
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("price_key", priceKey);
+            plugin.getMessageManager().sendMessage(player, "storage-advanced.item-not-sellable", placeholders);
             return;
         }
         
@@ -219,11 +223,11 @@ public class StorageListener implements Listener {
         if (plugin.getVaultManager().isEnabled()) {
             boolean success = plugin.getVaultManager().deposit(player, totalPrice);
             if (!success) {
-                player.sendMessage("§c⚠ Erreur lors du dépôt d'argent! Items retirés mais argent non crédité.");
+                plugin.getMessageManager().sendMessage(player, "storage-advanced.deposit-error");
                 plugin.getQuantumLogger().error("Erreur deposit Vault pour " + player.getName() + ": " + totalPrice + "$");
             }
         } else {
-            player.sendMessage("§c⚠ Système d'économie non disponible! Items retirés mais argent non crédité.");
+            plugin.getMessageManager().sendMessage(player, "storage-advanced.economy-unavailable");
             plugin.getQuantumLogger().error("Vault non disponible pour la vente!");
         }
         
@@ -232,7 +236,11 @@ public class StorageListener implements Listener {
         
         // Messages et son
         player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
-        player.sendMessage("§a§l✓ §aVendu §e" + toSell + "x §f" + displayName + " §apour §6" + String.format("%.2f", totalPrice) + "$");
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("quantity", String.valueOf(toSell));
+        placeholders.put("display_name", displayName);
+        placeholders.put("total_price", String.format("%.2f", totalPrice));
+        plugin.getMessageManager().sendMessage(player, "storage-advanced.sold", placeholders);
         
         // Sauvegarder et rafraîchir
         storage.save(plugin);
@@ -266,7 +274,7 @@ public class StorageListener implements Listener {
         String itemId = OrderCreationManager.getItemId(displayItem);
         if (itemId == null) {
             player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
-            player.sendMessage("§c⚠ Item invalide!");
+            plugin.getMessageManager().sendMessage(player, "storage-advanced.invalid-item");
             return;
         }
         
@@ -276,7 +284,7 @@ public class StorageListener implements Listener {
         // Démarrer la création d'offre via OrderCreationManager
         OrderCreationManager orderManager = plugin.getOrderCreationManager();
         if (orderManager == null) {
-            player.sendMessage("§c⚠ OrderCreationManager non initialisé!");
+            plugin.getMessageManager().sendMessage(player, "order-creation.manager-not-initialized");
             return;
         }
         
@@ -289,7 +297,7 @@ public class StorageListener implements Listener {
         // Récupérer la session pour stocker l'ItemStack
         OrderCreationSession session = orderManager.getSession(player);
         if (session == null) {
-            player.sendMessage("§c⚠ Erreur lors de la création de la session!");
+            plugin.getMessageManager().sendMessage(player, "order-creation.session-creation-error");
             return;
         }
         

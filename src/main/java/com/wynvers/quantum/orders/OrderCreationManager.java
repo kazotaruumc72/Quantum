@@ -46,7 +46,7 @@ public class OrderCreationManager {
         // Récupérer la fourchette de prix depuis orders_template.yml
         PriceRange priceRange = getPriceRange(itemId);
         if (priceRange == null) {
-            player.sendMessage("§c⚠ Cet item n'a pas de fourchette de prix définie!");
+            plugin.getMessageManager().sendMessage(player, "order-creation.no-price-range");
             return false;
         }
         
@@ -82,15 +82,14 @@ public class OrderCreationManager {
     public boolean finalizeOrder(Player player) {
         OrderCreationSession session = sessions.get(player.getUniqueId());
         if (session == null) {
-            player.sendMessage("§c⚠ Aucune session de création d'ordre active!");
+            plugin.getMessageManager().sendMessage(player, "order-creation.no-active-session");
             return false;
         }
         
         // Trouver la catégorie de l'item
         String category = findItemCategory(session.getItemId());
         if (category == null) {
-            player.sendMessage("§c⚠ Cet item n'appartient à aucune catégorie d'offres!");
-            player.sendMessage("§7Contact un administrateur pour l'ajouter.");
+            plugin.getMessageManager().sendMessage(player, "order-creation.no-category");
             cancelOrder(player);
             return false;
         }
@@ -100,14 +99,15 @@ public class OrderCreationManager {
         
         if (plugin.getVaultManager().isEnabled()) {
             if (!plugin.getVaultManager().has(player, totalPrice)) {
-                player.sendMessage("§c⚠ Vous n'avez pas assez d'argent!");
-                player.sendMessage("§7Requis: §6" + String.format("%.2f", totalPrice) + "$");
-                player.sendMessage("§7Solde: §6" + String.format("%.2f", plugin.getVaultManager().getBalance(player)) + "$");
+                Map<String, String> placeholders = new HashMap<>();
+                placeholders.put("required", String.format("%.2f", totalPrice));
+                placeholders.put("balance", String.format("%.2f", plugin.getVaultManager().getBalance(player)));
+                plugin.getMessageManager().sendMessage(player, "order-creation.insufficient-funds", placeholders);
                 cancelOrder(player);
                 return false;
             }
         } else {
-            player.sendMessage("§c⚠ Système économique indisponible!");
+            plugin.getMessageManager().sendMessage(player, "order-creation.economy-unavailable");
             cancelOrder(player);
             return false;
         }
@@ -143,7 +143,7 @@ public class OrderCreationManager {
             // === ÉTAPE 1: RETRAIT D'ARGENT ===
             if (!plugin.getVaultManager().withdraw(player, totalPrice)) {
                 // Le retrait a échoué, supprimer l'ordre créé
-                player.sendMessage("§c⚠ Erreur lors du retrait de l'argent!");
+                plugin.getMessageManager().sendMessage(player, "order-creation.withdrawal-error");
                 ordersConfig.set(path, null);
                 ordersConfig.save(ordersFile);
                 cancelOrder(player);
@@ -153,7 +153,7 @@ public class OrderCreationManager {
             // === ÉTAPE 2: DÉPÔT EN ESCROW ===
             if (!plugin.getEscrowManager().deposit(orderUUID, totalPrice)) {
                 // Le dépôt a échoué, rembourser le joueur
-                player.sendMessage("§c⚠ Erreur lors du dépôt en escrow!");
+                plugin.getMessageManager().sendMessage(player, "order-creation.escrow-deposit-error");
                 plugin.getVaultManager().deposit(player, totalPrice);
                 ordersConfig.set(path, null);
                 ordersConfig.save(ordersFile);
@@ -170,11 +170,10 @@ public class OrderCreationManager {
             plugin.getLogger().info("  - Total Price: " + totalPrice);
             plugin.getLogger().info("  - Escrow Deposit: SUCCESS");
             
-            player.sendMessage("§8[§6Quantum§8] §a✓ Offre créée avec succès!");
-            player.sendMessage("§8[§6Quantum§8] §c-" + String.format("%.2f", totalPrice) + "$");
-            player.sendMessage("§7Argent sécurisé en dépôt fiduciaire.");
-            player.sendMessage("§7Il sera transféré au vendeur une fois l'ordre rempli.");
-            player.sendMessage("§7ID de l'ordre: §e" + orderId.substring(0, 8) + "...");
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("total_price", String.format("%.2f", totalPrice));
+            placeholders.put("order_id", orderId.substring(0, 8));
+            plugin.getMessageManager().sendMessage(player, "order-creation.success", placeholders);
             
             // Nettoyer la session
             sessions.remove(player.getUniqueId());
@@ -182,7 +181,7 @@ public class OrderCreationManager {
             return true;
             
         } catch (Exception e) {
-            player.sendMessage("§c⚠ Erreur lors de la sauvegarde de l'offre!");
+            plugin.getMessageManager().sendMessage(player, "order-creation.save-error");
             plugin.getLogger().severe("[ORDER_CREATION] Error saving order:");
             e.printStackTrace();
             return false;
@@ -283,7 +282,7 @@ public class OrderCreationManager {
     public void openMenuWithSession(Player player, String menuId, ItemStack displayItem) {
         OrderCreationSession session = getSession(player);
         if (session == null) {
-            player.sendMessage("§c⚠ Aucune session de création d'ordre active!");
+            plugin.getMessageManager().sendMessage(player, "order-creation.no-active-session");
             return;
         }
         

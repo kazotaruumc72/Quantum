@@ -20,7 +20,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-
 /**
  * Gestionnaire du système de métiers
  * - Gère les métiers, niveaux, XP

@@ -71,7 +71,8 @@ public class ScoreboardUtils {
         // Détecter si c'est du MiniMessage (contient des tags)
         // Optimisé: vérifier d'abord les conditions de base avant les checks détaillés
         boolean isMiniMessage = false;
-        if (text.indexOf('<') >= 0 && text.indexOf('>') > 0) {
+        int openBracket = text.indexOf('<');
+        if (openBracket >= 0 && text.indexOf('>', openBracket) > openBracket) {
             // Quick check for common MiniMessage patterns
             isMiniMessage = text.contains("<gradient:") || 
                 text.contains("<bold>") || 

@@ -73,6 +73,11 @@ public class ScoreboardListener implements Listener {
     /**
      * Démarre une tâche partagée unique qui met à jour tous les scoreboards
      * Plus efficace que d'avoir une tâche par joueur
+     * 
+     * Note: While we could track active scoreboard players in a Set to avoid
+     * iterating all online players, the iteration overhead is minimal compared
+     * to the benefits of simplicity and consistency. The checks are very fast
+     * (HashMap lookups) and this avoids synchronization issues.
      */
     private void startSharedUpdateTask() {
         long updateInterval = scoreboardConfig.getUpdateInterval();

@@ -431,8 +431,12 @@ public class ActionExecutor {
             String soundInput = parts[0];
             
             // Use Registry API instead of deprecated valueOf()
-            // Convert from enum-style (e.g., UI_BUTTON_CLICK) to lowercase with dots (e.g., ui.button.click)
-            String soundName = soundInput.toLowerCase().replace("_", ".");
+            // Support both enum-style (UI_BUTTON_CLICK) and namespaced format (ui.button.click)
+            String soundName = soundInput.toLowerCase();
+            if (soundInput.contains("_")) {
+                // Convert from enum-style to namespaced: UI_BUTTON_CLICK -> ui.button.click
+                soundName = soundName.replace("_", ".");
+            }
             
             Sound sound = Registry.SOUNDS.get(NamespacedKey.minecraft(soundName));
             

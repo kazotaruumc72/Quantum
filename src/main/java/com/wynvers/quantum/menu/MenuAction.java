@@ -140,8 +140,12 @@ public class MenuAction {
             String soundInput = parts[0];
             
             // Use Registry API instead of deprecated valueOf()
-            // Convert from enum-style (e.g., ENTITY_PLAYER_LEVELUP) to lowercase with dots (e.g., entity.player.levelup)
-            String soundName = soundInput.toLowerCase().replace("_", ".");
+            // Support both enum-style (ENTITY_PLAYER_LEVELUP) and namespaced format (entity.player.levelup)
+            String soundName = soundInput.toLowerCase();
+            if (soundInput.contains("_")) {
+                // Convert from enum-style to namespaced: ENTITY_PLAYER_LEVELUP -> entity.player.levelup
+                soundName = soundName.replace("_", ".");
+            }
             
             Sound sound = Registry.SOUNDS.get(NamespacedKey.minecraft(soundName));
             

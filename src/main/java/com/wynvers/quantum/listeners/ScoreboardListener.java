@@ -84,10 +84,6 @@ public class ScoreboardListener implements Listener {
         long updateInterval = scoreboardConfig.getUpdateInterval();
         
         sharedUpdateTask = new BukkitRunnable() {
-        new BukkitRunnable() {
-            // Instance-level cache to track last lines for this specific player's task
-            private final List<String> lastLines = new ArrayList<>();
-            
             @Override
             public void run() {
                 // Vérifier si le scoreboard est toujours activé globalement
@@ -110,17 +106,6 @@ public class ScoreboardListener implements Listener {
                         continue;
                     }
                     
-                    // Mettre à jour avec les lignes brutes - ScoreboardManager gère PlaceholderAPI et MiniMessage
-                    scoreboardManager.updateAllLines(player, lines);
-                }
-                
-                // Get current lines
-                List<String> lines = scoreboardConfig.getLines();
-                
-                // Only update if lines have changed (reduces unnecessary updates)
-                if (!lines.equals(lastLines)) {
-                    lastLines.clear();
-                    lastLines.addAll(lines);
                     // Mettre à jour avec les lignes brutes - ScoreboardManager gère PlaceholderAPI et MiniMessage
                     scoreboardManager.updateAllLines(player, lines);
                 }

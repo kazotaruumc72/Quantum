@@ -103,7 +103,8 @@ public class VaultManager {
     
     /**
      * R\u00e9cup\u00e8re l'instance Economy de Vault
-     * @return Economy instance or null
+     * @return Economy instance or null if Vault is not enabled
+     * @see #isEnabled() to check if Vault is properly configured
      */
     public Economy getEconomy() {
         return economy;

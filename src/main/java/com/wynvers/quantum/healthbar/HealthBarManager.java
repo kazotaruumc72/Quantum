@@ -183,9 +183,11 @@ public class HealthBarManager {
         loadConfig();
         loadMobConfig();
         // Nettoyer les caches après reload pour prendre en compte les changements de config
+        // Les mobs existants utiliseront les nouvelles configs lors de leur prochaine mise à jour
         mobConfigCache.clear();
         modelEngineCache.clear();
-        // Note: hasModelEnginePlugin n'est pas recalculé car le plugin ne change pas sans redémarrage
+        // Note: hasModelEnginePlugin n'est pas recalculé car le chargement dynamique
+        // de plugins n'est pas supporté (redémarrage serveur requis)
     }
     
     /**
@@ -254,6 +256,9 @@ public class HealthBarManager {
     
     /**
      * Récupère la configuration d'un mob avec cache
+     * Note: Le cache est vidé lors du reload() pour prendre en compte les changements
+     * de configuration. Les mobs existants utiliseront les nouvelles configs lors de
+     * leur prochaine mise à jour de healthbar.
      */
     private ConfigurationSection getCachedMobConfig(LivingEntity entity) {
         UUID uuid = entity.getUniqueId();

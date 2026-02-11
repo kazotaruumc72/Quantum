@@ -22,17 +22,35 @@ public class DatabaseManager {
 
     private void connect() {
         FileConfiguration cfg = plugin.getConfig();
+        
+        // Support both old and new config formats
         ConfigurationSection mysql = cfg.getConfigurationSection("mysql");
-        if (mysql == null || !mysql.getBoolean("enabled", false)) {
-            plugin.getQuantumLogger().warning("MySQL disabled in config.yml");
+        ConfigurationSection database = cfg.getConfigurationSection("database");
+        
+        // Check new format first
+        if (database != null && "mysql".equalsIgnoreCase(database.getString("type"))) {
+            ConfigurationSection mysqlConfig = database.getConfigurationSection("mysql");
+            if (mysqlConfig != null) {
+                connectMySQL(mysqlConfig);
+                return;
+            }
+        }
+        
+        // Fall back to old format
+        if (mysql != null && mysql.getBoolean("enabled", false)) {
+            connectMySQL(mysql);
             return;
         }
-
-        String host = mysql.getString("host");
-        int port = mysql.getInt("port");
-        String db = mysql.getString("database");
-        String user = mysql.getString("username");
-        String pass = mysql.getString("password");
+        
+        plugin.getQuantumLogger().warning("MySQL not configured in config.yml");
+    }
+    
+    private void connectMySQL(ConfigurationSection config) {
+        String host = config.getString("host");
+        int port = config.getInt("port");
+        String db = config.getString("database");
+        String user = config.getString("username");
+        String pass = config.getString("password");
 
         String url = "jdbc:mysql://" + host + ":" + port + "/" + db
                 + "?useSSL=false&autoReconnect=true&serverTimezone=UTC";
@@ -74,6 +92,38 @@ public class DatabaseManager {
                     "kills INT NOT NULL DEFAULT 0," +
                     "PRIMARY KEY (uuid, tower_id)" +
                     ")");
+            
+            // Player storage table
+            st.executeUpdate("CREATE TABLE IF NOT EXISTS player_storage (" +
+                    "player_uuid VARCHAR(36) NOT NULL, " +
+                    "material VARCHAR(255), " +
+                    "nexo_id VARCHAR(255), " +
+                    "amount INT NOT NULL, " +
+                    "PRIMARY KEY (player_uuid, material, nexo_id)" +
+                    ")");
+            
+            // Statistics table (trades par catégorie)
+            st.executeUpdate("CREATE TABLE IF NOT EXISTS statistics (" +
+                    "category VARCHAR(255) PRIMARY KEY, " +
+                    "items_stored BIGINT DEFAULT 0, " +
+                    "trades_created BIGINT DEFAULT 0, " +
+                    "trades_completed BIGINT DEFAULT 0, " +
+                    "volume_traded BIGINT DEFAULT 0" +
+                    ")");
+            
+            // Storage statistics table (tracking global du storage)
+            st.executeUpdate("CREATE TABLE IF NOT EXISTS storage_stats (" +
+                    "stat_key VARCHAR(255) PRIMARY KEY, " +
+                    "stat_value BIGINT DEFAULT 0" +
+                    ")");
+            
+            // Initialiser les stats de storage si elles n'existent pas
+            st.executeUpdate("INSERT IGNORE INTO storage_stats (stat_key, stat_value) " +
+                    "VALUES ('total_items_stored', 0)");
+            st.executeUpdate("INSERT IGNORE INTO storage_stats (stat_key, stat_value) " +
+                    "VALUES ('total_items_sold', 0)");
+            
+            plugin.getQuantumLogger().success("✓ Database tables verified");
         } catch (SQLException e) {
             plugin.getQuantumLogger().error("Failed to create MySQL tables: " + e.getMessage());
             e.printStackTrace();

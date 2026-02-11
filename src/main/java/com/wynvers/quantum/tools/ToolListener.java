@@ -96,6 +96,10 @@ public class ToolListener implements Listener {
      */
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
+        // Vérifier que c'est un clic sur un bloc
+        if (event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
         if (event.getClickedBlock() == null) return;
         
         Player player = event.getPlayer();

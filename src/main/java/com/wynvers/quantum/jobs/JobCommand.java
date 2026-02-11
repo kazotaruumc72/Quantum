@@ -83,7 +83,7 @@ public class JobCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.GRAY + "/job list - Lister tous les métiers");
                 player.sendMessage(ChatColor.GRAY + "/job info [métier] - Info sur un métier");
                 player.sendMessage(ChatColor.GRAY + "/job rewards - Voir les prochaines récompenses");
-                player.sendMessage(ChatColor.GRAY + "/job rewards preview [niveaux] - Preview détaillé des récompenses");
+                player.sendMessage(ChatColor.GRAY + "/job rewards preview [niveaux] - Aperçu détaillé des récompenses");
                 break;
         }
         

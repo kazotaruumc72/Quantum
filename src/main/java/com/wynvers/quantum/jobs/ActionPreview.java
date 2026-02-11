@@ -281,13 +281,19 @@ public class ActionPreview {
      * Formate une durée en secondes en format lisible
      */
     private String formatDuration(int seconds) {
+        if (seconds <= 0) {
+            return "0 min";
+        }
+        
         int hours = seconds / 3600;
         int minutes = (seconds % 3600) / 60;
         
         if (hours > 0) {
             return hours + "h" + (minutes > 0 ? minutes + "m" : "");
-        } else {
+        } else if (minutes > 0) {
             return minutes + " min";
+        } else {
+            return "< 1 min";
         }
     }
     

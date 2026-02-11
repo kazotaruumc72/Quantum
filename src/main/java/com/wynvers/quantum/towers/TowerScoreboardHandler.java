@@ -2,11 +2,6 @@ package com.wynvers.quantum.towers;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.managers.ScoreboardManager;
-import me.clip.placeholderapi.PlaceholderAPI;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -31,7 +26,6 @@ public class TowerScoreboardHandler {
     private final ScoreboardManager scoreboardManager;
     private final Map<UUID, BukkitRunnable> updateTasks;
     private final Set<UUID> playersInTower;
-    private final MiniMessage miniMessage;
 
     private FileConfiguration towersScoreboardConfig;
     private int updateInterval = 20; // Ticks (1 seconde par défaut)
@@ -41,7 +35,6 @@ public class TowerScoreboardHandler {
         this.scoreboardManager = plugin.getScoreboardManager();
         this.updateTasks = new HashMap<>();
         this.playersInTower = new HashSet<>();
-        this.miniMessage = MiniMessage.miniMessage();
 
         loadScoreboardConfig();
     }
@@ -72,24 +65,17 @@ public class TowerScoreboardHandler {
 
         // Charger le titre MiniMessage depuis towers_scoreboard.yml
         String titlePath = towerId + ".title";
-        String titleMM = towersScoreboardConfig.getString(
+        String title = towersScoreboardConfig.getString(
                 titlePath,
                 towersScoreboardConfig.getString("default.title", "<gold><bold>TOURS</bold></gold>")
         );
 
-        Component titleComponent = miniMessage.deserialize(titleMM);
-        String titleLegacy = LegacyComponentSerializer.legacySection().serialize(titleComponent);
-
-        // Charger les lignes (on laisse updateScoreboard gérer les placeholders)
+        // Charger les lignes (ScoreboardManager gérera les placeholders et MiniMessage)
         List<String> lines = getScoreboardLines(player);
-        List<String> legacyLines = new ArrayList<>();
-        for (String line : lines) {
-            Component c = miniMessage.deserialize(line);
-            legacyLines.add(LegacyComponentSerializer.legacySection().serialize(c));
-        }
 
         // Appliquer le scoreboard via ScoreboardManager (même système que QUANTUM)
-        scoreboardManager.setScoreboard(player, titleLegacy, legacyLines);
+        // ScoreboardManager va gérer PlaceholderAPI + MiniMessage via ScoreboardUtils.color()
+        scoreboardManager.setScoreboard(player, title, lines);
 
         // Démarrer la tâche de mise à jour
         startUpdateTask(player, towerId);
@@ -152,22 +138,12 @@ public class TowerScoreboardHandler {
             return;
         }
 
+        // Récupérer les lignes brutes (MiniMessage)
+        // ScoreboardManager va gérer PlaceholderAPI + MiniMessage via ScoreboardUtils.color()
         List<String> lines = getScoreboardLines(player);
-        List<String> legacyLines = new ArrayList<>();
-
-        for (String line : lines) {
-            // PlaceholderAPI
-            line = PlaceholderAPI.setPlaceholders(player, line);
-
-            // MiniMessage -> Legacy
-            Component component = miniMessage.deserialize(line);
-            String legacyText = LegacyComponentSerializer.legacySection().serialize(component);
-
-            legacyLines.add(legacyText);
-        }
 
         // Met à jour toutes les lignes via ScoreboardManager
-        scoreboardManager.updateAllLines(player, legacyLines);
+        scoreboardManager.updateAllLines(player, lines);
     }
 
     /**

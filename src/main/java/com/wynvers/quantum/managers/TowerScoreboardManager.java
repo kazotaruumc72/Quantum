@@ -2,12 +2,10 @@ package com.wynvers.quantum.managers;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.towers.TowerConfig;
-import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TowerScoreboardManager {
     
@@ -26,10 +24,9 @@ public class TowerScoreboardManager {
             return;
         }
         
-        List<String> processedLines = replacePlaceholders(player, lines);
-        
+        // Pass raw lines - ScoreboardManager will handle PlaceholderAPI and MiniMessage
         String title = plugin.getConfig().getString("scoreboard.title", "&6&lTOURS");
-        scoreboardManager.setScoreboard(player, title, processedLines);
+        scoreboardManager.setScoreboard(player, title, lines);
         
         startAutoUpdate(player);
     }
@@ -48,8 +45,8 @@ public class TowerScoreboardManager {
                 TowerConfig tower = plugin.getTowerManager().getPlayerTower(player);
                 if (tower != null) {
                     List<String> lines = tower.getScoreboardLines();
-                    List<String> processedLines = replacePlaceholders(player, lines);
-                    scoreboardManager.updateAllLines(player, processedLines);
+                    // Pass raw lines - ScoreboardManager will handle PlaceholderAPI and MiniMessage
+                    scoreboardManager.updateAllLines(player, lines);
                 }
             }
         }.runTaskTimer(plugin, updateInterval, updateInterval);
@@ -57,16 +54,5 @@ public class TowerScoreboardManager {
     
     public void hideTowerScoreboard(Player player) {
         scoreboardManager.removeScoreboard(player);
-    }
-    
-    private List<String> replacePlaceholders(Player player, List<String> lines) {
-        return lines.stream()
-            .map(line -> {
-                if (plugin.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-                    line = PlaceholderAPI.setPlaceholders(player, line);
-                }
-                return line;
-            })
-            .collect(Collectors.toList());
     }
 }

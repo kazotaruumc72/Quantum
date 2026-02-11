@@ -1,8 +1,18 @@
 package com.wynvers.quantum.utils;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.ChatColor;
 
 public class ScoreboardUtils {
+    
+    // Instance statique de MiniMessage pour parsing
+    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    
+    // Serializer pour convertir Component en legacy text (§c format)
+    private static final LegacyComponentSerializer LEGACY_SERIALIZER = 
+        LegacyComponentSerializer.legacySection();
     
     /**
      * Génère un caractère invisible unique pour chaque ligne
@@ -24,9 +34,55 @@ public class ScoreboardUtils {
     }
     
     /**
-     * Traduit les codes couleur (&c en §c)
+     * Traduit les codes couleur en supportant à la fois:
+     * - MiniMessage format: <gradient:#FFD700:#FFA500>, <bold>, <aqua>, etc.
+     * - Legacy format: &c, &a, &l, etc.
+     * 
+     * @param text Texte à formater
+     * @return Texte formaté avec les codes couleur legacy (§)
      */
     public static String color(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+        
+        // Détecter si c'est du MiniMessage (contient des tags connus)
+        // On vérifie la présence de tags MiniMessage courants pour éviter les faux positifs
+        boolean isMiniMessage = text.contains("<") && text.contains(">") && (
+            text.contains("<gradient:") || 
+            text.contains("<bold>") || 
+            text.contains("<italic>") || 
+            text.contains("<underlined>") || 
+            text.contains("<strikethrough>") || 
+            text.contains("<obfuscated>") ||
+            text.contains("<color:") ||
+            // Named colors
+            text.contains("<black>") || text.contains("<dark_blue>") || 
+            text.contains("<dark_green>") || text.contains("<dark_aqua>") || 
+            text.contains("<dark_red>") || text.contains("<dark_purple>") || 
+            text.contains("<gold>") || text.contains("<gray>") || 
+            text.contains("<dark_gray>") || text.contains("<blue>") || 
+            text.contains("<green>") || text.contains("<aqua>") || 
+            text.contains("<red>") || text.contains("<light_purple>") || 
+            text.contains("<yellow>") || text.contains("<white>") ||
+            // Reset and other tags
+            text.contains("<reset>") || text.contains("<rainbow>") ||
+            text.contains("</") // Closing tags like </bold>, </gradient>, etc.
+        );
+        
+        if (isMiniMessage) {
+            try {
+                // Parser le MiniMessage en Component
+                Component component = MINI_MESSAGE.deserialize(text);
+                // Convertir le Component en format legacy (§c)
+                return LEGACY_SERIALIZER.serialize(component);
+            } catch (Exception e) {
+                // Si le parsing échoue, fallback sur legacy
+                return ChatColor.translateAlternateColorCodes('&', text);
+            }
+        }
+        
+        // Sinon, traiter comme du legacy format (&c -> §c)
         return ChatColor.translateAlternateColorCodes('&', text);
     }
 }

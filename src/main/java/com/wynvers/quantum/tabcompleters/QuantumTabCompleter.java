@@ -181,7 +181,11 @@ public class QuantumTabCompleter implements TabCompleter {
                 "storage.yml",
                 "animations",
                 "animation",
-                "animations.yml"
+                "animations.yml",
+                "healthbar",
+                "healthbars",
+                "mob_healthbar",
+                "mob_healthbar.yml"
             );
             
             String input = args[1].toLowerCase();

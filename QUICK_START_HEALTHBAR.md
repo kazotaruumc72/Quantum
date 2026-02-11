@@ -1,17 +1,33 @@
-# Quick Start - ModelEngine Health Bar Configuration
+# Quick Start - Health Bar Configuration
 
 ## TL;DR
 
-To fix health bar positioning for ModelEngine mobs, add this to `mob_healthbar.yml`:
+To adjust health bar positioning for any mob, add this to `mob_healthbar.yml`:
 
 ```yaml
 "Your Mob Name":
   enabled: true
-  modelengine_offset: 1.2  # Height in blocks above the mob
+  hologram_offset: 1.2  # Height in blocks above the mob
   # ... other settings ...
 ```
 
-Then reload: `/quantum reload`
+Then reload: `/quantum reload healthbar`
+
+**Note:** The old `modelengine_offset` setting is still supported for backward compatibility, but `hologram_offset` is now recommended as it works for all mobs.
+
+## Display Formats
+
+Choose how the health bar looks:
+
+```yaml
+format: CLASSIC            # [||||||||||||] 100
+format: HEARTS            # ❤❤❤❤❤♡♡♡♡♡
+format: NUMERIC           # 20/20 HP
+format: PERCENTAGE_ONLY   # 100 (just the number, no bar!)
+format: BOSS_BAR          # Uses Minecraft's boss bar
+```
+
+**New in this update:** `PERCENTAGE_ONLY` displays only the health number without the bar visual!
 
 ## Visual Indicator
 
@@ -40,19 +56,24 @@ symbols:
 ```yaml
 # Small water slime
 "Slime d'Eau":
-  modelengine_offset: 1.0  # 1 block above
+  hologram_offset: 1.0  # 1 block above
 
 # Medium guardian
 "Gardien de l'Eau":
-  modelengine_offset: 1.2  # 1.2 blocks above
+  hologram_offset: 1.2  # 1.2 blocks above
 
 # Large servant
 "Serviteur d'Eau":
-  modelengine_offset: 1.5  # 1.5 blocks above
+  hologram_offset: 1.5  # 1.5 blocks above
 
 # Boss knight
 "⚔ Chevalier de l'Eau ⚔":
-  modelengine_offset: 2.0  # 2 blocks above
+  hologram_offset: 2.0  # 2 blocks above
+  
+# Example with percentage-only display
+"Simple Zombie":
+  hologram_offset: 1.0
+  format: PERCENTAGE_ONLY  # Shows only "100" without the bar
 ```
 
 ## Adjustment Formula
@@ -69,11 +90,11 @@ New offset = Current offset ± 0.1 to 0.2
 
 ## Global Default
 
-Set a default for all ModelEngine mobs:
+Set a default for all mobs (including ModelEngine mobs):
 
 ```yaml
 global:
-  default_modelengine_offset: 0.5
+  default_hologram_offset: 0.5
 ```
 
 Individual mob settings override this global default.
@@ -89,10 +110,10 @@ The system uses **TextDisplay entities** (introduced in Minecraft 1.19.4) instea
 ## Troubleshooting
 
 **Health bar doesn't move?**
-1. Check that ModelEngine is installed
-2. Verify mob has a ModelEngine model
-3. Confirm mob name matches exactly (without color codes)
-4. Run `/quantum reload` after config changes
+1. Check configuration in `mob_healthbar.yml`
+2. Verify mob name matches exactly (without color codes)
+3. Run `/quantum reload healthbar` after config changes (now with tab completion!)
+4. If using ModelEngine, check that ModelEngine is installed
 
 **Health bar still wrong?**
 - Adjust in increments of 0.1-0.2 blocks

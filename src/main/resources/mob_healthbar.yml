@@ -18,6 +18,7 @@
 #   - HEARTS: ❤❤❤❤❤♡♡♡♡♡
 #   - BOSS_BAR: Utilise la boss bar native de Minecraft
 #   - NUMERIC: 20/20 HP
+#   - PERCENTAGE_ONLY: 100 (affiche uniquement le pourcentage sans la barre)
 # color_thresholds: Couleurs selon le % de vie
 #
 # Codes couleur:
@@ -716,7 +717,7 @@ WARDEN:
 #   bar_length: 25             # Longueur de la barre
 #   show_percentage: false     # Afficher la valeur numérique du pourcentage de vie (ex: 100 sans le symbole %)
 #   show_numeric: false        # Afficher 100/100 HP
-#   format: CLASSIC            # CLASSIC, HEARTS, BOSS_BAR, NUMERIC
+#   format: CLASSIC            # CLASSIC, HEARTS, BOSS_BAR, NUMERIC, PERCENTAGE_ONLY
 #   hologram_offset: 1.0    # Offset vertical pour l'hologramme de healthbar (en blocs, optionnel)
 #   model: "model_id"          # ID du modèle ModelEngine à appliquer (optionnel)
 #                              # Si spécifié, le modèle sera automatiquement appliqué au spawn

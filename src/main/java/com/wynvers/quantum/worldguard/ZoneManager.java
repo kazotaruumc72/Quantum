@@ -26,6 +26,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -46,7 +47,12 @@ public class ZoneManager implements Listener {
     private final TowerScoreboardHandler scoreboardHandler;
 
     private final Map<UUID, String> currentRegion = new HashMap<>();
-    private final Map<String, Boolean> regionIsTowerCache = new HashMap<>();
+    private final Map<String, Boolean> regionIsTowerCache = new LinkedHashMap<String, Boolean>(100, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, Boolean> eldest) {
+            return size() > 100; // Keep cache bounded to 100 entries
+        }
+    };
     private static final String BYPASS_PERMISSION = "quantum.tower.bypass";
 
     public ZoneManager(Quantum plugin) {

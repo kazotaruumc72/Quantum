@@ -697,10 +697,13 @@ public class MobSkillExecutor {
             return new ArrayList<>();
         }
         
-        // For skills execution, we can use a simple location-based cache key
-        // This is approximate but good enough for this use case
+        // For skills execution, use grid-based caching with 4-block precision
+        // This provides good balance between cache hits and accuracy
+        int gridX = (int) Math.floor(center.getX() / 4.0);
+        int gridY = (int) Math.floor(center.getY() / 4.0);
+        int gridZ = (int) Math.floor(center.getZ() / 4.0);
         UUID cacheKey = UUID.nameUUIDFromBytes((center.getWorld().getName() + 
-            (int)center.getX() + (int)center.getY() + (int)center.getZ()).getBytes());
+            ":" + gridX + ":" + gridY + ":" + gridZ).getBytes());
         
         long now = System.currentTimeMillis();
         Long lastUpdate = cacheTimestamp.get(cacheKey);

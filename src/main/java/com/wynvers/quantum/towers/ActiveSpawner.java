@@ -34,6 +34,7 @@ public class ActiveSpawner implements Listener {
     private final Set<UUID> aliveMobs = new HashSet<>();
     
     private BukkitTask task;
+    private int cleanupTickCounter = 0; // Track ticks for cleanup optimization
 
     public ActiveSpawner(Quantum plugin, TowerSpawnerConfig config, Player player, 
                          String towerId, TowerManager towerManager) {
@@ -51,7 +52,6 @@ public class ActiveSpawner implements Listener {
         
         // Cleanup task runs less frequently (every 5 seconds) to reduce overhead
         final int cleanupInterval = 100; // 5 seconds in ticks
-        final int[] tickCounter = {0};
 
         this.task = new BukkitRunnable() {
             @Override
@@ -62,9 +62,9 @@ public class ActiveSpawner implements Listener {
                 }
 
                 // Nettoyage des morts - only run every 5 seconds instead of every spawn interval
-                tickCounter[0] += periodTicks;
-                if (tickCounter[0] >= cleanupInterval) {
-                    tickCounter[0] = 0;
+                cleanupTickCounter += periodTicks;
+                if (cleanupTickCounter >= cleanupInterval) {
+                    cleanupTickCounter = 0;
                     cleanupDeadMobs();
                 }
 
@@ -115,6 +115,7 @@ public class ActiveSpawner implements Listener {
             task.cancel();
         }
         task = null;
+        cleanupTickCounter = 0; // Reset counter
         
         // Arrêter tous les skills des mobs vivants
         MobSkillExecutor executor = plugin.getMobSkillExecutor();

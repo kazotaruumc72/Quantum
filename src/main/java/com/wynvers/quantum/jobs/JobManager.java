@@ -34,6 +34,7 @@ public class JobManager {
     private final Map<UUID, JobData> playerJobs;  // Job actif du joueur
     private final Map<UUID, List<ActiveBooster>> activeBoosters;
     private YamlConfiguration config;
+    private ActionPreview actionPreview;
     
     public JobManager(Quantum plugin, DatabaseManager databaseManager) {
         this.plugin = plugin;
@@ -45,6 +46,9 @@ public class JobManager {
         loadConfig();
         createTables();
         startBoosterCheckTask();
+        
+        // Initialize ActionPreview
+        this.actionPreview = new ActionPreview(plugin, this);
         
         plugin.getLogger().info("✓ Jobs system loaded! (" + jobs.size() + " jobs available)");
     }
@@ -526,5 +530,21 @@ public class JobManager {
     
     public YamlConfiguration getConfig() {
         return config;
+    }
+    
+    /**
+     * Récupère le système de preview d'actions
+     */
+    public ActionPreview getActionPreview() {
+        return actionPreview;
+    }
+    
+    /**
+     * Affiche une preview de l'action de tap sur une structure
+     */
+    public void showStructureTapPreview(Player player, String structureId, String structureState) {
+        if (actionPreview != null) {
+            actionPreview.showStructureTapPreview(player, structureId, structureState);
+        }
     }
 }

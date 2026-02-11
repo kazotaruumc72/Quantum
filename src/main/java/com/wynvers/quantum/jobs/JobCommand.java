@@ -60,7 +60,20 @@ public class JobCommand implements CommandExecutor {
                 break;
                 
             case "rewards":
-                showRewards(player);
+                if (args.length > 1 && args[1].equalsIgnoreCase("preview")) {
+                    // Utiliser le système de preview amélioré
+                    int levels = 3;  // Par défaut 3 niveaux
+                    if (args.length > 2) {
+                        try {
+                            levels = Integer.parseInt(args[2]);
+                            levels = Math.min(10, Math.max(1, levels)); // Entre 1 et 10
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                    jobManager.getActionPreview().showNextRewardsPreview(player, levels);
+                } else {
+                    showRewards(player);
+                }
                 break;
                 
             default:
@@ -70,6 +83,7 @@ public class JobCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.GRAY + "/job list - Lister tous les métiers");
                 player.sendMessage(ChatColor.GRAY + "/job info [métier] - Info sur un métier");
                 player.sendMessage(ChatColor.GRAY + "/job rewards - Voir les prochaines récompenses");
+                player.sendMessage(ChatColor.GRAY + "/job rewards preview [niveaux] - Preview détaillé des récompenses");
                 break;
         }
         
@@ -189,22 +203,64 @@ public class JobCommand implements CommandExecutor {
         
         int currentLevel = jobData.getLevel();
         
-        player.sendMessage(ChatColor.GOLD + "=== Prochaines Récompenses ===");
+        player.sendMessage(ChatColor.GOLD + "════════════════════════════════");
+        player.sendMessage(ChatColor.YELLOW + "✦ Prochaines Récompenses");
+        player.sendMessage(ChatColor.GOLD + "════════════════════════════════");
+        player.sendMessage("");
         
         boolean foundReward = false;
         for (int level = currentLevel + 1; level <= Math.min(currentLevel + 10, job.getMaxLevel()); level++) {
             if (!job.getLevelRewards(level).isEmpty()) {
-                player.sendMessage(ChatColor.YELLOW + "Niveau " + level + ":");
+                player.sendMessage(ChatColor.GOLD + "▸ Niveau " + level + ChatColor.DARK_GRAY + ":");
                 for (JobReward reward : job.getLevelRewards(level)) {
-                    String rewardDesc = getRewardDescription(reward);
-                    player.sendMessage(ChatColor.GRAY + "  - " + rewardDesc);
+                    String rewardDesc = getEnhancedRewardDescription(reward);
+                    player.sendMessage(ChatColor.GRAY + "  • " + rewardDesc);
                 }
+                player.sendMessage("");
                 foundReward = true;
             }
         }
         
         if (!foundReward) {
             player.sendMessage(ChatColor.GRAY + "Aucune récompense dans les 10 prochains niveaux.");
+            player.sendMessage("");
+        }
+        
+        player.sendMessage(ChatColor.DARK_GRAY + "Astuce: Utilisez " + ChatColor.WHITE + 
+                          "/job rewards preview" + ChatColor.DARK_GRAY + " pour un aperçu détaillé!");
+    }
+    
+    /**
+     * Retourne une description améliorée d'une récompense
+     */
+    private String getEnhancedRewardDescription(JobReward reward) {
+        switch (reward.getType()) {
+            case "money":
+                return ChatColor.GREEN + "💰 " + reward.getValue() + "$";
+            case "nexo_item":
+                return ChatColor.AQUA + "📦 " + reward.getValue() + 
+                       ChatColor.GRAY + " x" + reward.getAmount() + 
+                       ChatColor.DARK_GRAY + " (Nexo)";
+            case "mythicmobs_item":
+                return ChatColor.LIGHT_PURPLE + "⚔ " + reward.getValue() + 
+                       ChatColor.GRAY + " x" + reward.getAmount() + 
+                       ChatColor.DARK_GRAY + " (MythicMobs)";
+            case "exp_booster":
+                String expNote = reward.isDungeonOnly() ? 
+                    ChatColor.RED + " (Donjon)" : "";
+                return ChatColor.GOLD + "✦ Booster XP x" + reward.getValue() + 
+                       ChatColor.GRAY + " (" + (reward.getDuration() / 60) + " min)" + expNote;
+            case "money_booster":
+                String moneyNote = reward.isDungeonOnly() ? 
+                    ChatColor.RED + " (Donjon)" : "";
+                return ChatColor.GREEN + "✦ Booster $ x" + reward.getValue() + 
+                       ChatColor.GRAY + " (" + (reward.getDuration() / 60) + " min)" + moneyNote;
+            case "console_command":
+                return ChatColor.YELLOW + "⚙ Commande spéciale";
+            case "player_command":
+                return ChatColor.YELLOW + "⚙ Action joueur";
+            default:
+                return ChatColor.WHITE + reward.getType();
         }
     }
     

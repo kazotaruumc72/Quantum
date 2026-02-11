@@ -11,6 +11,8 @@ Le système de métiers (Jobs) ajoute une progression de compétences complète 
 - Niveau maximum configurable (par défaut: 100)
 - Courbe d'XP identique au système de donjon (formule: `100 * 1.1^(level-1)`)
 - Structures valides spécifiques à chaque métier
+- **Nouveau:** Support des blocks et furniture Nexo
+- **Nouveau:** Système d'actions personnalisables (break, place, hit, fish, drink, eat, kill)
 
 ### 2. **Interaction avec les structures**
 - Les joueurs peuvent taper (clic gauche) sur des structures définies dans `structures.yml`
@@ -21,6 +23,51 @@ Le système de métiers (Jobs) ajoute une progression de compétences complète 
   - GOOD: 7 XP + 3$
   - DAMAGED: 5 XP + 2$
   - STUMP: 2 XP + 1$
+
+### 2bis. **Système d'actions**
+Chaque métier peut autoriser différents types d'actions. Les joueurs gagnent de l'XP et de l'argent en effectuant ces actions.
+
+**Actions disponibles:**
+- **break**: Casser des blocs (minerais, bûches, etc.)
+- **place**: Placer des blocs
+- **hit**: Frapper des entités
+- **fish**: Pêcher
+- **drink**: Boire des potions
+- **eat**: Manger de la nourriture
+- **kill**: Tuer des mobs
+
+**Configuration par métier:**
+```yaml
+allowed_actions:
+  break: true     # Autorisé
+  place: false    # Non autorisé
+  hit: true       # Autorisé
+  fish: false     # Non autorisé
+  drink: false    # Non autorisé
+  eat: false      # Non autorisé
+  kill: true      # Autorisé
+```
+
+### 2ter. **Support Nexo (Blocks & Furniture)**
+Les métiers peuvent définir des blocks et furniture Nexo valides.
+
+**Blocks Nexo:**
+```yaml
+valid_nexo_blocks:
+  - "magic_log_block"
+  - "ancient_wood"
+  - "crystal_deposit"
+```
+
+**Furniture Nexo:**
+```yaml
+valid_nexo_furniture:
+  - "workbench_table"
+  - "lumber_station"
+  - "forge_anvil"
+```
+
+Lorsqu'un joueur interagit avec un block ou furniture Nexo valide pour son métier, il gagne de l'XP et de l'argent selon les récompenses configurées dans `action_rewards.nexo_block` et `action_rewards.nexo_furniture`.
 
 ### 3. **Système de récompenses**
 Les récompenses sont automatiquement distribuées lorsque le joueur atteint un certain niveau. Types de récompenses supportés:
@@ -138,10 +185,17 @@ action_rewards:
 #### `/job` - Afficher vos informations de métier
 Affiche votre métier actuel, niveau, XP et progression.
 
-#### `/job select <métier>` - Choisir un métier
-Sélectionne un métier. Vous ne pouvez avoir qu'un seul métier actif à la fois.
+#### `/job join <métier>` - Rejoindre un métier
+Rejoint un métier. Vous ne pouvez avoir qu'un seul métier actif à la fois.
+Alias: `/job select`, `/job choose`
 
-Exemple: `/job select lumberjack`
+Exemple: `/job join lumberjack`
+
+#### `/job leave` - Quitter votre métier
+Quitte votre métier actuel et supprime toute votre progression.
+Alias: `/job quit`
+
+**Attention:** Cette action supprime définitivement votre progression !
 
 #### `/job list` - Lister tous les métiers
 Affiche tous les métiers disponibles avec leurs descriptions.
@@ -206,6 +260,11 @@ Le système de métiers s'intègre avec le StructureManager pour:
 - Distribution d'argent via les récompenses
 - Multiplicateurs de money_booster
 
+### Nexo
+- Support des blocks Nexo personnalisés
+- Support des furniture Nexo
+- Détection automatique lors des interactions
+
 ### Database
 Les données de métiers sont stockées dans la table `quantum_player_jobs`:
 ```sql
@@ -216,6 +275,35 @@ CREATE TABLE quantum_player_jobs (
     exp INT NOT NULL DEFAULT 0
 )
 ```
+
+## PlaceholderAPI
+
+Le système de métiers fournit de nombreux placeholders pour afficher les informations dans les scoreboards, menus, etc.
+
+### Placeholders disponibles
+
+**Informations du métier actuel:**
+- `%quantum_job_name%` - Nom du métier actuel
+- `%quantum_job_level%` - Niveau du métier
+- `%quantum_job_exp%` - Expérience actuelle
+- `%quantum_job_exp_needed%` - Expérience nécessaire pour le prochain niveau
+- `%quantum_job_exp_progress%` - Progression (format: 450/1000)
+- `%quantum_job_rank%` - Classement du joueur dans son métier
+
+**Boosters actifs:**
+- `%quantum_job_booster_exp%` - Multiplicateur d'XP actif
+- `%quantum_job_booster_money%` - Multiplicateur d'argent actif
+- `%quantum_job_boosters_active%` - Nombre de boosters actifs
+
+**Classements (Leaderboards):**
+- `%quantum_job_top_<job>_<position>%` - Nom du joueur à la position N
+- `%quantum_job_top_<job>_<position>_level%` - Niveau du joueur à la position N
+
+**Exemples:**
+- `%quantum_job_top_lumberjack_1%` - Nom du #1 en bûcheron
+- `%quantum_job_top_miner_3_level%` - Niveau du #3 en mineur
+
+Pour plus de détails, consultez [PLACEHOLDERS.md](PLACEHOLDERS.md).
 
 ## Exemples de métiers
 

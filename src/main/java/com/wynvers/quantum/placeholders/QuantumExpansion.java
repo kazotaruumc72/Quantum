@@ -92,6 +92,11 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return Integer.toString(storage.getTotalItemCount());
         }
         
+        // === JOB SYSTEM ===
+        if (params.startsWith("job_")) {
+            return handleJobPlaceholder(player, params);
+        }
+        
         // === TOWER SYSTEM ===
         if (params.startsWith("tower_") || params.startsWith("towers_")) {            return handleTowerPlaceholder(player, params);
         }
@@ -147,6 +152,147 @@ public class QuantumExpansion extends PlaceholderExpansion {
             Map<String, String> placeholders = session.getPlaceholders();
             String key = "quantum_" + params;
             return placeholders.getOrDefault(key, "0");
+        }
+        
+        return "0";
+    }
+    
+    /**
+     * Handle job-related placeholders
+     */
+    private String handleJobPlaceholder(Player player, String params) {
+        if (plugin.getJobManager() == null) {
+            return "0";
+        }
+        
+        com.wynvers.quantum.jobs.JobManager jobManager = plugin.getJobManager();
+        com.wynvers.quantum.jobs.JobData jobData = jobManager.getPlayerJob(player.getUniqueId());
+        
+        // %quantum_job_name% - Current job display name
+        if (params.equals("job_name")) {
+            if (jobData == null) return "Aucun";
+            com.wynvers.quantum.jobs.Job job = jobManager.getJob(jobData.getJobId());
+            return job != null ? org.bukkit.ChatColor.stripColor(
+                org.bukkit.ChatColor.translateAlternateColorCodes('&', job.getDisplayName())
+            ) : "Aucun";
+        }
+        
+        // %quantum_job_level% - Current job level
+        if (params.equals("job_level")) {
+            return jobData != null ? String.valueOf(jobData.getLevel()) : "0";
+        }
+        
+        // %quantum_job_exp% - Current job exp
+        if (params.equals("job_exp")) {
+            return jobData != null ? String.valueOf(jobData.getExp()) : "0";
+        }
+        
+        // %quantum_job_exp_needed% - Exp needed for next level
+        if (params.equals("job_exp_needed")) {
+            if (jobData == null) return "0";
+            return String.valueOf(jobManager.getRequiredExp(jobData.getLevel()));
+        }
+        
+        // %quantum_job_exp_progress% - Exp progress (50/100)
+        if (params.equals("job_exp_progress")) {
+            if (jobData == null) return "0/0";
+            int exp = jobData.getExp();
+            int needed = jobManager.getRequiredExp(jobData.getLevel());
+            return exp + "/" + needed;
+        }
+        
+        // %quantum_job_rank% - Player's rank in their job
+        if (params.equals("job_rank")) {
+            int rank = jobManager.getPlayerRank(player.getUniqueId());
+            return rank > 0 ? String.valueOf(rank) : "N/A";
+        }
+        
+        // %quantum_job_booster_exp% - Active exp booster multiplier
+        if (params.equals("job_booster_exp")) {
+            boolean inDungeon = plugin.getTowerManager() != null && 
+                plugin.getTowerManager().getPlayerTower(player) != null;
+            double multiplier = jobManager.getExpMultiplier(player.getUniqueId(), inDungeon);
+            return multiplier > 1.0 ? String.format("%.1f", multiplier) : "1.0";
+        }
+        
+        // %quantum_job_booster_money% - Active money booster multiplier
+        if (params.equals("job_booster_money")) {
+            boolean inDungeon = plugin.getTowerManager() != null && 
+                plugin.getTowerManager().getPlayerTower(player) != null;
+            double multiplier = jobManager.getMoneyMultiplier(player.getUniqueId(), inDungeon);
+            return multiplier > 1.0 ? String.format("%.1f", multiplier) : "1.0";
+        }
+        
+        // %quantum_job_boosters_active% - Number of active boosters
+        if (params.equals("job_boosters_active")) {
+            java.util.List<com.wynvers.quantum.jobs.ActiveBooster> boosters = 
+                jobManager.getActiveBoosters(player.getUniqueId());
+            int activeCount = 0;
+            for (com.wynvers.quantum.jobs.ActiveBooster booster : boosters) {
+                if (!booster.isExpired()) {
+                    activeCount++;
+                }
+            }
+            return String.valueOf(activeCount);
+        }
+        
+        // %quantum_job_top_<job>_<position>% - Top player name for a job
+        // Example: %quantum_job_top_lumberjack_1%
+        if (params.matches("job_top_[a-z_]+_\\d+")) {
+            String[] parts = params.split("_");
+            if (parts.length >= 4) {
+                // Reconstruct job ID (may contain underscores)
+                StringBuilder jobIdBuilder = new StringBuilder();
+                for (int i = 2; i < parts.length - 1; i++) {
+                    if (i > 2) jobIdBuilder.append("_");
+                    jobIdBuilder.append(parts[i]);
+                }
+                String jobId = jobIdBuilder.toString();
+                
+                try {
+                    int position = Integer.parseInt(parts[parts.length - 1]);
+                    java.util.List<com.wynvers.quantum.jobs.JobData> topPlayers = 
+                        jobManager.getTopPlayers(jobId, position);
+                    
+                    if (topPlayers.size() >= position) {
+                        com.wynvers.quantum.jobs.JobData topPlayer = topPlayers.get(position - 1);
+                        org.bukkit.OfflinePlayer offlinePlayer = 
+                            org.bukkit.Bukkit.getOfflinePlayer(topPlayer.getUuid());
+                        return offlinePlayer.getName() != null ? offlinePlayer.getName() : "Unknown";
+                    }
+                } catch (NumberFormatException e) {
+                    // Invalid position number
+                }
+            }
+            return "N/A";
+        }
+        
+        // %quantum_job_top_<job>_<position>_level% - Top player level for a job
+        if (params.matches("job_top_[a-z_]+_\\d+_level")) {
+            String[] parts = params.split("_");
+            if (parts.length >= 5) {
+                // Reconstruct job ID
+                StringBuilder jobIdBuilder = new StringBuilder();
+                for (int i = 2; i < parts.length - 2; i++) {
+                    if (i > 2) jobIdBuilder.append("_");
+                    jobIdBuilder.append(parts[i]);
+                }
+                String jobId = jobIdBuilder.toString();
+                
+                try {
+                    int position = Integer.parseInt(parts[parts.length - 2]);
+                    java.util.List<com.wynvers.quantum.jobs.JobData> topPlayers = 
+                        jobManager.getTopPlayers(jobId, position);
+                    
+                    if (topPlayers.size() >= position) {
+                        com.wynvers.quantum.jobs.JobData topPlayer = topPlayers.get(position - 1);
+                        return String.valueOf(topPlayer.getLevel());
+                    }
+                } catch (NumberFormatException e) {
+                    // Invalid position number
+                }
+            }
+            return "0";
         }
         
         return "0";

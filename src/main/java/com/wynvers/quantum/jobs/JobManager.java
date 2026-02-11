@@ -681,6 +681,85 @@ public class JobManager {
         }, 20L * 60L, 20L * 60L);  // Every 60 seconds
     }
     
+    /**
+     * Récupère le classement d'un joueur pour son métier actuel
+     * @return Position dans le classement (1 = premier), ou -1 si pas de métier
+     */
+    public int getPlayerRank(UUID uuid) {
+        JobData playerData = playerJobs.get(uuid);
+        if (playerData == null) {
+            return -1;
+        }
+        
+        String jobId = playerData.getJobId();
+        
+        // Récupérer tous les joueurs avec le même métier depuis la base de données
+        try (Connection conn = databaseManager.getConnection()) {
+            String query = "SELECT uuid, level, exp FROM quantum_player_jobs WHERE job_id = ? ORDER BY level DESC, exp DESC";
+            
+            try (PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setString(1, jobId);
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    int rank = 1;
+                    while (rs.next()) {
+                        if (rs.getString("uuid").equals(uuid.toString())) {
+                            return rank;
+                        }
+                        rank++;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getQuantumLogger().error("Failed to get player rank: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return -1;
+    }
+    
+    /**
+     * Récupère le top N des joueurs pour un métier donné
+     * @param jobId ID du métier
+     * @param limit Nombre de joueurs à récupérer
+     * @return Liste des données de joueurs, triée par niveau décroissant
+     */
+    public List<JobData> getTopPlayers(String jobId, int limit) {
+        List<JobData> topPlayers = new ArrayList<>();
+        
+        try (Connection conn = databaseManager.getConnection()) {
+            String query = "SELECT uuid, job_id, level, exp FROM quantum_player_jobs WHERE job_id = ? ORDER BY level DESC, exp DESC LIMIT ?";
+            
+            try (PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setString(1, jobId);
+                ps.setInt(2, limit);
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        UUID uuid = UUID.fromString(rs.getString("uuid"));
+                        String job = rs.getString("job_id");
+                        int level = rs.getInt("level");
+                        int exp = rs.getInt("exp");
+                        
+                        topPlayers.add(new JobData(uuid, job, level, exp));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getQuantumLogger().error("Failed to get top players: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return topPlayers;
+    }
+    
+    /**
+     * Récupère les boosters actifs d'un joueur
+     */
+    public List<ActiveBooster> getActiveBoosters(UUID uuid) {
+        return activeBoosters.getOrDefault(uuid, new ArrayList<>());
+    }
+    
     public void reload() {
         loadConfig();
     }

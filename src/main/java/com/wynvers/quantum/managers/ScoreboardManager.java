@@ -128,13 +128,23 @@ public class ScoreboardManager {
         UUID uuid = player.getUniqueId();
         Map<Integer, String> cachedLines = lineCache.computeIfAbsent(uuid, k -> new HashMap<>());
         
+        // Batch parse all placeholders at once to reduce PlaceholderAPI overhead
+        StringBuilder batchText = new StringBuilder();
+        for (int i = 0; i < lines.size(); i++) {
+            if (i > 0) batchText.append("\n");
+            batchText.append(lines.get(i));
+        }
+        
+        // Single PlaceholderAPI call for all lines
+        String parsedBatch = PlaceholderAPI.setPlaceholders(player, batchText.toString());
+        String[] parsedLines = parsedBatch.split("\n", -1);
+        
         int lineNumber = lines.size();
-        for (String line : lines) {
+        for (int i = 0; i < Math.min(lines.size(), parsedLines.length); i++) {
             Team team = board.getTeam("line_" + lineNumber);
             if (team != null) {
-                // Parse les placeholders PUIS applique les couleurs
-                String parsedLine = PlaceholderAPI.setPlaceholders(player, line);
-                String colored = ScoreboardUtils.color(parsedLine);
+                // Apply colors to the already parsed line
+                String colored = ScoreboardUtils.color(parsedLines[i]);
                 
                 // Vérifier si la ligne a changé depuis la dernière mise à jour
                 String cachedLine = cachedLines.get(lineNumber);

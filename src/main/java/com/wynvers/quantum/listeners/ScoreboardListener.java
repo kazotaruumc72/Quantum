@@ -3,8 +3,6 @@ package com.wynvers.quantum.listeners;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.managers.ScoreboardConfig;
 import com.wynvers.quantum.managers.ScoreboardManager;
-import me.clip.placeholderapi.PlaceholderAPI;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -13,7 +11,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -105,20 +102,9 @@ public class ScoreboardListener implements Listener {
                     return;
                 }
                 
-                // Mettre à jour les lignes avec les placeholders
+                // Mettre à jour avec les lignes brutes - ScoreboardManager gère PlaceholderAPI et MiniMessage
                 List<String> lines = scoreboardConfig.getLines();
-                List<String> processedLines = new ArrayList<>();
-                
-                for (String line : lines) {
-                    // Remplacer les placeholders si PlaceholderAPI est disponible
-                    if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                        line = PlaceholderAPI.setPlaceholders(player, line);
-                    }
-                    processedLines.add(line);
-                }
-                
-                // Mettre à jour le scoreboard
-                scoreboardManager.updateAllLines(player, processedLines);
+                scoreboardManager.updateAllLines(player, lines);
             }
         }.runTaskTimer(plugin, updateInterval, updateInterval);
     }

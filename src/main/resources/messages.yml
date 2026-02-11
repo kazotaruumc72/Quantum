@@ -224,11 +224,24 @@ order-creation:
 
 weapons:
   player-only: "<red>✖ Cette commande ne peut être exécutée que par un joueur!</red>"
-  no-permission: "<red>✖ Vous n'avez pas la permission d'utiliser cette commande!</red>"
-  invalid-usage: "<red>✖ Utilisation: /weapon <id> [joueur]</red>"
-  weapon-not-found: "<red>✖ Arme introuvable: <yellow>%weapon_id%</yellow></red>"
-  given-to-player: "<green>✔ L'arme <yellow>%weapon_name%</yellow> a été donnée à <aqua>%player%</aqua>.</green>"
-  received-weapon: "<green>✔ Vous avez reçu l'arme: <yellow>%weapon_name%</yellow></green>"
+  no-permission: "<red>✖ Vous n'avez pas la permission!</red>"
+  no-weapon-in-hand: "<red>✖ Vous devez tenir une arme dans votre main!</red>"
+  not-dungeon-weapon: "<red>✖ Cet item n'est pas une arme de donjon!</red>"
+  received: "<green>✔ Vous avez reçu une arme de donjon!</green>"
+  creation-error: "<red>✖ Erreur lors de la création de l'arme!</red>"
+  
+  info:
+    header: "<yellow>=== Arme de Donjon ===</yellow>"
+    level: "<gray>Niveau: <green>%level%</green></gray>"
+    in-dungeon: "<gray>Dans un donjon: %in_dungeon%</gray>"
+    upgrade-cost: "<gray>Coût d'amélioration: <yellow>%cost%$</yellow></gray>"
+  
+  help:
+    header: "<yellow>=== Commandes Arme de Donjon ===</yellow>"
+    commands:
+      - "<gray>/weapon upgrade <white>- Améliorer l'arme en main</white></gray>"
+      - "<gray>/weapon info <white>- Afficher les infos de l'arme</white></gray>"
+      - "<gray>/weapon give <white>- Obtenir une arme de donjon</white></gray>"
 
 # ═══════════════════════════════════════════════════════════════════════════
 #   🛡️ SECTION 15: MESSAGES D'ARMURES (ARMOR)
@@ -236,11 +249,28 @@ weapons:
 
 armor:
   player-only: "<red>✖ Cette commande ne peut être exécutée que par un joueur!</red>"
-  no-permission: "<red>✖ Vous n'avez pas la permission d'utiliser cette commande!</red>"
-  invalid-usage: "<red>✖ Utilisation: /armor <id> [joueur]</red>"
-  armor-not-found: "<red>✖ Armure introuvable: <yellow>%armor_id%</yellow></red>"
+  no-permission: "<red>✖ Vous n'avez pas la permission!</red>"
+  no-armor-in-hand: "<red>✖ Vous devez tenir une pièce d'armure dans votre main!</red>"
+  not-dungeon-armor: "<red>✖ Cet item n'est pas une armure de donjon!</red>"
+  invalid-armor-id: "<red>✖ ID d'armure invalide: <yellow>%armor_id%</yellow></red>"
+  received: "<green>✔ Vous avez reçu une armure de donjon!</green>"
+  creation-error: "<red>✖ Erreur lors de la création de l'armure!</red>"
   given-to-player: "<green>✔ L'armure <yellow>%armor_name%</yellow> a été donnée à <aqua>%player%</aqua>.</green>"
   received-armor: "<green>✔ Vous avez reçu l'armure: <yellow>%armor_name%</yellow></green>"
+  
+  info:
+    header: "<yellow>=== Armure de Donjon ===</yellow>"
+    level: "<gray>Niveau: <green>%level%</green></gray>"
+    rarity: "<gray>Rareté: %rarity%</gray>"
+    defense: "<gray>Défense: <aqua>+%defense%</aqua></gray>"
+    upgrade-cost: "<gray>Coût d'amélioration: <yellow>%cost%$</yellow></gray>"
+  
+  help:
+    header: "<yellow>=== Commandes Armure de Donjon ===</yellow>"
+    commands:
+      - "<gray>/armor give <id> [joueur] <white>- Donner une armure</white></gray>"
+      - "<gray>/armor list <white>- Lister les armures disponibles</white></gray>"
+      - "<gray>/armor info <white>- Afficher les infos de l'armure en main</white></gray>"
 
 # ═══════════════════════════════════════════════════════════════════════════
 #   🏰 SECTION 16: MESSAGES DE TOURS (TOWERS)

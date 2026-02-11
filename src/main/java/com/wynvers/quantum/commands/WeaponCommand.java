@@ -8,6 +8,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Commande pour gérer l'arme de donjon
  */
@@ -23,12 +26,10 @@ public class WeaponCommand implements CommandExecutor {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("§cCette commande ne peut être exécutée que par un joueur!");
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("Cette commande ne peut être exécutée que par un joueur!");
             return true;
         }
-        
-        Player player = (Player) sender;
         
         if (args.length == 0) {
             sendHelp(player);
@@ -54,12 +55,12 @@ public class WeaponCommand implements CommandExecutor {
         ItemStack item = player.getInventory().getItemInMainHand();
         
         if (item == null || item.getType().isAir()) {
-            player.sendMessage("§cVous devez tenir une arme dans votre main!");
+            plugin.getMessageManager().sendMessage(player, "weapons.no-weapon-in-hand");
             return true;
         }
         
         if (!dungeonWeapon.isDungeonWeapon(item)) {
-            player.sendMessage("§cCet item n'est pas une arme de donjon!");
+            plugin.getMessageManager().sendMessage(player, "weapons.not-dungeon-weapon");
             return true;
         }
         
@@ -71,29 +72,38 @@ public class WeaponCommand implements CommandExecutor {
         ItemStack item = player.getInventory().getItemInMainHand();
         
         if (item == null || item.getType().isAir()) {
-            player.sendMessage("§cVous devez tenir une arme dans votre main!");
+            plugin.getMessageManager().sendMessage(player, "weapons.no-weapon-in-hand");
             return true;
         }
         
         if (!dungeonWeapon.isDungeonWeapon(item)) {
-            player.sendMessage("§cCet item n'est pas une arme de donjon!");
+            plugin.getMessageManager().sendMessage(player, "weapons.not-dungeon-weapon");
             return true;
         }
         
         int level = dungeonWeapon.getLevel(item);
         boolean inDungeon = dungeonWeapon.isInDungeon(player);
         
-        player.sendMessage("§e=== Arme de Donjon ===");
-        player.sendMessage("§7Niveau: §a" + level);
-        player.sendMessage("§7Dans un donjon: " + (inDungeon ? "§aOui" : "§cNon"));
-        player.sendMessage("§7Coût d'amélioration: §e" + dungeonWeapon.getUpgradeCost(level) + "$");
+        plugin.getMessageManager().sendMessage(player, "weapons.info.header");
+        
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("level", String.valueOf(level));
+        plugin.getMessageManager().sendMessage(player, "weapons.info.level", placeholders);
+        
+        placeholders.clear();
+        placeholders.put("in_dungeon", inDungeon ? "<green>Oui</green>" : "<red>Non</red>");
+        plugin.getMessageManager().sendMessage(player, "weapons.info.in-dungeon", placeholders);
+        
+        placeholders.clear();
+        placeholders.put("cost", String.valueOf(dungeonWeapon.getUpgradeCost(level)));
+        plugin.getMessageManager().sendMessage(player, "weapons.info.upgrade-cost", placeholders);
         
         return true;
     }
     
     private boolean handleGive(Player player) {
         if (!player.hasPermission("quantum.weapon.give")) {
-            player.sendMessage("§cVous n'avez pas la permission!");
+            plugin.getMessageManager().sendMessage(player, "weapons.no-permission");
             return true;
         }
         
@@ -101,18 +111,18 @@ public class WeaponCommand implements CommandExecutor {
         
         if (weapon != null) {
             player.getInventory().addItem(weapon);
-            player.sendMessage("§aVous avez reçu une arme de donjon!");
+            plugin.getMessageManager().sendMessage(player, "weapons.received");
         } else {
-            player.sendMessage("§cErreur lors de la création de l'arme!");
+            plugin.getMessageManager().sendMessage(player, "weapons.creation-error");
         }
         
         return true;
     }
     
     private void sendHelp(Player player) {
-        player.sendMessage("§e=== Commandes Arme de Donjon ===");
-        player.sendMessage("§7/weapon upgrade §f- Améliorer l'arme en main");
-        player.sendMessage("§7/weapon info §f- Afficher les infos de l'arme");
-        player.sendMessage("§7/weapon give §f- Obtenir une arme de donjon");
+        plugin.getMessageManager().sendMessage(player, "weapons.help.header");
+        for (String command : plugin.getMessageManager().getMessageList("weapons.help.commands")) {
+            player.sendMessage(plugin.getMessageManager().toComponent(command));
+        }
     }
 }

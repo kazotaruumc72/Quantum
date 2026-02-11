@@ -130,6 +130,120 @@ public class StructureManager {
     }
     
     /**
+     * Détecte une structure à une position donnée et retourne son ID et son état
+     * @param location Position du bloc cliqué
+     * @return Un tableau [structureId, state] ou null si aucune structure détectée
+     */
+    public String[] detectStructure(Location location) {
+        // Pour chaque structure connue
+        for (Structure structure : structures.values()) {
+            // Pour chaque état possible
+            for (StructureState state : StructureState.values()) {
+                List<StructureBlock> blocks = structure.getState(state);
+                if (blocks == null || blocks.isEmpty()) continue;
+                
+                // Tester si la structure correspond à cette position
+                // On teste chaque bloc comme potentiel point de base
+                for (StructureBlock baseBlock : blocks) {
+                    Location baseLocation = location.clone().subtract(baseBlock.getX(), baseBlock.getY(), baseBlock.getZ());
+                    
+                    if (matchesStructure(baseLocation, blocks)) {
+                        return new String[] { structure.getId(), state.name() };
+                    }
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Vérifie si une structure correspond aux blocs à une position donnée
+     * Note: Currently only checks Minecraft blocks. Nexo block verification
+     * will be added in a future update when NexoBlocks API is available.
+     */
+    private boolean matchesStructure(Location baseLocation, List<StructureBlock> blocks) {
+        for (StructureBlock block : blocks) {
+            Location loc = baseLocation.clone().add(block.getX(), block.getY(), block.getZ());
+            
+            if ("minecraft".equalsIgnoreCase(block.getType())) {
+                Material material = Material.matchMaterial(block.getId());
+                if (material == null || loc.getBlock().getType() != material) {
+                    return false;
+                }
+            }
+            // TODO: Vérifier les blocs Nexo quand l'API sera disponible
+            // For now, Nexo blocks in structures will not be detected correctly
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Dégrade l'état d'une structure (whole -> good -> damaged -> stump)
+     * @param location Position de la structure
+     * @param structureId ID de la structure
+     * @param currentState État actuel
+     * @return Le nouvel état ou null si aucun changement
+     */
+    public StructureState degradeStructure(Location location, String structureId, StructureState currentState) {
+        Structure structure = structures.get(structureId);
+        if (structure == null) return null;
+        
+        StructureState newState = getNextState(currentState);
+        if (newState == null) return null;
+        
+        // Retirer les blocs de l'état actuel
+        List<StructureBlock> currentBlocks = structure.getState(currentState);
+        if (currentBlocks != null) {
+            for (StructureBlock block : currentBlocks) {
+                Location loc = location.clone().add(block.getX(), block.getY(), block.getZ());
+                loc.getBlock().setType(Material.AIR);
+            }
+        }
+        
+        // Placer les blocs du nouvel état
+        List<StructureBlock> newBlocks = structure.getState(newState);
+        if (newBlocks != null) {
+            for (StructureBlock block : newBlocks) {
+                Location loc = location.clone().add(block.getX(), block.getY(), block.getZ());
+                placeBlock(loc, block);
+            }
+        }
+        
+        return newState;
+    }
+    
+    /**
+     * Retourne l'état suivant dans la dégradation
+     */
+    private StructureState getNextState(StructureState current) {
+        if (current == StructureState.WHOLE) {
+            return StructureState.GOOD;
+        } else if (current == StructureState.GOOD) {
+            return StructureState.DAMAGED;
+        } else if (current == StructureState.DAMAGED) {
+            return StructureState.STUMP;
+        } else {
+            return null;  // Pas de dégradation possible
+        }
+    }
+    
+    /**
+     * Récupère une structure par son ID
+     */
+    public Structure getStructure(String structureId) {
+        return structures.get(structureId);
+    }
+    
+    /**
+     * Récupère toutes les structures
+     */
+    public Collection<Structure> getAllStructures() {
+        return structures.values();
+    }
+    
+    /**
      * Classe représentant une structure
      */
     public static class Structure {

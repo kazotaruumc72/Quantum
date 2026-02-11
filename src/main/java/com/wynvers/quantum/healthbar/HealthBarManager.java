@@ -97,11 +97,11 @@ public class HealthBarManager {
                     // Calculer l'offset (utiliser cache pour config)
                     ConfigurationSection mobSection = getCachedMobConfig(mob);
                     double yOffset = 0.5; // Défaut
-                    if (hasModelEngine) {
-                        double hologramOffset = getHologramOffset(mobSection);
-                        if (hologramOffset > 0) {
-                            yOffset = hologramOffset;
-                        }
+                    
+                    // Appliquer l'offset depuis la config (pour tous les mobs, pas seulement ModelEngine)
+                    double hologramOffset = getHologramOffset(mobSection);
+                    if (hologramOffset > 0) {
+                        yOffset = hologramOffset;
                     }
                     
                     // Mettre à jour la position seulement si le mob a bougé de manière significative
@@ -349,6 +349,8 @@ public class HealthBarManager {
                 return generateHeartsDisplay(entity, health, maxHealth, mobSection, hasModelEngine);
             case "NUMERIC":
                 return generateNumericDisplay(entity, health, maxHealth, mobSection, hasModelEngine);
+            case "PERCENTAGE_ONLY":
+                return generatePercentageOnlyDisplay(entity, health, maxHealth, percentage, mobSection, hasModelEngine);
             case "BOSS_BAR":
             case "CLASSIC":
             default:
@@ -499,6 +501,26 @@ public class HealthBarManager {
     }
     
     /**
+     * Affichage pourcentage uniquement (sans barre)
+     * Displays only the percentage number without the health bar visual
+     */
+    private String generatePercentageOnlyDisplay(LivingEntity entity, double health, double maxHealth,
+                                                 double percentage, ConfigurationSection mobSection, 
+                                                 boolean hasModelEngine) {
+        String color = getHealthColor(entity, percentage, mobSection);
+        
+        StringBuilder display = new StringBuilder();
+        
+        // Ajouter l'indicateur ModelEngine au début si applicable
+        display.append(getModelEngineIndicator(hasModelEngine));
+        
+        // Afficher uniquement le pourcentage
+        display.append(color).append(percentFormat.format(percentage));
+        
+        return display.toString();
+    }
+    
+    /**
      * Retourne la couleur selon le pourcentage de vie et la config du mob
      */
     private String getHealthColor(LivingEntity entity, double percentage, ConfigurationSection mobSection) {
@@ -593,13 +615,11 @@ public class HealthBarManager {
         entity.setCustomName(originalName);
         entity.setCustomNameVisible(true);
         
-        // Calculer l'offset vertical pour les modèles ModelEngine
+        // Calculer l'offset vertical pour tous les mobs
         double baseOffset = 0.5; // Offset par défaut au-dessus de l'entité
-        if (hasModelEngine) {
-            double hologramOffset = getHologramOffset(mobSection);
-            if (hologramOffset > 0) {
-                baseOffset = hologramOffset;
-            }
+        double hologramOffset = getHologramOffset(mobSection);
+        if (hologramOffset > 0) {
+            baseOffset = hologramOffset;
         }
         
         // Créer ou mettre à jour la TextDisplay entity

@@ -44,13 +44,13 @@ public class HealthBarManager {
     
     // Map pour tracker les TextDisplay entities associées aux mobs
     // Key: UUID du mob, Value: UUID de la TextDisplay
-    private final Map<UUID, UUID> mobHealthDisplays = new HashMap<>();
+    private final Map<UUID, UUID> mobHealthDisplays = new java.util.concurrent.ConcurrentHashMap<>();
     
     // Cache pour les configurations de mobs pour éviter des lookups YAML répétés
-    private final Map<UUID, ConfigurationSection> mobConfigCache = new HashMap<>();
+    private final Map<UUID, ConfigurationSection> mobConfigCache = new java.util.concurrent.ConcurrentHashMap<>();
     
     // Cache pour le status ModelEngine des mobs
-    private final Map<UUID, Boolean> modelEngineCache = new HashMap<>();
+    private final Map<UUID, Boolean> modelEngineCache = new java.util.concurrent.ConcurrentHashMap<>();
     
     // Status du plugin ModelEngine (initialisé une seule fois au démarrage)
     private final boolean hasModelEnginePlugin;
@@ -116,11 +116,7 @@ public class HealthBarManager {
             });
             
             // Supprimer les entrées invalides et nettoyer les caches
-            toRemove.forEach(uuid -> {
-                mobHealthDisplays.remove(uuid);
-                mobConfigCache.remove(uuid);
-                modelEngineCache.remove(uuid);
-            });
+            toRemove.forEach(this::removeMobFromCaches);
             
         }, 10L, 10L).getTaskId(); // 10 ticks de délai initial, puis toutes les 10 ticks
     }
@@ -243,6 +239,15 @@ public class HealthBarManager {
         // Vérifier par type de mob
         String mobType = entity.getType().name();
         return mobConfig.getBoolean(mobType + ".enabled", true);
+    }
+    
+    /**
+     * Supprime un mob de tous les caches
+     */
+    private void removeMobFromCaches(UUID mobUUID) {
+        mobHealthDisplays.remove(mobUUID);
+        mobConfigCache.remove(mobUUID);
+        modelEngineCache.remove(mobUUID);
     }
     
     /**
@@ -650,12 +655,10 @@ public class HealthBarManager {
             if (displayEntity != null && displayEntity.isValid()) {
                 displayEntity.remove();
             }
-            mobHealthDisplays.remove(entityUUID);
         }
         
         // Nettoyer les caches pour ce mob
-        mobConfigCache.remove(entityUUID);
-        modelEngineCache.remove(entityUUID);
+        removeMobFromCaches(entityUUID);
     }
     
     /**

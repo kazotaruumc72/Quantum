@@ -6,6 +6,9 @@ load: POSTWORLD
 author: Kazotaruu_
 description: Advanced virtual storage with dynamic GUI builder and orders system
 
+libraries:
+  - com.mysql:mysql-connector-j:8.0.33
+
 depend:
   - Nexo
 

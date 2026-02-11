@@ -338,6 +338,8 @@ public class JobManager {
                     String message = config.getString("messages.job_reward_received", "")
                         .replace("{reward}", "Nexo Item: " + value);
                     player.sendMessage(message);
+                } else {
+                    plugin.getLogger().warning("Failed to give Nexo item (invalid ID): " + value);
                 }
                 break;
                 
@@ -515,7 +517,7 @@ public class JobManager {
                     activeBoosters.remove(uuid);
                 }
             }
-        }, 20L * 60L, 20L * 60L);  // Toutes les 60 secondes
+        }, 20L * 60L, 20L * 60L);  // Every 60 seconds
     }
     
     public void reload() {

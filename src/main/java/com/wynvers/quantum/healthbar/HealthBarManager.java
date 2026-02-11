@@ -107,9 +107,10 @@ public class HealthBarManager {
                     
                     // Mettre à jour la position seulement si le mob a bougé de manière significative
                     // Note: distanceSquared retourne le carré de la distance
-                    // 0.0001 = (0.01)^2, threshold de 0.01 bloc (1cm) pour un mouvement plus fluide
+                    // 0.0004 = (0.02)^2, threshold de 0.02 bloc (2cm) pour un bon équilibre fluidité/performance
+                    // Combiné avec 3 ticks d'intervalle, cela donne un mouvement fluide sans surcharge
                     Location newLoc = mob.getLocation().add(0, yOffset, 0);
-                    if (newLoc.distanceSquared(display.getLocation()) > 0.0001) {
+                    if (newLoc.distanceSquared(display.getLocation()) > 0.0004) {
                         display.teleport(newLoc);
                     }
                 } else {

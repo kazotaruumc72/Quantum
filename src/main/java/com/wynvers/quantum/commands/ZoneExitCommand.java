@@ -19,7 +19,7 @@ public class ZoneExitCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        sender.sendMessage("§c[Quantum] La commande /zoneexit est désactivée (ancien système de zones).");
+        sender.sendMessage("[Quantum] La commande /zoneexit est désactivée (ancien système de zones).");
         return true;
     }
 }

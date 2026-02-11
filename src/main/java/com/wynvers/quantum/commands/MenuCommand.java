@@ -7,6 +7,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class MenuCommand implements CommandExecutor {
     
     private final Quantum plugin;
@@ -18,20 +21,18 @@ public class MenuCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("§cOnly players can use this command!");
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("Only players can use this command!");
             return true;
         }
         
-        Player player = (Player) sender;
-        
         if (!player.hasPermission("quantum.menu")) {
-            player.sendMessage("§cYou don't have permission!");
+            plugin.getMessageManager().sendMessage(player, "system.no-permission");
             return true;
         }
         
         if (args.length == 0) {
-            player.sendMessage("§cUsage: /menu <menu_name>");
+            player.sendMessage("Usage: /menu <menu_name>");
             return true;
         }
         
@@ -44,7 +45,9 @@ public class MenuCommand implements CommandExecutor {
         }
         
         if (menu == null) {
-            player.sendMessage("§cMenu not found: §7" + menuName);
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("menu_name", menuName);
+            plugin.getMessageManager().sendMessage(player, "error.menu.failed-to-open", placeholders);
             return true;
         }
         

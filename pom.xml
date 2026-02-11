@@ -85,7 +85,7 @@
              <groupId>mysql</groupId>
              <artifactId>mysql-connector-java</artifactId>
              <version>8.0.33</version>
-             <scope>compile</scope>
+             <scope>provided</scope>
          </dependency>
         <!-- LuckPerms API -->
         <dependency>

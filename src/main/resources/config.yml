@@ -6,14 +6,18 @@
 # ───────────────────────────────────────────────────────────────
 # DATABASE
 # ───────────────────────────────────────────────────────────────
-mysql:
-  enabled: true
-  host: "localhost"
-  port: 3306
-  database: "quantum"
-  username: "quantum_user"
-  password: "password"
-  pool_size: 5
+database:
+  # Type de base de données: "mysql" ou "sqlite"
+  # Note: Actuellement, seul MySQL est supporté
+  type: "mysql"
+  
+  # Configuration MySQL
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "quantum"
+    username: "quantum_user"
+    password: "password"
 
 
 # ───────────────────────────────────────────────────────────────

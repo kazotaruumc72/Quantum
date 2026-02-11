@@ -30,7 +30,8 @@ public class QuantumExpansion extends PlaceholderExpansion {
     private final DecimalFormat percentFormat = new DecimalFormat("0.0");
     
     // Cache for tower kill requirements to avoid repeated YAML file reads
-    // Key: towerId + "_" + floor, Value: required kills
+    // Key: towerId + "|" + floor (using | as delimiter to avoid collisions with tower IDs)
+    // Value: required kills
     private final Map<String, Integer> killRequirementsCache = new ConcurrentHashMap<>();
     private long lastCacheRefresh = 0;
     private static final long CACHE_TTL = 300000; // 5 minutes in milliseconds
@@ -340,8 +341,8 @@ public class QuantumExpansion extends PlaceholderExpansion {
      * Uses caching to avoid repeated YAML file reads
      */
     private int getRequiredKills(String towerId, int floor) {
-        // Check cache first
-        String cacheKey = towerId + "_" + floor;
+        // Check cache first - using | as delimiter to prevent collisions
+        String cacheKey = towerId + "|" + floor;
         
         // Refresh cache if TTL has expired
         long currentTime = System.currentTimeMillis();

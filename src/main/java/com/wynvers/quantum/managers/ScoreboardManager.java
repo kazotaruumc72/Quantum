@@ -137,10 +137,20 @@ public class ScoreboardManager {
         
         // Single PlaceholderAPI call for all lines
         String parsedBatch = PlaceholderAPI.setPlaceholders(player, batchText.toString());
-        String[] parsedLines = parsedBatch.split("\n", -1);
+        // Normalize line endings and split - handle both \r\n and \n
+        String[] parsedLines = parsedBatch.replace("\r\n", "\n").split("\n", -1);
+        
+        // Ensure we got the expected number of lines
+        if (parsedLines.length != lines.size()) {
+            // Fallback to per-line parsing if batch parsing fails
+            parsedLines = new String[lines.size()];
+            for (int i = 0; i < lines.size(); i++) {
+                parsedLines[i] = PlaceholderAPI.setPlaceholders(player, lines.get(i));
+            }
+        }
         
         int lineNumber = lines.size();
-        for (int i = 0; i < Math.min(lines.size(), parsedLines.length); i++) {
+        for (int i = 0; i < lines.size(); i++) {
             Team team = board.getTeam("line_" + lineNumber);
             if (team != null) {
                 // Apply colors to the already parsed line

@@ -11,7 +11,7 @@
 # display_name: Nom personnalisé affiché au-dessus du mob
 # name_color: Couleur du nom (utiliser les codes couleur Minecraft)
 # bar_length: Longueur de la barre (nombre de caractères)
-# show_percentage: Afficher le nombre de vie en pourcentage (true/false)
+# show_percentage: Afficher la valeur numérique du pourcentage de vie (ex: 100 sans le symbole %)
 # show_numeric: Afficher la vie numérique (ex: 20/20 HP)
 # format: Format de la barre
 #   - CLASSIC: [||||||||||||] 100
@@ -714,7 +714,7 @@ WARDEN:
 #   enabled: true
 #   name_color: "&c"           # Couleur du nom
 #   bar_length: 25             # Longueur de la barre
-#   show_percentage: false      # Afficher le nombre de vie en pourcentage
+#   show_percentage: false      # Afficher la valeur numérique du pourcentage de vie (ex: 100 sans le symbole %)
 #   show_numeric: false        # Afficher 100/100 HP
 #   format: CLASSIC            # CLASSIC, HEARTS, BOSS_BAR, NUMERIC
 #   hologram_offset: 1.0    # Offset vertical pour l'hologramme de healthbar (en blocs, optionnel)

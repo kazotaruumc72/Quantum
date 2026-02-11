@@ -46,6 +46,15 @@ public class HealthBarManager {
     // Key: UUID du mob, Value: UUID de la TextDisplay
     private final Map<UUID, UUID> mobHealthDisplays = new HashMap<>();
     
+    // Cache pour les configurations de mobs pour éviter des lookups YAML répétés
+    private final Map<UUID, ConfigurationSection> mobConfigCache = new HashMap<>();
+    
+    // Cache pour le status ModelEngine des mobs
+    private final Map<UUID, Boolean> modelEngineCache = new HashMap<>();
+    
+    // Cache du plugin ModelEngine (vérifié une seule fois)
+    private Boolean hasModelEnginePlugin = null;
+    
     // Task ID pour le rafraîchissement périodique des positions
     private int updateTaskId = -1;
     
@@ -78,18 +87,11 @@ public class HealthBarManager {
                     LivingEntity mob = (LivingEntity) mobEntity;
                     TextDisplay display = (TextDisplay) displayEntity;
                     
-                    // Vérifier si l'entité a ModelEngine
-                    boolean hasModelEngine = false;
-                    if (Bukkit.getPluginManager().getPlugin("ModelEngine") != null) {
-                        try {
-                            hasModelEngine = ModelEngineAPI.getModeledEntity(mob.getUniqueId()) != null;
-                        } catch (IllegalStateException e) {
-                            // Ignorer
-                        }
-                    }
+                    // Vérifier si l'entité a ModelEngine (utiliser cache)
+                    boolean hasModelEngine = getModelEngineStatus(mob);
                     
-                    // Calculer l'offset
-                    ConfigurationSection mobSection = getMobConfig(mob);
+                    // Calculer l'offset (utiliser cache pour config)
+                    ConfigurationSection mobSection = getCachedMobConfig(mob);
                     double yOffset = 0.5; // Défaut
                     if (hasModelEngine) {
                         double hologramOffset = getHologramOffset(mobSection);
@@ -111,8 +113,12 @@ public class HealthBarManager {
                 }
             });
             
-            // Supprimer les entrées invalides
-            toRemove.forEach(mobHealthDisplays::remove);
+            // Supprimer les entrées invalides et nettoyer les caches
+            toRemove.forEach(uuid -> {
+                mobHealthDisplays.remove(uuid);
+                mobConfigCache.remove(uuid);
+                modelEngineCache.remove(uuid);
+            });
             
         }, 10L, 10L).getTaskId(); // 10 ticks de délai initial, puis toutes les 10 ticks
     }
@@ -126,6 +132,9 @@ public class HealthBarManager {
             updateTaskId = -1;
         }
         cleanupAllDisplays();
+        // Nettoyer les caches
+        mobConfigCache.clear();
+        modelEngineCache.clear();
     }
     
     /**
@@ -173,6 +182,10 @@ public class HealthBarManager {
     public void reload() {
         loadConfig();
         loadMobConfig();
+        // Nettoyer les caches après reload
+        mobConfigCache.clear();
+        modelEngineCache.clear();
+        hasModelEnginePlugin = null; // Recalculer au prochain accès
     }
     
     /**
@@ -228,6 +241,37 @@ public class HealthBarManager {
         // Vérifier par type de mob
         String mobType = entity.getType().name();
         return mobConfig.getBoolean(mobType + ".enabled", true);
+    }
+    
+    /**
+     * Récupère la configuration d'un mob avec cache
+     */
+    private ConfigurationSection getCachedMobConfig(LivingEntity entity) {
+        UUID uuid = entity.getUniqueId();
+        return mobConfigCache.computeIfAbsent(uuid, k -> getMobConfig(entity));
+    }
+    
+    /**
+     * Récupère le status ModelEngine d'un mob avec cache
+     */
+    private boolean getModelEngineStatus(LivingEntity mob) {
+        UUID uuid = mob.getUniqueId();
+        return modelEngineCache.computeIfAbsent(uuid, k -> {
+            // Vérifier si ModelEngine est installé (une seule fois)
+            if (hasModelEnginePlugin == null) {
+                hasModelEnginePlugin = Bukkit.getPluginManager().getPlugin("ModelEngine") != null;
+            }
+            
+            if (!hasModelEnginePlugin) {
+                return false;
+            }
+            
+            try {
+                return ModelEngineAPI.getModeledEntity(mob.getUniqueId()) != null;
+            } catch (IllegalStateException e) {
+                return false;
+            }
+        });
     }
     
     /**
@@ -611,6 +655,10 @@ public class HealthBarManager {
             }
             mobHealthDisplays.remove(entityUUID);
         }
+        
+        // Nettoyer les caches pour ce mob
+        mobConfigCache.remove(entityUUID);
+        modelEngineCache.remove(entityUUID);
     }
     
     /**
@@ -624,6 +672,9 @@ public class HealthBarManager {
             }
         }
         mobHealthDisplays.clear();
+        // Nettoyer tous les caches
+        mobConfigCache.clear();
+        modelEngineCache.clear();
     }
     
     /**

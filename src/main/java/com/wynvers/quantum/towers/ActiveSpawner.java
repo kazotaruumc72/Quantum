@@ -99,15 +99,12 @@ public class ActiveSpawner implements Listener {
      * Optimisé pour réduire le nombre d'appels à Bukkit.getEntity()
      */
     private void cleanupDeadMobs() {
-        // Use iterator for better performance than removeIf with Entity lookup
-        Iterator<UUID> iterator = aliveMobs.iterator();
-        while (iterator.hasNext()) {
-            UUID uuid = iterator.next();
+        // Utiliser removeIf avec un prédicat optimisé
+        // Cette approche est plus efficace que l'itérateur manuel
+        aliveMobs.removeIf(uuid -> {
             Entity e = Bukkit.getEntity(uuid);
-            if (e == null || e.isDead()) {
-                iterator.remove();
-            }
-        }
+            return e == null || e.isDead();
+        });
     }
 
     public void stop() {

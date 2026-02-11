@@ -62,6 +62,8 @@ public class HealthBarManager {
         this.plugin = plugin;
         loadConfig();
         loadMobConfig();
+        // Initialiser le cache du plugin ModelEngine dès le départ
+        hasModelEnginePlugin = Bukkit.getPluginManager().getPlugin("ModelEngine") != null;
         startPositionUpdateTask();
     }
     
@@ -185,7 +187,8 @@ public class HealthBarManager {
         // Nettoyer les caches après reload
         mobConfigCache.clear();
         modelEngineCache.clear();
-        hasModelEnginePlugin = null; // Recalculer au prochain accès
+        // Recalculer le status du plugin ModelEngine (en cas de reload/changement)
+        hasModelEnginePlugin = Bukkit.getPluginManager().getPlugin("ModelEngine") != null;
     }
     
     /**
@@ -257,11 +260,7 @@ public class HealthBarManager {
     private boolean getModelEngineStatus(LivingEntity mob) {
         UUID uuid = mob.getUniqueId();
         return modelEngineCache.computeIfAbsent(uuid, k -> {
-            // Vérifier si ModelEngine est installé (une seule fois)
-            if (hasModelEnginePlugin == null) {
-                hasModelEnginePlugin = Bukkit.getPluginManager().getPlugin("ModelEngine") != null;
-            }
-            
+            // hasModelEnginePlugin est initialisé dans le constructeur, donc pas null ici
             if (!hasModelEnginePlugin) {
                 return false;
             }

@@ -19,6 +19,7 @@ import com.wynvers.quantum.weapon.DungeonWeapon;
 import com.wynvers.quantum.weapon.DungeonWeaponListener;
 import com.wynvers.quantum.jobs.JobManager;
 import com.wynvers.quantum.jobs.JobListener;
+import com.wynvers.quantum.jobs.JobActionListener;
 import com.wynvers.quantum.jobs.JobCommand;
 import com.wynvers.quantum.jobs.JobAdminCommand;
 import com.wynvers.quantum.jobs.JobTabCompleter;
@@ -481,6 +482,7 @@ public final class Quantum extends JavaPlugin {
         // Jobs System
         this.jobManager = new JobManager(this, databaseManager);
         getServer().getPluginManager().registerEvents(new JobListener(this, jobManager), this);
+        getServer().getPluginManager().registerEvents(new JobActionListener(this, jobManager), this);
         logger.success("✓ Jobs System initialized! (" + jobManager.getAllJobs().size() + " jobs available)");
     }
 

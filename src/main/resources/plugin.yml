@@ -133,6 +133,7 @@ permissions:
       quantum.tool.*: true
       quantum.weapon.*: true
       quantum.job.*: true
+      quantum.structure.*: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -329,5 +330,19 @@ permissions:
   
   quantum.job.admin:
     description: Admin job commands
+  # Structure system
+  quantum.structure.*:
+    description: All structure permissions
+    default: op
+    children:
+      quantum.structure.wand: true
+      quantum.structure.create: true
+  
+  quantum.structure.wand:
+    description: Get and use structure selection wand
+    default: op
+  
+  quantum.structure.create:
+    description: Create structures from selection
     default: op
 

@@ -203,12 +203,11 @@ public class StructureCommand implements CommandExecutor {
                 }
             }
             
-            // Utiliser le StructureManager pour sauvegarder
-            // Note: Pour l'instant, on affiche juste les informations
-            // L'implémentation complète nécessiterait d'étendre StructureManager
-            player.sendMessage("§7Structure capturée: §e" + blocks.size() + " blocs non-vides");
+            player.sendMessage("§7Structure capturée: §e" + blocks.size() + " blocs non vides");
             
-            // TODO: Implémenter la sauvegarde dans structures.yml via StructureManager
+            // Sauvegarder dans structures.yml
+            saveToConfig(name, blocks);
+            
             plugin.getLogger().info("Structure '" + name + "' created with " + blocks.size() + " blocks");
             
             return true;
@@ -217,6 +216,37 @@ public class StructureCommand implements CommandExecutor {
             plugin.getLogger().severe("Error saving structure: " + e.getMessage());
             e.printStackTrace();
             return false;
+        }
+    }
+    
+    /**
+     * Sauvegarde la structure dans le fichier structures.yml
+     */
+    private void saveToConfig(String name, List<String> blocks) {
+        try {
+            java.io.File configFile = new java.io.File(plugin.getDataFolder(), "structures.yml");
+            org.bukkit.configuration.file.YamlConfiguration config = 
+                org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(configFile);
+            
+            // Créer la section pour la nouvelle structure
+            String path = "structures." + name;
+            config.set(path + ".display_name", "&e" + name);
+            
+            // Pour l'instant, on crée juste l'état "whole" (entier)
+            // Les autres états (good, damaged, stump) peuvent être ajoutés manuellement
+            config.set(path + ".whole.blocks", blocks);
+            
+            // Sauvegarder le fichier
+            config.save(configFile);
+            
+            // Recharger le StructureManager pour prendre en compte les changements
+            if (plugin.getStructureManager() != null) {
+                plugin.getStructureManager().reload();
+            }
+            
+        } catch (Exception e) {
+            plugin.getLogger().severe("Error writing to structures.yml: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     

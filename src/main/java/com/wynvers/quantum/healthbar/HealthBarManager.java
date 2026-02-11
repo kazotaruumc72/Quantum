@@ -44,7 +44,18 @@ public class HealthBarManager {
     
     // Map pour tracker les TextDisplay entities associées aux mobs
     // Key: UUID du mob, Value: UUID de la TextDisplay
-    private final Map<UUID, UUID> mobHealthDisplays = new HashMap<>();
+    private final Map<UUID, UUID> mobHealthDisplays = new java.util.concurrent.ConcurrentHashMap<>();
+    
+    // Cache pour les configurations de mobs pour éviter des lookups YAML répétés
+    private final Map<UUID, ConfigurationSection> mobConfigCache = new java.util.concurrent.ConcurrentHashMap<>();
+    
+    // Cache pour le status ModelEngine des mobs
+    private final Map<UUID, Boolean> modelEngineCache = new java.util.concurrent.ConcurrentHashMap<>();
+    
+    // Status du plugin ModelEngine (initialisé une seule fois au démarrage)
+    // Note: Si ModelEngine est chargé/déchargé dynamiquement après le démarrage,
+    // un redémarrage du serveur sera nécessaire pour mettre à jour ce statut
+    private final boolean hasModelEnginePlugin;
     
     // Task ID pour le rafraîchissement périodique des positions
     private int updateTaskId = -1;
@@ -53,6 +64,8 @@ public class HealthBarManager {
         this.plugin = plugin;
         loadConfig();
         loadMobConfig();
+        // Initialiser le cache du plugin ModelEngine dès le départ
+        hasModelEnginePlugin = Bukkit.getPluginManager().getPlugin("ModelEngine") != null;
         startPositionUpdateTask();
     }
     
@@ -78,18 +91,11 @@ public class HealthBarManager {
                     LivingEntity mob = (LivingEntity) mobEntity;
                     TextDisplay display = (TextDisplay) displayEntity;
                     
-                    // Vérifier si l'entité a ModelEngine
-                    boolean hasModelEngine = false;
-                    if (Bukkit.getPluginManager().getPlugin("ModelEngine") != null) {
-                        try {
-                            hasModelEngine = ModelEngineAPI.getModeledEntity(mob.getUniqueId()) != null;
-                        } catch (IllegalStateException e) {
-                            // Ignorer
-                        }
-                    }
+                    // Vérifier si l'entité a ModelEngine (utiliser cache)
+                    boolean hasModelEngine = getModelEngineStatus(mob);
                     
-                    // Calculer l'offset
-                    ConfigurationSection mobSection = getMobConfig(mob);
+                    // Calculer l'offset (utiliser cache pour config)
+                    ConfigurationSection mobSection = getCachedMobConfig(mob);
                     double yOffset = 0.5; // Défaut
                     if (hasModelEngine) {
                         double hologramOffset = getHologramOffset(mobSection);
@@ -111,8 +117,8 @@ public class HealthBarManager {
                 }
             });
             
-            // Supprimer les entrées invalides
-            toRemove.forEach(mobHealthDisplays::remove);
+            // Supprimer les entrées invalides et nettoyer les caches
+            toRemove.forEach(this::removeMobFromCaches);
             
         }, 10L, 10L).getTaskId(); // 10 ticks de délai initial, puis toutes les 10 ticks
     }
@@ -126,6 +132,9 @@ public class HealthBarManager {
             updateTaskId = -1;
         }
         cleanupAllDisplays();
+        // Nettoyer les caches
+        mobConfigCache.clear();
+        modelEngineCache.clear();
     }
     
     /**
@@ -173,6 +182,12 @@ public class HealthBarManager {
     public void reload() {
         loadConfig();
         loadMobConfig();
+        // Nettoyer les caches après reload pour prendre en compte les changements de config
+        // Les mobs existants utiliseront les nouvelles configs lors de leur prochaine mise à jour
+        mobConfigCache.clear();
+        modelEngineCache.clear();
+        // Note: hasModelEnginePlugin n'est pas recalculé car le chargement dynamique
+        // de plugins n'est pas supporté (redémarrage serveur requis)
     }
     
     /**
@@ -228,6 +243,44 @@ public class HealthBarManager {
         // Vérifier par type de mob
         String mobType = entity.getType().name();
         return mobConfig.getBoolean(mobType + ".enabled", true);
+    }
+    
+    /**
+     * Supprime un mob de tous les caches
+     */
+    private void removeMobFromCaches(UUID mobUUID) {
+        mobHealthDisplays.remove(mobUUID);
+        mobConfigCache.remove(mobUUID);
+        modelEngineCache.remove(mobUUID);
+    }
+    
+    /**
+     * Récupère la configuration d'un mob avec cache
+     * Note: Le cache est vidé lors du reload() pour prendre en compte les changements
+     * de configuration. Les mobs existants utiliseront les nouvelles configs lors de
+     * leur prochaine mise à jour de healthbar.
+     */
+    private ConfigurationSection getCachedMobConfig(LivingEntity entity) {
+        UUID uuid = entity.getUniqueId();
+        return mobConfigCache.computeIfAbsent(uuid, k -> getMobConfig(entity));
+    }
+    
+    /**
+     * Récupère le status ModelEngine d'un mob avec cache
+     */
+    private boolean getModelEngineStatus(LivingEntity mob) {
+        UUID uuid = mob.getUniqueId();
+        return modelEngineCache.computeIfAbsent(uuid, k -> {
+            if (!hasModelEnginePlugin) {
+                return false;
+            }
+            
+            try {
+                return ModelEngineAPI.getModeledEntity(mob.getUniqueId()) != null;
+            } catch (IllegalStateException e) {
+                return false;
+            }
+        });
     }
     
     /**
@@ -609,8 +662,10 @@ public class HealthBarManager {
             if (displayEntity != null && displayEntity.isValid()) {
                 displayEntity.remove();
             }
-            mobHealthDisplays.remove(entityUUID);
         }
+        
+        // Nettoyer les caches pour ce mob
+        removeMobFromCaches(entityUUID);
     }
     
     /**
@@ -624,6 +679,9 @@ public class HealthBarManager {
             }
         }
         mobHealthDisplays.clear();
+        // Nettoyer tous les caches
+        mobConfigCache.clear();
+        modelEngineCache.clear();
     }
     
     /**

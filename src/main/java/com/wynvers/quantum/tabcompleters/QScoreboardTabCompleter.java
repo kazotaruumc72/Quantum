@@ -26,13 +26,13 @@ public class QScoreboardTabCompleter implements TabCompleter {
         
         // Premier argument: actions
         if (args.length == 1) {
-            List<String> actions = Arrays.asList(
+            List<String> actions = new ArrayList<>(Arrays.asList(
                 "on", "off", "status",
                 "enable", "disable",
                 "show", "hide",
                 "activer", "desactiver", "désactiver",
                 "statut"
-            );
+            ));
             
             // Ajouter les joueurs en ligne si admin
             if (sender.hasPermission("quantum.admin")) {

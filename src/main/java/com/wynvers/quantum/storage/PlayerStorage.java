@@ -476,7 +476,7 @@ public class PlayerStorage {
             // Insert vanilla items
             if (!vanillaItems.isEmpty()) {
                 try (PreparedStatement insert = conn.prepareStatement(
-                    "INSERT INTO player_storage (player_uuid, material, nexo_id, amount) VALUES (?, ?, NULL, ?)"
+                    "INSERT INTO player_storage (player_uuid, material, nexo_id, amount) VALUES (?, ?, '', ?)"
                 )) {
                     for (Map.Entry<Material, Integer> entry : vanillaItems.entrySet()) {
                         insert.setString(1, uuid.toString());
@@ -491,7 +491,7 @@ public class PlayerStorage {
             // Insert Nexo items
             if (!nexoItems.isEmpty()) {
                 try (PreparedStatement insert = conn.prepareStatement(
-                    "INSERT INTO player_storage (player_uuid, material, nexo_id, amount) VALUES (?, NULL, ?, ?)"
+                    "INSERT INTO player_storage (player_uuid, material, nexo_id, amount) VALUES (?, '', ?, ?)"
                 )) {
                     for (Map.Entry<String, Integer> entry : nexoItems.entrySet()) {
                         insert.setString(1, uuid.toString());

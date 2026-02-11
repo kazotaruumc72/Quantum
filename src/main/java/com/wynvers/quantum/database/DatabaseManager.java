@@ -96,8 +96,8 @@ public class DatabaseManager {
             // Player storage table
             st.executeUpdate("CREATE TABLE IF NOT EXISTS player_storage (" +
                     "player_uuid VARCHAR(36) NOT NULL, " +
-                    "material VARCHAR(255), " +
-                    "nexo_id VARCHAR(255), " +
+                    "material VARCHAR(255) NOT NULL DEFAULT '', " +
+                    "nexo_id VARCHAR(255) NOT NULL DEFAULT '', " +
                     "amount INT NOT NULL, " +
                     "PRIMARY KEY (player_uuid, material, nexo_id)" +
                     ")");

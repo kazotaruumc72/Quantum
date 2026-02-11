@@ -96,11 +96,10 @@ public class ActiveSpawner implements Listener {
     
     /**
      * Nettoie les mobs morts de la liste aliveMobs
-     * Optimisé pour réduire le nombre d'appels à Bukkit.getEntity()
      */
     private void cleanupDeadMobs() {
-        // Utiliser removeIf avec un prédicat optimisé
-        // Cette approche est plus efficace que l'itérateur manuel
+        // Utiliser removeIf avec un prédicat
+        // Note: Performance équivalente à l'itérateur manuel, mais code plus concis
         aliveMobs.removeIf(uuid -> {
             Entity e = Bukkit.getEntity(uuid);
             return e == null || e.isDead();

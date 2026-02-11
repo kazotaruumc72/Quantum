@@ -53,6 +53,8 @@ public class HealthBarManager {
     private final Map<UUID, Boolean> modelEngineCache = new java.util.concurrent.ConcurrentHashMap<>();
     
     // Status du plugin ModelEngine (initialisé une seule fois au démarrage)
+    // Note: Si ModelEngine est chargé/déchargé dynamiquement après le démarrage,
+    // un redémarrage du serveur sera nécessaire pour mettre à jour ce statut
     private final boolean hasModelEnginePlugin;
     
     // Task ID pour le rafraîchissement périodique des positions

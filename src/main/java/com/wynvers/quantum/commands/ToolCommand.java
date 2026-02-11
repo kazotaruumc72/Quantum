@@ -8,6 +8,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Commande pour gérer les outils améliorables
  */
@@ -23,12 +26,10 @@ public class ToolCommand implements CommandExecutor {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("§cCette commande ne peut être exécutée que par un joueur!");
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("Cette commande ne peut être exécutée que par un joueur!");
             return true;
         }
-        
-        Player player = (Player) sender;
         
         if (args.length == 0) {
             sendHelp(player);
@@ -44,7 +45,7 @@ public class ToolCommand implements CommandExecutor {
                 return handleInfo(player);
             case "give":
                 if (args.length < 3) {
-                    player.sendMessage("§cUtilisation: /tool give <type> <niveau>");
+                    plugin.getMessageManager().sendMessage(player, "tools.usage-give");
                     return true;
                 }
                 return handleGive(player, args[1], args[2]);
@@ -58,7 +59,7 @@ public class ToolCommand implements CommandExecutor {
         ItemStack item = player.getInventory().getItemInMainHand();
         
         if (item == null || item.getType().isAir()) {
-            player.sendMessage("§cVous devez tenir un outil dans votre main!");
+            plugin.getMessageManager().sendMessage(player, "tools.no-item-in-hand");
             return true;
         }
         
@@ -70,29 +71,40 @@ public class ToolCommand implements CommandExecutor {
         ItemStack item = player.getInventory().getItemInMainHand();
         
         if (item == null || item.getType().isAir()) {
-            player.sendMessage("§cVous devez tenir un outil dans votre main!");
+            plugin.getMessageManager().sendMessage(player, "tools.no-item-in-hand");
             return true;
         }
         
         if (toolManager.getPickaxe().isQuantumTool(item)) {
             int level = toolManager.getPickaxe().getLevel(item);
             int multiplier = toolManager.getPickaxe().getLootMultiplier(level);
-            player.sendMessage("§e=== Pioche Quantum ===");
-            player.sendMessage("§7Niveau: §a" + level);
-            player.sendMessage("§7Multiplicateur: §ax" + multiplier);
+            
+            plugin.getMessageManager().sendMessage(player, "tools.info.pickaxe.header");
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("level", String.valueOf(level));
+            placeholders.put("multiplier", String.valueOf(multiplier));
+            plugin.getMessageManager().sendMessage(player, "tools.info.pickaxe.level", placeholders);
+            plugin.getMessageManager().sendMessage(player, "tools.info.pickaxe.multiplier", placeholders);
         } else if (toolManager.getAxe().isQuantumTool(item)) {
             int level = toolManager.getAxe().getLevel(item);
-            player.sendMessage("§e=== Hache Quantum ===");
-            player.sendMessage("§7Niveau: §a" + level);
-            player.sendMessage("§7Compétence: §aOne-shot");
+            
+            plugin.getMessageManager().sendMessage(player, "tools.info.axe.header");
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("level", String.valueOf(level));
+            plugin.getMessageManager().sendMessage(player, "tools.info.axe.level", placeholders);
+            plugin.getMessageManager().sendMessage(player, "tools.info.axe.skill");
         } else if (toolManager.getHoe().isQuantumTool(item)) {
             int level = toolManager.getHoe().getLevel(item);
             int maxDrops = toolManager.getHoe().getMaxRareDrops(level);
-            player.sendMessage("§e=== Houe Quantum ===");
-            player.sendMessage("§7Niveau: §a" + level);
-            player.sendMessage("§7Drops rares max: §a" + maxDrops);
+            
+            plugin.getMessageManager().sendMessage(player, "tools.info.hoe.header");
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("level", String.valueOf(level));
+            placeholders.put("max_drops", String.valueOf(maxDrops));
+            plugin.getMessageManager().sendMessage(player, "tools.info.hoe.level", placeholders);
+            plugin.getMessageManager().sendMessage(player, "tools.info.hoe.max-drops", placeholders);
         } else {
-            player.sendMessage("§cCet item n'est pas un outil Quantum!");
+            plugin.getMessageManager().sendMessage(player, "tools.not-quantum-tool");
         }
         
         return true;
@@ -100,7 +112,7 @@ public class ToolCommand implements CommandExecutor {
     
     private boolean handleGive(Player player, String type, String levelStr) {
         if (!player.hasPermission("quantum.tool.give")) {
-            player.sendMessage("§cVous n'avez pas la permission!");
+            plugin.getMessageManager().sendMessage(player, "tools.no-permission");
             return true;
         }
         
@@ -120,24 +132,24 @@ public class ToolCommand implements CommandExecutor {
                 tool = toolManager.getHoe().createTool();
                 break;
             default:
-                player.sendMessage("§cType invalide! Utilisez: pickaxe, axe, ou hoe");
+                plugin.getMessageManager().sendMessage(player, "tools.invalid-type");
                 return true;
         }
         
         if (tool != null) {
             player.getInventory().addItem(tool);
-            player.sendMessage("§aVous avez reçu un outil Quantum!");
+            plugin.getMessageManager().sendMessage(player, "tools.received");
         } else {
-            player.sendMessage("§cErreur lors de la création de l'outil!");
+            plugin.getMessageManager().sendMessage(player, "tools.creation-error");
         }
         
         return true;
     }
     
     private void sendHelp(Player player) {
-        player.sendMessage("§e=== Commandes Outils Quantum ===");
-        player.sendMessage("§7/tool upgrade §f- Améliorer l'outil en main");
-        player.sendMessage("§7/tool info §f- Afficher les infos de l'outil");
-        player.sendMessage("§7/tool give <type> <niveau> §f- Obtenir un outil");
+        plugin.getMessageManager().sendMessage(player, "tools.help.header");
+        for (String command : plugin.getMessageManager().getMessageList("tools.help.commands")) {
+            player.sendMessage(plugin.getMessageManager().toComponent(command));
+        }
     }
 }

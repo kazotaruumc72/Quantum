@@ -141,3 +141,127 @@ info:
   mode-changed: "<gray>Mode changé en: <aqua>%mode%</aqua></gray>"
   session-created: "<gray>Session créée pour: <white>%item%</white></gray>"
   session-expired: "<yellow>⚠ Session expirée.</yellow>"
+
+# ═══════════════════════════════════════════════════════════════════════════
+#   🔨 SECTION 10: MESSAGES D'OUTILS (TOOLS)
+# ═══════════════════════════════════════════════════════════════════════════
+
+tools:
+  player-only: "<red>✖ Cette commande ne peut être exécutée que par un joueur!</red>"
+  no-item-in-hand: "<red>✖ Vous devez tenir un outil dans votre main!</red>"
+  not-quantum-tool: "<red>✖ Cet item n'est pas un outil Quantum!</red>"
+  no-permission: "<red>✖ Vous n'avez pas la permission!</red>"
+  received: "<green>✔ Vous avez reçu un outil Quantum!</green>"
+  creation-error: "<red>✖ Erreur lors de la création de l'outil!</red>"
+  invalid-type: "<red>✖ Type invalide! Utilisez: pickaxe, axe, ou hoe</red>"
+  usage-give: "<yellow>Utilisation: /tool give <type> <niveau></yellow>"
+  
+  info:
+    pickaxe:
+      header: "<yellow>=== Pioche Quantum ===</yellow>"
+      level: "<gray>Niveau: <green>%level%</green></gray>"
+      multiplier: "<gray>Multiplicateur: <green>x%multiplier%</green></gray>"
+    axe:
+      header: "<yellow>=== Hache Quantum ===</yellow>"
+      level: "<gray>Niveau: <green>%level%</green></gray>"
+      skill: "<gray>Compétence: <green>One-shot</green></gray>"
+    hoe:
+      header: "<yellow>=== Houe Quantum ===</yellow>"
+      level: "<gray>Niveau: <green>%level%</green></gray>"
+      max-drops: "<gray>Drops rares max: <green>%max_drops%</green></gray>"
+  
+  help:
+    header: "<yellow>=== Commandes Outils Quantum ===</yellow>"
+    commands:
+      - "<gray>/tool upgrade <white>- Améliorer l'outil en main</white></gray>"
+      - "<gray>/tool info <white>- Afficher les infos de l'outil</white></gray>"
+      - "<gray>/tool give <type> <niveau> <white>- Obtenir un outil</white></gray>"
+
+# ═══════════════════════════════════════════════════════════════════════════
+#   ❤️ SECTION 11: MESSAGES DE BARRE DE VIE (HEALTHBAR)
+# ═══════════════════════════════════════════════════════════════════════════
+
+healthbar:
+  mode-changed-percentage: "<green>✔ [HealthBar]</green> <white>Mode changé : Pourcentage</white>\n<gray>Les barres de vie s'afficheront en pourcentage.</gray>"
+  mode-changed-hearts: "<green>✔ [HealthBar]</green> <white>Mode changé : Cœurs ❤</white>\n<gray>Les barres de vie s'afficheront en cœurs.</gray>"
+
+# ═══════════════════════════════════════════════════════════════════════════
+#   📦 SECTION 12: MESSAGES DE STOCKAGE AVANCÉS
+# ═══════════════════════════════════════════════════════════════════════════
+
+storage-advanced:
+  no-items-available: "<red>✖ Aucun item disponible!</red>"
+  inventory-full: "<red>✖ Votre inventaire est plein!</red>"
+  withdrawn: "<green>✔ Retiré <yellow>%quantity%x</yellow> <white>%item%</white></green>"
+  invalid-item: "<red>✖ Item invalide!</red>"
+  no-items-to-sell: "<red>✖ Aucun item disponible à vendre!</red>"
+  unrecognized-format: "<red>✖ Format d'item non reconnu!</red>"
+  item-not-sellable: "<red>✖ Cet item ne peut pas être vendu!</red>\n<gray>Prix non défini dans prices.yml pour: <yellow>%price_key%</yellow></gray>"
+  deposit-error: "<red>✖ Erreur lors du dépôt d'argent! Items retirés mais argent non crédité.</red>"
+  economy-unavailable: "<red>✖ Système d'économie non disponible! Items retirés mais argent non crédité.</red>"
+  sold: "<green>✔ Vendu <yellow>%quantity%x</yellow> <white>%display_name%</white> <green>pour <gold>%total_price%$</gold></green>"
+
+# ═══════════════════════════════════════════════════════════════════════════
+#   🛒 SECTION 13: MESSAGES DE CRÉATION D'ORDRES (ORDER CREATION)
+# ═══════════════════════════════════════════════════════════════════════════
+
+order-creation:
+  no-price-range: "<red>✖ Cet item n'a pas de fourchette de prix définie!</red>"
+  no-active-session: "<red>✖ Aucune session de création d'ordre active!</red>"
+  no-category: "<red>✖ Cet item n'appartient à aucune catégorie d'offres!</red>\n<gray>Contact un administrateur pour l'ajouter.</gray>"
+  insufficient-funds: "<red>✖ Vous n'avez pas assez d'argent!</red>\n<gray>Requis: <gold>%required%$</gold></gray>\n<gray>Solde: <gold>%balance%$</gold></gray>"
+  economy-unavailable: "<red>✖ Système économique indisponible!</red>"
+  withdrawal-error: "<red>✖ Erreur lors du retrait de l'argent!</red>"
+  escrow-deposit-error: "<red>✖ Erreur lors du dépôt en escrow!</red>"
+  success: "<dark_gray>[<gold>Quantum</gold>]</dark_gray> <green>✔ Offre créée avec succès!</green>\n<dark_gray>[<gold>Quantum</gold>]</dark_gray> <red>-%total_price%$</red>\n<gray>Argent sécurisé en dépôt fiduciaire.</gray>\n<gray>Il sera transféré au vendeur une fois l'ordre rempli.</gray>\n<gray>ID de l'ordre: <yellow>%order_id%</yellow>...</gray>"
+  save-error: "<red>✖ Erreur lors de la sauvegarde de l'offre!</red>"
+  manager-not-initialized: "<red>✖ OrderCreationManager non initialisé!</red>"
+  session-creation-error: "<red>✖ Erreur lors de la création de la session!</red>"
+
+# ═══════════════════════════════════════════════════════════════════════════
+#   🗡️ SECTION 14: MESSAGES D'ARMES (WEAPONS)
+# ═══════════════════════════════════════════════════════════════════════════
+
+weapons:
+  player-only: "<red>✖ Cette commande ne peut être exécutée que par un joueur!</red>"
+  no-permission: "<red>✖ Vous n'avez pas la permission d'utiliser cette commande!</red>"
+  invalid-usage: "<red>✖ Utilisation: /weapon <id> [joueur]</red>"
+  weapon-not-found: "<red>✖ Arme introuvable: <yellow>%weapon_id%</yellow></red>"
+  given-to-player: "<green>✔ L'arme <yellow>%weapon_name%</yellow> a été donnée à <aqua>%player%</aqua>.</green>"
+  received-weapon: "<green>✔ Vous avez reçu l'arme: <yellow>%weapon_name%</yellow></green>"
+
+# ═══════════════════════════════════════════════════════════════════════════
+#   🛡️ SECTION 15: MESSAGES D'ARMURES (ARMOR)
+# ═══════════════════════════════════════════════════════════════════════════
+
+armor:
+  player-only: "<red>✖ Cette commande ne peut être exécutée que par un joueur!</red>"
+  no-permission: "<red>✖ Vous n'avez pas la permission d'utiliser cette commande!</red>"
+  invalid-usage: "<red>✖ Utilisation: /armor <id> [joueur]</red>"
+  armor-not-found: "<red>✖ Armure introuvable: <yellow>%armor_id%</yellow></red>"
+  given-to-player: "<green>✔ L'armure <yellow>%armor_name%</yellow> a été donnée à <aqua>%player%</aqua>.</green>"
+  received-armor: "<green>✔ Vous avez reçu l'armure: <yellow>%armor_name%</yellow></green>"
+
+# ═══════════════════════════════════════════════════════════════════════════
+#   🏰 SECTION 16: MESSAGES DE TOURS (TOWERS)
+# ═══════════════════════════════════════════════════════════════════════════
+
+towers:
+  player-only: "<red>✖ Cette commande ne peut être exécutée que par un joueur!</red>"
+  no-permission: "<red>✖ Vous n'avez pas la permission!</red>"
+  tower-not-found: "<red>✖ Tour introuvable: <yellow>%tower_id%</yellow></red>"
+  teleported: "<green>✔ Téléporté à la tour: <yellow>%tower_name%</yellow></green>"
+  spawn-set: "<green>✔ Point de spawn de la tour défini!</green>"
+  door-set: "<green>✔ Position de la porte définie!</green>"
+  selection-mode-enabled: "<yellow>⚠ Mode de sélection activé. Cliquez sur un bloc pour définir la position.</yellow>"
+  selection-cancelled: "<yellow>⚠ Sélection annulée.</yellow>"
+
+# ═══════════════════════════════════════════════════════════════════════════
+#   🎮 SECTION 17: MESSAGES GÉNÉRAUX DE COMMANDES
+# ═══════════════════════════════════════════════════════════════════════════
+
+commands:
+  player-only: "<red>✖ Cette commande ne peut être exécutée que par un joueur!</red>"
+  no-permission: "<red>✖ Vous n'avez pas la permission d'utiliser cette commande!</red>"
+  invalid-player: "<red>✖ Joueur introuvable: <yellow>%player%</yellow></red>"
+  menu-opened: "<green>✔ Menu ouvert: <yellow>%menu_name%</yellow></green>"

@@ -23,12 +23,10 @@ public class HealthBarCommand implements CommandExecutor {
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("§cCette commande est réservée aux joueurs.");
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("Cette commande est réservée aux joueurs.");
             return true;
         }
-        
-        Player player = (Player) sender;
         
         // Sans argument, afficher l'aide
         if (args.length == 0) {
@@ -44,8 +42,7 @@ public class HealthBarCommand implements CommandExecutor {
             case "percent":
             case "%":
                 healthBarManager.setMode(player, HealthBarMode.PERCENTAGE);
-                player.sendMessage("§a§l[HealthBar] §aMode changé : §fPourcentage");
-                player.sendMessage("§7Les barres de vie s'afficheront en pourcentage.");
+                plugin.getMessageManager().sendMessage(player, "healthbar.mode-changed-percentage");
                 updateNearbyMobs(player);
                 break;
                 
@@ -55,8 +52,7 @@ public class HealthBarCommand implements CommandExecutor {
             case "heart":
             case "❤":
                 healthBarManager.setMode(player, HealthBarMode.HEARTS);
-                player.sendMessage("§a§l[HealthBar] §aMode changé : §fCœurs ❤");
-                player.sendMessage("§7Les barres de vie s'afficheront en cœurs.");
+                plugin.getMessageManager().sendMessage(player, "healthbar.mode-changed-hearts");
                 updateNearbyMobs(player);
                 break;
                 

@@ -1,0 +1,16 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Wed Feb 11 08:10:37 UTC 2026
+@default-jitpack.io-https\://jitpack.io/.lastUpdated=1770797437519
+https\://repo.extendedclip.com/content/repositories/placeholderapi/.error=Could not transfer artifact io.lumine\:Mythic-Dist\:pom\:5.6.1 from/to placeholderapi (https\://repo.extendedclip.com/content/repositories/placeholderapi/)\: repo.extendedclip.com
+@default-placeholderapi-https\://repo.extendedclip.com/content/repositories/placeholderapi/.lastUpdated=1770797437517
+https\://jitpack.io/.error=Could not transfer artifact io.lumine\:Mythic-Dist\:pom\:5.6.1 from/to jitpack.io (https\://jitpack.io)\: jitpack.io
+@default-nexomc-releases-https\://repo.nexomc.com/releases/.lastUpdated=1770797437518
+https\://repo.maven.apache.org/maven2/.lastUpdated=1770797437553
+https\://repo.nexomc.com/releases/.error=Could not transfer artifact io.lumine\:Mythic-Dist\:pom\:5.6.1 from/to nexomc-releases (https\://repo.nexomc.com/releases)\: repo.nexomc.com
+https\://mvn.lumine.io/repository/maven-public/.error=Could not transfer artifact io.lumine\:Mythic-Dist\:pom\:5.6.1 from/to lumine-repo (https\://mvn.lumine.io/repository/maven-public/)\: mvn.lumine.io
+https\://maven.enginehub.org/repo/.error=Could not transfer artifact io.lumine\:Mythic-Dist\:pom\:5.6.1 from/to enginehub (https\://maven.enginehub.org/repo/)\: maven.enginehub.org
+@default-papermc-https\://repo.papermc.io/repository/maven-public/.lastUpdated=1770797437516
+https\://repo.maven.apache.org/maven2/.error=
+https\://repo.papermc.io/repository/maven-public/.error=Could not transfer artifact io.lumine\:Mythic-Dist\:pom\:5.6.1 from/to papermc (https\://repo.papermc.io/repository/maven-public/)\: repo.papermc.io
+@default-enginehub-https\://maven.enginehub.org/repo/.lastUpdated=1770797437520
+@default-lumine-repo-https\://mvn.lumine.io/repository/maven-public/.lastUpdated=1770797437521

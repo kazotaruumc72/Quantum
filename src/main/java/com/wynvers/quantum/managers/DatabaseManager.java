@@ -78,42 +78,77 @@ public class DatabaseManager {
     private void createTables() {
         try (Statement stmt = connection.createStatement()) {
             
-            // Player storage table
-            stmt.executeUpdate(
-                "CREATE TABLE IF NOT EXISTS player_storage (" +
-                "player_uuid TEXT NOT NULL, " +
-                "material TEXT, " +
-                "nexo_id TEXT, " +
-                "amount INTEGER NOT NULL, " +
-                "PRIMARY KEY (player_uuid, material, nexo_id))"
-            );
-            
-            // Statistics table (trades par catégorie)
-            stmt.executeUpdate(
-                "CREATE TABLE IF NOT EXISTS statistics (" +
-                "category TEXT PRIMARY KEY, " +
-                "items_stored BIGINT DEFAULT 0, " +
-                "trades_created BIGINT DEFAULT 0, " +
-                "trades_completed BIGINT DEFAULT 0, " +
-                "volume_traded BIGINT DEFAULT 0)"
-            );
-            
-            // Storage statistics table (tracking global du storage)
-            stmt.executeUpdate(
-                "CREATE TABLE IF NOT EXISTS storage_stats (" +
-                "stat_key TEXT PRIMARY KEY, " +
-                "stat_value BIGINT DEFAULT 0)"
-            );
-            
-            // Initialiser les stats de storage si elles n'existent pas
-            stmt.executeUpdate(
-                "INSERT OR IGNORE INTO storage_stats (stat_key, stat_value) " +
-                "VALUES ('total_items_stored', 0)"
-            );
-            stmt.executeUpdate(
-                "INSERT OR IGNORE INTO storage_stats (stat_key, stat_value) " +
-                "VALUES ('total_items_sold', 0)"
-            );
+            if (type.equalsIgnoreCase("mysql")) {
+                // MySQL syntax
+                stmt.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS player_storage (" +
+                    "player_uuid VARCHAR(36) NOT NULL, " +
+                    "material VARCHAR(255), " +
+                    "nexo_id VARCHAR(255), " +
+                    "amount INT NOT NULL, " +
+                    "PRIMARY KEY (player_uuid, material, nexo_id))"
+                );
+                
+                stmt.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS statistics (" +
+                    "category VARCHAR(255) PRIMARY KEY, " +
+                    "items_stored BIGINT DEFAULT 0, " +
+                    "trades_created BIGINT DEFAULT 0, " +
+                    "trades_completed BIGINT DEFAULT 0, " +
+                    "volume_traded BIGINT DEFAULT 0)"
+                );
+                
+                stmt.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS storage_stats (" +
+                    "stat_key VARCHAR(255) PRIMARY KEY, " +
+                    "stat_value BIGINT DEFAULT 0)"
+                );
+                
+                // MySQL: Use INSERT IGNORE
+                stmt.executeUpdate(
+                    "INSERT IGNORE INTO storage_stats (stat_key, stat_value) " +
+                    "VALUES ('total_items_stored', 0)"
+                );
+                stmt.executeUpdate(
+                    "INSERT IGNORE INTO storage_stats (stat_key, stat_value) " +
+                    "VALUES ('total_items_sold', 0)"
+                );
+            } else {
+                // SQLite syntax
+                stmt.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS player_storage (" +
+                    "player_uuid TEXT NOT NULL, " +
+                    "material TEXT, " +
+                    "nexo_id TEXT, " +
+                    "amount INTEGER NOT NULL, " +
+                    "PRIMARY KEY (player_uuid, material, nexo_id))"
+                );
+                
+                stmt.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS statistics (" +
+                    "category TEXT PRIMARY KEY, " +
+                    "items_stored BIGINT DEFAULT 0, " +
+                    "trades_created BIGINT DEFAULT 0, " +
+                    "trades_completed BIGINT DEFAULT 0, " +
+                    "volume_traded BIGINT DEFAULT 0)"
+                );
+                
+                stmt.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS storage_stats (" +
+                    "stat_key TEXT PRIMARY KEY, " +
+                    "stat_value BIGINT DEFAULT 0)"
+                );
+                
+                // SQLite: Use INSERT OR IGNORE
+                stmt.executeUpdate(
+                    "INSERT OR IGNORE INTO storage_stats (stat_key, stat_value) " +
+                    "VALUES ('total_items_stored', 0)"
+                );
+                stmt.executeUpdate(
+                    "INSERT OR IGNORE INTO storage_stats (stat_key, stat_value) " +
+                    "VALUES ('total_items_sold', 0)"
+                );
+            }
             
             plugin.getQuantumLogger().success("✓ Database tables verified");
             

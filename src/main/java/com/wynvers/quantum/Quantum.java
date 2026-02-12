@@ -27,6 +27,11 @@ import com.wynvers.quantum.jobs.JobCommand;
 import com.wynvers.quantum.jobs.JobAdminCommand;
 import com.wynvers.quantum.jobs.JobTabCompleter;
 import com.wynvers.quantum.jobs.JobAdminTabCompleter;
+import com.wynvers.quantum.home.HomeManager;
+import com.wynvers.quantum.tab.TABManager;
+import com.wynvers.quantum.worldguard.gui.ZoneGUIManager;
+import com.wynvers.quantum.worldguard.gui.ZoneSettingsGUI;
+import com.wynvers.quantum.apartment.ApartmentManager;
 import com.wynvers.quantum.commands.*;
 import com.wynvers.quantum.database.DatabaseManager;
 import com.wynvers.quantum.healthbar.HealthBarListener;
@@ -133,6 +138,18 @@ public final class Quantum extends JavaPlugin {
     // Jobs System
     private JobManager jobManager;
     
+    // Home System
+    private HomeManager homeManager;
+    
+    // TAB Integration
+    private TABManager tabManager;
+    
+    // WorldGuard Zone GUI
+    private ZoneGUIManager zoneGUIManager;
+    private ZoneSettingsGUI zoneSettingsGUI;
+    
+    // Apartment System (preparation phase)
+    private ApartmentManager apartmentManager;
     // BetterHud Integration
     private com.wynvers.quantum.betterhud.QuantumBetterHudManager betterHudManager;
     private com.wynvers.quantum.betterhud.QuantumCompassManager compassManager;
@@ -220,10 +237,15 @@ public final class Quantum extends JavaPlugin {
             this.killTracker = new KillTracker(this);
             this.scoreboardHandler = new TowerScoreboardHandler(this);
             this.zoneManager = new ZoneManager(this); // s'enregistre lui-même en listener
+            
+            // Zone GUI System
+            this.zoneGUIManager = new ZoneGUIManager(this);
+            this.zoneSettingsGUI = new ZoneSettingsGUI(this, zoneGUIManager);
 
             logger.success("✓ WorldGuard integration enabled!");
             logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
             logger.success("✓ Integrated tower scoreboard ready!");
+            logger.success("✓ Zone GUI system initialized!");
         } else {
             logger.warning("⚠ WorldGuard not found - zone restriction and tower features disabled");
         }
@@ -236,6 +258,9 @@ public final class Quantum extends JavaPlugin {
 
         // PlaceholderAPI
         registerPlaceholderExpansion();
+        
+        // TAB Integration
+        this.tabManager = new TABManager(this);
 
         // Listeners globaux (hors tours / niveaux)
         registerListeners();
@@ -305,6 +330,7 @@ public final class Quantum extends JavaPlugin {
         extractResource("structures.yml");
         extractResource("dungeon_weapon.yml");
         extractResource("jobs.yml");
+        extractResource("zone_configs.yml");
 
         // Ancien zones.yml (optionnel, plus utilisé par les tours)
         extractResource("zones.yml");
@@ -452,6 +478,12 @@ public final class Quantum extends JavaPlugin {
 
         this.actionExecutor = new ActionExecutor(this);
         logger.success("✓ Action Executor");
+        
+        this.homeManager = new HomeManager(this, databaseManager);
+        logger.success("✓ Home Manager");
+        
+        this.apartmentManager = new ApartmentManager(this, databaseManager);
+        logger.success("✓ Apartment Manager (preparation phase)");
 
         this.menuManager = new MenuManager(this);
         logger.success("✓ Menu Manager (" + menuManager.getMenuCount() + " menus loaded)");
@@ -620,6 +652,37 @@ public final class Quantum extends JavaPlugin {
             logger.success("✓ Job Commands + TabCompleters");
         }
         
+        // Gamemode Shortcuts
+        GamemodeCommand gamemodeCommand = new GamemodeCommand();
+        getCommand("gmc").setExecutor(gamemodeCommand);
+        getCommand("gms").setExecutor(gamemodeCommand);
+        getCommand("gmsp").setExecutor(gamemodeCommand);
+        getCommand("gma").setExecutor(gamemodeCommand);
+        logger.success("✓ Gamemode Shortcuts (gmc, gms, gmsp, gma)");
+        
+        // Home Commands
+        if (homeManager != null) {
+            HomeCommand homeCommand = new HomeCommand(homeManager);
+            HomeTabCompleter homeTabCompleter = new HomeTabCompleter(homeManager);
+            getCommand("home").setExecutor(homeCommand);
+            getCommand("home").setTabCompleter(homeTabCompleter);
+            getCommand("sethome").setExecutor(homeCommand);
+            getCommand("sethome").setTabCompleter(homeTabCompleter);
+            getCommand("delhome").setExecutor(homeCommand);
+            getCommand("delhome").setTabCompleter(homeTabCompleter);
+            logger.success("✓ Home Commands + TabCompleters");
+        }
+        
+        // Zone GUI Command
+        if (zoneGUIManager != null && zoneSettingsGUI != null) {
+            getCommand("zonegui").setExecutor(new ZoneGUICommand(this, zoneGUIManager, zoneSettingsGUI));
+            logger.success("✓ Zone GUI Command");
+        }
+        
+        // Apartment Command (preparation phase)
+        if (apartmentManager != null) {
+            getCommand("apartment").setExecutor(new ApartmentCommand(this, apartmentManager));
+            logger.success("✓ Apartment Command (preparation phase)");
         // BetterHud Demo Command
         if (betterHudManager != null && betterHudManager.isAvailable()) {
             getCommand("huddemo").setExecutor(new HudDemoCommand(this));
@@ -923,6 +986,26 @@ public final class Quantum extends JavaPlugin {
     
     public JobManager getJobManager() {
         return jobManager;
+    }
+    
+    public HomeManager getHomeManager() {
+        return homeManager;
+    }
+    
+    public TABManager getTabManager() {
+        return tabManager;
+    }
+    
+    public ZoneGUIManager getZoneGUIManager() {
+        return zoneGUIManager;
+    }
+    
+    public ZoneSettingsGUI getZoneSettingsGUI() {
+        return zoneSettingsGUI;
+    }
+    
+    public ApartmentManager getApartmentManager() {
+        return apartmentManager;
     }
 
     public StructureSelectionManager getStructureSelectionManager() {

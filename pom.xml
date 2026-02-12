@@ -54,6 +54,12 @@
             <id>lumine-repo</id>
             <url>https://mvn.lumine.io/repository/maven-public/</url>
         </repository>
+        
+        <!-- NEZNAMY (TAB) -->
+        <repository>
+            <id>neznamy-repo</id>
+            <url>https://repo.neznamy.me/releases</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -136,6 +142,12 @@
             <scope>provided</scope>
         </dependency>
         
+        <!-- TAB - https://github.com/NEZNAMY/TAB -->
+        <dependency>
+            <groupId>me.neznamy</groupId>
+            <artifactId>tab-api</artifactId>
+            <version>5.0.6</version>
+            <scope>provided</scope>
         <!-- BetterHud Integration - Standard API -->
         <dependency>
             <groupId>io.github.toxicity188</groupId>

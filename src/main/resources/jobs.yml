@@ -38,13 +38,15 @@ jobs:
     
     # Actions autorisées pour ce job
     allowed_actions:
-      break: true     # Casser des blocs
+      break: true     # Casser des blocs (vanilla)
       place: false    # Placer des blocs
-      hit: false      # Frapper des entités
+      hit: false      # Frapper des entités (vanilla)
+      hit_quantum: false  # Frapper des mobs Quantum/MythicMobs
       fish: false     # Pêcher
       drink: false    # Boire des potions
       eat: false      # Manger
-      kill: false     # Tuer des mobs
+      kill: false     # Tuer des mobs (vanilla)
+      kill_quantum: false  # Tuer des mobs Quantum/MythicMobs
     
     # Récompenses par niveau (placement automatique en serpent)
     level_rewards:
@@ -117,13 +119,15 @@ jobs:
     
     # Actions autorisées pour ce job
     allowed_actions:
-      break: true     # Casser des blocs (minerais)
+      break: true     # Casser des blocs (minerais vanilla)
       place: false    # Placer des blocs
-      hit: true       # Frapper des entités (veines de minerai)
+      hit: true       # Frapper des entités (vanilla)
+      hit_quantum: false  # Frapper des mobs Quantum/MythicMobs
       fish: false     # Pêcher
       drink: false    # Boire des potions
       eat: false      # Manger
-      kill: false     # Tuer des mobs
+      kill: false     # Tuer des mobs (vanilla)
+      kill_quantum: false  # Tuer des mobs Quantum/MythicMobs
     
     level_rewards:
       5:
@@ -144,6 +148,57 @@ jobs:
       20:
         - type: "console_command"
           value: "give {player} minecraft:iron_ingot 32"
+  
+  # Chasseur - Focus on Quantum/MythicMobs
+  hunter:
+    id: "hunter"
+    display_name: "&c⚔ Chasseur"
+    description:
+      - "&7Chassez les mobs Quantum pour"
+      - "&7progresser dans votre métier."
+      - "&7Spécialisé dans les mobs mythiques."
+    icon: "minecraft:DIAMOND_SWORD"
+    max_level: 100
+    
+    valid_structures: []
+    valid_nexo_blocks: []
+    valid_nexo_furniture: []
+    
+    # Actions autorisées pour ce job
+    allowed_actions:
+      break: false    # Casser des blocs
+      place: false    # Placer des blocs
+      hit: true       # Frapper des entités (vanilla)
+      hit_quantum: true   # Frapper des mobs Quantum/MythicMobs
+      fish: false     # Pêcher
+      drink: false    # Boire des potions
+      eat: false      # Manger
+      kill: true      # Tuer des mobs (vanilla)
+      kill_quantum: true  # Tuer des mobs Quantum/MythicMobs
+    
+    level_rewards:
+      5:
+        - type: "money"
+          value: "200"
+      
+      10:
+        - type: "console_command"
+          value: "give {player} minecraft:diamond_sword 1"
+      
+      15:
+        - type: "exp_booster"
+          value: "1.5"
+          duration: 3600
+          dungeon_only: true
+      
+      25:
+        - type: "mythicmobs_item"
+          value: "LegendarySword"
+          amount: 1
+      
+      50:
+        - type: "money"
+          value: "10000"
 
 # Configuration des récompenses par action
 action_rewards:
@@ -187,10 +242,19 @@ action_rewards:
     exp: 1
     money: 0
   
-  kill:       # Tuer un mob
+  kill:       # Tuer un mob vanilla
     exp: 8
     money: 3
   
+  # NEW: Actions pour mobs Quantum/MythicMobs
+  hit_quantum:      # Frapper un mob Quantum/MythicMobs
+    exp: 5
+    money: 1.5
+  
+  kill_quantum:     # Tuer un mob Quantum/MythicMobs
+    exp: 15
+    money: 8
+
   # Récompenses pour interactions Nexo
   nexo_block:      # Interaction avec un block Nexo
     exp: 5
@@ -239,6 +303,7 @@ messages:
   job_left: "&cVous avez quitté le métier: {job_name}"
   action_performed: "&7+{exp} XP {job_name} &7| +{money}$"
   nexo_interaction: "&7+{exp} XP {job_name} &7| +{money}$ &7({nexo_id})"
+  quantum_action: "&7+{exp} XP {job_name} &7| +{money}$ &d({mob_type})"
   
   # Messages pour le système de preview (NOUVEAU)
   preview_hint: "&8[&7Clic droit pour aperçu&8]"

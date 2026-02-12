@@ -5,6 +5,8 @@ import com.nexomc.nexo.api.NexoFurniture;
 import com.nexomc.nexo.mechanics.custom_block.CustomBlockMechanic;
 import com.nexomc.nexo.mechanics.furniture.FurnitureMechanic;
 import com.wynvers.quantum.Quantum;
+import io.lumine.mythic.bukkit.MythicBukkit;
+import io.lumine.mythic.core.mobs.ActiveMob;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -25,6 +27,7 @@ import org.bukkit.potion.PotionEffect;
 /**
  * Listener pour les actions de métier
  * Gère les événements: break, place, hit, fish, drink, eat, kill
+ * Supporte: Nexo (blocks/furniture), Vanilla, Quantum/MythicMobs
  */
 public class JobActionListener implements Listener {
     
@@ -37,7 +40,7 @@ public class JobActionListener implements Listener {
     }
     
     /**
-     * Action: BREAK - Casser un bloc
+     * Action: BREAK - Casser un bloc (Nexo ou vanilla)
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
@@ -52,7 +55,7 @@ public class JobActionListener implements Listener {
             return;
         }
         
-        // Sinon, action break normale
+        // Sinon, action break normale (vanilla)
         jobManager.handleAction(player, "break", block.getType().name());
     }
     
@@ -68,7 +71,7 @@ public class JobActionListener implements Listener {
     }
     
     /**
-     * Action: HIT - Frapper une entité
+     * Action: HIT - Frapper une entité (Nexo furniture, Quantum mobs ou vanilla)
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageByEntityEvent event) {
@@ -87,14 +90,22 @@ public class JobActionListener implements Listener {
             return;
         }
         
-        // Sinon, action hit normale
+        // Vérifier si c'est un mob Quantum/MythicMobs
         if (target instanceof LivingEntity) {
-            jobManager.handleAction(player, "hit", target.getType().name());
+            ActiveMob mythicMob = MythicBukkit.inst().getMobManager().getActiveMob(target.getUniqueId()).orElse(null);
+            if (mythicMob != null) {
+                // C'est un mob Quantum/MythicMobs
+                String mobType = mythicMob.getMobType();
+                jobManager.handleQuantumAction(player, "hit_quantum", mobType);
+            } else {
+                // C'est un mob vanilla
+                jobManager.handleAction(player, "hit", target.getType().name());
+            }
         }
     }
     
     /**
-     * Action: KILL - Tuer un mob
+     * Action: KILL - Tuer un mob (Quantum ou vanilla)
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event) {
@@ -105,7 +116,16 @@ public class JobActionListener implements Listener {
             return;
         }
         
-        jobManager.handleAction(killer, "kill", entity.getType().name());
+        // Vérifier si c'est un mob Quantum/MythicMobs
+        ActiveMob mythicMob = MythicBukkit.inst().getMobManager().getActiveMob(entity.getUniqueId()).orElse(null);
+        if (mythicMob != null) {
+            // C'est un mob Quantum/MythicMobs
+            String mobType = mythicMob.getMobType();
+            jobManager.handleQuantumAction(killer, "kill_quantum", mobType);
+        } else {
+            // C'est un mob vanilla
+            jobManager.handleAction(killer, "kill", entity.getType().name());
+        }
     }
     
     /**

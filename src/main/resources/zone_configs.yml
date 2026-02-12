@@ -1,0 +1,58 @@
+# ========================================
+#  QUANTUM - Zone Configurations
+# ========================================
+#
+# Configuration for WorldGuard zones/regions
+# - PVP settings
+# - Mob spawning rules
+# - Custom flags
+# - Integration with tower system
+
+# Example zone configurations
+zones:
+  # Example tower floor zone
+  tower_floor_1:
+    pvp: false
+    mob_spawning: true
+    allowed_mobs:
+      - ZOMBIE
+      - SKELETON
+      - SPIDER
+    denied_mobs: []
+    flags:
+      allow_building: false
+      allow_item_drop: true
+      allow_chest_access: true
+  
+  # Example PVP arena zone
+  pvp_arena:
+    pvp: true
+    mob_spawning: false
+    allowed_mobs: []
+    denied_mobs: []
+    flags:
+      allow_building: false
+      allow_item_drop: true
+      allow_chest_access: false
+  
+  # Example safe zone
+  safe_zone:
+    pvp: false
+    mob_spawning: false
+    allowed_mobs: []
+    denied_mobs: []
+    flags:
+      allow_building: true
+      allow_item_drop: true
+      allow_chest_access: true
+
+# Default settings for new zones
+default_zone:
+  pvp: false
+  mob_spawning: true
+  allowed_mobs: []  # Empty = all mobs allowed (except denied)
+  denied_mobs: []
+  flags:
+    allow_building: false
+    allow_item_drop: true
+    allow_chest_access: true

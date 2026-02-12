@@ -435,6 +435,12 @@ public final class Quantum extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(new HealthBarListener(this, healthBarManager), this);
             logger.success("✓ HealthBar Listener (mob health display)");
         }
+        
+        // TAB Listener
+        if (tabManager != null && tabManager.isEnabled()) {
+            Bukkit.getPluginManager().registerEvents(new com.wynvers.quantum.tab.TABListener(this), this);
+            logger.success("✓ TAB Listener (header/footer updates)");
+        }
     }
 
     // ───────────────────── Managers ─────────────────────
@@ -697,6 +703,14 @@ public final class Quantum extends JavaPlugin {
             getCommand("huddemo").setExecutor(new HudDemoCommand(this));
             logger.success("✓ BetterHud Demo Command registered");
         }
+        
+        // TAB Edit Command
+        if (tabManager != null && tabManager.isEnabled()) {
+            TabEditCommand tabEditCommand = new TabEditCommand(this);
+            getCommand("tabedit").setExecutor(tabEditCommand);
+            getCommand("tabedit").setTabCompleter(tabEditCommand);
+            logger.success("✓ TAB Edit Command registered");
+        }
 
         logger.success("✓ Commands registered");
     }
@@ -733,6 +747,11 @@ public final class Quantum extends JavaPlugin {
         if (healthBarManager != null) {
             healthBarManager.shutdown();
             logger.success("✓ HealthBar displays cleaned up");
+        }
+        
+        if (tabManager != null && tabManager.isEnabled()) {
+            tabManager.shutdown();
+            logger.success("✓ TAB manager stopped");
         }
 
         if (escrowManager != null) {

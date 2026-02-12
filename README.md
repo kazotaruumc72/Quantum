@@ -27,7 +27,7 @@ Quantum is an advanced Minecraft plugin featuring virtual storage, dynamic GUI b
 
 ### Plugin Integrations
 - 🎮 **BetterHud** - Custom HUD elements, popups, and waypoints
-- 📋 **TAB** - Enhanced tablist, nametags, and scoreboards
+- 📋 **TAB** - Enhanced tablist with permission-based headers/footers
 - 🔖 **PlaceholderAPI** - Universal placeholder support
 - 🏛️ **WorldGuard** - Zone management and restrictions
 - 💎 **Vault** - Economy integration
@@ -91,7 +91,8 @@ For detailed build instructions, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 - **[Installation Guide](plugins-integration/INSTALLATION_GUIDE.md)** - Step-by-step setup instructions
 - **[Plugin Integrations Overview](PLUGIN_INTEGRATIONS.md)** - Overview of all integrations
 - **[BetterHud Integration](BETTERHUD_INTEGRATION.md)** - Custom HUD elements
-- **[TAB Integration](TAB_INTEGRATION.md)** - Tablist and scoreboard
+- **[TAB System](TAB_SYSTEM.md)** - Complete tab system with permission-based headers/footers
+- **[TAB Integration](TAB_INTEGRATION.md)** - TAB API and placeholders
 - **[PlaceholderAPI Integration](PLACEHOLDERAPI_INTEGRATION.md)** - Universal placeholders
 - **[Deployment Guide](DEPLOYMENT_GUIDE.md)** - Building and deployment
 
@@ -112,6 +113,7 @@ After first run, configuration files are located in `plugins/Quantum/`:
 - `furniture.yml` - Furniture system
 - `price.yml` - Item pricing
 - `zone_configs.yml` - Zone configurations
+- `tab_config.yml` - TAB headers and footers (NEW)
 
 #### Menu Configurations
 Located in `plugins/Quantum/menus/`:
@@ -151,6 +153,7 @@ The plugin includes comprehensive example configurations for integrated plugins:
 - `/tool <give|upgrade>` - Tool management
 - `/rune <give|list>` - Rune management
 - `/zonegui` - Zone configuration GUI
+- `/tabedit <header|footer|reload|list>` - Edit TAB headers/footers (NEW)
 
 For complete command list, see `src/main/resources/plugin.yml`.
 
@@ -225,7 +228,7 @@ Contributions are welcome! Please feel free to submit pull requests or create is
 
 ### Version 1.0.1 (Current)
 - ✅ Complete BetterHud integration
-- ✅ Complete TAB integration
+- ✅ Complete TAB integration with permission-based headers/footers
 - ✅ Complete PlaceholderAPI integration
 - ✅ Virtual storage system
 - ✅ Dynamic GUI builder

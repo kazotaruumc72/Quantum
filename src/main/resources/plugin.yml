@@ -175,6 +175,12 @@ commands:
     usage: /huddemo <popup|waypoint|test> [args]
     aliases: [hud, betterhud]
     permission: quantum.betterhud.use
+  
+  tabedit:
+    description: Edit TAB header and footer for permission groups
+    usage: /tabedit <header|footer|reload|list> [group] [args]
+    aliases: [tabconfig, tconfig]
+    permission: quantum.tab.edit
 
 permissions:
   quantum.*:
@@ -519,4 +525,45 @@ permissions:
   quantum.betterhud.use:
     description: Use BetterHud demo commands
     default: true
+  
+  # TAB system
+  quantum.tab.*:
+    description: All TAB permissions
+    default: op
+    children:
+      quantum.tab.edit: true
+      quantum.tab.reload: true
+      quantum.tab.elite: false
+      quantum.tab.mvp+: false
+      quantum.tab.mvp: false
+      quantum.tab.vip+: false
+      quantum.tab.vip: false
+  
+  quantum.tab.edit:
+    description: Edit TAB headers and footers
+    default: op
+  
+  quantum.tab.reload:
+    description: Reload TAB configuration
+    default: op
+  
+  quantum.tab.elite:
+    description: Elite TAB header and footer
+    default: false
+  
+  quantum.tab.mvp+:
+    description: MVP+ TAB header and footer
+    default: false
+  
+  quantum.tab.mvp:
+    description: MVP TAB header and footer
+    default: false
+  
+  quantum.tab.vip+:
+    description: VIP+ TAB header and footer
+    default: false
+  
+  quantum.tab.vip:
+    description: VIP TAB header and footer
+    default: false
 

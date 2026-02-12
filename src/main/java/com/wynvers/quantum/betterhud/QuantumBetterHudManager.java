@@ -1,7 +1,7 @@
 package com.wynvers.quantum.betterhud;
 
+import kr.toxicity.hud.api.BetterHud;
 import kr.toxicity.hud.api.BetterHudAPI;
-import kr.toxicity.hud.api.bukkit.BetterHudBukkitAPI;
 import kr.toxicity.hud.api.player.HudPlayer;
 import kr.toxicity.hud.api.popup.PopupUpdater;
 import kr.toxicity.hud.api.update.UpdateEvent;
@@ -21,7 +21,7 @@ public class QuantumBetterHudManager {
     
     private final JavaPlugin plugin;
     private final Logger logger;
-    private BetterHudBukkitAPI betterHudAPI;
+    private BetterHud betterHudAPI;
     
     // Optimized cache for HUD players to avoid repeated lookups
     private final Map<UUID, HudPlayer> playerCache = new ConcurrentHashMap<>();
@@ -42,7 +42,7 @@ public class QuantumBetterHudManager {
      */
     public void initialize() {
         try {
-            betterHudAPI = BetterHudAPI.inst().bukkit();
+            betterHudAPI = BetterHudAPI.inst();
             logger.info("BetterHud integration initialized successfully");
         } catch (Exception e) {
             logger.severe("Failed to initialize BetterHud integration: " + e.getMessage());
@@ -59,7 +59,7 @@ public class QuantumBetterHudManager {
         
         return playerCache.computeIfAbsent(player.getUniqueId(), uuid -> {
             try {
-                return betterHudAPI.getHudPlayer(uuid);
+                return betterHudAPI.getPlayerManager().getHudPlayer(uuid);
             } catch (Exception e) {
                 logger.warning("Failed to get HUD player for " + player.getName() + ": " + e.getMessage());
                 return null;
@@ -201,9 +201,9 @@ public class QuantumBetterHudManager {
     /**
      * Get the BetterHud API instance directly for advanced operations.
      * 
-     * @return BetterHudBukkitAPI instance
+     * @return BetterHud instance
      */
-    public BetterHudBukkitAPI getAPI() {
+    public BetterHud getAPI() {
         return betterHudAPI;
     }
 }

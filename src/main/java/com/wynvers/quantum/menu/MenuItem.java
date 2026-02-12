@@ -477,9 +477,6 @@ public class MenuItem {
      * @param player The player for placeholder resolution
      * @param customPlaceholders Custom placeholders to resolve
      */
-    public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin, Player player, Map<String, String> customPlaceholders) {}
-        // Si c'est un slot quantum_storage, ne pas créer d'item ici
-        // Le StorageRenderer s'en occupera
     public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin, org.bukkit.entity.Player player, java.util.Map<String, String> customPlaceholders) {
         return toItemStack(plugin, player, customPlaceholders, -1);
     }
@@ -621,12 +618,5 @@ public class MenuItem {
         }
         
         return itemStack;
-    }
-    
-    /**
-     * Convert this MenuItem to a Bukkit ItemStack
-     */
-    public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin) {
-        return toItemStack(plugin, null, null);
     }
 }

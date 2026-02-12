@@ -6,6 +6,9 @@ import com.wynvers.quantum.armor.DungeonArmor;
 import com.wynvers.quantum.armor.RuneApplyListener;
 import com.wynvers.quantum.armor.RuneItem;
 import com.wynvers.quantum.armor.RuneType;
+import com.wynvers.quantum.betterhud.BetterHudListener;
+import com.wynvers.quantum.betterhud.QuantumBetterHudManager;
+import com.wynvers.quantum.betterhud.QuantumCompassManager;
 import com.wynvers.quantum.furniture.FurnitureManager;
 import com.wynvers.quantum.furniture.FurnitureListener;
 import com.wynvers.quantum.crops.CustomCropManager;
@@ -129,6 +132,10 @@ public final class Quantum extends JavaPlugin {
     
     // Jobs System
     private JobManager jobManager;
+    
+    // BetterHud Integration
+    private com.wynvers.quantum.betterhud.QuantumBetterHudManager betterHudManager;
+    private com.wynvers.quantum.betterhud.QuantumCompassManager compassManager;
 
     // Utils
     private ActionExecutor actionExecutor;
@@ -484,6 +491,27 @@ public final class Quantum extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new JobListener(this, jobManager), this);
         getServer().getPluginManager().registerEvents(new JobActionListener(this, jobManager), this);
         logger.success("✓ Jobs System initialized! (" + jobManager.getAllJobs().size() + " jobs available)");
+        
+        // BetterHud Integration System
+        if (Bukkit.getPluginManager().getPlugin("BetterHud") != null) {
+            this.betterHudManager = new QuantumBetterHudManager(this);
+            this.compassManager = new QuantumCompassManager(betterHudManager, logger.getLogger());
+            
+            // Initialize BetterHud API after a short delay to ensure plugin is fully loaded
+            Bukkit.getScheduler().runTaskLater(this, () -> {
+                betterHudManager.initialize();
+            }, 20L); // 1 second delay
+            
+            // Register listener for cleanup
+            getServer().getPluginManager().registerEvents(
+                new BetterHudListener(betterHudManager, compassManager), 
+                this
+            );
+            
+            logger.success("✓ BetterHud Integration initialized! (Optimized HUD & Compass)");
+        } else {
+            logger.warning("⚠ BetterHud not found - HUD features disabled");
+        }
     }
 
     // ───────────────────── PlaceholderAPI ─────────────────────
@@ -590,6 +618,12 @@ public final class Quantum extends JavaPlugin {
             getCommand("jobadmin").setExecutor(new JobAdminCommand(this, jobManager));
             getCommand("jobadmin").setTabCompleter(new JobAdminTabCompleter(jobManager));
             logger.success("✓ Job Commands + TabCompleters");
+        }
+        
+        // BetterHud Demo Command
+        if (betterHudManager != null && betterHudManager.isAvailable()) {
+            getCommand("huddemo").setExecutor(new HudDemoCommand(this));
+            logger.success("✓ BetterHud Demo Command registered");
         }
 
         logger.success("✓ Commands registered");
@@ -897,5 +931,23 @@ public final class Quantum extends JavaPlugin {
     
     public DungeonWeapon getDungeonWeapon() {
         return dungeonWeapon;
+    }
+    
+    // BetterHud Integration Getters
+    
+    /**
+     * Get the BetterHud manager for HUD and popup operations.
+     * @return QuantumBetterHudManager instance or null if BetterHud is not available
+     */
+    public QuantumBetterHudManager getBetterHudManager() {
+        return betterHudManager;
+    }
+    
+    /**
+     * Get the Compass manager for waypoint operations.
+     * @return QuantumCompassManager instance or null if BetterHud is not available
+     */
+    public QuantumCompassManager getCompassManager() {
+        return compassManager;
     }
 }

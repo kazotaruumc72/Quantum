@@ -51,8 +51,8 @@ player-stats:
     - "&d▸ Items Sold: &f%quantum_items_sold%"
     - "&d▸ Items Bought: &f%quantum_items_bought%"
 
-# Leaderboard Hologram (Top Players by Level)
-top-players:
+# Player Trading Stats Hologram
+trading-stats:
   enabled: true
   
   location:
@@ -66,11 +66,15 @@ top-players:
   update-interval: 100  # Update every 5 seconds
   
   lines:
-    - "&6&l👑 TOP PLAYERS 👑"
+    - "&6&l💰 YOUR TRADING STATS 💰"
     - " "
-    - "&7#1 &e{player:1} &7- Lv.%quantum_level_{player:1}%"
-    - "&7#2 &e{player:2} &7- Lv.%quantum_level_{player:2}%"
-    - "&7#3 &e{player:3} &7- Lv.%quantum_level_{player:3}%"
+    - "&e📊 Order Statistics"
+    - "&7Created: &f%quantum_orders_created%"
+    - "&7Filled: &f%quantum_orders_filled%"
+    - " "
+    - "&e📦 Item Statistics"
+    - "&7Sold: &f%quantum_items_sold%"
+    - "&7Bought: &f%quantum_items_bought%"
     - " "
     - "&8Updates every 5 seconds"
 

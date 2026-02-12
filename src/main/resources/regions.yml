@@ -1,0 +1,30 @@
+# =======================================
+# QUANTUM - Internal Regions Configuration
+# =======================================
+# This file defines regions for the internal region system
+# It works without WorldGuard, allowing towers to function independently
+# 
+# Format for each region:
+# region_name:
+#   world: world_name        # The world this region is in
+#   min: x,y,z              # Minimum corner coordinates
+#   max: x,y,z              # Maximum corner coordinates
+#
+# You can also define regions directly in towers.yml under each floor
+# See below for examples
+
+regions:
+  # Example region for tower water floor 1
+  # donjon_eau_1:
+  #   world: "world"
+  #   min: "50,60,150"
+  #   max: "150,80,250"
+  
+  # Example region for tower water floor 2
+  # donjon_eau_2:
+  #   world: "world"
+  #   min: "160,70,160"
+  #   max: "260,90,260"
+  
+  # Add your own regions here
+  # Each region must have a unique name and cover a cuboid area

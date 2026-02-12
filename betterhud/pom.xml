@@ -21,7 +21,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>2.1.0</kotlin.version>
-        <betterhud.version>1.14.2</betterhud.version>
+        <betterhud.version>1.14.1</betterhud.version>
     </properties>
 
     <repositories>
@@ -38,7 +38,7 @@
             <groupId>io.github.toxicity188</groupId>
             <artifactId>BetterHud-standard-api</artifactId>
             <version>${betterhud.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         
         <!-- BetterHud Bukkit API -->
@@ -46,15 +46,15 @@
             <groupId>io.github.toxicity188</groupId>
             <artifactId>BetterHud-bukkit-api</artifactId>
             <version>${betterhud.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         
         <!-- BetterCommand Library -->
         <dependency>
             <groupId>io.github.toxicity188</groupId>
             <artifactId>BetterCommand</artifactId>
-            <version>1.5.1</version>
-            <scope>compile</scope>
+            <version>1.4.3</version>
+            <scope>provided</scope>
         </dependency>
         
         <!-- Kotlin Standard Library (required by BetterHud) -->
@@ -62,7 +62,7 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         
         <!-- Paper API -->

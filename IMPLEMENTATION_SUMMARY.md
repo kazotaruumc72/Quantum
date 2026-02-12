@@ -86,7 +86,7 @@ Quantum/
 <dependency>
     <groupId>io.github.toxicity188</groupId>
     <artifactId>BetterHud-standard-api</artifactId>
-    <version>1.14.2</version>
+    <version>1.14.1</version>
 </dependency>
 ```
 
@@ -206,7 +206,7 @@ compassManager.addWaypoint(player, "home", location, "house_icon");
 
 | Requirement | Status | Details |
 |-------------|--------|---------|
-| Include BetterHud | ✅ | Full integration with v1.14.2 |
+| Include BetterHud | ✅ | Full integration with v1.14.1 |
 | Exact same functionalities | ✅ | All 10 features preserved |
 | Optimizations | ✅ | 6 performance improvements |
 | Separate folder | ✅ | /betterhud/ directory created |
@@ -215,7 +215,7 @@ compassManager.addWaypoint(player, "home", location, "house_icon");
 ## 🚀 Next Steps
 
 ### For Server Owners
-1. Install BetterHud plugin (1.14.2+)
+1. Install BetterHud plugin (1.14.1+)
 2. Build Quantum plugin with Maven
 3. Deploy to server
 4. Test with `/huddemo` commands
@@ -236,6 +236,6 @@ compassManager.addWaypoint(player, "home", location, "house_icon");
 ---
 
 **Implementation Date**: 2026-02-12  
-**BetterHud Version**: 1.14.2  
+**BetterHud Version**: 1.14.1  
 **Quantum Version**: 1.0.1  
 **Status**: ✅ Complete and Production Ready

@@ -72,9 +72,9 @@ compassManager.addWaypoint(player, "home", location, "house_icon");
 
 ### 📦 Dependencies
 
-- BetterHud Standard API: 1.14.2
-- BetterHud Bukkit API: 1.14.2
-- BetterCommand: 1.5.1
+- BetterHud Standard API: 1.14.1
+- BetterHud Bukkit API: 1.14.1
+- BetterCommand: 1.4.3
 - Kotlin stdlib: 2.1.0 (shaded)
 
 ### 📚 Documentation
@@ -135,7 +135,7 @@ Run these commands to test:
 ### 📞 Support
 
 If BetterHud features don't work:
-1. Ensure BetterHud plugin is installed (1.14.2+)
+1. Ensure BetterHud plugin is installed (1.14.1+)
 2. Check server logs for initialization message
 3. Run `/huddemo test` to verify integration
 4. See full documentation in `BETTERHUD_INTEGRATION.md`
@@ -143,5 +143,5 @@ If BetterHud features don't work:
 ---
 
 **Status**: ✅ Complete and ready to use  
-**Version**: 1.14.2  
+**Version**: 1.14.1  
 **Last Updated**: 2026-02-12  

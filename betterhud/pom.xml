@@ -38,7 +38,7 @@
             <groupId>io.github.toxicity188</groupId>
             <artifactId>BetterHud-standard-api</artifactId>
             <version>${betterhud.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         
         <!-- BetterHud Bukkit API -->
@@ -46,7 +46,7 @@
             <groupId>io.github.toxicity188</groupId>
             <artifactId>BetterHud-bukkit-api</artifactId>
             <version>${betterhud.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         
         <!-- BetterCommand Library -->
@@ -54,7 +54,7 @@
             <groupId>io.github.toxicity188</groupId>
             <artifactId>BetterCommand</artifactId>
             <version>1.4.3</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         
         <!-- Kotlin Standard Library (required by BetterHud) -->
@@ -62,7 +62,7 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         
         <!-- Paper API -->

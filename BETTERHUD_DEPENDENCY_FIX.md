@@ -26,10 +26,10 @@ Changed the following in `pom.xml`:
 
 ### 2. Changed Dependency Scope
 Changed all BetterHud-related dependencies from `compile` to `provided`:
-- BetterHud-standard-api: `scope>compile` → `scope>provided`
-- BetterHud-bukkit-api: `scope>compile` → `scope>provided`
-- BetterCommand: `scope>compile` → `scope>provided`
-- kotlin-stdlib: `scope>compile` → `scope>provided`
+- BetterHud-standard-api: `<scope>compile</scope>` → `<scope>provided</scope>`
+- BetterHud-bukkit-api: `<scope>compile</scope>` → `<scope>provided</scope>`
+- BetterCommand: `<scope>compile</scope>` → `<scope>provided</scope>`
+- kotlin-stdlib: `<scope>compile</scope>` → `<scope>provided</scope>`
 
 ### 3. Why `provided` Scope?
 The `provided` scope is correct because:

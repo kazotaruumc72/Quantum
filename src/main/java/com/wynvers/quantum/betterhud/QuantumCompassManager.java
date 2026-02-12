@@ -17,8 +17,26 @@ import java.util.logging.Logger;
  * Optimized compass/waypoint manager for BetterHud integration.
  * Provides efficient waypoint tracking and management.
  * 
- * Note: In BetterHud API 1.14.1, compass waypoints are managed through
- * PointedLocationProvider, not a builder pattern.
+ * IMPORTANT NOTE (BetterHud 1.14.1 API Limitation):
+ * The compass/waypoint API in BetterHud 1.14.1 has fundamentally changed from earlier versions.
+ * The previous builder-based approach (Compass.builder()) no longer exists.
+ * 
+ * The new API uses PointedLocationProvider and PointedLocation interfaces, which require
+ * implementation-specific details not available in the public API. Creating functional
+ * PointedLocation instances would require access to internal BetterHud classes.
+ * 
+ * Current Implementation Status:
+ * - addWaypoint/removeWaypoint/clearWaypoints: Cache waypoints internally ✓
+ * - getWaypoints: Returns cached waypoints ✓
+ * - Actual compass display: Limited - requires full PointedLocation implementation ⚠
+ * 
+ * For full compass functionality, consider one of these approaches:
+ * 1. Use BetterHud's built-in compass configuration files instead of API
+ * 2. Request BetterHud to add convenience methods for waypoint management
+ * 3. Implement against BetterHud's internal classes (fragile, not recommended)
+ * 
+ * This implementation prevents compilation errors and maintains method signatures
+ * for backward compatibility with the Quantum plugin's API.
  */
 public class QuantumCompassManager {
     

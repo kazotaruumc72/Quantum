@@ -141,7 +141,19 @@ waypoints.put(name, new CompassPoint(name, location, icon));
 hudPlayer.update();
 ```
 
-**Note:** The new implementation caches waypoints internally and triggers HUD updates. A full PointedLocationProvider implementation would be needed for complete compass functionality, but the current implementation maintains API compatibility and prevents compilation errors.
+**⚠️ Known Limitation:** 
+The BetterHud 1.14.1 compass API requires creating `PointedLocation` instances, which need implementation-specific details not available in the public API. The current implementation:
+- ✅ Prevents compilation errors
+- ✅ Maintains method signatures for backward compatibility
+- ✅ Caches waypoints internally
+- ⚠️ Does not fully display compass waypoints (would require BetterHud internal classes)
+
+**Recommended Alternatives:**
+1. Use BetterHud's built-in compass configuration files instead of programmatic API
+2. Request BetterHud maintainers to add convenience methods for waypoint management
+3. Disable compass features if not critical to plugin functionality
+
+The code is structured to allow easy implementation once BetterHud provides better API support for programmatic waypoint management.
 
 ---
 

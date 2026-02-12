@@ -683,6 +683,7 @@ public final class Quantum extends JavaPlugin {
         if (apartmentManager != null) {
             getCommand("apartment").setExecutor(new ApartmentCommand(this, apartmentManager));
             logger.success("✓ Apartment Command (preparation phase)");
+        }
         // BetterHud Demo Command
         if (betterHudManager != null && betterHudManager.isAvailable()) {
             getCommand("huddemo").setExecutor(new HudDemoCommand(this));

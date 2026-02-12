@@ -346,18 +346,17 @@ public class JobCommand implements CommandExecutor {
             String playerName = offlinePlayer.getName() != null ? offlinePlayer.getName() : "Inconnu";
             
             // Colorer la position selon le rang
-            String positionColor = ChatColor.GRAY.toString();
-            if (position == 1) positionColor = ChatColor.GOLD + "⭐ ";
-            else if (position == 2) positionColor = ChatColor.WHITE + "⭐ ";
-            else if (position == 3) positionColor = ChatColor.YELLOW + "⭐ ";
+            String positionPrefix = "";
+            if (position == 1) positionPrefix = ChatColor.GOLD + "⭐ ";
+            else if (position == 2) positionPrefix = ChatColor.WHITE + "⭐ ";
+            else if (position == 3) positionPrefix = ChatColor.YELLOW + "⭐ ";
             
-            String message = String.format("%s%s%d. %s%s%s - %s%d niveaux",
-                positionColor,
+            String message = String.format("%s%s%d. %s%s - %s%d niveaux",
+                positionPrefix,
                 ChatColor.WHITE,
                 position,
                 ChatColor.AQUA,
                 playerName,
-                ChatColor.GRAY,
                 ChatColor.GREEN,
                 totalLevels);
             player.sendMessage(message);

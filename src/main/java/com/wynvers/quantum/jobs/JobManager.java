@@ -762,6 +762,12 @@ public class JobManager {
     public Map<UUID, Integer> getGlobalTopPlayers(int limit) {
         Map<UUID, Integer> topPlayers = new LinkedHashMap<>();
         
+        // Validate limit parameter
+        if (limit <= 0) {
+            plugin.getQuantumLogger().warning("Invalid limit for getGlobalTopPlayers: " + limit);
+            return topPlayers;
+        }
+        
         try (Connection conn = databaseManager.getConnection()) {
             String query = "SELECT uuid, SUM(level) as total_levels FROM quantum_player_jobs GROUP BY uuid ORDER BY total_levels DESC LIMIT ?";
             

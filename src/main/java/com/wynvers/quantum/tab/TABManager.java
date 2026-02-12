@@ -30,9 +30,9 @@ import java.util.*;
 public class TABManager {
     
     // Default priority order for groups if not specified in config
-    private static final List<String> DEFAULT_PRIORITY_ORDER = Arrays.asList(
+    private static final List<String> DEFAULT_PRIORITY_ORDER = Collections.unmodifiableList(Arrays.asList(
         "elite", "mvp+", "mvp", "vip+", "vip", "default"
-    );
+    ));
 
     private final Quantum plugin;
     private TabAPI tabAPI;
@@ -273,7 +273,7 @@ public class TABManager {
             String processedLine = processPlaceholders(player, lines.get(i));
             Component lineComponent = miniMessage.deserialize(processedLine);
             result = result.append(lineComponent);
-            // Add newline for all lines except the last one
+            // Add newline for all lines except the last one to avoid trailing whitespace
             if (i < lines.size() - 1) {
                 result = result.append(Component.newline());
             }

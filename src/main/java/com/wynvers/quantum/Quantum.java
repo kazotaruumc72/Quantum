@@ -527,7 +527,7 @@ public final class Quantum extends JavaPlugin {
         // BetterHud Integration System
         if (Bukkit.getPluginManager().getPlugin("BetterHud") != null) {
             this.betterHudManager = new QuantumBetterHudManager(this);
-            this.compassManager = new QuantumCompassManager(betterHudManager, logger.getLogger());
+            this.compassManager = new QuantumCompassManager(betterHudManager, this.getLogger());
             
             // Initialize BetterHud API after a short delay to ensure plugin is fully loaded
             Bukkit.getScheduler().runTaskLater(this, () -> {

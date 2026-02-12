@@ -489,9 +489,9 @@ public class MenuItem {
                 ? plugin.getPlaceholderManager().parse(player, expandedMaterialPlaceholder, customPlaceholders)
                 : plugin.getPlaceholderManager().parse(player, expandedMaterialPlaceholder);
             
-            // Try to parse the resolved placeholder as a Material
+            // Trim whitespace and try to parse the resolved placeholder as a Material
             try {
-                resolvedMaterial = Material.valueOf(parsedMaterial.toUpperCase());
+                resolvedMaterial = Material.valueOf(parsedMaterial.trim().toUpperCase());
             } catch (IllegalArgumentException e) {
                 // If placeholder didn't resolve to a valid material, return null
                 plugin.getQuantumLogger().warning("Material placeholder '" + expandedMaterialPlaceholder + "' resolved to invalid material: " + parsedMaterial);

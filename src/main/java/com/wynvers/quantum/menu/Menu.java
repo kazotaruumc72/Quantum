@@ -562,23 +562,19 @@ public class Menu {
             ItemStack itemStack = item.toItemStack(plugin, player, customPlaceholders);
             if (itemStack == null) continue;
             
-            // Parser les placeholders dans le display name et la lore si un joueur est fourni
+            // Parse placeholders in display name and lore if a player is provided
             if (player != null) {
                 ItemMeta meta = itemStack.getItemMeta();
                 if (meta != null) {
-                    // Parser le display name
+                    // Parse display name
                     if (meta.hasDisplayName()) {
-                        String parsedName = customPlaceholders != null
-                            ? plugin.getPlaceholderManager().parse(player, meta.getDisplayName(), customPlaceholders)
-                            : plugin.getPlaceholderManager().parse(player, meta.getDisplayName());
+                        String parsedName = parsePlaceholder(player, meta.getDisplayName(), customPlaceholders);
                         meta.setDisplayName(parsedName);
                     }
                     
-                    // Parser la lore
+                    // Parse lore
                     if (meta.hasLore()) {
-                        List<String> parsedLore = customPlaceholders != null
-                            ? plugin.getPlaceholderManager().parse(player, meta.getLore(), customPlaceholders)
-                            : plugin.getPlaceholderManager().parse(player, meta.getLore());
+                        List<String> parsedLore = parsePlaceholders(player, meta.getLore(), customPlaceholders);
                         meta.setLore(parsedLore);
                     }
                     
@@ -589,9 +585,11 @@ public class Menu {
             // Place the item in all configured slots
             for (int slot : item.getSlots()) {
                 if (slot >= 0 && slot < size) {
-                    // If the item has a material placeholder with {slot}, create a slot-specific item
+                    // Check if the item has a material placeholder with {slot}
+                    String matPlaceholder = item.getMaterialPlaceholder();
                     ItemStack slotItemStack;
-                    if (item.getMaterialPlaceholder() != null && item.getMaterialPlaceholder().contains("{slot}")) {
+                    
+                    if (matPlaceholder != null && matPlaceholder.contains("{slot}")) {
                         slotItemStack = item.toItemStack(plugin, player, customPlaceholders, slot);
                     } else {
                         slotItemStack = itemStack.clone();
@@ -605,9 +603,7 @@ public class Menu {
                                 // Expand and parse display name
                                 if (meta.hasDisplayName()) {
                                     String expandedName = meta.getDisplayName().replace("{slot}", String.valueOf(slot));
-                                    String parsedName = customPlaceholders != null
-                                        ? plugin.getPlaceholderManager().parse(player, expandedName, customPlaceholders)
-                                        : plugin.getPlaceholderManager().parse(player, expandedName);
+                                    String parsedName = parsePlaceholder(player, expandedName, customPlaceholders);
                                     meta.setDisplayName(parsedName);
                                 }
                                 
@@ -617,9 +613,7 @@ public class Menu {
                                     for (String loreLine : meta.getLore()) {
                                         expandedLore.add(loreLine.replace("{slot}", String.valueOf(slot)));
                                     }
-                                    List<String> parsedLore = customPlaceholders != null
-                                        ? plugin.getPlaceholderManager().parse(player, expandedLore, customPlaceholders)
-                                        : plugin.getPlaceholderManager().parse(player, expandedLore);
+                                    List<String> parsedLore = parsePlaceholders(player, expandedLore, customPlaceholders);
                                     meta.setLore(parsedLore);
                                 }
                                 
@@ -636,6 +630,24 @@ public class Menu {
         if (player != null) {
             renderStorageSlots(player, inventory);
         }
+    }
+    
+    /**
+     * Parse placeholders with optional custom placeholder map
+     */
+    private String parsePlaceholder(Player player, String text, Map<String, String> customPlaceholders) {
+        return customPlaceholders != null
+            ? plugin.getPlaceholderManager().parse(player, text, customPlaceholders)
+            : plugin.getPlaceholderManager().parse(player, text);
+    }
+    
+    /**
+     * Parse placeholders in a list with optional custom placeholder map
+     */
+    private List<String> parsePlaceholders(Player player, List<String> texts, Map<String, String> customPlaceholders) {
+        return customPlaceholders != null
+            ? plugin.getPlaceholderManager().parse(player, texts, customPlaceholders)
+            : plugin.getPlaceholderManager().parse(player, texts);
     }
     
     /**

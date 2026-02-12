@@ -28,7 +28,7 @@ public class JobTabCompleter implements TabCompleter {
         List<String> completions = new ArrayList<>();
         
         if (args.length == 1) {
-            completions.addAll(Arrays.asList("join", "leave", "select", "list", "info", "rewards"));
+            completions.addAll(Arrays.asList("join", "leave", "select", "list", "info", "rewards", "top"));
             return filterCompletions(completions, args[0]);
         }
         

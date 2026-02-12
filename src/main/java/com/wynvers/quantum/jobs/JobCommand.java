@@ -8,6 +8,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
+import java.util.UUID;
+
 /**
  * Commande /job pour gérer les métiers
  */
@@ -82,6 +85,10 @@ public class JobCommand implements CommandExecutor {
                 }
                 break;
                 
+            case "top":
+                showTopPlayers(player);
+                break;
+                
             default:
                 player.sendMessage(ChatColor.RED + "Sous-commande inconnue. Usage:");
                 player.sendMessage(ChatColor.GRAY + "/job - Afficher vos informations de métier");
@@ -91,6 +98,7 @@ public class JobCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.GRAY + "/job info [métier] - Info sur un métier");
                 player.sendMessage(ChatColor.GRAY + "/job rewards - Voir les prochaines récompenses");
                 player.sendMessage(ChatColor.GRAY + "/job rewards preview [niveaux] - Aperçu détaillé des récompenses");
+                player.sendMessage(ChatColor.GRAY + "/job top - Afficher le top 10 des joueurs");
                 break;
         }
         
@@ -311,5 +319,46 @@ public class JobCommand implements CommandExecutor {
             default:
                 return ChatColor.WHITE + reward.getType();
         }
+    }
+    
+    /**
+     * Affiche le classement des 10 meilleurs joueurs par niveau total
+     */
+    private void showTopPlayers(Player player) {
+        player.sendMessage(ChatColor.GOLD + "════════════════════════════════");
+        player.sendMessage(ChatColor.YELLOW + "✦ Top 10 - Classement des Métiers");
+        player.sendMessage(ChatColor.GOLD + "════════════════════════════════");
+        player.sendMessage("");
+        
+        Map<UUID, Integer> topPlayers = jobManager.getGlobalTopPlayers(10);
+        
+        if (topPlayers.isEmpty()) {
+            player.sendMessage(ChatColor.GRAY + "Aucun joueur n'a encore de métier.");
+            return;
+        }
+        
+        int position = 1;
+        for (Map.Entry<UUID, Integer> entry : topPlayers.entrySet()) {
+            UUID uuid = entry.getKey();
+            int totalLevels = entry.getValue();
+            
+            org.bukkit.OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+            String playerName = offlinePlayer.getName() != null ? offlinePlayer.getName() : "Inconnu";
+            
+            // Colorer la position selon le rang
+            String positionColor = ChatColor.GRAY + "";
+            if (position == 1) positionColor = ChatColor.GOLD + "⭐ ";
+            else if (position == 2) positionColor = ChatColor.WHITE + "⭐ ";
+            else if (position == 3) positionColor = ChatColor.YELLOW + "⭐ ";
+            
+            player.sendMessage(positionColor + ChatColor.WHITE + position + ". " + 
+                             ChatColor.AQUA + playerName + 
+                             ChatColor.GRAY + " - " + 
+                             ChatColor.GREEN + totalLevels + " niveaux");
+            position++;
+        }
+        
+        player.sendMessage("");
+        player.sendMessage(ChatColor.DARK_GRAY + "Niveaux totaux = somme de tous les niveaux de métiers");
     }
 }

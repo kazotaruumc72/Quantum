@@ -3,6 +3,7 @@ package com.wynvers.quantum.betterhud;
 import kr.toxicity.hud.api.BetterHud;
 import kr.toxicity.hud.api.BetterHudAPI;
 import kr.toxicity.hud.api.player.HudPlayer;
+import kr.toxicity.hud.api.popup.Popup;
 import kr.toxicity.hud.api.popup.PopupUpdater;
 import kr.toxicity.hud.api.update.UpdateEvent;
 import org.bukkit.entity.Player;
@@ -113,13 +114,18 @@ public class QuantumBetterHudManager {
             HudPlayer hudPlayer = getHudPlayer(player);
             if (hudPlayer == null) return false;
             
-            PopupUpdater updater = hudPlayer.showPopup(popupName);
-            if (updater == null) return false;
+            // Get the popup from PopupManager
+            Popup popup = betterHudAPI.getPopupManager().getPopup(popupName);
+            if (popup == null) return false;
             
-            // Apply variables if provided
+            // Set variables in the player's variable map
             if (variables != null && !variables.isEmpty()) {
-                variables.forEach(updater::addVariable);
+                hudPlayer.getVariableMap().putAll(variables);
             }
+            
+            // Show the popup
+            PopupUpdater updater = popup.show(UpdateEvent.EMPTY, hudPlayer);
+            if (updater == null) return false;
             
             playerPopups.put(popupName, now);
             return true;
@@ -143,7 +149,12 @@ public class QuantumBetterHudManager {
             HudPlayer hudPlayer = getHudPlayer(player);
             if (hudPlayer == null) return false;
             
-            hudPlayer.removePopup(popupName);
+            // Get the popup from PopupManager
+            Popup popup = betterHudAPI.getPopupManager().getPopup(popupName);
+            if (popup == null) return false;
+            
+            // Hide the popup
+            popup.hide(hudPlayer);
             
             // Clear from active popups cache
             Map<String, Long> playerPopups = activePopups.get(player.getUniqueId());
@@ -162,8 +173,8 @@ public class QuantumBetterHudManager {
      * Update a HUD for a player.
      * 
      * @param player The target player
-     * @param hudName The name of the HUD to update
-     * @param event The update event to trigger
+     * @param hudName The name of the HUD to update (not used in API 1.14.1)
+     * @param event The update event to trigger (not used in API 1.14.1)
      * @return true if successful
      */
     public boolean updateHud(Player player, String hudName, UpdateEvent event) {
@@ -173,7 +184,8 @@ public class QuantumBetterHudManager {
             HudPlayer hudPlayer = getHudPlayer(player);
             if (hudPlayer == null) return false;
             
-            hudPlayer.update(event);
+            // In API 1.14.1, update() takes no arguments
+            hudPlayer.update();
             return true;
         } catch (Exception e) {
             logger.warning("Failed to update HUD for " + player.getName() + ": " + e.getMessage());

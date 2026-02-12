@@ -107,6 +107,7 @@ public class TABManager {
     /**
      * Update a player's TAB display
      * Can be called when player data changes
+     * Note: TAB 5.x+ automatically updates when placeholders change
      */
     public void updatePlayer(Player player) {
         if (!enabled) return;
@@ -114,8 +115,8 @@ public class TABManager {
         try {
             TabPlayer tabPlayer = tabAPI.getPlayer(player.getUniqueId());
             if (tabPlayer != null) {
-                // Force refresh placeholders for this player
-                tabPlayer.forceRefresh();
+                // TAB 5.x+ automatically refreshes placeholders
+                // No manual refresh needed
             }
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to update TAB for player " + player.getName() + ": " + e.getMessage());

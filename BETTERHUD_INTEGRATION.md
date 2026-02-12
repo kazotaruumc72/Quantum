@@ -192,24 +192,24 @@ La commande `/huddemo` permet de tester toutes les fonctionnalités :
 <dependency>
     <groupId>io.github.toxicity188</groupId>
     <artifactId>BetterHud-standard-api</artifactId>
-    <version>1.14.2</version>
-    <scope>compile</scope>
+    <version>1.14.1</version>
+    <scope>provided</scope>
 </dependency>
 
 <!-- BetterHud Bukkit API -->
 <dependency>
     <groupId>io.github.toxicity188</groupId>
     <artifactId>BetterHud-bukkit-api</artifactId>
-    <version>1.14.2</version>
-    <scope>compile</scope>
+    <version>1.14.1</version>
+    <scope>provided</scope>
 </dependency>
 
 <!-- BetterCommand (requis par BetterHud) -->
 <dependency>
     <groupId>io.github.toxicity188</groupId>
     <artifactId>BetterCommand</artifactId>
-    <version>1.5.1</version>
-    <scope>compile</scope>
+    <version>1.4.3</version>
+    <scope>provided</scope>
 </dependency>
 
 <!-- Kotlin Standard Library (requis par BetterHud) -->
@@ -217,7 +217,7 @@ La commande `/huddemo` permet de tester toutes les fonctionnalités :
     <groupId>org.jetbrains.kotlin</groupId>
     <artifactId>kotlin-stdlib</artifactId>
     <version>2.1.0</version>
-    <scope>compile</scope>
+    <scope>provided</scope>
 </dependency>
 ```
 

@@ -152,7 +152,7 @@ String shortened = BetterHudUtil.truncate("Very Long Text Here", 10); // "Very L
 ## Dependencies
 
 This module requires:
-- BetterHud 1.14.2 or later
+- BetterHud 1.14.1 or later
 - Paper API 1.21.11 or later
 - Kotlin stdlib 2.1.0 (shaded)
 - Java 21+

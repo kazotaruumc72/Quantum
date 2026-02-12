@@ -21,7 +21,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.version>2.1.0</kotlin.version>
-        <betterhud.version>1.14.2</betterhud.version>
+        <betterhud.version>1.14.1</betterhud.version>
     </properties>
 
     <repositories>
@@ -53,7 +53,7 @@
         <dependency>
             <groupId>io.github.toxicity188</groupId>
             <artifactId>BetterCommand</artifactId>
-            <version>1.5.1</version>
+            <version>1.4.3</version>
             <scope>compile</scope>
         </dependency>
         

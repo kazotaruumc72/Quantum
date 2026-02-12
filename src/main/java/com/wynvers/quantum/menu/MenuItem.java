@@ -494,7 +494,8 @@ public class MenuItem {
                 resolvedMaterial = Material.valueOf(parsedMaterial.trim().toUpperCase());
             } catch (IllegalArgumentException e) {
                 // If placeholder didn't resolve to a valid material, return null
-                plugin.getQuantumLogger().warning("Material placeholder '" + expandedMaterialPlaceholder + "' resolved to invalid material: " + parsedMaterial);
+                plugin.getQuantumLogger().warning("Material placeholder '" + expandedMaterialPlaceholder + 
+                    "' in item '" + id + "' resolved to invalid material: '" + parsedMaterial + "'");
                 return null;
             }
         }

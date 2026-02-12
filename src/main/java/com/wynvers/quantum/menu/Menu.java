@@ -590,14 +590,11 @@ public class Menu {
                     ItemStack slotItemStack;
                     
                     if (matPlaceholder != null && matPlaceholder.contains("{slot}")) {
+                        // Create a new item with slot-specific material
                         slotItemStack = item.toItemStack(plugin, player, customPlaceholders, slot);
-                    } else {
-                        slotItemStack = itemStack.clone();
-                    }
-                    
-                    if (slotItemStack != null) {
+                        
                         // Parse placeholders in display name and lore, expanding {slot}
-                        if (player != null) {
+                        if (slotItemStack != null && player != null) {
                             ItemMeta meta = slotItemStack.getItemMeta();
                             if (meta != null) {
                                 // Expand and parse display name
@@ -620,6 +617,12 @@ public class Menu {
                                 slotItemStack.setItemMeta(meta);
                             }
                         }
+                    } else {
+                        // Use the already-parsed itemStack
+                        slotItemStack = itemStack.clone();
+                    }
+                    
+                    if (slotItemStack != null) {
                         inventory.setItem(slot, slotItemStack);
                     }
                 }

@@ -29,12 +29,17 @@ Quantum is an advanced Minecraft plugin featuring virtual storage, dynamic GUI b
 - 🎮 **BetterHud** - Custom HUD elements, popups, and waypoints
 - 📋 **TAB** - Enhanced tablist, nametags, and scoreboards
 - 🔖 **PlaceholderAPI** - Universal placeholder support
-- 🏛️ **WorldGuard** - Zone management and restrictions
+- 🏛️ **WorldGuard** - Zone management and restrictions (optional - internal system available)
 - 💎 **Vault** - Economy integration
 - 🔐 **LuckPerms** - Permission groups
 - ⛏️ **Nexo** - Custom items
 
 See [PLUGIN_INTEGRATIONS.md](PLUGIN_INTEGRATIONS.md) for complete integration documentation.
+
+### Tower System
+- **Internal Region System**: Towers now work with or without WorldGuard
+- **Automatic Detection**: Plugin automatically uses WorldGuard if available, otherwise uses internal regions
+- See [INTERNAL_REGIONS.md](INTERNAL_REGIONS.md) for details on configuring regions without WorldGuard
 
 ## 📥 Installation
 

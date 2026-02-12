@@ -351,10 +351,16 @@ public class JobCommand implements CommandExecutor {
             else if (position == 2) positionColor = ChatColor.WHITE + "⭐ ";
             else if (position == 3) positionColor = ChatColor.YELLOW + "⭐ ";
             
-            player.sendMessage(positionColor + ChatColor.WHITE + position + ". " + 
-                             ChatColor.AQUA + playerName + 
-                             ChatColor.GRAY + " - " + 
-                             ChatColor.GREEN + totalLevels + " niveaux");
+            String message = String.format("%s%s%d. %s%s%s - %s%d niveaux",
+                positionColor,
+                ChatColor.WHITE,
+                position,
+                ChatColor.AQUA,
+                playerName,
+                ChatColor.GRAY,
+                ChatColor.GREEN,
+                totalLevels);
+            player.sendMessage(message);
             position++;
         }
         

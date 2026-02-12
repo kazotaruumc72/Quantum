@@ -170,15 +170,112 @@ public class ZoneSettingsGUI implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         
-        String title = event.getView().title().toString();
+        Component titleComponent = event.getView().title();
+        String title = titleComponent.toString();
+        
         if (!title.contains("Zone Settings") && !title.contains("Mob Selector")) {
             return;
         }
         
         event.setCancelled(true);
         
-        // Handle clicks based on GUI type
-        // Implementation would go here for handling the actual click events
-        // This is a skeleton implementation
+        if (event.getCurrentItem() == null || event.getCurrentItem().getType() == Material.AIR) {
+            return;
+        }
+        
+        // Extract region name from title
+        String regionName = extractRegionName(title);
+        if (regionName == null) return;
+        
+        ZoneConfig config = zoneManager.getZoneConfig(regionName);
+        ItemStack clickedItem = event.getCurrentItem();
+        
+        if (title.contains("Zone Settings")) {
+            handleZoneSettingsClick(player, config, event.getSlot(), clickedItem);
+        } else if (title.contains("Mob Selector")) {
+            handleMobSelectorClick(player, config, event.getSlot(), clickedItem);
+        }
+    }
+    
+    private void handleZoneSettingsClick(Player player, ZoneConfig config, int slot, ItemStack item) {
+        switch (slot) {
+            case 10: // PVP toggle
+                config.setPvpEnabled(!config.isPvpEnabled());
+                openZoneSettings(player, config.getRegionName());
+                player.sendMessage(Component.text("PVP " + (config.isPvpEnabled() ? "enabled" : "disabled"), 
+                    config.isPvpEnabled() ? NamedTextColor.GREEN : NamedTextColor.RED));
+                break;
+            
+            case 12: // Mob spawning toggle
+                config.setMobSpawning(!config.isMobSpawning());
+                openZoneSettings(player, config.getRegionName());
+                player.sendMessage(Component.text("Mob spawning " + (config.isMobSpawning() ? "enabled" : "disabled"), 
+                    config.isMobSpawning() ? NamedTextColor.GREEN : NamedTextColor.RED));
+                break;
+            
+            case 14: // Mob selector
+                openMobSelector(player, config.getRegionName());
+                break;
+            
+            case 49: // Save
+                zoneManager.saveZoneConfig(config);
+                player.sendMessage(Component.text("Zone configuration saved!", NamedTextColor.GREEN));
+                player.closeInventory();
+                break;
+            
+            case 45: // Cancel
+                player.sendMessage(Component.text("Changes cancelled", NamedTextColor.RED));
+                player.closeInventory();
+                break;
+        }
+    }
+    
+    private void handleMobSelectorClick(Player player, ZoneConfig config, int slot, ItemStack item) {
+        if (slot == 49) { // Back button
+            openZoneSettings(player, config.getRegionName());
+            return;
+        }
+        
+        if (slot >= 45) return; // Ignore bottom row except back button
+        
+        // Get mob type from item display name
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return;
+        
+        Component displayName = meta.displayName();
+        if (displayName == null) return;
+        
+        String mobName = displayName.toString();
+        
+        // Find EntityType from formatted name
+        EntityType[] commonMobs = {
+            EntityType.ZOMBIE, EntityType.SKELETON, EntityType.CREEPER, EntityType.SPIDER,
+            EntityType.ENDERMAN, EntityType.WITCH, EntityType.SLIME, EntityType.CAVE_SPIDER,
+            EntityType.BLAZE, EntityType.GHAST, EntityType.MAGMA_CUBE, EntityType.WITHER_SKELETON,
+            EntityType.PHANTOM, EntityType.DROWNED, EntityType.HUSK, EntityType.STRAY,
+            EntityType.PILLAGER, EntityType.VINDICATOR, EntityType.EVOKER, EntityType.RAVAGER
+        };
+        
+        for (EntityType mob : commonMobs) {
+            if (formatMobName(mob).equalsIgnoreCase(mobName) || mobName.contains(formatMobName(mob))) {
+                // Toggle mob allowed/denied
+                if (config.isMobAllowed(mob)) {
+                    config.addDeniedMob(mob);
+                } else {
+                    config.addAllowedMob(mob);
+                }
+                openMobSelector(player, config.getRegionName());
+                return;
+            }
+        }
+    }
+    
+    private String extractRegionName(String title) {
+        // Extract region name from title like "Zone Settings: region_name" or "Mob Selector: region_name"
+        int colonIndex = title.indexOf(':');
+        if (colonIndex != -1 && colonIndex + 2 < title.length()) {
+            return title.substring(colonIndex + 2).trim();
+        }
+        return null;
     }
 }

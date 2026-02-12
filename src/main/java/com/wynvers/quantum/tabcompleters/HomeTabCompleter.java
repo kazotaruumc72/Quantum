@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 /**
  * Tab completer for home commands
+ * Provides auto-completion for player's home names in /home, /sethome, and /delhome commands
  */
 public class HomeTabCompleter implements TabCompleter {
 

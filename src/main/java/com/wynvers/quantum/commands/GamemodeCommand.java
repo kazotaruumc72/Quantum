@@ -8,7 +8,8 @@ import org.bukkit.entity.Player;
 
 /**
  * Gamemode shortcuts command handler
- * Supports: /gmc, /gms, /gmsp, /gma
+ * Handles all gamemode change commands: /gmc, /gms, /gmsp, /gma
+ * Uses the command label to determine which gamemode to apply
  */
 public class GamemodeCommand implements CommandExecutor {
 

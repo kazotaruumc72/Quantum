@@ -2,7 +2,6 @@ package com.wynvers.quantum.utils;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.menu.Requirement;
-import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -76,8 +75,8 @@ public class RequirementChecker {
             return false;
         }
         
-        // Parse condition: %placeholder% operator value
-        String parsed = PlaceholderAPI.setPlaceholders(player, condition);
+        // Parse condition using internal placeholder manager
+        String parsed = plugin.getPlaceholderManager().parse(player, condition);
         
         // Try to evaluate as comparison
         if (parsed.contains(">=")) {

@@ -49,8 +49,6 @@ import com.wynvers.quantum.menu.StorageSettingsMenuListener;
 import com.wynvers.quantum.orders.OrderAcceptanceHandler;
 import com.wynvers.quantum.orders.OrderButtonHandler;
 import com.wynvers.quantum.orders.OrderCreationManager;
-import com.wynvers.quantum.placeholder.QuantumPlaceholderExpansion;
-import com.wynvers.quantum.placeholders.QuantumExpansion;
 import com.wynvers.quantum.sell.SellManager;
 import com.wynvers.quantum.statistics.StatisticsManager;
 import com.wynvers.quantum.statistics.StorageStatsManager;
@@ -157,10 +155,6 @@ public final class Quantum extends JavaPlugin {
     // Utils
     private ActionExecutor actionExecutor;
 
-    // PlaceholderAPI expansions
-    private QuantumPlaceholderExpansion placeholderExpansion;
-    private QuantumExpansion quantumExpansion;
-
     @Override
     public void onEnable() {
         instance = this;
@@ -255,9 +249,6 @@ public final class Quantum extends JavaPlugin {
         
         // NEW: Furniture, Crops, Tools, and Weapon systems
         initializeNewSystems();
-
-        // PlaceholderAPI
-        registerPlaceholderExpansion();
         
         // TAB Integration
         this.tabManager = new TABManager(this);
@@ -469,12 +460,9 @@ public final class Quantum extends JavaPlugin {
         this.animationManager = new AnimationManager(this);
         logger.success("✓ Animation Manager");
 
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            this.placeholderManager = new PlaceholderManager(this);
-            logger.success("✓ Placeholder Manager (PlaceholderAPI found)");
-        } else {
-            logger.warning("⚠ PlaceholderAPI not found - placeholder features disabled");
-        }
+        // Internal placeholder manager (no external dependency)
+        this.placeholderManager = new PlaceholderManager(this);
+        logger.success("✓ Internal Placeholder Manager initialized");
 
         this.actionExecutor = new ActionExecutor(this);
         logger.success("✓ Action Executor");
@@ -543,26 +531,6 @@ public final class Quantum extends JavaPlugin {
             logger.success("✓ BetterHud Integration initialized! (Optimized HUD & Compass)");
         } else {
             logger.warning("⚠ BetterHud not found - HUD features disabled");
-        }
-    }
-
-    // ───────────────────── PlaceholderAPI ─────────────────────
-
-    private void registerPlaceholderExpansion() {
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
-            return;
-        }
-
-        logger.info("Registering PlaceholderAPI expansions...");
-
-        this.placeholderExpansion = new QuantumPlaceholderExpansion(this);
-        if (placeholderExpansion.register()) {
-            logger.success("✓ QuantumPlaceholderExpansion registered");
-        }
-
-        this.quantumExpansion = new QuantumExpansion(this);
-        if (quantumExpansion.register()) {
-            logger.success("✓ QuantumExpansion registered");
         }
     }
 
@@ -698,9 +666,6 @@ public final class Quantum extends JavaPlugin {
     @Override
     public void onDisable() {
         logger.info("Disabling Quantum...");
-
-        if (placeholderExpansion != null) placeholderExpansion.unregister();
-        if (quantumExpansion != null) quantumExpansion.unregister();
 
         if (animationManager != null) animationManager.stopAll();
         if (sellManager != null) sellManager.clearAllSessions();

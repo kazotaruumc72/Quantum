@@ -13,7 +13,6 @@ depend:
   - Nexo
 
 softdepend:
-  - PlaceholderAPI
   - Vault
   - LuckPerms
   - WorldEdit

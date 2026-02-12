@@ -18,6 +18,7 @@ softdepend:
   - LuckPerms
   - WorldEdit
   - WorldGuard
+  - BetterHud
 
 commands:
   quantum:
@@ -114,6 +115,12 @@ commands:
     usage: /jobadmin <set|addexp|setlevel|reset|info|reload> [args]
     aliases: [jadmin, jobsadmin]
     permission: quantum.job.admin
+  
+  huddemo:
+    description: BetterHud demo commands (popups and waypoints)
+    usage: /huddemo <popup|waypoint|test> [args]
+    aliases: [hud, betterhud]
+    permission: quantum.betterhud.use
 
 permissions:
   quantum.*:
@@ -348,4 +355,15 @@ permissions:
   quantum.structure.create:
     description: Create structures from selection
     default: op
+  
+  # BetterHud integration
+  quantum.betterhud.*:
+    description: All BetterHud integration permissions
+    default: true
+    children:
+      quantum.betterhud.use: true
+  
+  quantum.betterhud.use:
+    description: Use BetterHud demo commands
+    default: true
 

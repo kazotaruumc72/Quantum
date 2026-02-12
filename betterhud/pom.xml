@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>com.wynvers</groupId>
+        <artifactId>Quantum</artifactId>
+        <version>1.0.1</version>
+    </parent>
+
+    <artifactId>Quantum-BetterHud</artifactId>
+    <packaging>jar</packaging>
+    
+    <name>Quantum-BetterHud</name>
+    <description>BetterHud integration module for Quantum - optimized server-side HUD implementation</description>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <kotlin.version>2.1.0</kotlin.version>
+        <betterhud.version>1.14.2</betterhud.version>
+    </properties>
+
+    <repositories>
+        <!-- Maven Central for BetterHud -->
+        <repository>
+            <id>mavenCentral</id>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- BetterHud Standard API -->
+        <dependency>
+            <groupId>io.github.toxicity188</groupId>
+            <artifactId>BetterHud-standard-api</artifactId>
+            <version>${betterhud.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <!-- BetterHud Bukkit API -->
+        <dependency>
+            <groupId>io.github.toxicity188</groupId>
+            <artifactId>BetterHud-bukkit-api</artifactId>
+            <version>${betterhud.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <!-- BetterCommand Library -->
+        <dependency>
+            <groupId>io.github.toxicity188</groupId>
+            <artifactId>BetterCommand</artifactId>
+            <version>1.5.1</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <!-- Kotlin Standard Library (required by BetterHud) -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>${kotlin.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <!-- Paper API -->
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.21.11-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.name}-${project.version}</finalName>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>21</source>
+                    <target>21</target>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <relocations>
+                                <!-- Relocate kotlin stdlib to avoid conflicts -->
+                                <relocation>
+                                    <pattern>kotlin</pattern>
+                                    <shadedPattern>com.wynvers.quantum.betterhud.shaded.kotlin</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

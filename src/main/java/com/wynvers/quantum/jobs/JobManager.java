@@ -643,6 +643,66 @@ public class JobManager {
     }
     
     /**
+     * Traite l'interaction avec un mob Quantum/MythicMobs
+     * @param player Le joueur
+     * @param actionType Le type d'action (hit_quantum, kill_quantum)
+     * @param mobType Le type de mob MythicMobs
+     */
+    public void handleQuantumAction(Player player, String actionType, String mobType) {
+        JobData jobData = playerJobs.get(player.getUniqueId());
+        if (jobData == null) {
+            return;
+        }
+        
+        Job job = jobs.get(jobData.getJobId());
+        if (job == null) return;
+        
+        // Vérifier si l'action est autorisée pour ce métier
+        if (!job.isActionAllowed(actionType)) {
+            return;
+        }
+        
+        // Récupérer les récompenses de l'action Quantum
+        ConfigurationSection actionRewards = config.getConfigurationSection("action_rewards." + actionType);
+        if (actionRewards == null) return;
+        
+        int baseExp = actionRewards.getInt("exp", 0);
+        double baseMoney = actionRewards.getDouble("money", 0.0);
+        
+        // Vérifier si le joueur est dans un donjon
+        boolean inDungeon = isPlayerInDungeon(player);
+        
+        // Appliquer les multiplicateurs
+        double expMultiplier = getExpMultiplier(player.getUniqueId(), inDungeon);
+        double moneyMultiplier = getMoneyMultiplier(player.getUniqueId(), inDungeon);
+        
+        int finalExp = (int) (baseExp * expMultiplier);
+        double finalMoney = baseMoney * moneyMultiplier;
+        
+        // Donner XP et argent
+        if (finalExp > 0) {
+            addExp(player.getUniqueId(), finalExp);
+        }
+        
+        Economy economy = plugin.getVaultManager().getEconomy();
+        if (economy != null && finalMoney > 0) {
+            economy.depositPlayer(player, finalMoney);
+        }
+        
+        // Message
+        if (finalExp > 0 || finalMoney > 0) {
+            String message = config.getString("messages.quantum_action", 
+                "&7+{exp} XP {job_name} &7| +{money}$")
+                .replace("{exp}", String.valueOf(finalExp))
+                .replace("{job_name}", job.getDisplayName())
+                .replace("{money}", String.format("%.1f", finalMoney))
+                .replace("{mob_type}", mobType)
+                .replace("{action}", actionType);
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+        }
+    }
+    
+    /**
      * Vérifie si un joueur est dans un donjon
      */
     private boolean isPlayerInDungeon(Player player) {

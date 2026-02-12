@@ -1,0 +1,192 @@
+# TAB Scoreboard Configuration Example with Quantum Integration
+# Place this in: /plugins/TAB/scoreboard.yml
+#
+# This shows how to create a scoreboard using Quantum placeholders
+
+# Enable scoreboard
+enabled: true
+
+# Toggle command
+toggle-command: /sb
+
+# Remember toggle state
+remember-toggle-choice: true
+
+# Use numbers for line order
+use-numbers: true
+
+# Hidden by default
+hidden-by-default: false
+
+# ==============================
+# Scoreboard Title
+# ==============================
+title:
+  # Static title
+  text: "&6&l⚡ QUANTUM"
+  
+  # Animated title (optional)
+  # change-interval: 20 # ticks (1 second)
+  # text:
+  #   - "&6&l⚡ QUANTUM"
+  #   - "&e&l⚡ QUANTUM"
+
+# ==============================
+# Scoreboard Lines
+# ==============================
+lines:
+  # Line numbers determine order (higher = top)
+  
+  # Top separator
+  15: "&7&m━━━━━━━━━━━━━━"
+  
+  # Player Stats Section
+  14: "&e&lPlayer Stats"
+  13: "&7Level: &f%quantum_level%"
+  12: "&7EXP: &f%quantum_exp%&7/&f%quantum_exp_required%"
+  11: "&7Progress: &a%quantum_exp_progress%&7%"
+  10: ""
+  
+  # Job Section
+  9: "&b&lJob Information"
+  8: "&7Job: &f%quantum_job%"
+  7: "&7Level: &f%quantum_job_level%"
+  6: "&7EXP: &f%quantum_job_exp%"
+  5: ""
+  
+  # Tower Section
+  4: "&d&lTower Progress"
+  3: "&7Tower: &f%quantum_tower_name%"
+  2: "&7Floor: &f%quantum_tower_floor%"
+  
+  # Bottom separator
+  1: "&7&m━━━━━━━━━━━━━━"
+
+# ==============================
+# Alternative Layout 1: Compact
+# ==============================
+# lines:
+#   10: "&7&m━━━━━━━━━━━━━━"
+#   9: "&6&lQUANTUM STATS"
+#   8: ""
+#   7: "&eLv.%quantum_level% &7| &b%quantum_job% Lv.%quantum_job_level%"
+#   6: "&7EXP: &a%quantum_exp_progress%&7%"
+#   5: ""
+#   4: "&dTower: &f%quantum_tower_name%"
+#   3: "&dFloor: &f%quantum_tower_floor%"
+#   2: ""
+#   1: "&7&m━━━━━━━━━━━━━━"
+
+# ==============================
+# Alternative Layout 2: Storage Focus
+# ==============================
+# lines:
+#   15: "&7&m━━━━━━━━━━━━━━"
+#   14: "&6&lQUANTUM"
+#   13: ""
+#   12: "&7Level: &e%quantum_level%"
+#   11: "&7Job: &b%quantum_job% &7(Lv.%quantum_job_level%)"
+#   10: ""
+#   9: "&a&lStorage"
+#   8: "&7Items: &f%quantum_storage_items%&7/&f%quantum_storage_capacity%"
+#   7: "&7Used: &a%quantum_storage_used_percent%&7%"
+#   6: ""
+#   5: "&e&lStatistics"
+#   4: "&7Orders: &f%quantum_orders_created% &7created"
+#   3: "&7Sold: &f%quantum_items_sold% &7items"
+#   2: ""
+#   1: "&7&m━━━━━━━━━━━━━━"
+
+# ==============================
+# Alternative Layout 3: Full Stats
+# ==============================
+# lines:
+#   20: "&7&m━━━━━━━━━━━━━━"
+#   19: "&6&l⚡ QUANTUM STATS"
+#   18: "&7&m━━━━━━━━━━━━━━"
+#   17: "&e&lLevel & EXP"
+#   16: "&7Level: &f%quantum_level%"
+#   15: "&7EXP: &f%quantum_exp%&7/&f%quantum_exp_required%"
+#   14: "&7Progress: &a▓▓▓▓▓░░░░░ &f%quantum_exp_progress%&7%"
+#   13: ""
+#   12: "&b&lJob System"
+#   11: "&7Job: &f%quantum_job%"
+#   10: "&7Level: &f%quantum_job_level%"
+#   9: "&7EXP: &f%quantum_job_exp%"
+#   8: ""
+#   7: "&d&lTower Progression"
+#   6: "&7Tower: &f%quantum_tower_name%"
+#   5: "&7Floor: &f%quantum_tower_floor%"
+#   4: ""
+#   3: "&a&lHomes"
+#   2: "&7Homes: &f%quantum_homes%&7/&f%quantum_homes_max%"
+#   1: "&7&m━━━━━━━━━━━━━━"
+
+# ==============================
+# Per-World Scoreboards
+# ==============================
+# Show different scoreboards in different worlds
+per-world:
+  enabled: false
+  
+  # Example: Custom scoreboard for specific world
+  # world_nether:
+  #   lines:
+  #     5: "&c&lNETHER"
+  #     4: "&7Floor: &f%quantum_tower_floor%"
+  #     3: "&7Level: &f%quantum_level%"
+  #     2: ""
+  #     1: "&7&m━━━━━━━━━━━━━━"
+
+# ==============================
+# Conditional Display
+# ==============================
+# Show scoreboard only in certain conditions
+display-condition:
+  # Example: Only show if player has a job
+  # condition: "%quantum_job% != None"
+  
+  # Example: Only show if player level is above 10
+  # condition: "%quantum_level% > 10"
+
+# ==============================
+# Animations (Optional)
+# ==============================
+# You can animate specific lines
+# animations:
+#   exp_bar:
+#     change-interval: 2 # ticks
+#     frames:
+#       - "&a▓▓▓▓▓▓▓▓▓▓"
+#       - "&a▓▓▓▓▓▓▓▓░░"
+#       - "&a▓▓▓▓▓▓░░░░"
+#       - "&a▓▓▓▓░░░░░░"
+#       - "&a▓▓░░░░░░░░"
+#       - "&a░░░░░░░░░░"
+
+# Then use in lines:
+# 14: "%animation:exp_bar%"
+
+# ==============================
+# Refresh Settings
+# ==============================
+# Control how often lines update (in ticks, 20 ticks = 1 second)
+refresh-interval:
+  default: 100 # 5 seconds
+  
+  # Per-line intervals (optional)
+  # lines:
+  #   13: 20  # Update level line every second
+  #   12: 20  # Update EXP line every second
+  #   8: 200  # Update job line every 10 seconds
+
+# ==============================
+# Notes
+# ==============================
+# 1. Lines are ordered by number (higher numbers = higher on scoreboard)
+# 2. Maximum 15 lines visible at once (Minecraft limitation)
+# 3. Empty lines: use "" or just the number
+# 4. Color codes: & for legacy, MiniMessage for TAB 5.5.0+
+# 5. Placeholders update based on intervals set in config.yml
+# 6. Test scoreboard with /sb command
+# 7. For more features, see: https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Scoreboard

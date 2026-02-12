@@ -346,6 +346,23 @@ public final class Quantum extends JavaPlugin {
         // Configuration des skills de mobs (MobSkillManager)
         extractResource("mob_skills.yml");
 
+        // Plugin integration examples
+        createDirectory("betterhud-examples");
+        extractResource("betterhud-examples/compass.yml");
+        extractResource("betterhud-examples/config.yml");
+        extractResource("betterhud-examples/huds.yml");
+        extractResource("betterhud-examples/popups.yml");
+
+        createDirectory("placeholderapi-examples");
+        extractResource("placeholderapi-examples/chat_example.yml");
+        extractResource("placeholderapi-examples/hologram_example.yml");
+        extractResource("placeholderapi-examples/scoreboard_example.yml");
+        extractResource("placeholderapi-examples/tab_example.yml");
+
+        createDirectory("tab-examples");
+        extractResource("tab-examples/config_example.yml");
+        extractResource("tab-examples/scoreboard_example.yml");
+
         logger.success("✓ Default resources extracted");
     }
 

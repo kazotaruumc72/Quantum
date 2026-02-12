@@ -16,6 +16,7 @@ Quantum is an advanced Minecraft plugin featuring virtual storage, dynamic GUI b
 - 🗼 **Tower Progression** - Tower-based advancement system
 - 🏠 **Home System** - Multiple home locations per player
 - 📊 **Statistics & History** - Comprehensive tracking of player actions
+- 💬 **Chat System** - Complete formatted chat with permissions and placeholders
 
 ### Advanced Features
 - 🌾 **Custom Crops** - Custom farming system
@@ -97,6 +98,7 @@ For detailed build instructions, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 - **[TAB System](TAB_SYSTEM.md)** - Complete tab system with permission-based headers/footers
 - **[TAB Integration](TAB_INTEGRATION.md)** - TAB API and placeholders
 - **[PlaceholderAPI Integration](PLACEHOLDERAPI_INTEGRATION.md)** - Universal placeholders
+- **[Chat System](CHAT_SYSTEM.md)** - Complete formatted chat system
 - **[Deployment Guide](DEPLOYMENT_GUIDE.md)** - Building and deployment
 
 ### Configuration Files
@@ -154,6 +156,7 @@ The plugin includes comprehensive example configurations for integrated plugins:
 - `/tool <give|upgrade>` - Tool management
 - `/rune <give|list>` - Rune management
 - `/zonegui` - Zone configuration GUI
+- `/chat reload` - Reload chat configuration
 - `/tabedit <header|footer|reload|list>` - Edit TAB headers/footers (NEW)
 
 For complete command list, see `src/main/resources/plugin.yml`.

@@ -170,6 +170,11 @@ commands:
     aliases: [apt, appart]
     permission: quantum.apartment.use
   
+  chat:
+    description: Manage chat system
+    usage: /chat [reload]
+    permission: quantum.chat.admin
+  
   tabedit:
     description: Edit TAB header and footer for permission groups
     usage: /tabedit <header|footer|reload|list> [group] [args]
@@ -199,6 +204,7 @@ permissions:
       quantum.job.*: true
       quantum.structure.*: true
       quantum.spawn.*: true
+      quantum.chat.*: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -523,6 +529,42 @@ permissions:
       quantum.tab.vip+: false
       quantum.tab.vip: false
   
+  # Chat system
+  quantum.chat.*:
+    description: All chat permissions
+    default: true
+    children:
+      quantum.chat.color: false
+      quantum.chat.format.player: true
+      quantum.chat.admin: false
+  
+  quantum.chat.color:
+    description: Use colors in chat messages
+    default: false
+  
+  quantum.chat.format.player:
+    description: Default player chat format
+    default: true
+  
+  quantum.chat.format.vip:
+    description: VIP chat format
+    default: false
+  
+  quantum.chat.format.mod:
+    description: Moderator chat format
+    default: false
+  
+  quantum.chat.format.admin:
+    description: Admin chat format
+    default: false
+  
+  quantum.chat.admin:
+    description: Full chat system administration
+    default: op
+  
+  quantum.chat.reload:
+    description: Reload chat configuration
+    default: op
   quantum.tab.edit:
     description: Edit TAB headers and footers
     default: op

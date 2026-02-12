@@ -6,6 +6,11 @@ import com.wynvers.quantum.armor.DungeonArmor;
 import com.wynvers.quantum.armor.RuneApplyListener;
 import com.wynvers.quantum.armor.RuneItem;
 import com.wynvers.quantum.armor.RuneType;
+import com.wynvers.quantum.betterhud.BetterHudListener;
+import com.wynvers.quantum.betterhud.QuantumBetterHudManager;
+import com.wynvers.quantum.betterhud.QuantumCompassManager;
+import com.wynvers.quantum.chat.ChatListener;
+import com.wynvers.quantum.chat.ChatManager;
 import com.wynvers.quantum.furniture.FurnitureManager;
 import com.wynvers.quantum.furniture.FurnitureListener;
 import com.wynvers.quantum.crops.CustomCropManager;
@@ -153,6 +158,9 @@ public final class Quantum extends JavaPlugin {
     
     // Apartment System (preparation phase)
     private ApartmentManager apartmentManager;
+    
+    // Chat System
+    private com.wynvers.quantum.chat.ChatManager chatManager;
 
     // Utils
     private ActionExecutor actionExecutor;
@@ -501,6 +509,11 @@ public final class Quantum extends JavaPlugin {
         
         this.apartmentManager = new ApartmentManager(this, databaseManager);
         logger.success("✓ Apartment Manager (preparation phase)");
+        
+        // Chat System
+        this.chatManager = new ChatManager(this, messageManager, placeholderManager);
+        getServer().getPluginManager().registerEvents(new ChatListener(this, chatManager), this);
+        logger.success("✓ Chat System initialized!");
 
         this.menuManager = new MenuManager(this);
         logger.success("✓ Menu Manager (" + menuManager.getMenuCount() + " menus loaded)");
@@ -748,6 +761,13 @@ public final class Quantum extends JavaPlugin {
             getCommand("tabedit").setExecutor(tabEditCommand);
             getCommand("tabedit").setTabCompleter(tabEditCommand);
             logger.success("✓ TAB Edit Command registered");
+        }
+        
+        // Chat Command
+        if (chatManager != null) {
+            getCommand("chat").setExecutor(new ChatCommand(this, chatManager, messageManager));
+            getCommand("chat").setTabCompleter(new ChatTabCompleter());
+            logger.success("✓ Chat Command + TabCompleter registered");
         }
 
         logger.success("✓ Commands registered");
@@ -1085,6 +1105,10 @@ public final class Quantum extends JavaPlugin {
     
     public ApartmentManager getApartmentManager() {
         return apartmentManager;
+    }
+    
+    public com.wynvers.quantum.chat.ChatManager getChatManager() {
+        return chatManager;
     }
 
     public StructureSelectionManager getStructureSelectionManager() {

@@ -1,16 +1,12 @@
 package com.wynvers.quantum.worldguard;
 
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.levels.PlayerLevelManager;
+import com.wynvers.quantum.regions.InternalRegionManager;
 import com.wynvers.quantum.towers.TowerConfig;
 import com.wynvers.quantum.towers.TowerManager;
 import com.wynvers.quantum.towers.TowerScoreboardHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -32,9 +28,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Gere l'entree / sortie des regions WorldGuard liees aux tours.
+ * Gere l'entree / sortie des regions liees aux tours.
+ * Supporte a la fois WorldGuard (si disponible) et le systeme de regions interne.
  *
- * - Detecte quand un joueur entre / sort d'un etage de tour (region WorldGuard)
+ * - Detecte quand un joueur entre / sort d'un etage de tour (region)
  * - Verifie les niveaux min/max de la tour (PlayerLevelManager)
  * - Met a jour TowerManager (currentTower/currentFloor)
  * - Active / desactive le TowerScoreboardHandler
@@ -45,6 +42,8 @@ public class ZoneManager implements Listener {
     private final TowerManager towerManager;
     private final PlayerLevelManager levelManager;
     private final TowerScoreboardHandler scoreboardHandler;
+    private final InternalRegionManager regionManager;
+    private final boolean useWorldGuard;
 
     private final Map<UUID, String> currentRegion = new HashMap<>();
     private static final int REGION_CACHE_SIZE = 100;
@@ -61,6 +60,16 @@ public class ZoneManager implements Listener {
         this.towerManager = plugin.getTowerManager();
         this.levelManager = plugin.getPlayerLevelManager();
         this.scoreboardHandler = plugin.getTowerScoreboardHandler();
+        this.regionManager = plugin.getInternalRegionManager();
+        
+        // Check if WorldGuard is available
+        this.useWorldGuard = Bukkit.getPluginManager().getPlugin("WorldGuard") != null;
+        
+        if (useWorldGuard) {
+            plugin.getQuantumLogger().info("WorldGuard detected - using WorldGuard for region detection");
+        } else {
+            plugin.getQuantumLogger().info("WorldGuard not found - using internal region system");
+        }
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         plugin.getQuantumLogger().success("ZoneManager (tours) initialized");
@@ -236,28 +245,59 @@ public class ZoneManager implements Listener {
     }
 
     /**
+     * Retourne le nom d'une region a cette location.
+     * Utilise WorldGuard si disponible, sinon le systeme interne.
+     * @return nom de la region ou null s'il n'y en a pas
+     */
+    private String getWorldGuardRegionAt(Location loc) {
+        if (useWorldGuard) {
+            return getWorldGuardRegionAtWG(loc);
+        } else {
+            return regionManager.getRegionAt(loc);
+        }
+    }
+    
+    /**
      * Retourne le nom d'une region WorldGuard a cette location
      * (premiere trouvee), ou null s'il n'y en a pas.
      */
-    private String getWorldGuardRegionAt(Location loc) {
-        World world = loc.getWorld();
-        if (world == null) return null;
+    private String getWorldGuardRegionAtWG(Location loc) {
+        try {
+            World world = loc.getWorld();
+            if (world == null) return null;
 
-        RegionManager regions = WorldGuard.getInstance()
-                .getPlatform()
-                .getRegionContainer()
-                .get(BukkitAdapter.adapt(world));
-
-        if (regions == null) return null;
-
-        ApplicableRegionSet set = regions.getApplicableRegions(
-                BlockVector3.at(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ())
-        );
-
-        for (ProtectedRegion region : set) {
-            return region.getId();
+            // Use reflection to check if WorldGuard classes exist
+            Class<?> worldGuardClass = Class.forName("com.sk89q.worldguard.WorldGuard");
+            Class<?> bukkitAdapterClass = Class.forName("com.sk89q.worldedit.bukkit.BukkitAdapter");
+            Class<?> blockVector3Class = Class.forName("com.sk89q.worldedit.math.BlockVector3");
+            
+            Object worldGuardInstance = worldGuardClass.getMethod("getInstance").invoke(null);
+            Object platform = worldGuardClass.getMethod("getPlatform").invoke(worldGuardInstance);
+            Object regionContainer = platform.getClass().getMethod("getRegionContainer").invoke(platform);
+            
+            Object adaptedWorld = bukkitAdapterClass.getMethod("adapt", World.class).invoke(null, world);
+            Object regionManager = regionContainer.getClass().getMethod("get", Class.forName("com.sk89q.worldedit.world.World")).invoke(regionContainer, adaptedWorld);
+            
+            if (regionManager == null) return null;
+            
+            Object blockVector = blockVector3Class.getMethod("at", int.class, int.class, int.class)
+                .invoke(null, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+            
+            Object applicableRegionSet = regionManager.getClass()
+                .getMethod("getApplicableRegions", blockVector3Class)
+                .invoke(regionManager, blockVector);
+            
+            Iterable<?> regions = (Iterable<?>) applicableRegionSet;
+            for (Object region : regions) {
+                return (String) region.getClass().getMethod("getId").invoke(region);
+            }
+            
+            return null;
+        } catch (Exception e) {
+            // WorldGuard not available or reflection failed
+            plugin.getQuantumLogger().warning("Failed to query WorldGuard region: " + e.getMessage());
+            return null;
         }
-        return null;
     }
 
     /**

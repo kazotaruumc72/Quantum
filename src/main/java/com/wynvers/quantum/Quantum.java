@@ -107,10 +107,11 @@ public final class Quantum extends JavaPlugin {
     private StorageStatsManager storageStatsManager;
     private TransactionHistoryManager transactionHistoryManager;   // NEW
     private TradingStatisticsManager tradingStatisticsManager;     // NEW
-    private ZoneManager zoneManager;        // NEW: WorldGuard tower zones
+    private ZoneManager zoneManager;        // Tower zone management (supports WorldGuard or internal)
     private KillTracker killTracker;       // Kill tracking for (anciens) systèmes
     private TowerManager towerManager;     // Tower progression system
     private TowerScoreboardHandler scoreboardHandler; // Tower scoreboard
+    private com.wynvers.quantum.regions.InternalRegionManager internalRegionManager; // Internal region system
     private MobSkillManager mobSkillManager;          // NEW: Mob skills titles/subtitles
     private MobSkillExecutor mobSkillExecutor;        // NEW: Mob skills execution
     private TowerDoorManager doorManager;
@@ -233,23 +234,26 @@ public final class Quantum extends JavaPlugin {
         this.mobSkillManager = new MobSkillManager(this);
         this.mobSkillExecutor = new MobSkillExecutor(this);
 
-        // WorldGuard / zones de tours
+        // Internal Region Manager (works with or without WorldGuard)
+        this.internalRegionManager = new com.wynvers.quantum.regions.InternalRegionManager(this);
+        loadInternalRegions();
+        
+        // Tower zone management (supports both WorldGuard and internal regions)
+        this.killTracker = new KillTracker(this);
+        this.scoreboardHandler = new TowerScoreboardHandler(this);
+        this.zoneManager = new ZoneManager(this); // s'enregistre lui-même en listener
+        
+        // WorldGuard GUI (only if WorldGuard is available)
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
-            this.killTracker = new KillTracker(this);
-            this.scoreboardHandler = new TowerScoreboardHandler(this);
-            this.zoneManager = new ZoneManager(this); // s'enregistre lui-même en listener
-            
             // Zone GUI System
             this.zoneGUIManager = new ZoneGUIManager(this);
             this.zoneSettingsGUI = new ZoneSettingsGUI(this, zoneGUIManager);
-
             logger.success("✓ WorldGuard integration enabled!");
-            logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
-            logger.success("✓ Integrated tower scoreboard ready!");
             logger.success("✓ Zone GUI system initialized!");
-        } else {
-            logger.warning("⚠ WorldGuard not found - zone restriction and tower features disabled");
         }
+        
+        logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
+        logger.success("✓ Integrated tower scoreboard ready!");
 
         // Managers généraux
         initializeManagers();
@@ -563,6 +567,78 @@ public final class Quantum extends JavaPlugin {
         } else {
             logger.warning("⚠ BetterHud not found - HUD features disabled");
         }
+    }
+    
+    // ───────────────────── Internal Regions Loading ─────────────────────
+    
+    /**
+     * Load internal regions from towers.yml configuration
+     * Regions are loaded from the tower configuration and registered with InternalRegionManager
+     */
+    private void loadInternalRegions() {
+        File towersFile = new File(getDataFolder(), "towers.yml");
+        if (!towersFile.exists()) {
+            logger.warning("towers.yml not found - internal regions not loaded");
+            return;
+        }
+        
+        org.bukkit.configuration.file.FileConfiguration config = 
+            org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(towersFile);
+        
+        org.bukkit.configuration.ConfigurationSection towersSection = config.getConfigurationSection("towers");
+        if (towersSection == null) {
+            logger.warning("No 'towers' section in towers.yml");
+            return;
+        }
+        
+        int regionsLoaded = 0;
+        
+        for (String towerId : towersSection.getKeys(false)) {
+            org.bukkit.configuration.ConfigurationSection towerSection = towersSection.getConfigurationSection(towerId);
+            if (towerSection == null) continue;
+            
+            // Load floor regions
+            org.bukkit.configuration.ConfigurationSection floorsSection = towerSection.getConfigurationSection("floors");
+            if (floorsSection == null) continue;
+            
+            for (String floorKey : floorsSection.getKeys(false)) {
+                org.bukkit.configuration.ConfigurationSection floorSection = floorsSection.getConfigurationSection(floorKey);
+                if (floorSection == null) continue;
+                
+                // Check if this floor has region coordinates (for internal system)
+                String regionName = floorSection.getString("worldguard_region");
+                if (regionName == null || regionName.isEmpty()) continue;
+                
+                // Try to load region from internal format
+                org.bukkit.configuration.ConfigurationSection regionSection = floorSection.getConfigurationSection("region");
+                if (regionSection != null) {
+                    if (internalRegionManager.loadRegionFromConfig(regionName, regionSection)) {
+                        regionsLoaded++;
+                    }
+                }
+            }
+        }
+        
+        // Also load from separate regions.yml if it exists
+        File regionsFile = new File(getDataFolder(), "regions.yml");
+        if (regionsFile.exists()) {
+            org.bukkit.configuration.file.FileConfiguration regionsConfig = 
+                org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(regionsFile);
+            
+            org.bukkit.configuration.ConfigurationSection regionsSection = regionsConfig.getConfigurationSection("regions");
+            if (regionsSection != null) {
+                for (String regionId : regionsSection.getKeys(false)) {
+                    org.bukkit.configuration.ConfigurationSection regionSection = regionsSection.getConfigurationSection(regionId);
+                    if (regionSection != null) {
+                        if (internalRegionManager.loadRegionFromConfig(regionId, regionSection)) {
+                            regionsLoaded++;
+                        }
+                    }
+                }
+            }
+        }
+        
+        logger.success("✓ Internal Regions loaded! (" + regionsLoaded + " regions registered)");
     }
 
     // ───────────────────── Commandes ─────────────────────
@@ -904,6 +980,10 @@ public final class Quantum extends JavaPlugin {
 
     public ZoneManager getZoneManager() {
         return zoneManager;
+    }
+    
+    public com.wynvers.quantum.regions.InternalRegionManager getInternalRegionManager() {
+        return internalRegionManager;
     }
 
     public KillTracker getKillTracker() {

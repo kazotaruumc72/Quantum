@@ -27,15 +27,19 @@ Quantum is an advanced Minecraft plugin featuring virtual storage, dynamic GUI b
 - 💚 **Health Bar System** - Configurable mob health displays
 
 ### Plugin Integrations
-- 🎮 **BetterHud** - Custom HUD elements, popups, and waypoints
-- 📋 **TAB** - Enhanced tablist, nametags, and scoreboards
+- 📋 **TAB** - Enhanced tablist with permission-based headers/footers
 - 🔖 **PlaceholderAPI** - Universal placeholder support
-- 🏛️ **WorldGuard** - Zone management and restrictions
+- 🏛️ **WorldGuard** - Zone management and restrictions (optional - internal system available)
 - 💎 **Vault** - Economy integration
 - 🔐 **LuckPerms** - Permission groups
 - ⛏️ **Nexo** - Custom items
 
 See [PLUGIN_INTEGRATIONS.md](PLUGIN_INTEGRATIONS.md) for complete integration documentation.
+
+### Tower System
+- **Internal Region System**: Towers now work with or without WorldGuard
+- **Automatic Detection**: Plugin automatically uses WorldGuard if available, otherwise uses internal regions
+- See [INTERNAL_REGIONS.md](INTERNAL_REGIONS.md) for details on configuring regions without WorldGuard
 
 ## 📥 Installation
 
@@ -43,7 +47,7 @@ See [PLUGIN_INTEGRATIONS.md](PLUGIN_INTEGRATIONS.md) for complete integration do
 - **Minecraft Server**: 1.21.11 (Paper/Spigot)
 - **Java**: 21 or higher
 - **Required Dependencies**: Nexo
-- **Optional Dependencies**: Vault, LuckPerms, WorldGuard, TAB, BetterHud, PlaceholderAPI
+- **Optional Dependencies**: Vault, LuckPerms, WorldGuard, TAB, PlaceholderAPI
 
 ### Quick Install
 
@@ -56,7 +60,7 @@ See [PLUGIN_INTEGRATIONS.md](PLUGIN_INTEGRATIONS.md) for complete integration do
 
 3. **Install dependencies:**
    - Required: Nexo plugin
-   - Optional: BetterHud, TAB, PlaceholderAPI
+   - Optional: TAB, PlaceholderAPI
    - See [plugins-integration/](plugins-integration/) for download links and setup guides
 
 4. **Start your server**
@@ -91,8 +95,8 @@ For detailed build instructions, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 - **[Plugin Integrations Directory](plugins-integration/)** - Complete integration package with all files
 - **[Installation Guide](plugins-integration/INSTALLATION_GUIDE.md)** - Step-by-step setup instructions
 - **[Plugin Integrations Overview](PLUGIN_INTEGRATIONS.md)** - Overview of all integrations
-- **[BetterHud Integration](BETTERHUD_INTEGRATION.md)** - Custom HUD elements
-- **[TAB Integration](TAB_INTEGRATION.md)** - Tablist and scoreboard
+- **[TAB System](TAB_SYSTEM.md)** - Complete tab system with permission-based headers/footers
+- **[TAB Integration](TAB_INTEGRATION.md)** - TAB API and placeholders
 - **[PlaceholderAPI Integration](PLACEHOLDERAPI_INTEGRATION.md)** - Universal placeholders
 - **[Chat System](CHAT_SYSTEM.md)** - Complete formatted chat system
 - **[Deployment Guide](DEPLOYMENT_GUIDE.md)** - Building and deployment
@@ -114,6 +118,7 @@ After first run, configuration files are located in `plugins/Quantum/`:
 - `furniture.yml` - Furniture system
 - `price.yml` - Item pricing
 - `zone_configs.yml` - Zone configurations
+- `tab_config.yml` - TAB headers and footers (NEW)
 
 #### Menu Configurations
 Located in `plugins/Quantum/menus/`:
@@ -126,10 +131,8 @@ Located in `plugins/Quantum/menus/`:
 
 ### Example Configurations
 The plugin includes comprehensive example configurations for integrated plugins:
-- `plugins-integration/betterhud/` - Complete BetterHud integration package
 - `plugins-integration/tab/` - TAB configuration examples
 - `plugins-integration/placeholderapi/` - PlaceholderAPI usage examples with other plugins
-- `src/main/resources/betterhud-examples/` - BetterHud configurations (legacy location)
 - `src/main/resources/placeholderapi-examples/` - PlaceholderAPI examples (legacy location)
 
 ## 🎮 Commands
@@ -154,12 +157,13 @@ The plugin includes comprehensive example configurations for integrated plugins:
 - `/rune <give|list>` - Rune management
 - `/zonegui` - Zone configuration GUI
 - `/chat reload` - Reload chat configuration
+- `/tabedit <header|footer|reload|list>` - Edit TAB headers/footers (NEW)
 
 For complete command list, see `src/main/resources/plugin.yml`.
 
 ## 🔖 Placeholders
 
-Quantum provides 20+ custom placeholders compatible with TAB, PlaceholderAPI, and BetterHud.
+Quantum provides 20+ custom placeholders compatible with TAB and PlaceholderAPI.
 
 ### Examples
 - `%quantum_level%` - Player level
@@ -194,21 +198,8 @@ TowerManager towerManager = plugin.getTowerManager();
 int floor = towerManager.getPlayerFloor(uuid);
 
 // Integration Managers
-QuantumBetterHudManager hudManager = plugin.getBetterHudManager();
 TABManager tabManager = plugin.getTabManager();
 PlaceholderAPIManager papiManager = plugin.getPlaceholderAPIManager();
-```
-
-### Showing Popups (BetterHud)
-
-```java
-if (hudManager != null && hudManager.isAvailable()) {
-    Map<String, String> vars = BetterHudUtil.createVariables(
-        "player", player.getName(),
-        "level", String.valueOf(level)
-    );
-    hudManager.showPopup(player, "level_up", vars);
-}
 ```
 
 ## 🤝 Contributing
@@ -227,8 +218,7 @@ Contributions are welcome! Please feel free to submit pull requests or create is
 ## 📝 Version History
 
 ### Version 1.0.1 (Current)
-- ✅ Complete BetterHud integration
-- ✅ Complete TAB integration
+- ✅ Complete TAB integration with permission-based headers/footers
 - ✅ Complete PlaceholderAPI integration
 - ✅ Virtual storage system
 - ✅ Dynamic GUI builder
@@ -255,7 +245,6 @@ This project is licensed under a custom license. See the LICENSE file for detail
 - **Repository**: https://github.com/kazotaruumc72/Quantum
 
 ### Integrated Plugins
-- **BetterHud**: toxicity188
 - **TAB**: NEZNAMY
 - **PlaceholderAPI**: Clip, extended_clip, and contributors
 

@@ -109,10 +109,11 @@ public final class Quantum extends JavaPlugin {
     private StorageStatsManager storageStatsManager;
     private TransactionHistoryManager transactionHistoryManager;   // NEW
     private TradingStatisticsManager tradingStatisticsManager;     // NEW
-    private ZoneManager zoneManager;        // NEW: WorldGuard tower zones
+    private ZoneManager zoneManager;        // Tower zone management (supports WorldGuard or internal)
     private KillTracker killTracker;       // Kill tracking for (anciens) systèmes
     private TowerManager towerManager;     // Tower progression system
     private TowerScoreboardHandler scoreboardHandler; // Tower scoreboard
+    private com.wynvers.quantum.regions.InternalRegionManager internalRegionManager; // Internal region system
     private MobSkillManager mobSkillManager;          // NEW: Mob skills titles/subtitles
     private MobSkillExecutor mobSkillExecutor;        // NEW: Mob skills execution
     private TowerDoorManager doorManager;
@@ -157,9 +158,6 @@ public final class Quantum extends JavaPlugin {
     
     // Apartment System (preparation phase)
     private ApartmentManager apartmentManager;
-    // BetterHud Integration
-    private com.wynvers.quantum.betterhud.QuantumBetterHudManager betterHudManager;
-    private com.wynvers.quantum.betterhud.QuantumCompassManager compassManager;
     
     // Chat System
     private com.wynvers.quantum.chat.ChatManager chatManager;
@@ -238,23 +236,26 @@ public final class Quantum extends JavaPlugin {
         this.mobSkillManager = new MobSkillManager(this);
         this.mobSkillExecutor = new MobSkillExecutor(this);
 
-        // WorldGuard / zones de tours
+        // Internal Region Manager (works with or without WorldGuard)
+        this.internalRegionManager = new com.wynvers.quantum.regions.InternalRegionManager(this);
+        loadInternalRegions();
+        
+        // Tower zone management (supports both WorldGuard and internal regions)
+        this.killTracker = new KillTracker(this);
+        this.scoreboardHandler = new TowerScoreboardHandler(this);
+        this.zoneManager = new ZoneManager(this); // s'enregistre lui-même en listener
+        
+        // WorldGuard GUI (only if WorldGuard is available)
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
-            this.killTracker = new KillTracker(this);
-            this.scoreboardHandler = new TowerScoreboardHandler(this);
-            this.zoneManager = new ZoneManager(this); // s'enregistre lui-même en listener
-            
             // Zone GUI System
             this.zoneGUIManager = new ZoneGUIManager(this);
             this.zoneSettingsGUI = new ZoneSettingsGUI(this, zoneGUIManager);
-
             logger.success("✓ WorldGuard integration enabled!");
-            logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
-            logger.success("✓ Integrated tower scoreboard ready!");
             logger.success("✓ Zone GUI system initialized!");
-        } else {
-            logger.warning("⚠ WorldGuard not found - zone restriction and tower features disabled");
         }
+        
+        logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
+        logger.success("✓ Integrated tower scoreboard ready!");
 
         // Managers généraux
         initializeManagers();
@@ -352,12 +353,6 @@ public final class Quantum extends JavaPlugin {
         extractResource("mob_skills.yml");
 
         // Plugin integration examples
-        createDirectory("betterhud-examples");
-        extractResource("betterhud-examples/compass.yml");
-        extractResource("betterhud-examples/config.yml");
-        extractResource("betterhud-examples/huds.yml");
-        extractResource("betterhud-examples/popups.yml");
-
         createDirectory("placeholderapi-examples");
         extractResource("placeholderapi-examples/chat_example.yml");
         extractResource("placeholderapi-examples/hologram_example.yml");
@@ -439,6 +434,12 @@ public final class Quantum extends JavaPlugin {
         if (healthBarManager != null) {
             Bukkit.getPluginManager().registerEvents(new HealthBarListener(this, healthBarManager), this);
             logger.success("✓ HealthBar Listener (mob health display)");
+        }
+        
+        // TAB Listener
+        if (tabManager != null && tabManager.isEnabled()) {
+            Bukkit.getPluginManager().registerEvents(new com.wynvers.quantum.tab.TABListener(this), this);
+            logger.success("✓ TAB Listener (header/footer updates)");
         }
     }
 
@@ -552,27 +553,78 @@ public final class Quantum extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new JobListener(this, jobManager), this);
         getServer().getPluginManager().registerEvents(new JobActionListener(this, jobManager), this);
         logger.success("✓ Jobs System initialized! (" + jobManager.getAllJobs().size() + " jobs available)");
-        
-        // BetterHud Integration System
-        if (Bukkit.getPluginManager().getPlugin("BetterHud") != null) {
-            this.betterHudManager = new QuantumBetterHudManager(this);
-            this.compassManager = new QuantumCompassManager(betterHudManager, this.getLogger());
-            
-            // Initialize BetterHud API after a short delay to ensure plugin is fully loaded
-            Bukkit.getScheduler().runTaskLater(this, () -> {
-                betterHudManager.initialize();
-            }, 20L); // 1 second delay
-            
-            // Register listener for cleanup
-            getServer().getPluginManager().registerEvents(
-                new BetterHudListener(betterHudManager, compassManager), 
-                this
-            );
-            
-            logger.success("✓ BetterHud Integration initialized! (Optimized HUD & Compass)");
-        } else {
-            logger.warning("⚠ BetterHud not found - HUD features disabled");
+    }
+    
+    // ───────────────────── Internal Regions Loading ─────────────────────
+    
+    /**
+     * Load internal regions from towers.yml configuration
+     * Regions are loaded from the tower configuration and registered with InternalRegionManager
+     */
+    private void loadInternalRegions() {
+        File towersFile = new File(getDataFolder(), "towers.yml");
+        if (!towersFile.exists()) {
+            logger.warning("towers.yml not found - internal regions not loaded");
+            return;
         }
+        
+        org.bukkit.configuration.file.FileConfiguration config = 
+            org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(towersFile);
+        
+        org.bukkit.configuration.ConfigurationSection towersSection = config.getConfigurationSection("towers");
+        if (towersSection == null) {
+            logger.warning("No 'towers' section in towers.yml");
+            return;
+        }
+        
+        int regionsLoaded = 0;
+        
+        for (String towerId : towersSection.getKeys(false)) {
+            org.bukkit.configuration.ConfigurationSection towerSection = towersSection.getConfigurationSection(towerId);
+            if (towerSection == null) continue;
+            
+            // Load floor regions
+            org.bukkit.configuration.ConfigurationSection floorsSection = towerSection.getConfigurationSection("floors");
+            if (floorsSection == null) continue;
+            
+            for (String floorKey : floorsSection.getKeys(false)) {
+                org.bukkit.configuration.ConfigurationSection floorSection = floorsSection.getConfigurationSection(floorKey);
+                if (floorSection == null) continue;
+                
+                // Check if this floor has region coordinates (for internal system)
+                String regionName = floorSection.getString("worldguard_region");
+                if (regionName == null || regionName.isEmpty()) continue;
+                
+                // Try to load region from internal format
+                org.bukkit.configuration.ConfigurationSection regionSection = floorSection.getConfigurationSection("region");
+                if (regionSection != null) {
+                    if (internalRegionManager.loadRegionFromConfig(regionName, regionSection)) {
+                        regionsLoaded++;
+                    }
+                }
+            }
+        }
+        
+        // Also load from separate regions.yml if it exists
+        File regionsFile = new File(getDataFolder(), "regions.yml");
+        if (regionsFile.exists()) {
+            org.bukkit.configuration.file.FileConfiguration regionsConfig = 
+                org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(regionsFile);
+            
+            org.bukkit.configuration.ConfigurationSection regionsSection = regionsConfig.getConfigurationSection("regions");
+            if (regionsSection != null) {
+                for (String regionId : regionsSection.getKeys(false)) {
+                    org.bukkit.configuration.ConfigurationSection regionSection = regionsSection.getConfigurationSection(regionId);
+                    if (regionSection != null) {
+                        if (internalRegionManager.loadRegionFromConfig(regionId, regionSection)) {
+                            regionsLoaded++;
+                        }
+                    }
+                }
+            }
+        }
+        
+        logger.success("✓ Internal Regions loaded! (" + regionsLoaded + " regions registered)");
     }
 
     // ───────────────────── Commandes ─────────────────────
@@ -702,10 +754,13 @@ public final class Quantum extends JavaPlugin {
             getCommand("apartment").setExecutor(new ApartmentCommand(this, apartmentManager));
             logger.success("✓ Apartment Command (preparation phase)");
         }
-        // BetterHud Demo Command
-        if (betterHudManager != null && betterHudManager.isAvailable()) {
-            getCommand("huddemo").setExecutor(new HudDemoCommand(this));
-            logger.success("✓ BetterHud Demo Command registered");
+        
+        // TAB Edit Command
+        if (tabManager != null && tabManager.isEnabled()) {
+            TabEditCommand tabEditCommand = new TabEditCommand(this);
+            getCommand("tabedit").setExecutor(tabEditCommand);
+            getCommand("tabedit").setTabCompleter(tabEditCommand);
+            logger.success("✓ TAB Edit Command registered");
         }
         
         // Chat Command
@@ -750,6 +805,11 @@ public final class Quantum extends JavaPlugin {
         if (healthBarManager != null) {
             healthBarManager.shutdown();
             logger.success("✓ HealthBar displays cleaned up");
+        }
+        
+        if (tabManager != null && tabManager.isEnabled()) {
+            tabManager.shutdown();
+            logger.success("✓ TAB manager stopped");
         }
 
         if (escrowManager != null) {
@@ -922,6 +982,10 @@ public final class Quantum extends JavaPlugin {
     public ZoneManager getZoneManager() {
         return zoneManager;
     }
+    
+    public com.wynvers.quantum.regions.InternalRegionManager getInternalRegionManager() {
+        return internalRegionManager;
+    }
 
     public KillTracker getKillTracker() {
         return killTracker;
@@ -1053,23 +1117,5 @@ public final class Quantum extends JavaPlugin {
     
     public DungeonWeapon getDungeonWeapon() {
         return dungeonWeapon;
-    }
-    
-    // BetterHud Integration Getters
-    
-    /**
-     * Get the BetterHud manager for HUD and popup operations.
-     * @return QuantumBetterHudManager instance or null if BetterHud is not available
-     */
-    public QuantumBetterHudManager getBetterHudManager() {
-        return betterHudManager;
-    }
-    
-    /**
-     * Get the Compass manager for waypoint operations.
-     * @return QuantumCompassManager instance or null if BetterHud is not available
-     */
-    public QuantumCompassManager getCompassManager() {
-        return compassManager;
     }
 }

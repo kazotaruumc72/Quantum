@@ -18,7 +18,6 @@ softdepend:
   - WorldEdit
   - WorldGuard
   - TAB
-  - BetterHud
   - PlaceholderAPI
 
 commands:
@@ -170,16 +169,17 @@ commands:
     usage: /apartment [create|upgrade|invite|remove|lock|unlock|tp]
     aliases: [apt, appart]
     permission: quantum.apartment.use
-  huddemo:
-    description: BetterHud demo commands (popups and waypoints)
-    usage: /huddemo <popup|waypoint|test> [args]
-    aliases: [hud, betterhud]
-    permission: quantum.betterhud.use
   
   chat:
     description: Manage chat system
     usage: /chat [reload]
     permission: quantum.chat.admin
+  
+  tabedit:
+    description: Edit TAB header and footer for permission groups
+    usage: /tabedit <header|footer|reload|list> [group] [args]
+    aliases: [tabconfig, tconfig]
+    permission: quantum.tab.edit
 
 permissions:
   quantum.*:
@@ -515,16 +515,19 @@ permissions:
   
   quantum.apartment.upgrade:
     description: Upgrade apartments
-  # BetterHud integration
-  quantum.betterhud.*:
-    description: All BetterHud integration permissions
-    default: true
-    children:
-      quantum.betterhud.use: true
   
-  quantum.betterhud.use:
-    description: Use BetterHud features (popups, HUD, waypoints)
-    default: true
+  # TAB system
+  quantum.tab.*:
+    description: All TAB permissions
+    default: op
+    children:
+      quantum.tab.edit: true
+      quantum.tab.reload: true
+      quantum.tab.elite: false
+      quantum.tab.mvp+: false
+      quantum.tab.mvp: false
+      quantum.tab.vip+: false
+      quantum.tab.vip: false
   
   # Chat system
   quantum.chat.*:
@@ -562,4 +565,31 @@ permissions:
   quantum.chat.reload:
     description: Reload chat configuration
     default: op
+  quantum.tab.edit:
+    description: Edit TAB headers and footers
+    default: op
+  
+  quantum.tab.reload:
+    description: Reload TAB configuration
+    default: op
+  
+  quantum.tab.elite:
+    description: Elite TAB header and footer
+    default: false
+  
+  quantum.tab.mvp+:
+    description: MVP+ TAB header and footer
+    default: false
+  
+  quantum.tab.mvp:
+    description: MVP TAB header and footer
+    default: false
+  
+  quantum.tab.vip+:
+    description: VIP+ TAB header and footer
+    default: false
+  
+  quantum.tab.vip:
+    description: VIP TAB header and footer
+    default: false
 

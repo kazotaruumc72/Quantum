@@ -232,4 +232,11 @@ public class HomeManager {
     public void clearCache() {
         homeCache.clear();
     }
+    
+    /**
+     * Get the number of homes a player has
+     */
+    public int getHomeCount(UUID playerUuid) {
+        return getHomes(playerUuid).size();
+    }
 }

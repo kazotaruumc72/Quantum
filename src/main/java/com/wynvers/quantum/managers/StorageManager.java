@@ -41,6 +41,13 @@ public class StorageManager {
     }
     
     /**
+     * Alias for getStorage(UUID) for PlaceholderAPI compatibility
+     */
+    public PlayerStorage getPlayerStorage(UUID uuid) {
+        return getStorage(uuid);
+    }
+    
+    /**
      * Save specific storage (alias for save)
      */
     public void saveStorage(UUID uuid) {

@@ -315,7 +315,7 @@ public class ZoneManager implements Listener {
                 loc.getWorld().getName() + " " + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + 
                 ": " + e.getClass().getSimpleName() + " - " + e.getMessage()
             );
-            plugin.getQuantumLogger().debug("Stack trace:", e);
+            plugin.getQuantumLogger().error("Stack trace:", e);
             return null;
         }
     }

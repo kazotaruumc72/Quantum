@@ -4,6 +4,7 @@ import com.wynvers.quantum.Quantum;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -164,6 +165,23 @@ public class MessageManager {
      */
     public void sendPrefixedMessage(Player player, String path) {
         sendPrefixedMessage(player, path, null);
+    }
+    
+    /**
+     * Envoie un message avec préfixe (pour CommandSender)
+     */
+    public void sendPrefixedMessage(CommandSender sender, String path, Map<String, String> placeholders) {
+        String prefix = getMessage("system.prefix");
+        String message = getMessage(path, placeholders);
+        Component component = toComponent(prefix + message);
+        sender.sendMessage(component);
+    }
+    
+    /**
+     * Envoie un message avec préfixe sans placeholders (pour CommandSender)
+     */
+    public void sendPrefixedMessage(CommandSender sender, String path) {
+        sendPrefixedMessage(sender, path, null);
     }
     
     /**

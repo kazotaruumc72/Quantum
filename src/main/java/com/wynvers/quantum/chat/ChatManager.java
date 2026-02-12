@@ -48,7 +48,7 @@ public class ChatManager {
         
         // Ajouter les placeholders du PlaceholderManager si disponible
         if (placeholderManager != null) {
-            placeholders.put("level", placeholderManager.getPlaceholder(player.getUniqueId(), "level"));
+            placeholders.put("level", placeholderManager.parse(player, "%quantum_job_level%"));
         } else {
             placeholders.put("level", "1");
         }

@@ -327,17 +327,15 @@ This integration is compatible with:
 ### Works With
 - ✅ All PlaceholderAPI-compatible plugins
 - ✅ TAB Plugin (can use both TAB and PlaceholderAPI)
-- ✅ BetterHud (separate integration available)
 - ✅ Vault-compatible economy plugins
 - ✅ LuckPerms permission groups
 
 ## Related Integrations
 
-Quantum also provides direct integrations with:
+Quantum also provides direct integration with:
 - **TAB Plugin**: See `TAB_INTEGRATION.md`
-- **BetterHud**: See `BETTERHUD_INTEGRATION.md`
 
-These direct integrations may offer better performance or additional features compared to using PlaceholderAPI.
+This direct integration may offer better performance or additional features compared to using PlaceholderAPI.
 
 ## References
 

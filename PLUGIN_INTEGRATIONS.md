@@ -2,19 +2,17 @@
 
 ## Summary
 
-The Quantum plugin now includes full integration support for three major Minecraft server plugins:
+The Quantum plugin now includes full integration support for two major Minecraft server plugins:
 
-1. **BetterHud** (@toxicity188/BetterHud) - Custom HUD elements, popups, and waypoints
-2. **TAB** (https://github.com/NEZNAMY/TAB) - Advanced tablist, nametags, and scoreboard
-3. **PlaceholderAPI** (@PlaceholderAPI/PlaceholderAPI) - Universal placeholder system
+1. **TAB** (https://github.com/NEZNAMY/TAB) - Advanced tablist, nametags, and scoreboard
+2. **PlaceholderAPI** (@PlaceholderAPI/PlaceholderAPI) - Universal placeholder system
 
-All three plugins are **soft dependencies**, meaning Quantum will work with or without them installed. When installed, they provide enhanced functionality and display capabilities.
+Both plugins are **soft dependencies**, meaning Quantum will work with or without them installed. When installed, they provide enhanced functionality and display capabilities.
 
 ## Integration Status
 
 | Plugin | Status | Version | Documentation |
 |--------|--------|---------|---------------|
-| BetterHud | ✅ Fully Integrated | 1.14.1 | [BETTERHUD_INTEGRATION.md](BETTERHUD_INTEGRATION.md) |
 | TAB | ✅ Fully Integrated | 5.5.0 | [TAB_INTEGRATION.md](TAB_INTEGRATION.md) |
 | PlaceholderAPI | ✅ Fully Integrated | 2.11.6 | [PLACEHOLDERAPI_INTEGRATION.md](PLACEHOLDERAPI_INTEGRATION.md) |
 
@@ -23,7 +21,6 @@ All three plugins are **soft dependencies**, meaning Quantum will work with or w
 ### Installing All Integrations
 
 1. **Download the plugins:**
-   - BetterHud v1.14.1: https://www.spigotmc.org/resources/115559/
    - TAB v5.5.0: https://github.com/NEZNAMY/TAB/releases/tag/5.5.0
    - PlaceholderAPI v2.11.6: https://www.spigotmc.org/resources/6245/
 
@@ -31,7 +28,6 @@ All three plugins are **soft dependencies**, meaning Quantum will work with or w
    ```
    server/plugins/
    ├── Quantum-1.0.1.jar
-   ├── BetterHud-1.14.1.jar (optional)
    ├── TAB-v5.5.0.jar (optional)
    └── PlaceholderAPI-2.11.6.jar (optional)
    ```
@@ -40,26 +36,11 @@ All three plugins are **soft dependencies**, meaning Quantum will work with or w
 
 4. **Verify integration in console:**
    ```
-   [Quantum] ✓ BetterHud integration initialized!
    [Quantum] ✓ TAB integration enabled! (v5.5.0, MiniMessage support available)
    [Quantum] ✓ PlaceholderAPI integration enabled! (v2.11.6)
    ```
 
 ## Feature Comparison
-
-### BetterHud Integration
-**Best for:** Custom HUD overlays, popups, waypoints
-- ✨ Display custom HUD elements on player screens
-- ✨ Show temporary popup messages with variables
-- ✨ Add navigation waypoints/compass points
-- ✨ Fully customizable via BetterHud config files
-- 📝 See: [BETTERHUD_INTEGRATION.md](BETTERHUD_INTEGRATION.md)
-
-**Example Use Cases:**
-- Level up notifications with custom animations
-- Quest waypoint markers
-- Custom health/mana/energy bars
-- Dynamic player stats overlay
 
 ### TAB Integration
 **Best for:** Tablist, nametags, scoreboards
@@ -126,12 +107,6 @@ All three integrations provide access to Quantum data through placeholders:
 
 ## Which Integration Should I Use?
 
-### Use BetterHud when:
-- ✅ You want custom HUD overlays
-- ✅ You need popup notifications
-- ✅ You want waypoint/compass markers
-- ✅ You prefer visual HUD elements over text
-
 ### Use TAB when:
 - ✅ You want to customize tab list
 - ✅ You need nametags above players
@@ -145,8 +120,7 @@ All three integrations provide access to Quantum data through placeholders:
 - ✅ You need placeholders in chat, holograms, etc.
 
 ### Use Multiple Integrations:
-You can use all three together! They complement each other:
-- **BetterHud** for custom HUDs and popups
+You can use both together! They complement each other:
 - **TAB** for tablist and nametags
 - **PlaceholderAPI** for everything else (chat, holograms, etc.)
 
@@ -154,8 +128,7 @@ You can use all three together! They complement each other:
 
 ### Example 1: Complete Server Setup
 ```
-# Use all three integrations together
-- BetterHud: Custom level-up popup with animation
+# Use both integrations together
 - TAB: Show level in tab list and nametags
 - PlaceholderAPI: Level in chat via EssentialsX
 ```
@@ -168,19 +141,11 @@ You can use all three together! They complement each other:
 
 ### Example 3: Visual Focus
 ```
-# Use BetterHud + TAB for rich visual experience
-- BetterHud: Custom HUD elements
+# Use TAB for rich visual experience
 - TAB: Enhanced tablist and nametags
 ```
 
 ## Example Configurations Included
-
-### BetterHud Examples
-Located in `src/main/resources/betterhud-examples/`:
-- `config.yml` - Main BetterHud configuration
-- `huds.yml` - HUD element definitions
-- `popups.yml` - Popup configurations
-- `compass.yml` - Waypoint/compass settings
 
 ### PlaceholderAPI Examples
 Located in `src/main/resources/placeholderapi-examples/`:
@@ -198,7 +163,6 @@ Located in `src/main/resources/placeholderapi-examples/`:
 - ✅ No scheduled tasks (update on-demand only)
 
 ### Recommended Settings:
-- **BetterHud**: 100ms popup cooldown (default)
 - **TAB**: 1-5 second refresh interval
 - **PlaceholderAPI**: Controlled by individual plugins
 
@@ -216,7 +180,7 @@ Located in `src/main/resources/placeholderapi-examples/`:
 **Solution**:
 1. Check syntax: `%quantum_level%` (not `{quantum_level}`)
 2. Verify Quantum integration is enabled (check console logs)
-3. Ensure other plugin supports PlaceholderAPI/TAB/BetterHud
+3. Ensure other plugin supports PlaceholderAPI/TAB
 4. Try `/papi parse me %quantum_level%` (PlaceholderAPI)
 
 ### Build Errors
@@ -248,28 +212,13 @@ All three integrations are configured as provided dependencies:
     <version>2.11.6</version>
     <scope>provided</scope>
 </dependency>
-
-<!-- BetterHud APIs -->
-<dependency>
-    <groupId>io.github.toxicity188</groupId>
-    <artifactId>BetterHud-standard-api</artifactId>
-    <version>1.14.1</version>
-    <scope>provided</scope>
-</dependency>
-<dependency>
-    <groupId>io.github.toxicity188</groupId>
-    <artifactId>BetterHud-bukkit-api</artifactId>
-    <version>1.14.1</version>
-    <scope>provided</scope>
-</dependency>
 ```
 
 ### plugin.yml
-All three are configured as soft dependencies:
+Both are configured as soft dependencies:
 
 ```yaml
 softdepend:
-  - BetterHud
   - TAB
   - PlaceholderAPI
 ```
@@ -280,12 +229,6 @@ softdepend:
 
 ```java
 Quantum plugin = Quantum.getInstance();
-
-// BetterHud
-QuantumBetterHudManager hudManager = plugin.getBetterHudManager();
-if (hudManager != null && hudManager.isAvailable()) {
-    hudManager.showPopup(player, "level_up");
-}
 
 // TAB
 TABManager tabManager = plugin.getTabManager();
@@ -307,20 +250,17 @@ if (papiManager != null && papiManager.isEnabled()) {
 | Minecraft | 1.21.11 | All integrations tested on 1.21.11 |
 | Paper API | 1.21.11-R0.1-SNAPSHOT | Or compatible Spigot/Paper fork |
 | Java | 21+ | Required for Quantum |
-| BetterHud | 1.14.1+ | Optional |
 | TAB | 5.5.0+ | Optional |
 | PlaceholderAPI | 2.11.6+ | Optional |
 
 ## Support & Resources
 
 ### Documentation
-- [BetterHud Integration](BETTERHUD_INTEGRATION.md)
 - [TAB Integration](TAB_INTEGRATION.md)
 - [PlaceholderAPI Integration](PLACEHOLDERAPI_INTEGRATION.md)
 - [Deployment Guide](DEPLOYMENT_GUIDE.md)
 
 ### External Resources
-- **BetterHud**: https://www.spigotmc.org/resources/115559/
 - **TAB**: https://github.com/NEZNAMY/TAB
 - **PlaceholderAPI**: https://github.com/PlaceholderAPI/PlaceholderAPI
 
@@ -332,7 +272,6 @@ if (papiManager != null && papiManager.isEnabled()) {
 
 ## Credits
 
-- **BetterHud Plugin**: toxicity188
 - **TAB Plugin**: NEZNAMY
 - **PlaceholderAPI**: Clip, extended_clip, and contributors
 - **Quantum Integrations**: kazotaruumc72/Quantum development team

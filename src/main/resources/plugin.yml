@@ -18,7 +18,6 @@ softdepend:
   - WorldEdit
   - WorldGuard
   - TAB
-  - BetterHud
   - PlaceholderAPI
 
 commands:
@@ -170,11 +169,6 @@ commands:
     usage: /apartment [create|upgrade|invite|remove|lock|unlock|tp]
     aliases: [apt, appart]
     permission: quantum.apartment.use
-  huddemo:
-    description: BetterHud demo commands (popups and waypoints)
-    usage: /huddemo <popup|waypoint|test> [args]
-    aliases: [hud, betterhud]
-    permission: quantum.betterhud.use
   
   tabedit:
     description: Edit TAB header and footer for permission groups
@@ -515,16 +509,6 @@ permissions:
   
   quantum.apartment.upgrade:
     description: Upgrade apartments
-  # BetterHud integration
-  quantum.betterhud.*:
-    description: All BetterHud integration permissions
-    default: true
-    children:
-      quantum.betterhud.use: true
-  
-  quantum.betterhud.use:
-    description: Use BetterHud demo commands
-    default: true
   
   # TAB system
   quantum.tab.*:

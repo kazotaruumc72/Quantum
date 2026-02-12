@@ -55,7 +55,8 @@ See [PLUGIN_INTEGRATIONS.md](PLUGIN_INTEGRATIONS.md) for complete integration do
 
 3. **Install dependencies:**
    - Required: Nexo plugin
-   - Optional: BetterHud, TAB, PlaceholderAPI (see [PLUGIN_INTEGRATIONS.md](PLUGIN_INTEGRATIONS.md))
+   - Optional: BetterHud, TAB, PlaceholderAPI
+   - See [plugins-integration/](plugins-integration/) for download links and setup guides
 
 4. **Start your server**
 
@@ -86,6 +87,8 @@ For detailed build instructions, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 ## 📚 Documentation
 
 ### Quick Links
+- **[Plugin Integrations Directory](plugins-integration/)** - Complete integration package with all files
+- **[Installation Guide](plugins-integration/INSTALLATION_GUIDE.md)** - Step-by-step setup instructions
 - **[Plugin Integrations Overview](PLUGIN_INTEGRATIONS.md)** - Overview of all integrations
 - **[BetterHud Integration](BETTERHUD_INTEGRATION.md)** - Custom HUD elements
 - **[TAB Integration](TAB_INTEGRATION.md)** - Tablist and scoreboard
@@ -120,9 +123,12 @@ Located in `plugins/Quantum/menus/`:
 - And many more...
 
 ### Example Configurations
-The plugin includes example configurations for integrated plugins:
-- `src/main/resources/betterhud-examples/` - BetterHud configurations
-- `src/main/resources/placeholderapi-examples/` - PlaceholderAPI usage examples
+The plugin includes comprehensive example configurations for integrated plugins:
+- `plugins-integration/betterhud/` - Complete BetterHud integration package
+- `plugins-integration/tab/` - TAB configuration examples
+- `plugins-integration/placeholderapi/` - PlaceholderAPI usage examples with other plugins
+- `src/main/resources/betterhud-examples/` - BetterHud configurations (legacy location)
+- `src/main/resources/placeholderapi-examples/` - PlaceholderAPI examples (legacy location)
 
 ## 🎮 Commands
 

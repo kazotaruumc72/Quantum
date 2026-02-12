@@ -559,7 +559,7 @@ public class Menu {
             }
  
             // Créer l'ItemStack depuis le MenuItem
-            ItemStack itemStack = item.toItemStack(plugin);
+            ItemStack itemStack = item.toItemStack(plugin, player, customPlaceholders);
             if (itemStack == null) continue;
             
             // Parser les placeholders dans le display name et la lore si un joueur est fourni

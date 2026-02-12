@@ -189,12 +189,20 @@ public class MenuManager {
         if (section.contains("nexo_item")) {
             item.setNexoId(section.getString("nexo_item"));
         } else if (section.contains("material")) {
-            try {
-                Material material = Material.valueOf(section.getString("material").toUpperCase());
-                item.setMaterial(material);
-            } catch (IllegalArgumentException e) {
-                plugin.getQuantumLogger().warning("Invalid material: " + section.getString("material"));
-                return null;
+            String materialStr = section.getString("material");
+            // Check if material contains placeholders
+            if (materialStr.contains("%")) {
+                // Store as string for later resolution
+                item.setMaterialString(materialStr);
+            } else {
+                // Try to convert to Material immediately
+                try {
+                    Material material = Material.valueOf(materialStr.toUpperCase());
+                    item.setMaterial(material);
+                } catch (IllegalArgumentException e) {
+                    plugin.getQuantumLogger().warning("Invalid material: " + materialStr);
+                    return null;
+                }
             }
         }
         

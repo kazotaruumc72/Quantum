@@ -3,7 +3,6 @@ package com.wynvers.quantum.managers;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.utils.ScoreboardUtils;
 import io.papermc.paper.scoreboard.numbers.NumberFormat;
-import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
@@ -52,8 +51,8 @@ public class ScoreboardManager {
         // Utiliser NumberFormat.blank() pour supprimer complètement les nombres
         int score = lines.size();
         for (String line : lines) {
-            // Parse les placeholders PUIS applique les couleurs
-            String parsedLine = PlaceholderAPI.setPlaceholders(player, line);
+            // Parse les placeholders PUIS applique les couleurs (using internal parser)
+            String parsedLine = plugin.getPlaceholderManager().parse(player, line);
             String colored = ScoreboardUtils.color(parsedLine);
             
             // Créer une entrée unique (utilise des espaces invisibles)
@@ -107,8 +106,8 @@ public class ScoreboardManager {
         
         Team team = board.getTeam("line_" + lineIndex);
         if (team != null) {
-            // Parse les placeholders PUIS applique les couleurs
-            String parsedText = PlaceholderAPI.setPlaceholders(player, newText);
+            // Parse les placeholders PUIS applique les couleurs (using internal parser)
+            String parsedText = plugin.getPlaceholderManager().parse(player, newText);
             String colored = ScoreboardUtils.color(parsedText);
             if (colored.length() <= 64) {
                 team.setPrefix(colored);
@@ -135,8 +134,8 @@ public class ScoreboardManager {
             batchText.append(lines.get(i));
         }
         
-        // Single PlaceholderAPI call for all lines
-        String parsedBatch = PlaceholderAPI.setPlaceholders(player, batchText.toString());
+        // Single internal placeholder parser call for all lines
+        String parsedBatch = plugin.getPlaceholderManager().parse(player, batchText.toString());
         // Normalize line endings and split - handle both \r\n and \n
         // Use limit to ensure we get exactly the expected number of lines
         String[] parsedLines = parsedBatch.replace("\r\n", "\n").split("\n", lines.size());
@@ -146,7 +145,7 @@ public class ScoreboardManager {
             // Fallback to per-line parsing if batch parsing fails
             parsedLines = new String[lines.size()];
             for (int i = 0; i < lines.size(); i++) {
-                parsedLines[i] = PlaceholderAPI.setPlaceholders(player, lines.get(i));
+                parsedLines[i] = plugin.getPlaceholderManager().parse(player, lines.get(i));
             }
         }
         

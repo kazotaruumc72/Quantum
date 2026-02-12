@@ -218,6 +218,11 @@ public class PlaceholderManager {
             return handleOrderPlaceholder(player, params);
         }
         
+        // === TRANSACTION HISTORY ===
+        if (params.startsWith("history_")) {
+            return handleHistoryPlaceholder(player, params);
+        }
+        
         // Default: return null to preserve the original placeholder syntax (e.g., %unknown_placeholder%)
         return null;
     }
@@ -639,5 +644,108 @@ public class PlaceholderManager {
         // Reconstruct the full session key: params is "order_xxx", we need "quantum_order_xxx"
         String key = "quantum_" + params;
         return placeholders.getOrDefault(key, "0");
+    }
+    
+    /**
+     * Handle transaction history placeholders
+     * Note: Most history placeholders with {slot} patterns should be handled via customPlaceholders
+     * This method handles global history placeholders like total counts, pagination, etc.
+     */
+    private String handleHistoryPlaceholder(Player player, String params) {
+        com.wynvers.quantum.transactions.TransactionHistoryManager historyManager = 
+            plugin.getTransactionHistoryManager();
+        if (historyManager == null) {
+            return "0";
+        }
+        
+        // Global counts
+        if (params.equals("history_total")) {
+            return String.valueOf(historyManager.getTotalTransactionCount(player));
+        }
+        
+        if (params.equals("history_buy_count")) {
+            List<com.wynvers.quantum.transactions.TransactionHistoryManager.Transaction> buyTransactions = 
+                historyManager.getPlayerHistory(player, "BUY", 0);
+            return String.valueOf(buyTransactions.size());
+        }
+        
+        if (params.equals("history_sell_count")) {
+            List<com.wynvers.quantum.transactions.TransactionHistoryManager.Transaction> sellTransactions = 
+                historyManager.getPlayerHistory(player, "SELL", 0);
+            return String.valueOf(sellTransactions.size());
+        }
+        
+        if (params.equals("history_buy_total")) {
+            double total = historyManager.getTotalBuyAmount(player);
+            return String.format("%.2f", total);
+        }
+        
+        if (params.equals("history_sell_total")) {
+            double total = historyManager.getTotalSellAmount(player);
+            return String.format("%.2f", total);
+        }
+        
+        // Filter status placeholders - these should be dynamically set via customPlaceholders
+        // For now, return empty string so they don't show as unresolved
+        if (params.equals("history_filter_all_status") || 
+            params.equals("history_filter_buy_status") || 
+            params.equals("history_filter_sell_status")) {
+            return "";
+        }
+        
+        // Pagination placeholders - these should be set via customPlaceholders when rendering the menu
+        // Return sensible defaults
+        if (params.equals("history_current_page")) {
+            return "1";
+        }
+        
+        if (params.equals("history_total_pages")) {
+            int total = historyManager.getTotalTransactionCount(player);
+            int perPage = 21; // Based on slots in history.yml
+            return String.valueOf((total + perPage - 1) / perPage);
+        }
+        
+        if (params.equals("history_has_previous")) {
+            return "false";
+        }
+        
+        if (params.equals("history_has_next")) {
+            int total = historyManager.getTotalTransactionCount(player);
+            return total > 21 ? "true" : "false";
+        }
+        
+        if (params.equals("history_previous_page")) {
+            return "1";
+        }
+        
+        if (params.equals("history_next_page")) {
+            return "2";
+        }
+        
+        if (params.equals("history_showing_from")) {
+            return "1";
+        }
+        
+        if (params.equals("history_showing_to")) {
+            int total = historyManager.getTotalTransactionCount(player);
+            return String.valueOf(Math.min(21, total));
+        }
+        
+        if (params.equals("history_last")) {
+            List<com.wynvers.quantum.transactions.TransactionHistoryManager.Transaction> transactions = 
+                historyManager.getPlayerHistory(player, null, 1);
+            if (!transactions.isEmpty()) {
+                return transactions.get(0).date;
+            }
+            return "Jamais";
+        }
+        
+        // For slot-specific placeholders like history_{slot}_material, return a default
+        // These should be handled via customPlaceholders in the menu rendering
+        if (params.matches("history_\\d+_.*") || params.contains("{slot}")) {
+            return ""; // Empty to avoid showing unresolved placeholders
+        }
+        
+        return "0";
     }
 }

@@ -1,16 +1,19 @@
 package com.wynvers.quantum.managers;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.economy.QuantumEconomy;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.ServicePriority;
 
 public class VaultManager {
     
     private final Quantum plugin;
     private Economy economy;
     private boolean enabled;
+    private QuantumEconomy quantumEconomy;
     
     public VaultManager(Quantum plugin) {
         this.plugin = plugin;
@@ -23,30 +26,41 @@ public class VaultManager {
      */
     private void setupEconomy() {
         if (plugin.getServer().getPluginManager().getPlugin("Vault") == null) {
-            plugin.getQuantumLogger().warning("Vault non d\u00e9tect\u00e9 ! Syst\u00e8me de vente d\u00e9sactiv\u00e9.");
+            plugin.getQuantumLogger().warning("Vault non détecté ! Système de vente désactivé.");
             return;
         }
         
+        // Register our own economy provider
+        quantumEconomy = new QuantumEconomy(plugin);
+        plugin.getServer().getServicesManager().register(
+            Economy.class,
+            quantumEconomy,
+            plugin,
+            ServicePriority.Highest
+        );
+        
+        // Use our registered economy
         RegisteredServiceProvider<Economy> rsp = plugin.getServer().getServicesManager().getRegistration(Economy.class);
         if (rsp == null) {
-            plugin.getQuantumLogger().warning("Aucun plugin d'\u00e9conomie trouv\u00e9 ! Installez un plugin comme EssentialsX.");
+            plugin.getQuantumLogger().warning("Erreur lors de l'enregistrement de l'économie Quantum !");
             return;
         }
         
         economy = rsp.getProvider();
         enabled = true;
-        plugin.getQuantumLogger().success("Vault connect\u00e9 avec succ\u00e8s ! Plugin d'\u00e9conomie: " + economy.getName());
+        plugin.getQuantumLogger().success("✓ Economy system ready!");
+        plugin.getQuantumLogger().success("Quantum Economy enregistré avec succès via Vault !");
     }
     
     /**
-     * V\u00e9rifie si Vault est activ\u00e9
+     * Vérifie si Vault est activé
      */
     public boolean isEnabled() {
         return enabled && economy != null;
     }
     
     /**
-     * R\u00e9cup\u00e8re le solde d'un joueur
+     * Récupère le solde d'un joueur
      */
     public double getBalance(OfflinePlayer player) {
         if (!isEnabled()) return 0.0;
@@ -54,7 +68,7 @@ public class VaultManager {
     }
     
     /**
-     * Ajoute de l'argent \u00e0 un joueur
+     * Ajoute de l'argent à un joueur
      */
     public boolean deposit(OfflinePlayer player, double amount) {
         if (!isEnabled()) return false;
@@ -62,7 +76,7 @@ public class VaultManager {
     }
     
     /**
-     * Retire de l'argent \u00e0 un joueur
+     * Retire de l'argent à un joueur
      */
     public boolean withdraw(OfflinePlayer player, double amount) {
         if (!isEnabled()) return false;
@@ -70,7 +84,7 @@ public class VaultManager {
     }
     
     /**
-     * V\u00e9rifie si un joueur a assez d'argent
+     * Vérifie si un joueur a assez d'argent
      */
     public boolean has(OfflinePlayer player, double amount) {
         if (!isEnabled()) return false;
@@ -78,7 +92,7 @@ public class VaultManager {
     }
     
     /**
-     * Formate un montant en cha\u00eene de caract\u00e8res
+     * Formate un montant en chaîne de caractères
      */
     public String format(double amount) {
         if (!isEnabled()) return String.format("%.2f", amount);
@@ -86,7 +100,7 @@ public class VaultManager {
     }
     
     /**
-     * R\u00e9cup\u00e8re le nom de la monnaie (singulier)
+     * Récupère le nom de la monnaie (singulier)
      */
     public String getCurrencyName() {
         if (!isEnabled()) return "$";
@@ -94,7 +108,7 @@ public class VaultManager {
     }
     
     /**
-     * R\u00e9cup\u00e8re le nom de la monnaie (pluriel)
+     * Récupère le nom de la monnaie (pluriel)
      */
     public String getCurrencyNamePlural() {
         if (!isEnabled()) return "$";
@@ -102,11 +116,19 @@ public class VaultManager {
     }
     
     /**
-     * R\u00e9cup\u00e8re l'instance Economy de Vault
+     * Récupère l'instance Economy de Vault
      * @return Economy instance or null if Vault is not enabled
      * @see #isEnabled() to check if Vault is properly configured
      */
     public Economy getEconomy() {
         return economy;
+    }
+    
+    /**
+     * Récupère l'instance QuantumEconomy
+     * @return QuantumEconomy instance or null if not initialized
+     */
+    public QuantumEconomy getQuantumEconomy() {
+        return quantumEconomy;
     }
 }

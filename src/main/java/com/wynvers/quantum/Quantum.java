@@ -139,6 +139,9 @@ public final class Quantum extends JavaPlugin {
     // Home System
     private HomeManager homeManager;
     
+    // Spawn System
+    private com.wynvers.quantum.spawn.SpawnManager spawnManager;
+    
     // TAB Integration
     private TABManager tabManager;
     
@@ -470,6 +473,10 @@ public final class Quantum extends JavaPlugin {
         this.homeManager = new HomeManager(this, databaseManager);
         logger.success("✓ Home Manager");
         
+        this.spawnManager = new com.wynvers.quantum.spawn.SpawnManager(this, databaseManager);
+        getServer().getPluginManager().registerEvents(new com.wynvers.quantum.spawn.FirstJoinListener(spawnManager), this);
+        logger.success("✓ Spawn Manager");
+        
         this.apartmentManager = new ApartmentManager(this, databaseManager);
         logger.success("✓ Apartment Manager (preparation phase)");
 
@@ -639,6 +646,15 @@ public final class Quantum extends JavaPlugin {
             getCommand("delhome").setExecutor(homeCommand);
             getCommand("delhome").setTabCompleter(homeTabCompleter);
             logger.success("✓ Home Commands + TabCompleters");
+        }
+        
+        // Spawn Command
+        if (spawnManager != null) {
+            com.wynvers.quantum.commands.SpawnCommand spawnCommand = new com.wynvers.quantum.commands.SpawnCommand(spawnManager);
+            com.wynvers.quantum.tabcompleters.SpawnTabCompleter spawnTabCompleter = new com.wynvers.quantum.tabcompleters.SpawnTabCompleter();
+            getCommand("spawn").setExecutor(spawnCommand);
+            getCommand("spawn").setTabCompleter(spawnTabCompleter);
+            logger.success("✓ Spawn Command + TabCompleter");
         }
         
         // Zone GUI Command
@@ -956,6 +972,10 @@ public final class Quantum extends JavaPlugin {
     
     public HomeManager getHomeManager() {
         return homeManager;
+    }
+    
+    public com.wynvers.quantum.spawn.SpawnManager getSpawnManager() {
+        return spawnManager;
     }
     
     public TABManager getTabManager() {

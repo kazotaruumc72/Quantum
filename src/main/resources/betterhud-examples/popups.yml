@@ -1,0 +1,332 @@
+# ================================================================
+# BetterHud Popup Configuration Examples for Quantum Plugin
+# ================================================================
+# Place this file in: plugins/BetterHud/popups/quantum_popups.yml
+# ================================================================
+
+# Test popup for demo command
+test_popup:
+  # Layout configuration
+  layouts:
+    default:
+      # Display location (CENTER, TOP, BOTTOM, etc.)
+      location: CENTER
+      # Y offset from location
+      y: 0
+      # Text to display
+      text:
+        - "<gradient:#00FF00:#00FFFF><bold>Quantum Test Popup</bold></gradient>"
+        - "<white>Player: <yellow>${player}"
+        - "<white>Health: <red>${health}"
+        - "<white>Level: <gold>${level}"
+  # Animation settings
+  animation:
+    # Fade in duration (ticks)
+    fade-in: 10
+    # Display duration (ticks)
+    stay: 60
+    # Fade out duration (ticks)
+    fade-out: 10
+
+# Level up notification
+level_up:
+  layouts:
+    default:
+      location: CENTER
+      y: 50
+      text:
+        - "<gradient:#FFD700:#FFA500><bold>⭐ LEVEL UP! ⭐</bold></gradient>"
+        - "<white>You are now level <gold><bold>${level}</bold></gold>"
+        - "<gray>Keep going, ${player}!"
+  animation:
+    fade-in: 5
+    stay: 80
+    fade-out: 15
+  # Sound to play
+  sound:
+    key: "minecraft:entity.player.levelup"
+    volume: 1.0
+    pitch: 1.0
+
+# Storage notification (item added)
+storage_add:
+  layouts:
+    default:
+      location: TOP
+      y: 100
+      text:
+        - "<green>✓ <white>${amount}x <yellow>${item} <green>added to storage"
+  animation:
+    fade-in: 3
+    stay: 40
+    fade-out: 7
+
+# Storage notification (item removed)
+storage_remove:
+  layouts:
+    default:
+      location: TOP
+      y: 100
+      text:
+        - "<red>✗ <white>${amount}x <yellow>${item} <red>removed from storage"
+  animation:
+    fade-in: 3
+    stay: 40
+    fade-out: 7
+
+# Order created notification
+order_created:
+  layouts:
+    default:
+      location: CENTER
+      y: -50
+      text:
+        - "<gradient:#00FF00:#00CCFF><bold>📝 Order Created!</bold></gradient>"
+        - "<white>Item: <yellow>${item}"
+        - "<white>Quantity: <gold>${quantity}"
+        - "<white>Price: <green>${price}$"
+        - "<gray>Expires in ${duration}"
+  animation:
+    fade-in: 8
+    stay: 100
+    fade-out: 12
+  sound:
+    key: "minecraft:block.note_block.chime"
+    volume: 0.8
+    pitch: 1.2
+
+# Order completed notification
+order_completed:
+  layouts:
+    default:
+      location: CENTER
+      y: -50
+      text:
+        - "<gradient:#FFD700:#FFA500><bold>💰 Order Completed!</bold></gradient>"
+        - "<white>Buyer: <aqua>${buyer}"
+        - "<white>Item: <yellow>${item}"
+        - "<white>Amount: <gold>${amount}$"
+  animation:
+    fade-in: 8
+    stay: 100
+    fade-out: 12
+  sound:
+    key: "minecraft:entity.experience_orb.pickup"
+    volume: 1.0
+    pitch: 1.0
+
+# Tower progress notification
+tower_progress:
+  layouts:
+    default:
+      location: CENTER
+      y: 30
+      text:
+        - "<gradient:#9B59B6:#E74C3C><bold>🗼 Tower Progress</bold></gradient>"
+        - "<white>Floor <gold>${floor}</gold> cleared!"
+        - "<white>Progress: <green>${percentage}%"
+  animation:
+    fade-in: 10
+    stay: 60
+    fade-out: 10
+
+# Job level up notification
+job_levelup:
+  layouts:
+    default:
+      location: CENTER
+      y: 0
+      text:
+        - "<gradient:#3498DB:#2ECC71><bold>💼 Job Level Up!</bold></gradient>"
+        - "<white>Job: <aqua>${job}"
+        - "<white>Level: <gold>${level}"
+        - "<gray>New rewards unlocked!"
+  animation:
+    fade-in: 10
+    stay: 80
+    fade-out: 15
+  sound:
+    key: "minecraft:ui.toast.challenge_complete"
+    volume: 1.0
+    pitch: 1.0
+
+# EXP gained notification
+exp_gained:
+  layouts:
+    default:
+      location: TOP
+      y: 120
+      text:
+        - "<green>+ ${amount} EXP <gray>(${source})"
+  animation:
+    fade-in: 2
+    stay: 30
+    fade-out: 5
+
+# Money received notification
+money_received:
+  layouts:
+    default:
+      location: TOP
+      y: 100
+      text:
+        - "<gold>+ ${amount}$ <gray>(${reason})"
+  animation:
+    fade-in: 3
+    stay: 40
+    fade-out: 7
+  sound:
+    key: "minecraft:entity.experience_orb.pickup"
+    volume: 0.5
+    pitch: 1.5
+
+# Money spent notification
+money_spent:
+  layouts:
+    default:
+      location: TOP
+      y: 100
+      text:
+        - "<red>- ${amount}$ <gray>(${reason})"
+  animation:
+    fade-in: 3
+    stay: 40
+    fade-out: 7
+
+# Zone entry notification
+zone_enter:
+  layouts:
+    default:
+      location: CENTER
+      y: 80
+      text:
+        - "<gradient:#E67E22:#E74C3C><bold>⚠ Entering Zone</bold></gradient>"
+        - "<yellow>${zone_name}"
+        - "<gray>${zone_description}"
+  animation:
+    fade-in: 8
+    stay: 60
+    fade-out: 12
+
+# Zone exit notification
+zone_exit:
+  layouts:
+    default:
+      location: CENTER
+      y: 80
+      text:
+        - "<gradient:#2ECC71:#27AE60><bold>✓ Leaving Zone</bold></gradient>"
+        - "<white>${zone_name}"
+  animation:
+    fade-in: 5
+    stay: 40
+    fade-out: 10
+
+# Warning notification (generic)
+warning:
+  layouts:
+    default:
+      location: CENTER
+      y: -80
+      text:
+        - "<gradient:#E74C3C:#C0392B><bold>⚠ WARNING ⚠</bold></gradient>"
+        - "<yellow>${message}"
+  animation:
+    fade-in: 5
+    stay: 60
+    fade-out: 10
+  sound:
+    key: "minecraft:block.note_block.bass"
+    volume: 1.0
+    pitch: 0.5
+
+# Success notification (generic)
+success:
+  layouts:
+    default:
+      location: TOP
+      y: 100
+      text:
+        - "<green>✓ <white>${message}"
+  animation:
+    fade-in: 3
+    stay: 40
+    fade-out: 7
+
+# Error notification (generic)
+error:
+  layouts:
+    default:
+      location: TOP
+      y: 100
+      text:
+        - "<red>✗ <white>${message}"
+  animation:
+    fade-in: 3
+    stay: 50
+    fade-out: 7
+  sound:
+    key: "minecraft:entity.villager.no"
+    volume: 0.5
+    pitch: 1.0
+
+# Achievement notification
+achievement:
+  layouts:
+    default:
+      location: CENTER
+      y: -100
+      text:
+        - "<gradient:#FFD700:#FFA500><bold>🏆 Achievement Unlocked!</bold></gradient>"
+        - "<yellow>${achievement_name}"
+        - "<gray>${achievement_description}"
+        - "<white>Reward: <gold>${reward}"
+  animation:
+    fade-in: 15
+    stay: 120
+    fade-out: 20
+  sound:
+    key: "minecraft:ui.toast.challenge_complete"
+    volume: 1.0
+    pitch: 1.0
+
+# Quest completed notification
+quest_completed:
+  layouts:
+    default:
+      location: CENTER
+      y: 0
+      text:
+        - "<gradient:#9B59B6:#3498DB><bold>📜 Quest Completed!</bold></gradient>"
+        - "<white>${quest_name}"
+        - "<green>Rewards:"
+        - "<white>  • ${reward_exp} EXP"
+        - "<white>  • ${reward_money}$"
+  animation:
+    fade-in: 10
+    stay: 100
+    fade-out: 15
+  sound:
+    key: "minecraft:ui.toast.challenge_complete"
+    volume: 1.0
+    pitch: 1.2
+
+# Daily reward notification
+daily_reward:
+  layouts:
+    default:
+      location: CENTER
+      y: 0
+      text:
+        - "<gradient:#E67E22:#E74C3C><bold>🎁 Daily Reward!</bold></gradient>"
+        - "<white>Day <gold>${day_streak}</gold> Streak"
+        - "<white>Reward: <yellow>${reward}"
+        - "<gray>Come back tomorrow for more!"
+  animation:
+    fade-in: 10
+    stay: 100
+    fade-out: 15
+  sound:
+    key: "minecraft:entity.player.levelup"
+    volume: 0.8
+    pitch: 1.5

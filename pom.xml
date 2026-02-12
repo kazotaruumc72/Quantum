@@ -117,7 +117,7 @@
             <artifactId>nexo</artifactId>
             <version>1.1.0</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/nexo-1.18.jar</systemPath>
+            <systemPath>${project.basedir}/libs/nexo-1.19.1.jar</systemPath>
         </dependency>
         
         <!-- MythicMobs -->

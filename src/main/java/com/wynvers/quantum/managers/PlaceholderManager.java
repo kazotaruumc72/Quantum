@@ -114,13 +114,18 @@ public class PlaceholderManager {
     /**
      * Resolve a single placeholder
      * Integrates all QuantumExpansion and QuantumPlaceholderExpansion logic
+     * 
+     * @param player The player for whom to resolve the placeholder
+     * @param placeholder The placeholder text without % signs (e.g., "quantum_mode" or "mode")
+     * @return The resolved value, or null to preserve the original placeholder syntax
      */
     private String resolvePlaceholder(Player player, String placeholder) {
         if (player == null) {
             return "0";
         }
         
-        // Handle quantum: prefix (both %quantum_xxx% and %xxx%)
+        // Strip "quantum_" prefix if present to normalize placeholder names
+        // After this, 'params' contains the core placeholder name (e.g., "mode", "order_item_name")
         String params = placeholder;
         if (params.startsWith("quantum_")) {
             params = params.substring(8); // Remove "quantum_" prefix
@@ -620,6 +625,8 @@ public class PlaceholderManager {
     
     /**
      * Handle order creation session placeholders
+     * Params format: "order_<key>" (e.g., "order_item_name")
+     * Session keys format: "quantum_order_<key>" (e.g., "quantum_order_item_name")
      */
     private String handleOrderPlaceholder(Player player, String params) {
         com.wynvers.quantum.orders.OrderCreationSession session = 
@@ -629,7 +636,8 @@ public class PlaceholderManager {
         }
         
         Map<String, String> placeholders = session.getPlaceholders();
-        String key = "quantum_order_" + params;
+        // Reconstruct the full session key: params is "order_xxx", we need "quantum_order_xxx"
+        String key = "quantum_" + params;
         return placeholders.getOrDefault(key, "0");
     }
 }

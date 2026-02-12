@@ -29,6 +29,7 @@ import com.wynvers.quantum.jobs.JobTabCompleter;
 import com.wynvers.quantum.jobs.JobAdminTabCompleter;
 import com.wynvers.quantum.home.HomeManager;
 import com.wynvers.quantum.tab.TABManager;
+import com.wynvers.quantum.placeholderapi.PlaceholderAPIManager;
 import com.wynvers.quantum.worldguard.gui.ZoneGUIManager;
 import com.wynvers.quantum.worldguard.gui.ZoneSettingsGUI;
 import com.wynvers.quantum.apartment.ApartmentManager;
@@ -142,6 +143,9 @@ public final class Quantum extends JavaPlugin {
     // TAB Integration
     private TABManager tabManager;
     
+    // PlaceholderAPI Integration
+    private PlaceholderAPIManager placeholderAPIManager;
+    
     // WorldGuard Zone GUI
     private ZoneGUIManager zoneGUIManager;
     private ZoneSettingsGUI zoneSettingsGUI;
@@ -252,6 +256,9 @@ public final class Quantum extends JavaPlugin {
         
         // TAB Integration
         this.tabManager = new TABManager(this);
+        
+        // PlaceholderAPI Integration
+        this.placeholderAPIManager = new PlaceholderAPIManager(this);
 
         // Listeners globaux (hors tours / niveaux)
         registerListeners();
@@ -709,6 +716,10 @@ public final class Quantum extends JavaPlugin {
             statisticsManager.saveStatistics();
             logger.success("✓ Statistics saved");
         }
+        
+        if (placeholderAPIManager != null) {
+            placeholderAPIManager.disable();
+        }
 
         if (storageManager != null) {
             storageManager.saveAll();
@@ -960,6 +971,10 @@ public final class Quantum extends JavaPlugin {
     
     public TABManager getTabManager() {
         return tabManager;
+    }
+    
+    public PlaceholderAPIManager getPlaceholderAPIManager() {
+        return placeholderAPIManager;
     }
     
     public ZoneGUIManager getZoneGUIManager() {

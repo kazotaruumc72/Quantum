@@ -13,6 +13,7 @@ public class QuantumCommand implements CommandExecutor {
     private final StorageStatsCommand storageStatsCommand;
     private final QuantumTowerCommand towerCommand;
     private final StructureCommand structureCommand;
+    private final EconomyCommand economyCommand;
 
     public QuantumCommand(Quantum plugin) {
         this.plugin = plugin;
@@ -27,6 +28,7 @@ public class QuantumCommand implements CommandExecutor {
             plugin.getLootManager()
         );
         this.structureCommand = new StructureCommand(plugin, plugin.getStructureSelectionManager());
+        this.economyCommand = new EconomyCommand(plugin);
     }
 
     @Override
@@ -68,6 +70,11 @@ public class QuantumCommand implements CommandExecutor {
             subCommand.equals("progress") || subCommand.equals("reset") || 
             subCommand.equals("info") || subCommand.equals("mobspawnzone")) {
             return towerCommand.onCommand(sender, command, label, args);
+        }
+        
+        // Economy commands - delegate to EconomyCommand
+        if (subCommand.equals("eco") || subCommand.equals("economy")) {
+            return economyCommand.execute(sender, args);
         }
 
         switch (subCommand) {
@@ -347,6 +354,9 @@ public class QuantumCommand implements CommandExecutor {
         sender.sendMessage("§e/quantum reload [all|runes|config|towers|price|messages|...]");
         sender.sendMessage("§e/quantum stats [category] §7- Afficher les statistiques");
         sender.sendMessage("§e/quantum storagestats §7- Stats du storage");
+        if (sender.hasPermission("quantum.admin")) {
+            sender.sendMessage("§e/quantum eco <create|balance|give|take|set> §7- Gestion économie");
+        }
         if (sender.hasPermission("quantum.structure.wand") || sender.hasPermission("quantum.admin")) {
             sender.sendMessage("§e/quantum structure <wand|create> §7- Gestion des structures");
         }

@@ -152,6 +152,18 @@ commands:
     usage: /delhome <name>
     aliases: [removehome, deletehome]
     permission: quantum.home.delete
+  
+  zonegui:
+    description: Open zone configuration GUI
+    usage: /zonegui [region_name]
+    aliases: [zoneconfig, zgui]
+    permission: quantum.zone.configure
+  
+  apartment:
+    description: Manage your apartment (Preparation Phase)
+    usage: /apartment [create|upgrade|invite|remove|lock|unlock|tp]
+    aliases: [apt, appart]
+    permission: quantum.apartment.use
 
 permissions:
   quantum.*:
@@ -439,4 +451,30 @@ permissions:
   # quantum.home.limit.2 - allows 2 homes
   # quantum.home.limit.3 - allows 3 homes
   # etc.
+  
+  # Zone configuration
+  quantum.zone.configure:
+    description: Configure WorldGuard zones via GUI
+    default: op
+  
+  # Apartment system (preparation phase)
+  quantum.apartment.*:
+    description: All apartment permissions
+    default: true
+    children:
+      quantum.apartment.use: true
+      quantum.apartment.create: true
+      quantum.apartment.upgrade: true
+  
+  quantum.apartment.use:
+    description: Use apartment system
+    default: true
+  
+  quantum.apartment.create:
+    description: Create apartments
+    default: true
+  
+  quantum.apartment.upgrade:
+    description: Upgrade apartments
+    default: true
 

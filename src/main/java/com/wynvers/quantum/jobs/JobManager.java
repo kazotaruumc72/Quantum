@@ -817,6 +817,40 @@ public class JobManager {
     }
     
     /**
+     * Récupère les meilleurs joueurs tous métiers confondus (par niveau total)
+     */
+    public Map<UUID, Integer> getGlobalTopPlayers(int limit) {
+        Map<UUID, Integer> topPlayers = new LinkedHashMap<>();
+        
+        // Validate limit parameter
+        if (limit <= 0) {
+            plugin.getQuantumLogger().warning("Invalid limit for getGlobalTopPlayers: " + limit);
+            return topPlayers;
+        }
+        
+        try (Connection conn = databaseManager.getConnection()) {
+            String query = "SELECT uuid, SUM(level) as total_levels FROM quantum_player_jobs GROUP BY uuid ORDER BY total_levels DESC LIMIT ?";
+            
+            try (PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setInt(1, limit);
+                
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        UUID uuid = UUID.fromString(rs.getString("uuid"));
+                        int totalLevels = rs.getInt("total_levels");
+                        topPlayers.put(uuid, totalLevels);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getQuantumLogger().error("Failed to get global top players: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return topPlayers;
+    }
+    
+    /**
      * Récupère les boosters actifs d'un joueur
      */
     public List<ActiveBooster> getActiveBoosters(UUID uuid) {

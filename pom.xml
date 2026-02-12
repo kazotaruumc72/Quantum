@@ -54,12 +54,6 @@
             <id>lumine-repo</id>
             <url>https://mvn.lumine.io/repository/maven-public/</url>
         </repository>
-        
-        <!-- NEZNAMY (TAB) -->
-        <repository>
-            <id>neznamy-repo</id>
-            <url>https://repo.neznamy.me/releases</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -147,7 +141,8 @@
             <groupId>me.neznamy</groupId>
             <artifactId>tab-api</artifactId>
             <version>5.0.6</version>
-            <scope>provided</scope>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/tab-api-5.0.6.jar</systemPath>
         </dependency>
         
         <!-- BetterHud Integration - Standard API -->

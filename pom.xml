@@ -148,6 +148,36 @@
             <artifactId>tab-api</artifactId>
             <version>5.0.6</version>
             <scope>provided</scope>
+        <!-- BetterHud Integration - Standard API -->
+        <dependency>
+            <groupId>io.github.toxicity188</groupId>
+            <artifactId>BetterHud-standard-api</artifactId>
+            <version>1.14.2</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <!-- BetterHud Integration - Bukkit API -->
+        <dependency>
+            <groupId>io.github.toxicity188</groupId>
+            <artifactId>BetterHud-bukkit-api</artifactId>
+            <version>1.14.2</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <!-- BetterCommand Library (required by BetterHud) -->
+        <dependency>
+            <groupId>io.github.toxicity188</groupId>
+            <artifactId>BetterCommand</artifactId>
+            <version>1.5.1</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <!-- Kotlin Standard Library (required by BetterHud) -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+            <version>2.1.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
@@ -181,6 +211,31 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <relocations>
+                                <!-- Relocate kotlin stdlib to avoid conflicts with other plugins -->
+                                <relocation>
+                                    <pattern>kotlin</pattern>
+                                    <shadedPattern>com.wynvers.quantum.shaded.kotlin</shadedPattern>
+                                </relocation>
+                                <!-- Relocate BetterHud dependencies -->
+                                <relocation>
+                                    <pattern>kr.toxicity.command</pattern>
+                                    <shadedPattern>com.wynvers.quantum.shaded.bettercommand</shadedPattern>
+                                </relocation>
+                            </relocations>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/maven/**</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

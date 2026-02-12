@@ -130,8 +130,9 @@ public class ChatManager {
             return message;
         }
         
-        // Sinon, échapper les codes couleur (remplacer < par &lt; pour MiniMessage)
-        return message.replace("<", "&lt;").replace("&", "&amp;");
+        // Sinon, échapper les codes couleur
+        // Remplacer & en premier pour éviter le double-échappement
+        return message.replace("&", "&amp;").replace("<", "&lt;");
     }
     
     /**

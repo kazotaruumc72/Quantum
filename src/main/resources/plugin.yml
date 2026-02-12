@@ -531,7 +531,7 @@ permissions:
     description: All chat permissions
     default: true
     children:
-      quantum.chat.color: true
+      quantum.chat.color: false
       quantum.chat.format.player: true
       quantum.chat.admin: false
   
@@ -560,12 +560,6 @@ permissions:
     default: op
   
   quantum.chat.reload:
-    description: Reload chat configuration
+    description: Reload chat configuration (alias for quantum.chat.admin)
     default: op
-    children:
-      quantum.betterhud.use: true
-  
-  quantum.betterhud.use:
-    description: Use BetterHud demo commands
-    default: true
 

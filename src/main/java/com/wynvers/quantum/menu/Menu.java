@@ -586,7 +586,7 @@ public class Menu {
                 }
             }
  
-            // Placer l'item dans tous les slots configurés
+            // Place the item in all configured slots
             for (int slot : item.getSlots()) {
                 if (slot >= 0 && slot < size) {
                     // If the item has a material placeholder with {slot}, create a slot-specific item

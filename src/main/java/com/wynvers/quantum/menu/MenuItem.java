@@ -458,18 +458,18 @@ public class MenuItem {
         executeActions(player, plugin, ClickType.LEFT);
     }
     /**
-     * Convert this MenuItem to a Bukkit ItemStack with placeholder resolution
+     * Convert this MenuItem to a Bukkit ItemStack with placeholder resolution.
      */
     public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin, org.bukkit.entity.Player player, java.util.Map<String, String> customPlaceholders) {
         return toItemStack(plugin, player, customPlaceholders, -1);
     }
     
     /**
-     * Convert this MenuItem to a Bukkit ItemStack with placeholder resolution and slot expansion
+     * Convert this MenuItem to a Bukkit ItemStack with placeholder resolution and slot expansion.
      */
     public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin, org.bukkit.entity.Player player, java.util.Map<String, String> customPlaceholders, int slotNumber) {
-        // Si c'est un slot quantum_storage, ne pas créer d'item ici
-        // Le StorageRenderer s'en occupera
+        // If this is a quantum_storage slot, do not create an item here
+        // The StorageRenderer will handle it
         if (isQuantumStorage()) {
             return null;
         }

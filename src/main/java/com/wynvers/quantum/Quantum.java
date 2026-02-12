@@ -706,8 +706,9 @@ public final class Quantum extends JavaPlugin {
         
         // TAB Edit Command
         if (tabManager != null && tabManager.isEnabled()) {
-            getCommand("tabedit").setExecutor(new TabEditCommand(this));
-            getCommand("tabedit").setTabCompleter(new TabEditCommand(this));
+            TabEditCommand tabEditCommand = new TabEditCommand(this);
+            getCommand("tabedit").setExecutor(tabEditCommand);
+            getCommand("tabedit").setTabCompleter(tabEditCommand);
             logger.success("✓ TAB Edit Command registered");
         }
 

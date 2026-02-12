@@ -251,24 +251,25 @@ public class TABManager {
             return;
         }
         
-        // Process header
-        Component header = Component.empty();
-        for (String line : group.getHeader()) {
-            String processedLine = processPlaceholders(player, line);
-            Component lineComponent = miniMessage.deserialize(processedLine);
-            header = header.append(lineComponent).append(Component.newline());
-        }
-        
-        // Process footer
-        Component footer = Component.empty();
-        for (String line : group.getFooter()) {
-            String processedLine = processPlaceholders(player, line);
-            Component lineComponent = miniMessage.deserialize(processedLine);
-            footer = footer.append(lineComponent).append(Component.newline());
-        }
+        // Process header and footer
+        Component header = processLinesToComponent(player, group.getHeader());
+        Component footer = processLinesToComponent(player, group.getFooter());
         
         // Set player list header and footer
         player.sendPlayerListHeaderAndFooter(header, footer);
+    }
+    
+    /**
+     * Process a list of text lines into a Component with placeholders replaced
+     */
+    private Component processLinesToComponent(Player player, List<String> lines) {
+        Component result = Component.empty();
+        for (String line : lines) {
+            String processedLine = processPlaceholders(player, line);
+            Component lineComponent = miniMessage.deserialize(processedLine);
+            result = result.append(lineComponent).append(Component.newline());
+        }
+        return result;
     }
     
     /**
@@ -468,16 +469,6 @@ public class TABManager {
         
         public List<String> getFooter() {
             return Collections.unmodifiableList(footer);
-        }
-        
-        public void setHeader(List<String> header) {
-            this.header.clear();
-            this.header.addAll(header);
-        }
-        
-        public void setFooter(List<String> footer) {
-            this.footer.clear();
-            this.footer.addAll(footer);
         }
     }
 }

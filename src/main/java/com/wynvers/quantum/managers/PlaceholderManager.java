@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +18,13 @@ public class PlaceholderManager {
 
     private final Quantum plugin;
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("%([^%]+)%");
+    
+    // Cache for tower kill requirements to avoid repeated YAML file reads
+    // Key: towerId + "|" + floor (using | as delimiter to avoid collisions with tower IDs)
+    // Value: required kills
+    private final Map<String, Integer> killRequirementsCache = new ConcurrentHashMap<>();
+    private volatile long lastCacheRefresh = 0;
+    private static final long CACHE_TTL = 300000; // 5 minutes in milliseconds
 
     public PlaceholderManager(Quantum plugin) {
         this.plugin = plugin;
@@ -33,7 +41,7 @@ public class PlaceholderManager {
 
         // Use regex to find and replace all placeholders
         Matcher matcher = PLACEHOLDER_PATTERN.matcher(text);
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         
         while (matcher.find()) {
             String placeholder = matcher.group(1);
@@ -205,7 +213,7 @@ public class PlaceholderManager {
             return handleOrderPlaceholder(player, params);
         }
         
-        // Default: return null to keep original placeholder
+        // Default: return null to preserve the original placeholder syntax (e.g., %unknown_placeholder%)
         return null;
     }
     
@@ -513,9 +521,36 @@ public class PlaceholderManager {
     }
     
     /**
-     * Get required kills for a floor
+     * Get required kills for a floor from towers.yml configuration
+     * Uses caching to avoid repeated YAML file reads
      */
     private int getRequiredKills(String towerId, int floor) {
+        // Check cache first - using | as delimiter to prevent collisions
+        String cacheKey = towerId + "|" + floor;
+        
+        // Refresh cache if TTL has expired
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastCacheRefresh > CACHE_TTL) {
+            killRequirementsCache.clear();
+            lastCacheRefresh = currentTime;
+        }
+        
+        // Return cached value if available
+        Integer cached = killRequirementsCache.get(cacheKey);
+        if (cached != null) {
+            return cached;
+        }
+        
+        // Calculate and cache
+        int total = calculateRequiredKills(towerId, floor);
+        killRequirementsCache.put(cacheKey, total);
+        return total;
+    }
+    
+    /**
+     * Calculate required kills from YAML configuration
+     */
+    private int calculateRequiredKills(String towerId, int floor) {
         try {
             java.io.File towersFile = new java.io.File(plugin.getDataFolder(), "towers.yml");
             if (!towersFile.exists()) return 0;

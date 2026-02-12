@@ -1,0 +1,181 @@
+# TAB Plugin Configuration Example with Quantum Integration
+# Place this in: /plugins/TAB/config.yml
+# 
+# This configuration demonstrates how to use Quantum placeholders
+# in TAB for tablist, nametags, header/footer, and more.
+
+# ==============================
+# Tablist Name Formatting
+# ==============================
+tablist-name-formatting:
+  enabled: true
+  # Format shown in tablist
+  # Shows: [Level] PlayerName | Job
+  format: "&e[%quantum_level%] &f%player% &8| &b%quantum_job%"
+  
+  # Alternative formats:
+  # format: "&7Lv.%quantum_level% &f%player%"
+  # format: "%quantum_job% &7[%quantum_level%] &f%player%"
+
+# ==============================
+# Header and Footer
+# ==============================
+header-footer:
+  enabled: true
+  
+  # Tablist header
+  header:
+    - "&7&m----------------&r &6&lQUANTUM SERVER &7&m----------------"
+    - "&7Level: &e%quantum_level% &8| &7Job: &e%quantum_job% &7(Lv.%quantum_job_level%)"
+    - ""
+  
+  # Tablist footer
+  footer:
+    - ""
+    - "&7Tower: &d%quantum_tower_name% &8| &7Floor: &d%quantum_tower_floor%"
+    - "&7Storage: &a%quantum_storage_items%&7/&a%quantum_storage_capacity% &7(&a%quantum_storage_used_percent%&7%)"
+    - "&7&m------------------------------------------------"
+
+# ==============================
+# Nametags (above player heads)
+# ==============================
+nametags:
+  enabled: true
+  
+  # Text shown above player's head
+  prefix: "&7[Lv.%quantum_level%] "
+  suffix: " &e%quantum_job%"
+  
+  # Alternative nametag formats:
+  # prefix: "&e%quantum_level% &7| "
+  # suffix: ""
+  
+# ==============================
+# Player List Sorting
+# ==============================
+tablist-sorting:
+  enabled: true
+  
+  # Sort players by level (highest first)
+  sorting-rules:
+    - "placeholder-high-to-low:%quantum_level%"
+    - "player_name"
+  
+  # Alternative sorting:
+  # - "placeholder-high-to-low:%quantum_job_level%" # Sort by job level
+  # - "placeholder-high-to-low:%quantum_tower_floor%" # Sort by tower progress
+
+# ==============================
+# Per-World Player List
+# ==============================
+per-world-playerlist:
+  enabled: false
+  
+  # Example: Different format in different worlds
+  # world_nether:
+  #   format: "&c[%quantum_tower_floor%] &f%player%"
+  # world_the_end:
+  #   format: "&d[%quantum_level%] &f%player%"
+
+# ==============================
+# PlaceholderAPI Refresh Intervals
+# ==============================
+placeholderapi-refresh-intervals:
+  # How often to update each placeholder (in milliseconds)
+  # -1 = only update when value changes
+  # 0 = update every server tick (not recommended)
+  
+  # Player level (update every 5 seconds)
+  quantum_level: 5000
+  
+  # Experience (update every 5 seconds)
+  quantum_exp: 5000
+  quantum_exp_required: 5000
+  quantum_exp_progress: 5000
+  
+  # Job (update only on change)
+  quantum_job: -1
+  quantum_job_level: 5000
+  quantum_job_exp: 5000
+  
+  # Tower (update every 10 seconds)
+  quantum_tower: 10000
+  quantum_tower_name: 10000
+  quantum_tower_floor: 10000
+  
+  # Storage (update every 10 seconds)
+  quantum_storage_items: 10000
+  quantum_storage_capacity: 10000
+  quantum_storage_used_percent: 10000
+  
+  # Statistics (update every 30 seconds)
+  quantum_orders_created: 30000
+  quantum_orders_filled: 30000
+  quantum_items_sold: 30000
+  quantum_items_bought: 30000
+  
+  # Homes (update only on change)
+  quantum_homes: -1
+  quantum_homes_max: -1
+
+# ==============================
+# Advanced Features
+# ==============================
+
+# Conditional formatting based on placeholder values
+# Requires TAB Premium or specific TAB versions
+# conditional-placeholders:
+#   high_level:
+#     conditions:
+#       - "%quantum_level% >= 50"
+#     true: "&6&lPRO"
+#     false: ""
+
+# Player groups (if using LuckPerms)
+# groups:
+#   vip:
+#     tablist-format: "&6[VIP] &e[%quantum_level%] &f%player%"
+#   admin:
+#     tablist-format: "&c[ADMIN] &e[%quantum_level%] &f%player%"
+
+# ==============================
+# MiniMessage Support (TAB 5.5.0+)
+# ==============================
+# TAB 5.5.0+ supports MiniMessage for modern formatting
+#
+# Examples:
+# format: "<gradient:blue:aqua>[%quantum_level%]</gradient> %player%"
+# format: "<hover:show_text:'Job: %quantum_job%'>%player%</hover>"
+# format: "<rainbow>[%quantum_level%]</rainbow> %player%"
+
+# ==============================
+# Example Complete Layouts
+# ==============================
+
+# Layout 1: Simple and Clean
+# tablist-name-formatting:
+#   format: "&e[%quantum_level%] &f%player%"
+# nametags:
+#   prefix: "&7Lv.%quantum_level% "
+
+# Layout 2: Job-Focused
+# tablist-name-formatting:
+#   format: "&b%quantum_job% &7[%quantum_level%] &f%player%"
+# nametags:
+#   prefix: "&b%quantum_job% &7"
+
+# Layout 3: Tower Progress
+# tablist-name-formatting:
+#   format: "&d%quantum_tower_name% F%quantum_tower_floor% &8| &f%player%"
+# nametags:
+#   prefix: "&dF%quantum_tower_floor% "
+
+# ==============================
+# Notes
+# ==============================
+# 1. All Quantum placeholders work automatically - no expansion needed
+# 2. Adjust refresh intervals based on your server's needs
+# 3. Lower refresh rates = better performance
+# 4. Use -1 for data that rarely changes
+# 5. Test layouts with different player counts
+# 6. See TAB wiki for more formatting options: https://github.com/NEZNAMY/TAB/wiki

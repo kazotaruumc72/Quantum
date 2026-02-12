@@ -1,0 +1,246 @@
+# ================================================================
+# BetterHud Main Configuration for Quantum Plugin Integration
+# ================================================================
+# This is a suggested configuration for BetterHud settings
+# Place in: plugins/BetterHud/config.yml
+# ================================================================
+
+# General BetterHud settings
+settings:
+  # Language (see language files)
+  language: en_US
+  
+  # Update interval (ticks) - how often HUDs refresh
+  update-interval: 2
+  
+  # Debug mode
+  debug: false
+  
+  # Use client resource pack for custom fonts/images
+  use-resource-pack: true
+  
+  # Resource pack URL (optional - for custom fonts and images)
+  # resource-pack-url: "https://your-server.com/resourcepack.zip"
+  
+  # Default HUD visibility
+  default-hud-enabled: true
+  
+  # Allow players to toggle HUDs
+  allow-toggle: true
+  
+  # Save player HUD preferences
+  save-preferences: true
+
+# Performance settings
+performance:
+  # Max concurrent HUD updates
+  max-concurrent-updates: 10
+  
+  # Cache player data (reduces API calls)
+  cache-player-data: true
+  
+  # Cache duration (seconds)
+  cache-duration: 2
+  
+  # Async processing
+  async-updates: true
+
+# Placeholder settings for Quantum integration
+placeholders:
+  # Enable PlaceholderAPI integration
+  use-placeholder-api: true
+  
+  # Custom Quantum placeholders
+  custom:
+    # Player info
+    player_name: "%player_name%"
+    player_level: "%quantum_player_level%"
+    
+    # Economy
+    money: "%vault_eco_balance_fixed%"
+    exp: "%quantum_exp%"
+    exp_to_next: "%quantum_exp_to_next%"
+    
+    # Storage
+    storage_items: "%quantum_storage_items%"
+    storage_capacity: "%quantum_storage_capacity%"
+    storage_percentage: "%quantum_storage_percentage%"
+    
+    # Job
+    job_name: "%quantum_job_name%"
+    job_level: "%quantum_job_level%"
+    job_exp: "%quantum_job_exp%"
+    job_exp_next: "%quantum_job_exp_next%"
+    job_percentage: "%quantum_job_percentage%"
+    
+    # Tower
+    tower_floor: "%quantum_tower_floor%"
+    tower_progress: "%quantum_tower_progress%"
+    tower_monsters_remaining: "%quantum_tower_monsters%"
+    tower_time: "%quantum_tower_time%"
+    
+    # Orders
+    active_orders: "%quantum_active_orders%"
+    pending_orders: "%quantum_pending_orders%"
+    
+    # Location
+    world_name: "%player_world%"
+    x: "%player_x%"
+    y: "%player_y%"
+    z: "%player_z%"
+    biome: "%player_biome%"
+    direction: "%player_direction%"
+    yaw: "%player_yaw%"
+    
+    # Stats
+    health: "%player_health%"
+    max_health: "%player_max_health%"
+    food_level: "%player_food_level%"
+    air: "%player_air%"
+    max_air: "%player_max_air%"
+    
+    # Server
+    online_players: "%server_online%"
+    playtime: "%statistic_time_played%"
+
+# HUD groups (which HUDs to load)
+hud-groups:
+  default:
+    - quantum_main
+    - quantum_job
+    - quantum_orders
+    - quantum_zone
+  
+  minimal:
+    - quantum_minimal
+  
+  combat:
+    - quantum_main
+    - quantum_boss
+    - quantum_pvp
+  
+  dungeon:
+    - quantum_dungeon
+  
+  tower:
+    - quantum_tower
+
+# Popup settings
+popups:
+  # Enable popups
+  enabled: true
+  
+  # Global cooldown between ANY popups (milliseconds)
+  global-cooldown: 50
+  
+  # Per-popup cooldown (milliseconds)
+  per-popup-cooldown: 100
+  
+  # Max popups in queue
+  max-queue: 5
+  
+  # Priority system (higher = more important)
+  priorities:
+    error: 100
+    warning: 90
+    achievement: 80
+    level_up: 70
+    quest_completed: 70
+    order_completed: 60
+    job_levelup: 60
+    tower_progress: 50
+    success: 40
+    storage_add: 30
+    storage_remove: 30
+    exp_gained: 20
+    money_received: 20
+    money_spent: 20
+
+# Compass/Waypoint settings
+compass:
+  # Enable compass system
+  enabled: true
+  
+  # Update interval (ticks)
+  update-interval: 10
+  
+  # Max waypoints per player
+  max-waypoints: 10
+  
+  # Show distance in blocks
+  show-distance: true
+  
+  # Show direction (N, S, E, W, etc.)
+  show-direction: true
+  
+  # Distance format
+  distance-format: "${distance}m"
+  
+  # Auto-remove waypoints when reached
+  auto-remove-on-reach: false
+  
+  # Distance to consider "reached" (blocks)
+  reach-distance: 5
+
+# Integration settings for Quantum
+quantum-integration:
+  # Enable Quantum integration
+  enabled: true
+  
+  # Auto-show popups for Quantum events
+  auto-popups:
+    level-up: true
+    job-levelup: true
+    storage-change: true
+    order-created: true
+    order-completed: true
+    tower-progress: true
+    zone-change: true
+    money-change: true
+    exp-gain: true
+  
+  # Auto-create waypoints
+  auto-waypoints:
+    home: true
+    death-point: true
+    quest-objective: true
+    party-members: true
+  
+  # HUD visibility per Quantum feature
+  feature-huds:
+    storage-gui: quantum_storage
+    tower-zone: quantum_tower
+    dungeon-zone: quantum_dungeon
+    pvp-zone: quantum_pvp
+    party: quantum_party
+
+# Advanced settings
+advanced:
+  # Use legacy color codes (&) instead of MiniMessage (<>)
+  use-legacy-colors: false
+  
+  # Enable animations
+  enable-animations: true
+  
+  # Enable sounds
+  enable-sounds: true
+  
+  # Sound volume multiplier
+  sound-volume: 1.0
+  
+  # Check for updates
+  check-updates: true
+  
+  # Metrics (bStats)
+  metrics: true
+
+# Developer settings
+developer:
+  # Enable debug logging
+  debug-logging: false
+  
+  # Show HUD bounds (for positioning)
+  show-bounds: false
+  
+  # Reload command cooldown (seconds)
+  reload-cooldown: 10

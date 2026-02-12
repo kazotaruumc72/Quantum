@@ -24,6 +24,7 @@ public class MenuItem {
     // Item properties
     private Material material;
     private String materialString; // For placeholder materials like %quantum_history_{slot}_material%
+    private String materialPlaceholder; // Store raw material string for placeholder resolution
     private String nexoId;
     private int itemAmount;
     private String displayName;
@@ -99,6 +100,9 @@ public class MenuItem {
     
     public String getMaterialString() {
         return materialString;
+    }
+    public String getMaterialPlaceholder() {
+        return materialPlaceholder;
     }
     
     public String getNexoId() {
@@ -205,6 +209,9 @@ public class MenuItem {
     
     public void setMaterialString(String materialString) {
         this.materialString = materialString;
+    }
+    public void setMaterialPlaceholder(String materialPlaceholder) {
+        this.materialPlaceholder = materialPlaceholder;
     }
     
     public void setNexoId(String nexoId) {
@@ -458,7 +465,7 @@ public class MenuItem {
         executeActions(player, plugin, ClickType.LEFT);
     }
     /**
-     * Convert this MenuItem to a Bukkit ItemStack
+     * Convert this MenuItem to a Bukkit ItemStack with placeholder resolution.
      */
     public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin) {
         return toItemStack(plugin, null, null);
@@ -470,9 +477,19 @@ public class MenuItem {
      * @param player The player for placeholder resolution
      * @param customPlaceholders Custom placeholders to resolve
      */
-    public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin, Player player, Map<String, String> customPlaceholders) {
+    public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin, Player player, Map<String, String> customPlaceholders) {}
         // Si c'est un slot quantum_storage, ne pas créer d'item ici
         // Le StorageRenderer s'en occupera
+    public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin, org.bukkit.entity.Player player, java.util.Map<String, String> customPlaceholders) {
+        return toItemStack(plugin, player, customPlaceholders, -1);
+    }
+    
+    /**
+     * Convert this MenuItem to a Bukkit ItemStack with placeholder resolution and slot expansion.
+     */
+    public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin, org.bukkit.entity.Player player, java.util.Map<String, String> customPlaceholders, int slotNumber) {
+        // If this is a quantum_storage slot, do not create an item here
+        // The StorageRenderer will handle it
         if (isQuantumStorage()) {
             return null;
         }
@@ -495,6 +512,30 @@ public class MenuItem {
         }
         
         org.bukkit.inventory.ItemStack itemStack;
+        Material resolvedMaterial = material;
+        
+        // Resolve material placeholder if present
+        if (materialPlaceholder != null && player != null) {
+            // Expand {slot} if slot number is provided
+            String expandedMaterialPlaceholder = materialPlaceholder;
+            if (slotNumber >= 0) {
+                expandedMaterialPlaceholder = materialPlaceholder.replace("{slot}", String.valueOf(slotNumber));
+            }
+            
+            String parsedMaterial = customPlaceholders != null
+                ? plugin.getPlaceholderManager().parse(player, expandedMaterialPlaceholder, customPlaceholders)
+                : plugin.getPlaceholderManager().parse(player, expandedMaterialPlaceholder);
+            
+            // Trim whitespace and try to parse the resolved placeholder as a Material
+            try {
+                resolvedMaterial = Material.valueOf(parsedMaterial.trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // If placeholder didn't resolve to a valid material, return null
+                plugin.getQuantumLogger().warning("Material placeholder '" + expandedMaterialPlaceholder + 
+                    "' in item '" + id + "' resolved to invalid material: '" + parsedMaterial + "'");
+                return null;
+            }
+        }
         
         // Check if this is a Nexo item
         if (isNexoItem()) {
@@ -580,5 +621,12 @@ public class MenuItem {
         }
         
         return itemStack;
+    }
+    
+    /**
+     * Convert this MenuItem to a Bukkit ItemStack
+     */
+    public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin) {
+        return toItemStack(plugin, null, null);
     }
 }

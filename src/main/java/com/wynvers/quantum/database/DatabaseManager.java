@@ -123,6 +123,14 @@ public class DatabaseManager {
             st.executeUpdate("INSERT IGNORE INTO storage_stats (stat_key, stat_value) " +
                     "VALUES ('total_items_sold', 0)");
             
+            // Economy balances table for Quantum Economy
+            st.executeUpdate("CREATE TABLE IF NOT EXISTS quantum_player_balances (" +
+                    "uuid CHAR(36) NOT NULL PRIMARY KEY," +
+                    "balance DOUBLE NOT NULL DEFAULT 0.0," +
+                    "last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP " +
+                    "ON UPDATE CURRENT_TIMESTAMP" +
+                    ")");
+            
             plugin.getQuantumLogger().success("✓ Database tables verified");
         } catch (SQLException e) {
             plugin.getQuantumLogger().error("Failed to create MySQL tables: " + e.getMessage());

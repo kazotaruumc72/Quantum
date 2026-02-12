@@ -196,6 +196,12 @@ public class MenuManager {
                 item.setMaterialString(materialStr);
             } else {
                 // Try to convert to Material immediately
+            // Check if material contains placeholders (% signs)
+            if (materialStr.contains("%")) {
+                // Store as placeholder for runtime resolution
+                item.setMaterialPlaceholder(materialStr);
+            } else {
+                // Try to parse as Material enum
                 try {
                     Material material = Material.valueOf(materialStr.toUpperCase());
                     item.setMaterial(material);

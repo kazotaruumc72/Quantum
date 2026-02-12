@@ -6,7 +6,6 @@ import com.wynvers.quantum.managers.ScoreboardManager;
 import com.wynvers.quantum.worldguard.ZoneManager;
 import com.wynvers.quantum.managers.ScoreboardManager;
 import com.wynvers.quantum.managers.ScoreboardConfig;
-import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -397,9 +396,8 @@ public class TowerManager {
                         List<String> processedLines = new ArrayList<>();
     
                         for (String line : rawLines) {
-                            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                                line = PlaceholderAPI.setPlaceholders(player, line);
-                            }
+                            // Use internal placeholder parser
+                            line = plugin.getPlaceholderManager().parse(player, line);
                             processedLines.add(line);
                         }
     

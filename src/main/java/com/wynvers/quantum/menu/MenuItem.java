@@ -23,6 +23,7 @@ public class MenuItem {
     
     // Item properties
     private Material material;
+    private String materialString; // For placeholder materials like %quantum_history_{slot}_material%
     private String materialPlaceholder; // Store raw material string for placeholder resolution
     private String nexoId;
     private int itemAmount;
@@ -97,6 +98,9 @@ public class MenuItem {
         return material;
     }
     
+    public String getMaterialString() {
+        return materialString;
+    }
     public String getMaterialPlaceholder() {
         return materialPlaceholder;
     }
@@ -203,6 +207,9 @@ public class MenuItem {
         this.material = material;
     }
     
+    public void setMaterialString(String materialString) {
+        this.materialString = materialString;
+    }
     public void setMaterialPlaceholder(String materialPlaceholder) {
         this.materialPlaceholder = materialPlaceholder;
     }
@@ -460,6 +467,19 @@ public class MenuItem {
     /**
      * Convert this MenuItem to a Bukkit ItemStack with placeholder resolution.
      */
+    public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin) {
+        return toItemStack(plugin, null, null);
+    }
+    
+    /**
+     * Convert this MenuItem to a Bukkit ItemStack with placeholder support
+     * @param plugin The plugin instance
+     * @param player The player for placeholder resolution
+     * @param customPlaceholders Custom placeholders to resolve
+     */
+    public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin, Player player, Map<String, String> customPlaceholders) {}
+        // Si c'est un slot quantum_storage, ne pas créer d'item ici
+        // Le StorageRenderer s'en occupera
     public org.bukkit.inventory.ItemStack toItemStack(com.wynvers.quantum.Quantum plugin, org.bukkit.entity.Player player, java.util.Map<String, String> customPlaceholders) {
         return toItemStack(plugin, player, customPlaceholders, -1);
     }
@@ -472,6 +492,23 @@ public class MenuItem {
         // The StorageRenderer will handle it
         if (isQuantumStorage()) {
             return null;
+        }
+        
+        // Resolve material if materialString is set
+        Material resolvedMaterial = material;
+        if (materialString != null && !materialString.isEmpty() && player != null) {
+            // Parse placeholders in material string
+            String parsedMaterial = customPlaceholders != null
+                ? plugin.getPlaceholderManager().parse(player, materialString, customPlaceholders)
+                : plugin.getPlaceholderManager().parse(player, materialString);
+            
+            // Try to convert to Material
+            try {
+                resolvedMaterial = Material.valueOf(parsedMaterial.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // If placeholder didn't resolve to valid material, skip this item
+                return null;
+            }
         }
         
         org.bukkit.inventory.ItemStack itemStack;

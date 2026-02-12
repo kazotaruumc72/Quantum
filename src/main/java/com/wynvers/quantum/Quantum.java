@@ -24,6 +24,7 @@ import com.wynvers.quantum.jobs.JobCommand;
 import com.wynvers.quantum.jobs.JobAdminCommand;
 import com.wynvers.quantum.jobs.JobTabCompleter;
 import com.wynvers.quantum.jobs.JobAdminTabCompleter;
+import com.wynvers.quantum.home.HomeManager;
 import com.wynvers.quantum.commands.*;
 import com.wynvers.quantum.database.DatabaseManager;
 import com.wynvers.quantum.healthbar.HealthBarListener;
@@ -129,6 +130,9 @@ public final class Quantum extends JavaPlugin {
     
     // Jobs System
     private JobManager jobManager;
+    
+    // Home System
+    private HomeManager homeManager;
 
     // Utils
     private ActionExecutor actionExecutor;
@@ -445,6 +449,9 @@ public final class Quantum extends JavaPlugin {
 
         this.actionExecutor = new ActionExecutor(this);
         logger.success("✓ Action Executor");
+        
+        this.homeManager = new HomeManager(this, databaseManager);
+        logger.success("✓ Home Manager");
 
         this.menuManager = new MenuManager(this);
         logger.success("✓ Menu Manager (" + menuManager.getMenuCount() + " menus loaded)");
@@ -590,6 +597,27 @@ public final class Quantum extends JavaPlugin {
             getCommand("jobadmin").setExecutor(new JobAdminCommand(this, jobManager));
             getCommand("jobadmin").setTabCompleter(new JobAdminTabCompleter(jobManager));
             logger.success("✓ Job Commands + TabCompleters");
+        }
+        
+        // Gamemode Shortcuts
+        GamemodeCommand gamemodeCommand = new GamemodeCommand();
+        getCommand("gmc").setExecutor(gamemodeCommand);
+        getCommand("gms").setExecutor(gamemodeCommand);
+        getCommand("gmsp").setExecutor(gamemodeCommand);
+        getCommand("gma").setExecutor(gamemodeCommand);
+        logger.success("✓ Gamemode Shortcuts (gmc, gms, gmsp, gma)");
+        
+        // Home Commands
+        if (homeManager != null) {
+            HomeCommand homeCommand = new HomeCommand(homeManager);
+            HomeTabCompleter homeTabCompleter = new HomeTabCompleter(homeManager);
+            getCommand("home").setExecutor(homeCommand);
+            getCommand("home").setTabCompleter(homeTabCompleter);
+            getCommand("sethome").setExecutor(homeCommand);
+            getCommand("sethome").setTabCompleter(homeTabCompleter);
+            getCommand("delhome").setExecutor(homeCommand);
+            getCommand("delhome").setTabCompleter(homeTabCompleter);
+            logger.success("✓ Home Commands + TabCompleters");
         }
 
         logger.success("✓ Commands registered");
@@ -889,6 +917,10 @@ public final class Quantum extends JavaPlugin {
     
     public JobManager getJobManager() {
         return jobManager;
+    }
+    
+    public HomeManager getHomeManager() {
+        return homeManager;
     }
 
     public StructureSelectionManager getStructureSelectionManager() {

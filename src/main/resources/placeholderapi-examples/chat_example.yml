@@ -1,0 +1,27 @@
+# Quantum PlaceholderAPI - Chat Format Example
+# This example shows how to use Quantum placeholders in EssentialsX Chat
+
+# File: plugins/Essentials/config.yml (chat section)
+
+chat:
+  # Include player level in chat format
+  format: '&7[Lv.%quantum_level%] {DISPLAYNAME}&7: {MESSAGE}'
+  
+  # Alternative formats with more info
+  # format: '&7[Lv.%quantum_level%] &e[%quantum_job%] {DISPLAYNAME}&7: {MESSAGE}'
+  # format: '&8[&7Floor %quantum_tower_floor%&8] &7[Lv.%quantum_level%] {DISPLAYNAME}&7: {MESSAGE}'
+
+# Prefix examples using LuckPerms + PlaceholderAPI
+# Add these to your LuckPerms groups
+
+# Default group
+# /lp group default meta setprefix "&7[Lv.%quantum_level%] &7"
+
+# VIP group
+# /lp group vip meta setprefix "&7[Lv.%quantum_level%] &6[VIP] "
+
+# Staff group
+# /lp group staff meta setprefix "&7[Lv.%quantum_level%] &c[STAFF] "
+
+# With job display
+# /lp group default meta setprefix "&7[%quantum_job%] &7[Lv.%quantum_level%] "

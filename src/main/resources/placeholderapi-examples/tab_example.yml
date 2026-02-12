@@ -1,0 +1,146 @@
+# Quantum PlaceholderAPI - TAB Plugin Example
+# This example shows how to use Quantum placeholders with TAB plugin
+
+# File: plugins/TAB/config.yml
+
+# Note: TAB plugin has its own direct integration with Quantum
+# However, you can also use PlaceholderAPI placeholders if you prefer
+
+# ========================================
+# TAB List Configuration
+# ========================================
+
+tablist-name-formatting:
+  enabled: true
+  
+  # Simple format with level
+  prefix: "&7[Lv.%quantum_level%] "
+  suffix: ""
+  
+  # Advanced format with job
+  # prefix: "&7[Lv.%quantum_level%] &e[%quantum_job%] "
+  
+  # Format with tower progress
+  # prefix: "&7[Lv.%quantum_level%] "
+  # suffix: " &8| &cFloor %quantum_tower_floor%"
+
+# ========================================
+# Nametag Configuration
+# ========================================
+
+nametags:
+  enabled: true
+  
+  # Simple nametag with level
+  prefix: "&7[Lv.%quantum_level%] "
+  suffix: ""
+  
+  # Nametag with job
+  # prefix: "&e[%quantum_job%] &7[Lv.%quantum_level%] "
+  
+  # Nametag with storage status
+  # suffix: " &8[&a%quantum_storage_used_percent%&8]"
+
+# ========================================
+# Scoreboard Configuration
+# ========================================
+
+scoreboard:
+  enabled: true
+  title: "&6&lQUANTUM"
+  
+  lines:
+    - " "
+    - "&eLevel: &f%quantum_level%"
+    - "&eEXP: &f%quantum_exp_progress%"
+    - " "
+    - "&bJob: &f%quantum_job%"
+    - "&bLevel: &f%quantum_job_level%"
+    - " "
+    - "&cTower: &f%quantum_tower_name%"
+    - "&cFloor: &f%quantum_tower_floor%"
+    - " "
+    - "&aStorage: &f%quantum_storage_used_percent%"
+    - " "
+  
+  # Refresh interval (milliseconds)
+  refresh-interval: 1000
+
+# ========================================
+# Header and Footer Configuration
+# ========================================
+
+header-footer:
+  enabled: true
+  
+  header:
+    - " "
+    - "&6&l⭐ QUANTUM SERVER ⭐"
+    - "&7Your Stats"
+    - " "
+  
+  footer:
+    - " "
+    - "&7Level: &f%quantum_level% &8| &7Job: &f%quantum_job%"
+    - "&7Tower: &f%quantum_tower_name% &8- &7Floor: &f%quantum_tower_floor%"
+    - " "
+
+# ========================================
+# Belowname Configuration (Health Display Alternative)
+# ========================================
+
+belowname:
+  enabled: true
+  
+  # Show level below player name
+  text: "&7Lv.%quantum_level%"
+  
+  # Alternative: Show job
+  # text: "&e%quantum_job%"
+  
+  # Alternative: Show tower progress
+  # text: "&cFloor %quantum_tower_floor%"
+
+# ========================================
+# Layout Configuration (Advanced)
+# ========================================
+
+layout:
+  enabled: true
+  
+  # Default layout
+  default-layout: "quantum"
+  
+  layouts:
+    quantum:
+      # Sorting
+      sorting-types:
+        - "GROUPS"
+        - "PLACEHOLDER_LOW_TO_HIGH:%quantum_level%"
+      
+      # Display format
+      display-name: "%luckperms-prefix%%player% &7[Lv.%quantum_level%]"
+
+# ========================================
+# Conditional Placeholders (Advanced)
+# ========================================
+
+# You can use TAB's conditions with Quantum placeholders
+conditions:
+  high-level:
+    conditions:
+      - "%quantum_level% >= 50"
+    true: "&6&l[HIGH LEVEL]"
+    false: ""
+  
+  has-job:
+    conditions:
+      - "%quantum_job% != None"
+    true: "&e[%quantum_job%]"
+    false: "&7[No Job]"
+  
+  tower-active:
+    conditions:
+      - "%quantum_tower_floor% > 0"
+    true: "&c[Floor %quantum_tower_floor%]"
+    false: ""

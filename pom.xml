@@ -48,6 +48,12 @@
             <id>lumine-repo</id>
             <url>https://mvn.lumine.io/repository/maven-public/</url>
         </repository>
+        
+        <!-- PlaceholderAPI -->
+        <repository>
+            <id>placeholderapi</id>
+            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -128,6 +134,14 @@
             <groupId>com.github.NEZNAMY</groupId>
             <artifactId>TAB-API</artifactId>
             <version>5.5.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <!-- PlaceholderAPI - https://github.com/PlaceholderAPI/PlaceholderAPI -->
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.11.6</version>
             <scope>provided</scope>
         </dependency>
         

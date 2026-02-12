@@ -192,6 +192,8 @@ public class MenuManager {
             String materialStr = section.getString("material");
             // Check if material contains placeholders (% signs)
             if (materialStr.contains("%")) {
+                // Store as string for later resolution
+                item.setMaterialString(materialStr);
                 // Store as placeholder for runtime resolution
                 item.setMaterialPlaceholder(materialStr);
             } else {

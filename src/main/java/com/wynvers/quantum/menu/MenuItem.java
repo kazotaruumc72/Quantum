@@ -504,8 +504,8 @@ public class MenuItem {
                 itemStack.setAmount(itemAmount);
             } catch (Exception e) {
                 // Nexo not available or item not found, fallback to material
-                if (material != null) {
-                    itemStack = new org.bukkit.inventory.ItemStack(material, itemAmount);
+                if (resolvedMaterial != null) {
+                    itemStack = new org.bukkit.inventory.ItemStack(resolvedMaterial, itemAmount);
                 } else {
                     return null;
                 }

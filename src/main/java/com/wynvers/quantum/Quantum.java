@@ -25,6 +25,7 @@ import com.wynvers.quantum.jobs.JobAdminCommand;
 import com.wynvers.quantum.jobs.JobTabCompleter;
 import com.wynvers.quantum.jobs.JobAdminTabCompleter;
 import com.wynvers.quantum.home.HomeManager;
+import com.wynvers.quantum.tab.TABManager;
 import com.wynvers.quantum.commands.*;
 import com.wynvers.quantum.database.DatabaseManager;
 import com.wynvers.quantum.healthbar.HealthBarListener;
@@ -133,6 +134,9 @@ public final class Quantum extends JavaPlugin {
     
     // Home System
     private HomeManager homeManager;
+    
+    // TAB Integration
+    private TABManager tabManager;
 
     // Utils
     private ActionExecutor actionExecutor;
@@ -233,6 +237,9 @@ public final class Quantum extends JavaPlugin {
 
         // PlaceholderAPI
         registerPlaceholderExpansion();
+        
+        // TAB Integration
+        this.tabManager = new TABManager(this);
 
         // Listeners globaux (hors tours / niveaux)
         registerListeners();
@@ -921,6 +928,10 @@ public final class Quantum extends JavaPlugin {
     
     public HomeManager getHomeManager() {
         return homeManager;
+    }
+    
+    public TABManager getTabManager() {
+        return tabManager;
     }
 
     public StructureSelectionManager getStructureSelectionManager() {

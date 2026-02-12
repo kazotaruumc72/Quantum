@@ -18,6 +18,7 @@ softdepend:
   - LuckPerms
   - WorldEdit
   - WorldGuard
+  - TAB
 
 commands:
   quantum:

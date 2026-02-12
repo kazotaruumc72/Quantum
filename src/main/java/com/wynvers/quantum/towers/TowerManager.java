@@ -495,4 +495,17 @@ public class TowerManager {
         }
         return null;
     }
+
+    /**
+     * Get the current floor a player is on
+     * @param uuid Player UUID
+     * @return Floor number (0 if not in a tower)
+     */
+    public int getPlayerFloor(UUID uuid) {
+        TowerProgress progress = getProgress(uuid);
+        if (progress != null) {
+            return progress.getCurrentFloor();
+        }
+        return 0;
+    }
 }

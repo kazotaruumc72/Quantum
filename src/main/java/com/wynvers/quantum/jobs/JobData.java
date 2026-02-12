@@ -42,4 +42,11 @@ public class JobData {
     public void setExp(int exp) {
         this.exp = exp;
     }
+    
+    /**
+     * Alias for getExp() for PlaceholderAPI compatibility
+     */
+    public int getExperience() {
+        return exp;
+    }
 }

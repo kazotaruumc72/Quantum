@@ -257,4 +257,12 @@ public class PlayerLevelManager {
     private int getRequiredExp(int level) {
         return 25 * level * level + 25 * level;
     }
+
+    /**
+     * Get the experience required to reach a specific level.
+     * This is a public wrapper for getRequiredExp for PlaceholderAPI.
+     */
+    public int getExpForLevel(int level) {
+        return getRequiredExp(level);
+    }
 }

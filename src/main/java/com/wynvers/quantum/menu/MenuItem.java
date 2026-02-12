@@ -509,7 +509,6 @@ public class MenuItem {
         }
         
         org.bukkit.inventory.ItemStack itemStack;
-        Material resolvedMaterial = material;
         
         // Resolve material placeholder if present
         if (materialPlaceholder != null && player != null) {

@@ -216,6 +216,50 @@ public class StatisticsManager {
     }
     
     // ========================================
+    // PLAYER-SPECIFIC STATISTICS (PLACEHOLDERS)
+    // ========================================
+    
+    /**
+     * Get the number of orders created by a player
+     * Note: Currently returns 0 as player-specific stats are not yet implemented
+     * TODO: Implement player-specific tracking
+     */
+    public int getOrdersCreated(UUID playerUuid) {
+        // Placeholder implementation - would need player-specific tracking
+        return 0;
+    }
+    
+    /**
+     * Get the number of orders filled by a player
+     * Note: Currently returns 0 as player-specific stats are not yet implemented
+     * TODO: Implement player-specific tracking
+     */
+    public int getOrdersFilled(UUID playerUuid) {
+        // Placeholder implementation - would need player-specific tracking
+        return 0;
+    }
+    
+    /**
+     * Get the number of items sold by a player
+     * Note: Currently returns 0 as player-specific stats are not yet implemented
+     * TODO: Implement player-specific tracking
+     */
+    public int getItemsSold(UUID playerUuid) {
+        // Placeholder implementation - would need player-specific tracking
+        return 0;
+    }
+    
+    /**
+     * Get the number of items bought by a player
+     * Note: Currently returns 0 as player-specific stats are not yet implemented
+     * TODO: Implement player-specific tracking
+     */
+    public int getItemsBought(UUID playerUuid) {
+        // Placeholder implementation - would need player-specific tracking
+        return 0;
+    }
+    
+    // ========================================
     // CLASSES INTERNES
     // ========================================
     

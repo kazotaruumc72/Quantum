@@ -711,7 +711,8 @@ public final class Quantum extends JavaPlugin {
         // Chat Command
         if (chatManager != null) {
             getCommand("chat").setExecutor(new ChatCommand(this, chatManager, messageManager));
-            logger.success("✓ Chat Command registered");
+            getCommand("chat").setTabCompleter(new ChatTabCompleter());
+            logger.success("✓ Chat Command + TabCompleter registered");
         }
 
         logger.success("✓ Commands registered");

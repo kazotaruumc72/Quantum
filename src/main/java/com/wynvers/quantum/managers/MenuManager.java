@@ -190,12 +190,6 @@ public class MenuManager {
             item.setNexoId(section.getString("nexo_item"));
         } else if (section.contains("material")) {
             String materialStr = section.getString("material");
-            // Check if material contains placeholders
-            if (materialStr.contains("%")) {
-                // Store as string for later resolution
-                item.setMaterialString(materialStr);
-            } else {
-                // Try to convert to Material immediately
             // Check if material contains placeholders (% signs)
             if (materialStr.contains("%")) {
                 // Store as placeholder for runtime resolution

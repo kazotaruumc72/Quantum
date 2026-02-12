@@ -122,11 +122,13 @@ public class QuantumCompassManager {
         try {
             Map<String, CompassPoint> waypoints = playerWaypoints.get(player.getUniqueId());
             if (waypoints != null) {
+                // Create a copy of keys to avoid ConcurrentModificationException
+                java.util.List<String> waypointNames = new java.util.ArrayList<>(waypoints.keySet());
+                
                 // Remove each waypoint
-                for (String name : waypoints.keySet()) {
+                for (String name : waypointNames) {
                     removeWaypoint(player, name);
                 }
-                waypoints.clear();
             }
             
             return true;

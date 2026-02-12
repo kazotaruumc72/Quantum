@@ -61,17 +61,28 @@ public class HudDemoCommand implements CommandExecutor {
                 String popupName = args[1];
                 Map<String, String> variables = null;
                 
-                // Parse optional variables
+                // Parse optional variables (format: key:value)
                 if (args.length > 2) {
-                    String[] varPairs = new String[args.length - 2];
+                    String[] varPairs = new String[(args.length - 2) * 2];
+                    int index = 0;
                     for (int i = 2; i < args.length; i++) {
-                        String[] parts = args[i].split(":");
+                        String[] parts = args[i].split(":", 2);
                         if (parts.length == 2) {
-                            varPairs[(i - 2) * 2] = parts[0];
-                            varPairs[(i - 2) * 2 + 1] = parts[1];
+                            varPairs[index++] = parts[0];
+                            varPairs[index++] = parts[1];
                         }
                     }
-                    variables = BetterHudUtil.createVariables(varPairs);
+                    
+                    // Only create variables if we have at least one pair
+                    if (index > 0) {
+                        // Trim array if some pairs were invalid
+                        if (index < varPairs.length) {
+                            String[] trimmed = new String[index];
+                            System.arraycopy(varPairs, 0, trimmed, 0, index);
+                            varPairs = trimmed;
+                        }
+                        variables = BetterHudUtil.createVariables(varPairs);
+                    }
                 }
                 
                 boolean shown = variables != null 

@@ -127,20 +127,24 @@ public class QuantumExpansion extends PlaceholderExpansion {
         if (params.equalsIgnoreCase("storage_items")) {
             if (plugin.getStorageManager() == null) return "0";
             var storage = plugin.getStorageManager().getPlayerStorage(offlinePlayer.getUniqueId());
-            return storage != null ? String.valueOf(storage.getTotalItems()) : "0";
+            return storage != null ? String.valueOf(storage.getTotalItemCount()) : "0";
         }
         
         if (params.equalsIgnoreCase("storage_capacity")) {
-            if (plugin.getStorageManager() == null) return "0";
-            var storage = plugin.getStorageManager().getPlayerStorage(offlinePlayer.getUniqueId());
-            return storage != null ? String.valueOf(storage.getCapacity()) : "0";
+            if (plugin.getStorageManager() == null || plugin.getStorageUpgradeManager() == null) return "0";
+            if (player == null) return "0"; // Need online player to get capacity
+            var state = plugin.getStorageUpgradeManager().getState(player);
+            return String.valueOf(plugin.getStorageUpgradeManager().getMaxStacks(state));
         }
         
         if (params.equalsIgnoreCase("storage_used_percent")) {
-            if (plugin.getStorageManager() == null) return "0%";
+            if (plugin.getStorageManager() == null || plugin.getStorageUpgradeManager() == null) return "0%";
             var storage = plugin.getStorageManager().getPlayerStorage(offlinePlayer.getUniqueId());
-            if (storage == null) return "0%";
-            int percent = (int) ((storage.getTotalItems() / (double) storage.getCapacity()) * 100);
+            if (storage == null || player == null) return "0%";
+            var state = plugin.getStorageUpgradeManager().getState(player);
+            int capacity = plugin.getStorageUpgradeManager().getMaxStacks(state);
+            if (capacity <= 0) return "0%";
+            int percent = (int) ((storage.getTotalItemCount() / (double) capacity) * 100);
             return percent + "%";
         }
 

@@ -123,12 +123,12 @@
         </dependency>
         
         <!-- TAB - https://github.com/NEZNAMY/TAB -->
+        <!-- Updated to 5.5.0 for Minecraft 1.21.11 support -->
         <dependency>
-            <groupId>me.neznamy</groupId>
-            <artifactId>tab-api</artifactId>
-            <version>5.0.6</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/tab-api-5.0.6.jar</systemPath>
+            <groupId>com.github.NEZNAMY</groupId>
+            <artifactId>TAB-API</artifactId>
+            <version>5.5.0</version>
+            <scope>provided</scope>
         </dependency>
         
         <!-- BetterHud Integration - Standard API -->

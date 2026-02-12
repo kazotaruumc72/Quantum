@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
  * TAB Plugin Integration Manager
  * Provides MiniMessage support and custom placeholders for TAB
  * Reference: https://github.com/NEZNAMY/TAB/
+ * Version: 5.5.0 (Compatible with Minecraft 1.21.11)
  */
 public class TABManager {
 
@@ -39,7 +40,7 @@ public class TABManager {
             registerPlaceholders();
             
             this.enabled = true;
-            plugin.getLogger().info("✓ TAB integration enabled! (MiniMessage support available)");
+            plugin.getLogger().info("✓ TAB integration enabled! (v5.5.0, MiniMessage support available)");
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to initialize TAB integration: " + e.getMessage());
             this.enabled = false;

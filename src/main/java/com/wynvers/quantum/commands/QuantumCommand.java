@@ -73,11 +73,13 @@ public class QuantumCommand implements CommandExecutor {
         }
 
         switch (subCommand) {
-            case "setspawn":
-                if (!(sender instanceof Player player)) {
+            case "setspawn": {
+                if (!(sender instanceof Player)) {
                     sender.sendMessage("§cThis command can only be used by players.");
                     return true;
                 }
+                
+                Player player = (Player) sender;
                 
                 if (!sender.hasPermission("quantum.spawn.set")) {
                     sender.sendMessage("§cYou don't have permission to set spawn.");
@@ -96,12 +98,15 @@ public class QuantumCommand implements CommandExecutor {
                     sender.sendMessage("§c⚠ SpawnManager not loaded!");
                 }
                 return true;
+            }
             
-            case "setfirstspawn":
-                if (!(sender instanceof Player player)) {
+            case "setfirstspawn": {
+                if (!(sender instanceof Player)) {
                     sender.sendMessage("§cThis command can only be used by players.");
                     return true;
                 }
+                
+                Player player = (Player) sender;
                 
                 if (!sender.hasPermission("quantum.spawn.setfirst")) {
                     sender.sendMessage("§cYou don't have permission to set first spawn.");
@@ -120,6 +125,7 @@ public class QuantumCommand implements CommandExecutor {
                     sender.sendMessage("§c⚠ SpawnManager not loaded!");
                 }
                 return true;
+            }
 
             case "reload":
                 if (!sender.hasPermission("quantum.admin")) {

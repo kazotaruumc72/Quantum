@@ -26,6 +26,9 @@ public class Spawn {
     }
 
     public Spawn(Location location) {
+        if (location == null || location.getWorld() == null) {
+            throw new IllegalArgumentException("Location and world cannot be null");
+        }
         this.world = location.getWorld().getName();
         this.x = location.getX();
         this.y = location.getY();

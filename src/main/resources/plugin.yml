@@ -154,6 +154,11 @@ commands:
     aliases: [removehome, deletehome]
     permission: quantum.home.delete
   
+  spawn:
+    description: Teleport to spawn
+    usage: /spawn
+    permission: quantum.spawn.use
+  
   zonegui:
     description: Open zone configuration GUI
     usage: /zonegui [region_name]
@@ -193,6 +198,7 @@ permissions:
       quantum.weapon.*: true
       quantum.job.*: true
       quantum.structure.*: true
+      quantum.spawn.*: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -457,6 +463,27 @@ permissions:
   # quantum.home.limit.2 - allows 2 homes
   # quantum.home.limit.3 - allows 3 homes
   # etc.
+  
+  # Spawn system
+  quantum.spawn.*:
+    description: All spawn permissions
+    default: op
+    children:
+      quantum.spawn.use: true
+      quantum.spawn.set: true
+      quantum.spawn.setfirst: true
+  
+  quantum.spawn.use:
+    description: Teleport to spawn
+    default: true
+  
+  quantum.spawn.set:
+    description: Set spawn location
+    default: op
+  
+  quantum.spawn.setfirst:
+    description: Set first spawn location
+    default: op
   
   # Zone configuration
   quantum.zone.configure:

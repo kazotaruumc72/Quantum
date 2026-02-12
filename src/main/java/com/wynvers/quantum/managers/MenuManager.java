@@ -194,6 +194,8 @@ public class MenuManager {
             if (materialStr.contains("%")) {
                 // Store as string for later resolution
                 item.setMaterialString(materialStr);
+                // Store as placeholder for runtime resolution
+                item.setMaterialPlaceholder(materialStr);
             } else {
                 // Try to parse as Material enum
                 try {

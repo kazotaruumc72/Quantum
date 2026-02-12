@@ -47,6 +47,9 @@ public class InternalRegion {
     
     /**
      * Check if a location is inside this region
+     * Uses inclusive boundaries - blocks at exactly min or max coordinates are considered inside
+     * This matches Minecraft's typical region behavior (e.g., WorldEdit, WorldGuard)
+     * 
      * @param loc Location to check
      * @return true if location is inside region
      */
@@ -60,7 +63,7 @@ public class InternalRegion {
             return false;
         }
         
-        // Check coordinates
+        // Check coordinates (inclusive boundaries)
         int x = loc.getBlockX();
         int y = loc.getBlockY();
         int z = loc.getBlockZ();

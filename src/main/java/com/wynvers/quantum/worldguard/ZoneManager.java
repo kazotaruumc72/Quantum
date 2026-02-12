@@ -44,6 +44,21 @@ public class ZoneManager implements Listener {
     private final TowerScoreboardHandler scoreboardHandler;
     private final InternalRegionManager regionManager;
     private final boolean useWorldGuard;
+    
+    // Cache reflection classes for WorldGuard to avoid repeated lookups
+    private static Class<?> worldGuardClass;
+    private static Class<?> bukkitAdapterClass;
+    private static Class<?> blockVector3Class;
+    
+    static {
+        try {
+            worldGuardClass = Class.forName("com.sk89q.worldguard.WorldGuard");
+            bukkitAdapterClass = Class.forName("com.sk89q.worldedit.bukkit.BukkitAdapter");
+            blockVector3Class = Class.forName("com.sk89q.worldedit.math.BlockVector3");
+        } catch (ClassNotFoundException e) {
+            // WorldGuard not available, reflection classes will be null
+        }
+    }
 
     private final Map<UUID, String> currentRegion = new HashMap<>();
     private static final int REGION_CACHE_SIZE = 100;
@@ -263,14 +278,14 @@ public class ZoneManager implements Listener {
      */
     private String getWorldGuardRegionAtWG(Location loc) {
         try {
+            // Check if reflection classes are available
+            if (worldGuardClass == null || bukkitAdapterClass == null || blockVector3Class == null) {
+                return null;
+            }
+            
             World world = loc.getWorld();
             if (world == null) return null;
 
-            // Use reflection to check if WorldGuard classes exist
-            Class<?> worldGuardClass = Class.forName("com.sk89q.worldguard.WorldGuard");
-            Class<?> bukkitAdapterClass = Class.forName("com.sk89q.worldedit.bukkit.BukkitAdapter");
-            Class<?> blockVector3Class = Class.forName("com.sk89q.worldedit.math.BlockVector3");
-            
             Object worldGuardInstance = worldGuardClass.getMethod("getInstance").invoke(null);
             Object platform = worldGuardClass.getMethod("getPlatform").invoke(worldGuardInstance);
             Object regionContainer = platform.getClass().getMethod("getRegionContainer").invoke(platform);
@@ -295,7 +310,12 @@ public class ZoneManager implements Listener {
             return null;
         } catch (Exception e) {
             // WorldGuard not available or reflection failed
-            plugin.getQuantumLogger().warning("Failed to query WorldGuard region: " + e.getMessage());
+            plugin.getQuantumLogger().warning(
+                "Failed to query WorldGuard region at location " + 
+                loc.getWorld().getName() + " " + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + 
+                ": " + e.getClass().getSimpleName() + " - " + e.getMessage()
+            );
+            plugin.getQuantumLogger().debug("Stack trace:", e);
             return null;
         }
     }

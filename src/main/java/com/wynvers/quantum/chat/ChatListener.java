@@ -45,9 +45,12 @@ public class ChatListener implements Listener {
         // Formater le message avec le ChatManager
         Component formattedMessage = chatManager.formatChatMessage(player, plainMessage);
         
-        // Définir le nouveau format
-        // Note: Le viewer est ignoré car tous les joueurs voient le même format
-        // Si un formatage par viewer est nécessaire, modifier cette lambda
+        // Définir le renderer pour tous les viewers
+        // Note: Le paramètre 'viewer' est intentionnellement ignoré dans cette implémentation
+        // car le format est uniforme pour tous les joueurs. Pour un formatage par viewer
+        // (par exemple, afficher différents formats selon qui regarde), il faudrait
+        // appeler chatManager.formatChatMessage(player, plainMessage) pour chaque viewer
+        // dans la lambda au lieu d'utiliser la variable formattedMessage pré-calculée.
         event.renderer((source, sourceDisplayName, message, viewer) -> formattedMessage);
     }
 }

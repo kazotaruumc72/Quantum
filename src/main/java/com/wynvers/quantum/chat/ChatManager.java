@@ -130,8 +130,9 @@ public class ChatManager {
             return message;
         }
         
-        // Sinon, échapper les codes couleur
-        // Remplacer & en premier pour éviter le double-échappement
+        // Échapper les codes couleur pour les joueurs sans permission
+        // L'ordre est important: & d'abord, puis < pour éviter le double-échappement
+        // Exemple: sans cet ordre, "<test>" deviendrait "&amp;lt;test&amp;gt;" au lieu de "&amp;lt;test&gt;"
         return message.replace("&", "&amp;").replace("<", "&lt;");
     }
     

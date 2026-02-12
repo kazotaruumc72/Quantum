@@ -35,7 +35,7 @@ public class ChatCommand implements CommandExecutor {
         
         // Sous-commande reload
         if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
-            if (!sender.hasPermission("quantum.chat.reload")) {
+            if (!sender.hasPermission("quantum.chat.reload") && !sender.hasPermission("quantum.chat.admin")) {
                 messageManager.sendPrefixedMessage(sender, "system.no-permission", new HashMap<>());
                 return true;
             }

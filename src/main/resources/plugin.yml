@@ -556,10 +556,10 @@ permissions:
     default: false
   
   quantum.chat.admin:
-    description: Reload chat configuration
+    description: Full chat system administration
     default: op
   
   quantum.chat.reload:
-    description: Reload chat configuration (alias for quantum.chat.admin)
+    description: Reload chat configuration
     default: op
 

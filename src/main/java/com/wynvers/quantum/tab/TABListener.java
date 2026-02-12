@@ -26,7 +26,8 @@ public class TABListener implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (plugin.getTabManager() != null && plugin.getTabManager().isEnabled()) {
+                // Check if player is still online before updating
+                if (event.getPlayer().isOnline() && plugin.getTabManager() != null && plugin.getTabManager().isEnabled()) {
                     plugin.getTabManager().updatePlayer(event.getPlayer());
                 }
             }

@@ -28,6 +28,11 @@ import java.util.*;
  * Version: 5.5.0 (Compatible with Minecraft 1.21.11)
  */
 public class TABManager {
+    
+    // Default priority order for groups if not specified in config
+    private static final List<String> DEFAULT_PRIORITY_ORDER = Arrays.asList(
+        "elite", "mvp+", "mvp", "vip+", "vip", "default"
+    );
 
     private final Quantum plugin;
     private TabAPI tabAPI;
@@ -103,7 +108,7 @@ public class TABManager {
         // Load priority order
         priorityOrder = tabConfig.getStringList("settings.priority-order");
         if (priorityOrder.isEmpty()) {
-            priorityOrder = Arrays.asList("elite", "mvp+", "mvp", "vip+", "vip", "default");
+            priorityOrder = new ArrayList<>(DEFAULT_PRIORITY_ORDER);
         }
         
         // Load groups
@@ -264,10 +269,14 @@ public class TABManager {
      */
     private Component processLinesToComponent(Player player, List<String> lines) {
         Component result = Component.empty();
-        for (String line : lines) {
-            String processedLine = processPlaceholders(player, line);
+        for (int i = 0; i < lines.size(); i++) {
+            String processedLine = processPlaceholders(player, lines.get(i));
             Component lineComponent = miniMessage.deserialize(processedLine);
-            result = result.append(lineComponent).append(Component.newline());
+            result = result.append(lineComponent);
+            // Add newline for all lines except the last one
+            if (i < lines.size() - 1) {
+                result = result.append(Component.newline());
+            }
         }
         return result;
     }

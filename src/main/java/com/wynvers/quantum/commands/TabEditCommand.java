@@ -64,7 +64,7 @@ public class TabEditCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage(Component.text("Usage: /tabedit " + subCommand + " <group>", NamedTextColor.RED));
                     return true;
                 }
-                return handleHeaderFooter(sender, args[0].toLowerCase(), args[1], Arrays.copyOfRange(args, 2, args.length));
+                return handleHeaderFooter(sender, subCommand, args[1], Arrays.copyOfRange(args, 2, args.length));
             default:
                 sendUsage(sender);
                 return true;

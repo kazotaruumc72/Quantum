@@ -474,6 +474,7 @@ public final class Quantum extends JavaPlugin {
         logger.success("✓ Home Manager");
         
         this.spawnManager = new com.wynvers.quantum.spawn.SpawnManager(this, databaseManager);
+        getServer().getPluginManager().registerEvents(new com.wynvers.quantum.spawn.FirstJoinListener(spawnManager), this);
         logger.success("✓ Spawn Manager");
         
         this.apartmentManager = new ApartmentManager(this, databaseManager);

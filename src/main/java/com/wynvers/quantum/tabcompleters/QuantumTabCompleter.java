@@ -45,7 +45,9 @@ public class QuantumTabCompleter implements TabCompleter {
                 "progress",
                 "reset",
                 "info",
-                "mobspawnzone"
+                "mobspawnzone",
+                "setspawn",
+                "setfirstspawn"
             ));
             
             // Ajouter orders si admin

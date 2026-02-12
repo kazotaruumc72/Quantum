@@ -1,9 +1,11 @@
 package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 public class QuantumCommand implements CommandExecutor {
 
@@ -71,6 +73,54 @@ public class QuantumCommand implements CommandExecutor {
         }
 
         switch (subCommand) {
+            case "setspawn":
+                if (!(sender instanceof Player player)) {
+                    sender.sendMessage("§cThis command can only be used by players.");
+                    return true;
+                }
+                
+                if (!sender.hasPermission("quantum.spawn.set")) {
+                    sender.sendMessage("§cYou don't have permission to set spawn.");
+                    return true;
+                }
+                
+                if (plugin.getSpawnManager() != null) {
+                    Location spawnLoc = player.getLocation();
+                    if (plugin.getSpawnManager().setSpawn(spawnLoc)) {
+                        sender.sendMessage("§a§l✓ §aSpawn location set at: §e" + 
+                            String.format("%.1f, %.1f, %.1f", spawnLoc.getX(), spawnLoc.getY(), spawnLoc.getZ()));
+                    } else {
+                        sender.sendMessage("§c§l✗ §cFailed to set spawn location.");
+                    }
+                } else {
+                    sender.sendMessage("§c⚠ SpawnManager not loaded!");
+                }
+                return true;
+            
+            case "setfirstspawn":
+                if (!(sender instanceof Player player)) {
+                    sender.sendMessage("§cThis command can only be used by players.");
+                    return true;
+                }
+                
+                if (!sender.hasPermission("quantum.spawn.setfirst")) {
+                    sender.sendMessage("§cYou don't have permission to set first spawn.");
+                    return true;
+                }
+                
+                if (plugin.getSpawnManager() != null) {
+                    Location firstSpawnLoc = player.getLocation();
+                    if (plugin.getSpawnManager().setFirstSpawn(firstSpawnLoc)) {
+                        sender.sendMessage("§a§l✓ §aFirst spawn location set at: §e" + 
+                            String.format("%.1f, %.1f, %.1f", firstSpawnLoc.getX(), firstSpawnLoc.getY(), firstSpawnLoc.getZ()));
+                    } else {
+                        sender.sendMessage("§c§l✗ §cFailed to set first spawn location.");
+                    }
+                } else {
+                    sender.sendMessage("§c⚠ SpawnManager not loaded!");
+                }
+                return true;
+
             case "reload":
                 if (!sender.hasPermission("quantum.admin")) {
                     sender.sendMessage("§cVous n'avez pas la permission!");

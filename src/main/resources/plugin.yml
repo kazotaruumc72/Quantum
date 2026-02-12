@@ -175,6 +175,11 @@ commands:
     usage: /huddemo <popup|waypoint|test> [args]
     aliases: [hud, betterhud]
     permission: quantum.betterhud.use
+  
+  chat:
+    description: Manage chat system
+    usage: /chat [reload]
+    permission: quantum.chat.admin
 
 permissions:
   quantum.*:
@@ -199,6 +204,7 @@ permissions:
       quantum.job.*: true
       quantum.structure.*: true
       quantum.spawn.*: true
+      quantum.chat.*: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -513,6 +519,49 @@ permissions:
   quantum.betterhud.*:
     description: All BetterHud integration permissions
     default: true
+    children:
+      quantum.betterhud.use: true
+  
+  quantum.betterhud.use:
+    description: Use BetterHud features (popups, HUD, waypoints)
+    default: true
+  
+  # Chat system
+  quantum.chat.*:
+    description: All chat permissions
+    default: true
+    children:
+      quantum.chat.color: true
+      quantum.chat.format.player: true
+      quantum.chat.admin: false
+  
+  quantum.chat.color:
+    description: Use colors in chat messages
+    default: false
+  
+  quantum.chat.format.player:
+    description: Default player chat format
+    default: true
+  
+  quantum.chat.format.vip:
+    description: VIP chat format
+    default: false
+  
+  quantum.chat.format.mod:
+    description: Moderator chat format
+    default: false
+  
+  quantum.chat.format.admin:
+    description: Admin chat format
+    default: false
+  
+  quantum.chat.admin:
+    description: Reload chat configuration
+    default: op
+  
+  quantum.chat.reload:
+    description: Reload chat configuration
+    default: op
     children:
       quantum.betterhud.use: true
   

@@ -297,3 +297,34 @@ commands:
   menu-opened: "<green>✔ Menu ouvert: <yellow>%menu_name%</yellow></green>"
   menu-usage: "<yellow>Usage: /menu <menu_name></yellow>"
   zone-exit-disabled: "<red>[Quantum] La commande /zoneexit est désactivée (ancien système de zones).</red>"
+
+# ═══════════════════════════════════════════════════════════════════════════
+#   💬 SECTION 18: SYSTÈME DE CHAT
+# ═══════════════════════════════════════════════════════════════════════════
+
+chat:
+  # Format général du chat (utilisé par défaut)
+  # Placeholders disponibles: %player%, %display_name%, %message%, %prefix%, %suffix%, %rank%, %level%
+  format: "<gray>[</gray><gradient:#32b8c6:#1d6880>%rank%</gradient><gray>]</gray> <white>%player%</white> <dark_gray>»</dark_gray> <gray>%message%</gray>"
+  
+  # Format par permission (priorité: plus haut numéro = priorité plus élevée)
+  # Format: quantum.chat.format.<name>
+  formats:
+    admin: "<gray>[</gray><gradient:#ff0000:#ff6b00>Admin</gradient><gray>]</gray> <white>%player%</white> <dark_gray>»</dark_gray> %message%"
+    mod: "<gray>[</gray><gradient:#00ff00:#00aa00>Modo</gradient><gray>]</gray> <white>%player%</white> <dark_gray>»</dark_gray> %message%"
+    vip: "<gray>[</gray><gradient:#ffff00:#ffaa00>VIP</gradient><gray>]</gray> <white>%player%</white> <dark_gray>»</dark_gray> %message%"
+    player: "<gray>[</gray><aqua>Joueur</aqua><gray>]</gray> <white>%player%</white> <dark_gray>»</dark_gray> <gray>%message%</gray>"
+  
+  # Rang par défaut si aucune permission n'est trouvée
+  default-rank: "Joueur"
+  
+  # Messages de commandes
+  reload-success: "<green>✔ Configuration du chat rechargée avec succès!</green>"
+  format-changed: "<green>✔ Format de chat changé!</green>"
+  
+  # Messages de permission
+  no-permission-color: "<red>✖ Vous n'avez pas la permission d'utiliser des couleurs dans le chat!</red>"
+  no-permission-format: "<red>✖ Vous n'avez pas la permission d'utiliser ce format!</red>"
+  
+  # Messages d'erreur
+  invalid-format: "<red>✖ Format invalide: <yellow>%format%</yellow></red>"

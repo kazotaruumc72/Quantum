@@ -148,6 +148,8 @@
             <artifactId>tab-api</artifactId>
             <version>5.0.6</version>
             <scope>provided</scope>
+        </dependency>
+        
         <!-- BetterHud Integration - Standard API -->
         <dependency>
             <groupId>io.github.toxicity188</groupId>

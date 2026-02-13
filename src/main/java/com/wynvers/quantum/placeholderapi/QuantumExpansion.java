@@ -181,12 +181,12 @@ public class QuantumExpansion extends PlaceholderExpansion {
         }
 
         if (params.equalsIgnoreCase("eco_currency")) {
-            if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "$";
+            if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "Dollar";
             return plugin.getVaultManager().getCurrencyName();
         }
 
         if (params.equalsIgnoreCase("eco_currency_plural")) {
-            if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "$";
+            if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "Dollars";
             return plugin.getVaultManager().getCurrencyNamePlural();
         }
 

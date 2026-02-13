@@ -107,7 +107,7 @@ getCommand("apartment").setTabCompleter(new ApartmentTabCompleter());
 ✅ `/spawn` - Via SpawnTabCompleter
 ✅ `/zonegui` - Via ZoneGUITabCompleter (NOUVEAU)
 ✅ `/apartment` - Via ApartmentTabCompleter (NOUVEAU)
-✅ `/tabedit` - Intégré dans TabEditCommand
+✅ `/tabedit`, `/tabconfig`, `/tconfig` - Intégré dans TabEditCommand (tous les alias)
 ✅ `/chat` - Via ChatTabCompleter
 
 ### Commandes sans arguments (pas besoin de complétion)
@@ -144,6 +144,24 @@ getCommand("apartment").setTabCompleter(new ApartmentTabCompleter());
 
 /apartment create <TAB>
   -> Doit afficher: <name>
+```
+
+### 4. Test de la commande /tabedit et ses alias
+```
+/tabedit <TAB>
+  -> Doit afficher: header, footer, reload, list
+
+/tabconfig <TAB>
+  -> Doit afficher: header, footer, reload, list
+
+/tconfig <TAB>
+  -> Doit afficher: header, footer, reload, list
+
+/tabedit header <TAB>
+  -> Doit afficher les groupes disponibles (elite, mvp+, mvp, vip+, vip, default)
+
+/tabconfig reload
+  -> Doit recharger la configuration TAB
 ```
 
 ## Compatibilité

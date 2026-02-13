@@ -79,8 +79,22 @@ public class ToolListener implements Listener {
         
         // Vérifier si la compétence s'active
         if (toolManager.getAxe().shouldActivateOneShot(level)) {
-            // TODO: Détecter et casser la structure complète
-            // Nécessite l'intégration avec StructureManager
+            // Détecter et casser la structure complète si le bloc fait partie d'une structure
+            if (structureManager != null) {
+                Location blockLocation = event.getBlock().getLocation();
+                String[] structureInfo = structureManager.detectStructure(blockLocation);
+                
+                if (structureInfo != null && structureInfo.length == 2) {
+                    String structureId = structureInfo[0];
+                    String stateName = structureInfo[1];
+                    try {
+                        StructureManager.StructureState currentState = StructureManager.StructureState.valueOf(stateName);
+                        structureManager.breakStructure(blockLocation, structureId, currentState);
+                    } catch (IllegalArgumentException ignored) {
+                        // État de structure invalide, ignorer
+                    }
+                }
+            }
             
             String message = toolManager.getConfig().getString("messages.oneshot_activated", "&e⚡ One-shot activé! Structure complète coupée!");
             player.sendMessage(message.replace('&', '§'));
@@ -124,19 +138,14 @@ public class ToolListener implements Listener {
                     return;
                 }
                 
-                // Left-click: Exécuter l'action
+                // Left-click: Exécuter l'action (récompenses job uniquement, pas de multi-break)
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
-                    // Trigger le job manager
+                    // Trigger le job manager pour les récompenses
                     jobManager.handleStructureTap(player, structureId, stateName);
                     
-                    // Dégrader la structure
-                    StructureManager.StructureState currentState = StructureManager.StructureState.valueOf(stateName);
-                    StructureManager.StructureState newState = structureManager.degradeStructure(blockLocation, structureId, currentState);
-                    
-                    if (newState != null) {
-                        // Structure dégradée avec succès
-                        event.setCancelled(true);  // Annuler l'event de clic pour éviter la destruction normale du bloc
-                    }
+                    // Ne pas dégrader la structure automatiquement
+                    // La dégradation ne se fait que via la compétence One-shot de la hache Quantum
+                    // Le joueur casse uniquement le bloc qu'il a cliqué (comportement normal)
                 }
             }
         }

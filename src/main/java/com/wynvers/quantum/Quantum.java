@@ -346,6 +346,8 @@ public final class Quantum extends JavaPlugin {
         // Configuration des skills de mobs (MobSkillManager)
         extractResource("mob_skills.yml");
 
+        extractRessource("tab_config.yml");
+
         logger.success("✓ Default resources extracted");
     }
 

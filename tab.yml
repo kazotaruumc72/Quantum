@@ -204,13 +204,13 @@ tower:
       - tp                     # Teleport to tower floor (quantum.tower.teleport - admin)
       - reload                 # Reload tower configs (quantum.tower.reload - admin)
     level_2_progress:
-      dynamic: player_names    # Player names (requires quantum.tower.progress.others)
+      # dynamic: player_names    # Player names (requires quantum.tower.progress.others)
     level_2_reset:
-      dynamic: player_names    # Player names (admin only)
+      # dynamic: player_names    # Player names (admin only)
     level_2_tp:
-      dynamic: tower_ids       # Tower IDs
+      # dynamic: tower_ids       # Tower IDs
     level_3_tp:
-      dynamic: floor_numbers   # Floor numbers
+      # dynamic: floor_numbers   # Floor numbers
 
 # ARMOR & EQUIPMENT COMMANDS
 # ============================================================================
@@ -251,13 +251,13 @@ rune:
       - give                   # Give rune to player (quantum.rune.give)
       - list                   # List available runes
     level_2_give:
-      dynamic: rune_types      # RuneType enum values (FIRE, WATER, EARTH, AIR, LIGHTNING, etc.)
+      # dynamic: rune_types      # RuneType enum values (FIRE, WATER, EARTH, AIR, LIGHTNING, etc.)
     level_3_give:
       - "1"                    # Rune levels
       - "2"
       - "3"
     level_4_give:
-      dynamic: player_names    # Target player names
+      # dynamic: player_names    # Target player names
 
 weapon:
   aliases: [dweapon, darme, arme]
@@ -305,9 +305,9 @@ storage:
       - clear                  # Clear storage (admin - quantum.admin)
       - reload                 # Reload storage (admin - quantum.admin)
     level_2_view:
-      dynamic: player_names    # Player names (admin only)
+      # dynamic: player_names    # Player names (admin only)
     level_2_clear:
-      dynamic: player_names    # Player names (admin only)
+      # dynamic: player_names    # Player names (admin only)
 
 qstorage:
   aliases: [quantumstorage, qs]
@@ -321,22 +321,22 @@ qstorage:
       - item                   # Transfer specific item
       - hand                   # Transfer item in hand
       - all                    # Transfer all matching items
-      dynamic: nexo_items      # Nexo item IDs (nexo:*)
-      dynamic: minecraft_items # Minecraft item IDs (minecraft:*)
+      # dynamic: nexo_items      # Nexo item IDs (nexo:*)
+      # dynamic: minecraft_items # Minecraft item IDs (minecraft:*)
     level_3_transfer:
       - "1"                    # Amounts
       - "16"
       - "32"
       - "64"
     level_4_transfer_console:
-      dynamic: player_names    # Player name (console only)
+      # dynamic: player_names    # Player name (console only)
     level_2_remove:
-      dynamic: nexo_items      # Nexo item IDs
-      dynamic: minecraft_items # Minecraft item IDs
+      # dynamic: nexo_items      # Nexo item IDs
+      # dynamic: minecraft_items # Minecraft item IDs
     level_3_remove:
-      dynamic: inventory_amounts # Amounts based on current inventory
+      # dynamic: inventory_amounts # Amounts based on current inventory
     level_4_remove_console:
-      dynamic: player_names    # Player name (console only)
+      # dynamic: player_names    # Player name (console only)
 
 # JOBS SYSTEM COMMANDS
 # ============================================================================
@@ -354,11 +354,11 @@ job:
       - rewards                # View job rewards
       - top                    # Job leaderboard
     level_2_join:
-      dynamic: job_ids         # Job IDs from JobManager
+      # dynamic: job_ids         # Job IDs from JobManager
     level_2_select:
-      dynamic: job_ids         # Job IDs from JobManager
+      # dynamic: job_ids         # Job IDs from JobManager
     level_2_info:
-      dynamic: job_ids         # Job IDs from JobManager (optional)
+      # dynamic: job_ids         # Job IDs from JobManager (optional)
 
 jobadmin:
   aliases: [jadmin, jobsadmin]
@@ -373,9 +373,9 @@ jobadmin:
       - info                   # View job info
       - reload                 # Reload job configurations
     level_2:
-      dynamic: player_names    # Target player names
+      # dynamic: player_names    # Target player names
     level_3_set:
-      dynamic: job_ids         # Job IDs
+      # dynamic: job_ids         # Job IDs
     level_3_addexp:
       - "100"                  # Experience amounts
       - "500"
@@ -395,7 +395,7 @@ qexp:
   permission: quantum.exp.admin
   tab_completion:
     level_1:
-      dynamic: player_names    # Target player
+      # dynamic: player_names    # Target player
     level_2:
       - give                   # Give EXP
       - take                   # Take EXP
@@ -416,7 +416,7 @@ home:
   permission: quantum.home.use
   tab_completion:
     level_1:
-      dynamic: player_homes    # Player's saved home names (dynamic from database)
+      # dynamic: player_homes    # Player's saved home names (dynamic from database)
 
 sethome:
   description: Set home location
@@ -431,7 +431,7 @@ delhome:
   permission: quantum.home.delete
   tab_completion:
     level_1:
-      dynamic: player_homes    # Player's saved home names
+      # dynamic: player_homes    # Player's saved home names
 
 spawn:
   description: Teleport to spawn
@@ -456,9 +456,9 @@ apartment:
     level_2_create:
       - <name>                 # Apartment name placeholder
     level_2_invite:
-      dynamic: player_names    # Player to invite
+      # dynamic: player_names    # Player to invite
     level_2_remove:
-      dynamic: player_names    # Player to remove
+      # dynamic: player_names    # Player to remove
 
 # UI & DISPLAY COMMANDS
 # ============================================================================
@@ -475,7 +475,7 @@ menu:
       - main                   # Example menu names
       - shop
       - settings
-      dynamic: menu_names      # Menu names from config
+      # dynamic: menu_names      # Menu names from config
 
 healthbar:
   aliases: [hpbar, hp]
@@ -502,7 +502,7 @@ qscoreboard:
       - activer                # Enable (French)
       - desactiver             # Disable (French)
       - statut                 # Status (French)
-      dynamic: player_names    # Player names (admin only - quantum.admin)
+      # dynamic: player_names    # Player names (admin only - quantum.admin)
 
 chat:
   description: Manage chat system
@@ -522,7 +522,7 @@ tabedit:
       - reload                 # Reload TAB config
       - list                   # List TAB groups
     level_2_header_footer:
-      dynamic: tab_groups      # TAB group names (elite, mvp+, mvp, vip+, vip, default)
+      # dynamic: tab_groups      # TAB group names (elite, mvp+, mvp, vip+, vip, default)
     level_3:
       - add                    # Add line
       - remove                 # Remove line
@@ -537,7 +537,7 @@ offre:
   permission: quantum.orders.create
   tab_completion:
     level_1:
-      dynamic: order_items     # Item IDs from orders_template.yml
+      # dynamic: order_items     # Item IDs from orders_template.yml
     level_2:
       - "1"                    # Quantity suggestions
       - "8"
@@ -559,7 +559,7 @@ recherche:
   permission: quantum.orders.search
   tab_completion:
     level_1:
-      dynamic: all_order_items # All item IDs from OrderManager
+      # dynamic: all_order_items # All item IDs from OrderManager
 
 rechercher:
   aliases: [orders, ordres]
@@ -576,13 +576,13 @@ zonegui:
   permission: quantum.zone.configure
   tab_completion:
     level_1:
-      dynamic: worldguard_regions # WorldGuard region names from player's world
+      # dynamic: worldguard_regions # WorldGuard region names from player's world
 
 zoneexit:
   description: Force player to exit zone (console only)
   tab_completion:
     level_1:
-      dynamic: player_names    # Player names
+      # dynamic: player_names    # Player names
 
 # GAMEMODE SHORTCUTS
 # ============================================================================

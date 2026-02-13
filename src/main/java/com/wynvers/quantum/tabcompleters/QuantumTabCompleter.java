@@ -289,6 +289,16 @@ public class QuantumTabCompleter implements TabCompleter {
             // /quantum orders button createcategorie <nom>
             completions.add("<nom_categorie>");
         }
+        // Tab completion pour /quantum eco ou /quantum economy
+        else if (args.length == 2 && (args[0].equalsIgnoreCase("eco") || args[0].equalsIgnoreCase("economy"))) {
+            // Sous-commandes économie
+            completions.addAll(Arrays.asList("create", "delete", "balance", "bal", "give", "add", "take", "remove", "set"));
+        }
+        else if (args.length == 3 && (args[0].equalsIgnoreCase("eco") || args[0].equalsIgnoreCase("economy"))) {
+            // Pour create et delete : ne pas suggérer de pseudos de joueurs
+            // La liste de complétion reste vide intentionnellement
+            // pour éviter la complétion par défaut des pseudos
+        }
         
         // Filtrer selon l'input
         String input = args[args.length - 1].toLowerCase();

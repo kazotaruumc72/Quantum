@@ -32,6 +32,8 @@ public class EconomyCommand {
         switch (subCommand) {
             case "create":
                 return handleCreate(sender, args);
+            case "delete":
+                return handleDelete(sender, args);
             case "balance":
             case "bal":
                 return handleBalance(sender, args);
@@ -62,6 +64,29 @@ public class EconomyCommand {
             sender.sendMessage("§a§l✓ §aCompte économique créé pour " + playerName + " !");
         } else {
             sender.sendMessage("§c⚠ Le compte existe déjà ou une erreur s'est produite !");
+        }
+        
+        return true;
+    }
+    
+    private boolean handleDelete(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            sender.sendMessage("§cUtilisation: /quantum eco delete <joueur>");
+            return true;
+        }
+        
+        String playerName = args[2];
+        OfflinePlayer target = Bukkit.getOfflinePlayer(playerName);
+        
+        if (!plugin.getVaultManager().getQuantumEconomy().hasAccount(target)) {
+            sender.sendMessage("§c⚠ Ce compte n'existe pas !");
+            return true;
+        }
+        
+        if (plugin.getVaultManager().getQuantumEconomy().deletePlayerAccount(target)) {
+            sender.sendMessage("§a§l✓ §aCompte économique supprimé pour " + playerName + " !");
+        } else {
+            sender.sendMessage("§c⚠ Erreur lors de la suppression du compte !");
         }
         
         return true;
@@ -201,6 +226,7 @@ public class EconomyCommand {
     private void sendHelp(CommandSender sender) {
         sender.sendMessage("§6§lCOMMANDES ÉCONOMIE QUANTUM");
         sender.sendMessage("§e/quantum eco create <joueur> §7- Créer un compte économique");
+        sender.sendMessage("§e/quantum eco delete <joueur> §7- Supprimer un compte économique");
         sender.sendMessage("§e/quantum eco balance [joueur] §7- Voir le solde");
         sender.sendMessage("§e/quantum eco give <joueur> <montant> §7- Donner de l'argent");
         sender.sendMessage("§e/quantum eco take <joueur> <montant> §7- Retirer de l'argent");

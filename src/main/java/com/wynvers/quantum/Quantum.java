@@ -336,9 +336,6 @@ public final class Quantum extends JavaPlugin {
         extractResource("jobs.yml");
         extractResource("zone_configs.yml");
 
-        // Ancien zones.yml (optionnel, plus utilisé par les tours)
-        extractResource("zones.yml");
-
         extractResource("scoreboard.yml");
         extractResource("dungeon.yml");
         extractResource("dungeon_armor.yml");
@@ -348,17 +345,6 @@ public final class Quantum extends JavaPlugin {
         
         // Configuration des skills de mobs (MobSkillManager)
         extractResource("mob_skills.yml");
-
-        // Plugin integration examples
-        createDirectory("placeholderapi-examples");
-        extractResource("placeholderapi-examples/chat_example.yml");
-        extractResource("placeholderapi-examples/hologram_example.yml");
-        extractResource("placeholderapi-examples/scoreboard_example.yml");
-        extractResource("placeholderapi-examples/tab_example.yml");
-
-        createDirectory("tab-examples");
-        extractResource("tab-examples/config_example.yml");
-        extractResource("tab-examples/scoreboard_example.yml");
 
         logger.success("✓ Default resources extracted");
     }

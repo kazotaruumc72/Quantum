@@ -299,7 +299,7 @@ public class QuantumTabCompleter implements TabCompleter {
             // La liste de complétion reste vide intentionnellement
             // pour éviter la complétion par défaut des pseudos
         }
-        else if ((args[0].equalsIgnoreCase("eco") || args[0].equalsIgnoreCase("economy"))) {
+        else if (args.length >= 2 && (args[0].equalsIgnoreCase("eco") || args[0].equalsIgnoreCase("economy"))) {
             // Suggest currency IDs for optional currency parameter
             String sub = args[1].toLowerCase();
             boolean hasCurrencyArg = false;

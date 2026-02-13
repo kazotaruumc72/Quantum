@@ -295,8 +295,9 @@ public class QuantumTabCompleter implements TabCompleter {
             completions.addAll(Arrays.asList("create", "delete", "balance", "bal", "give", "add", "take", "remove", "set"));
         }
         else if (args.length == 3 && (args[0].equalsIgnoreCase("eco") || args[0].equalsIgnoreCase("economy"))) {
-            // Pour create et delete : suggérer des noms d'économies, pas des pseudos de joueurs
-            // Retourner une liste vide pour éviter la complétion par défaut des pseudos
+            // Pour create et delete : ne pas suggérer de pseudos de joueurs
+            // La liste de complétion reste vide intentionnellement
+            // pour éviter la complétion par défaut des pseudos
         }
         
         // Filtrer selon l'input

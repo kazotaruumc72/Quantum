@@ -235,11 +235,17 @@ public class ScoreboardManager {
     private static final Pattern SEPARATOR_PATTERN = Pattern.compile("^[━]+$");
     
     /**
+     * Supprime les tags MiniMessage et codes couleur legacy pour obtenir le texte visible
+     */
+    private static String stripColorCodes(String text) {
+        return text.replaceAll("<[^>]+>", "").replaceAll("§[0-9a-fk-or]", "").replaceAll("&[0-9a-fk-or]", "");
+    }
+    
+    /**
      * Vérifie si une ligne est une ligne séparatrice (composée uniquement de ━ après suppression des couleurs)
      */
     private boolean isSeparatorLine(String line) {
-        // Supprimer les tags MiniMessage et codes couleur legacy pour obtenir le texte visible
-        String stripped = line.replaceAll("<[^>]+>", "").replaceAll("§[0-9a-fk-or]", "").replaceAll("&[0-9a-fk-or]", "").trim();
+        String stripped = stripColorCodes(line).trim();
         return !stripped.isEmpty() && SEPARATOR_PATTERN.matcher(stripped).matches();
     }
     
@@ -274,18 +280,12 @@ public class ScoreboardManager {
      * Ex: "<dark_gray>━━━━━</dark_gray>" retourne "</dark_gray>"
      */
     private String extractColorSuffix(String line) {
-        // Chercher les tags de fermeture à la fin de la ligne
-        String stripped = line.replaceAll("<[^>]+>", "").replaceAll("§[0-9a-fk-or]", "").replaceAll("&[0-9a-fk-or]", "");
+        String stripped = stripColorCodes(line);
+        if (stripped.isEmpty()) {
+            return "";
+        }
         String afterContent = line.substring(line.lastIndexOf(stripped.charAt(stripped.length() - 1)) + 1);
         return afterContent;
-    }
-    
-    /**
-     * Calcule la longueur visible d'un texte (sans codes couleur ni tags MiniMessage)
-     */
-    private int getVisibleLength(String text) {
-        String stripped = text.replaceAll("<[^>]+>", "").replaceAll("§[0-9a-fk-or]", "").replaceAll("&[0-9a-fk-or]", "");
-        return stripped.length();
     }
     
     /**
@@ -300,8 +300,7 @@ public class ScoreboardManager {
             if (!isSeparatorLine(line) && !line.trim().isEmpty()) {
                 String parsed = plugin.getPlaceholderManager().parse(player, line);
                 String colored = ScoreboardUtils.color(parsed);
-                // Supprimer les codes couleur legacy (§x) pour obtenir la longueur visible
-                String visible = colored.replaceAll("§[0-9a-fk-or]", "").replaceAll("§x(§[0-9a-f]){6}", "");
+                String visible = stripColorCodes(colored);
                 maxLength = Math.max(maxLength, visible.length());
             }
         }

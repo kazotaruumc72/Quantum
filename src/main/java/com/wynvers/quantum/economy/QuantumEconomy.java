@@ -14,17 +14,43 @@ import java.util.List;
 
 /**
  * Quantum's internal economy implementation for Vault
- * This allows Quantum to function as an economy provider without external plugins
+ * Supports multiple currencies with configurable symbols
+ * The primary currency (first in config) is used for Vault integration
  */
 public class QuantumEconomy implements Economy {
     
     private final Quantum plugin;
-    private final String currencyName = "Dollar";
-    private final String currencyNamePlural = "Dollars";
-    private final double startingBalance = 0.0;
+    private final String currencyId;
+    private final String currencyName;
+    private final String currencyNamePlural;
+    private final String symbol;
+    private final double startingBalance;
+    private final String formatPattern;
     
-    public QuantumEconomy(Quantum plugin) {
+    public QuantumEconomy(Quantum plugin, String currencyId, String currencyName, 
+                          String currencyNamePlural, String symbol, 
+                          double startingBalance, String formatPattern) {
         this.plugin = plugin;
+        this.currencyId = currencyId;
+        this.currencyName = currencyName;
+        this.currencyNamePlural = currencyNamePlural;
+        this.symbol = symbol;
+        this.startingBalance = startingBalance;
+        this.formatPattern = formatPattern;
+    }
+    
+    /**
+     * Get the unique identifier of this currency
+     */
+    public String getCurrencyId() {
+        return currencyId;
+    }
+    
+    /**
+     * Get the currency symbol
+     */
+    public String getSymbol() {
+        return symbol;
     }
     
     @Override
@@ -39,7 +65,7 @@ public class QuantumEconomy implements Economy {
     
     @Override
     public boolean hasBankSupport() {
-        return false; // We don't support banks
+        return false;
     }
     
     @Override
@@ -49,7 +75,12 @@ public class QuantumEconomy implements Economy {
     
     @Override
     public String format(double amount) {
-        return String.format("%.2f %s", amount, amount == 1.0 ? currencyName : currencyNamePlural);
+        String formattedAmount = String.format("%.2f", amount);
+        String currency = amount == 1.0 ? currencyName : currencyNamePlural;
+        return formatPattern
+                .replace("%amount%", formattedAmount)
+                .replace("%symbol%", symbol)
+                .replace("%currency%", currency);
     }
     
     @Override
@@ -66,8 +97,9 @@ public class QuantumEconomy implements Economy {
     public boolean hasAccount(OfflinePlayer player) {
         try (Connection conn = plugin.getDatabaseManager().getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                     "SELECT 1 FROM quantum_player_balances WHERE uuid = ? LIMIT 1")) {
+                     "SELECT 1 FROM quantum_player_balances WHERE uuid = ? AND currency_id = ? LIMIT 1")) {
             ps.setString(1, player.getUniqueId().toString());
+            ps.setString(2, currencyId);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next();
             }
@@ -79,18 +111,16 @@ public class QuantumEconomy implements Economy {
     
     @Override
     public boolean hasAccount(OfflinePlayer player, String worldName) {
-        return hasAccount(player); // We don't use world-specific accounts
+        return hasAccount(player);
     }
     
     @Override
     public boolean hasAccount(String playerName) {
-        // Deprecated, but we need to implement it
         return false;
     }
     
     @Override
     public boolean hasAccount(String playerName, String worldName) {
-        // Deprecated, but we need to implement it
         return false;
     }
     
@@ -98,8 +128,9 @@ public class QuantumEconomy implements Economy {
     public double getBalance(OfflinePlayer player) {
         try (Connection conn = plugin.getDatabaseManager().getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                     "SELECT balance FROM quantum_player_balances WHERE uuid = ?")) {
+                     "SELECT balance FROM quantum_player_balances WHERE uuid = ? AND currency_id = ?")) {
             ps.setString(1, player.getUniqueId().toString());
+            ps.setString(2, currencyId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getDouble("balance");
@@ -113,18 +144,16 @@ public class QuantumEconomy implements Economy {
     
     @Override
     public double getBalance(OfflinePlayer player, String world) {
-        return getBalance(player); // We don't use world-specific balances
+        return getBalance(player);
     }
     
     @Override
     public double getBalance(String playerName) {
-        // Deprecated, but we need to implement it
         return 0.0;
     }
     
     @Override
     public double getBalance(String playerName, String world) {
-        // Deprecated, but we need to implement it
         return 0.0;
     }
     
@@ -140,13 +169,11 @@ public class QuantumEconomy implements Economy {
     
     @Override
     public boolean has(String playerName, double amount) {
-        // Deprecated, but we need to implement it
         return false;
     }
     
     @Override
     public boolean has(String playerName, String worldName, double amount) {
-        // Deprecated, but we need to implement it
         return false;
     }
     
@@ -167,9 +194,10 @@ public class QuantumEconomy implements Economy {
         
         try (Connection conn = plugin.getDatabaseManager().getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                     "UPDATE quantum_player_balances SET balance = balance - ? WHERE uuid = ?")) {
+                     "UPDATE quantum_player_balances SET balance = balance - ? WHERE uuid = ? AND currency_id = ?")) {
             ps.setDouble(1, amount);
             ps.setString(2, player.getUniqueId().toString());
+            ps.setString(3, currencyId);
             ps.executeUpdate();
             
             double newBalance = balance - amount;
@@ -187,13 +215,11 @@ public class QuantumEconomy implements Economy {
     
     @Override
     public EconomyResponse withdrawPlayer(String playerName, double amount) {
-        // Deprecated, but we need to implement it
         return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Use OfflinePlayer version");
     }
     
     @Override
     public EconomyResponse withdrawPlayer(String playerName, String worldName, double amount) {
-        // Deprecated, but we need to implement it
         return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Use OfflinePlayer version");
     }
     
@@ -209,9 +235,10 @@ public class QuantumEconomy implements Economy {
         
         try (Connection conn = plugin.getDatabaseManager().getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                     "UPDATE quantum_player_balances SET balance = balance + ? WHERE uuid = ?")) {
+                     "UPDATE quantum_player_balances SET balance = balance + ? WHERE uuid = ? AND currency_id = ?")) {
             ps.setDouble(1, amount);
             ps.setString(2, player.getUniqueId().toString());
+            ps.setString(3, currencyId);
             ps.executeUpdate();
             
             double newBalance = getBalance(player);
@@ -229,27 +256,26 @@ public class QuantumEconomy implements Economy {
     
     @Override
     public EconomyResponse depositPlayer(String playerName, double amount) {
-        // Deprecated, but we need to implement it
         return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Use OfflinePlayer version");
     }
     
     @Override
     public EconomyResponse depositPlayer(String playerName, String worldName, double amount) {
-        // Deprecated, but we need to implement it
         return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Use OfflinePlayer version");
     }
     
     @Override
     public boolean createPlayerAccount(OfflinePlayer player) {
         if (hasAccount(player)) {
-            return false; // Account already exists
+            return false;
         }
         
         try (Connection conn = plugin.getDatabaseManager().getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                     "INSERT INTO quantum_player_balances (uuid, balance) VALUES (?, ?)")) {
+                     "INSERT INTO quantum_player_balances (uuid, currency_id, balance) VALUES (?, ?, ?)")) {
             ps.setString(1, player.getUniqueId().toString());
-            ps.setDouble(2, startingBalance);
+            ps.setString(2, currencyId);
+            ps.setDouble(3, startingBalance);
             ps.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -264,7 +290,7 @@ public class QuantumEconomy implements Economy {
     }
     
     /**
-     * Supprime le compte économique d'un joueur
+     * Supprime le compte économique d'un joueur pour cette monnaie
      */
     public boolean deletePlayerAccount(OfflinePlayer player) {
         if (!hasAccount(player)) {
@@ -273,8 +299,9 @@ public class QuantumEconomy implements Economy {
         
         try (Connection conn = plugin.getDatabaseManager().getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                     "DELETE FROM quantum_player_balances WHERE uuid = ?")) {
+                     "DELETE FROM quantum_player_balances WHERE uuid = ? AND currency_id = ?")) {
             ps.setString(1, player.getUniqueId().toString());
+            ps.setString(2, currencyId);
             ps.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -285,13 +312,11 @@ public class QuantumEconomy implements Economy {
     
     @Override
     public boolean createPlayerAccount(String playerName) {
-        // Deprecated, but we need to implement it
         return false;
     }
     
     @Override
     public boolean createPlayerAccount(String playerName, String worldName) {
-        // Deprecated, but we need to implement it
         return false;
     }
     

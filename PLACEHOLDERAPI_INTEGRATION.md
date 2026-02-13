@@ -78,18 +78,31 @@ Use Quantum placeholders in any plugin that supports PlaceholderAPI:
 | `%quantum_storage_capacity%` | Storage capacity | `2000` |
 | `%quantum_storage_used_percent%` | Storage usage percentage | `62%` |
 
-### Economy Placeholders
+### Economy Placeholders (Primary Currency)
 
 | Placeholder | Description | Example Output |
 |-------------|-------------|----------------|
 | `%quantum_eco_balance%` | Player's current balance (raw number) | `1234.56` |
-| `%quantum_eco_balance_formatted%` | Player's balance formatted with currency | `1234.56 Dollars` |
+| `%quantum_eco_balance_formatted%` | Player's balance formatted with currency | `1234.56$` |
 | `%quantum_eco_currency%` | Currency name (singular) | `Dollar` |
 | `%quantum_eco_currency_plural%` | Currency name (plural) | `Dollars` |
+| `%quantum_eco_symbol%` | Currency symbol (supports Nexo glyphs) | `$` |
 | `%quantum_eco_total_buy%` | Total amount spent on purchases | `5000.00` |
 | `%quantum_eco_total_sell%` | Total amount earned from sales | `7500.00` |
 | `%quantum_eco_net_profit%` | Net profit (sales - purchases) | `2500.00` |
 | `%quantum_eco_transactions%` | Total number of transactions | `42` |
+
+### Per-Currency Placeholders (Multi-Currency)
+
+Replace `<id>` with the currency identifier from `config.yml` (e.g., `dollar`, `token`, `coin`).
+
+| Placeholder | Description | Example Output |
+|-------------|-------------|----------------|
+| `%quantum_eco_<id>_balance%` | Balance for specific currency | `500.00` |
+| `%quantum_eco_<id>_balance_formatted%` | Formatted balance for specific currency | `500.00⛃` |
+| `%quantum_eco_<id>_symbol%` | Symbol of specific currency (Nexo glyphs supported) | `⛃` |
+| `%quantum_eco_<id>_currency%` | Name of specific currency (singular) | `Token` |
+| `%quantum_eco_<id>_currency_plural%` | Name of specific currency (plural) | `Tokens` |
 
 ### Statistics Placeholders
 
@@ -127,6 +140,7 @@ scoreboard:
     - "&7Storage: &f%quantum_storage_items%&7/&f%quantum_storage_capacity%"
     - ""
     - "&7Balance: &a%quantum_eco_balance_formatted%"
+    - "&7Tokens: &e%quantum_eco_token_balance% %quantum_eco_token_symbol%"
 ```
 
 ### Chat Format

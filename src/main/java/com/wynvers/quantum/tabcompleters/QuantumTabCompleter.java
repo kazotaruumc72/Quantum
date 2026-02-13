@@ -292,12 +292,27 @@ public class QuantumTabCompleter implements TabCompleter {
         // Tab completion pour /quantum eco ou /quantum economy
         else if (args.length == 2 && (args[0].equalsIgnoreCase("eco") || args[0].equalsIgnoreCase("economy"))) {
             // Sous-commandes économie
-            completions.addAll(Arrays.asList("create", "delete", "balance", "bal", "give", "add", "take", "remove", "set"));
+            completions.addAll(Arrays.asList("create", "delete", "balance", "bal", "give", "add", "take", "remove", "set", "currencies", "list"));
         }
         else if (args.length == 3 && (args[0].equalsIgnoreCase("eco") || args[0].equalsIgnoreCase("economy"))) {
             // Pour create et delete : ne pas suggérer de pseudos de joueurs
             // La liste de complétion reste vide intentionnellement
             // pour éviter la complétion par défaut des pseudos
+        }
+        else if (args.length >= 2 && (args[0].equalsIgnoreCase("eco") || args[0].equalsIgnoreCase("economy"))) {
+            // Suggest currency IDs for optional currency parameter
+            String sub = args[1].toLowerCase();
+            boolean hasCurrencyArg = false;
+            if (sub.equals("create") || sub.equals("delete")) {
+                hasCurrencyArg = (args.length == 4);
+            } else if (sub.equals("balance") || sub.equals("bal")) {
+                hasCurrencyArg = (args.length == 3 || args.length == 4);
+            } else if (sub.equals("give") || sub.equals("add") || sub.equals("take") || sub.equals("remove") || sub.equals("set")) {
+                hasCurrencyArg = (args.length == 5);
+            }
+            if (hasCurrencyArg && plugin.getVaultManager() != null) {
+                completions.addAll(plugin.getVaultManager().getCurrencyIds());
+            }
         }
         
         // Filtrer selon l'input

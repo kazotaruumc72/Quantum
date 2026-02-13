@@ -123,13 +123,28 @@ public class DatabaseManager {
             st.executeUpdate("INSERT IGNORE INTO storage_stats (stat_key, stat_value) " +
                     "VALUES ('total_items_sold', 0)");
             
-            // Economy balances table for Quantum Economy
+            // Economy balances table for Quantum Economy (multi-currency)
             st.executeUpdate("CREATE TABLE IF NOT EXISTS quantum_player_balances (" +
-                    "uuid CHAR(36) NOT NULL PRIMARY KEY," +
+                    "uuid CHAR(36) NOT NULL," +
+                    "currency_id VARCHAR(64) NOT NULL DEFAULT 'dollar'," +
                     "balance DOUBLE NOT NULL DEFAULT 0.0," +
                     "last_update TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP " +
-                    "ON UPDATE CURRENT_TIMESTAMP" +
+                    "ON UPDATE CURRENT_TIMESTAMP," +
+                    "PRIMARY KEY (uuid, currency_id)" +
                     ")");
+            
+            // Migration: add currency_id column if table exists without it (single-currency → multi-currency)
+            // The old table had PRIMARY KEY (uuid) only, each uuid has exactly one row,
+            // so adding currency_id='dollar' and changing PK is safe (no duplicates possible)
+            try {
+                st.executeUpdate("ALTER TABLE quantum_player_balances " +
+                        "ADD COLUMN currency_id VARCHAR(64) NOT NULL DEFAULT 'dollar' AFTER uuid, " +
+                        "DROP PRIMARY KEY, " +
+                        "ADD PRIMARY KEY (uuid, currency_id)");
+                plugin.getQuantumLogger().info("✓ Migrated quantum_player_balances to multi-currency");
+            } catch (SQLException ignored) {
+                // Column already exists or table was already created with the new schema
+            }
             
             plugin.getQuantumLogger().success("✓ Database tables verified");
         } catch (SQLException e) {

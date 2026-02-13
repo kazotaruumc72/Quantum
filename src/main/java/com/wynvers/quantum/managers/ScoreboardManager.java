@@ -9,6 +9,7 @@ import org.bukkit.scoreboard.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 /**
  * ScoreboardManager - Gestion des scoreboards personnalisés
@@ -47,10 +48,13 @@ public class ScoreboardManager {
         );
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         
+        // Adapter dynamiquement les lignes séparatrices
+        List<String> adjustedLines = adjustSeparatorLines(player, lines);
+        
         // MÉTHODE MODERNE PAPER 1.20.3+ / 1.21+
         // Utiliser NumberFormat.blank() pour supprimer complètement les nombres
-        int score = lines.size();
-        for (String line : lines) {
+        int score = adjustedLines.size();
+        for (String line : adjustedLines) {
             // Parse les placeholders PUIS applique les couleurs (using internal parser)
             String parsedLine = plugin.getPlaceholderManager().parse(player, line);
             String colored = ScoreboardUtils.color(parsedLine);
@@ -127,30 +131,33 @@ public class ScoreboardManager {
         UUID uuid = player.getUniqueId();
         Map<Integer, String> cachedLines = lineCache.computeIfAbsent(uuid, k -> new HashMap<>());
         
+        // Adapter dynamiquement les lignes séparatrices
+        List<String> adjustedLines = adjustSeparatorLines(player, lines);
+        
         // Batch parse all placeholders at once to reduce PlaceholderAPI overhead
         StringBuilder batchText = new StringBuilder();
-        for (int i = 0; i < lines.size(); i++) {
+        for (int i = 0; i < adjustedLines.size(); i++) {
             if (i > 0) batchText.append("\n");
-            batchText.append(lines.get(i));
+            batchText.append(adjustedLines.get(i));
         }
         
         // Single internal placeholder parser call for all lines
         String parsedBatch = plugin.getPlaceholderManager().parse(player, batchText.toString());
         // Normalize line endings and split - handle both \r\n and \n
         // Use limit to ensure we get exactly the expected number of lines
-        String[] parsedLines = parsedBatch.replace("\r\n", "\n").split("\n", lines.size());
+        String[] parsedLines = parsedBatch.replace("\r\n", "\n").split("\n", adjustedLines.size());
         
         // Ensure we got the expected number of lines
-        if (parsedLines.length != lines.size()) {
+        if (parsedLines.length != adjustedLines.size()) {
             // Fallback to per-line parsing if batch parsing fails
-            parsedLines = new String[lines.size()];
-            for (int i = 0; i < lines.size(); i++) {
-                parsedLines[i] = plugin.getPlaceholderManager().parse(player, lines.get(i));
+            parsedLines = new String[adjustedLines.size()];
+            for (int i = 0; i < adjustedLines.size(); i++) {
+                parsedLines[i] = plugin.getPlaceholderManager().parse(player, adjustedLines.get(i));
             }
         }
         
-        int lineNumber = lines.size();
-        for (int i = 0; i < lines.size(); i++) {
+        int lineNumber = adjustedLines.size();
+        for (int i = 0; i < adjustedLines.size(); i++) {
             Team team = board.getTeam("line_" + lineNumber);
             if (team != null) {
                 // Apply colors to the already parsed line
@@ -222,5 +229,106 @@ public class ScoreboardManager {
      */
     public boolean isScoreboardEnabled(Player player) {
         return scoreboardEnabled.getOrDefault(player.getUniqueId(), true);
+    }
+    
+    // Pattern pour détecter les lignes séparatrices (composées uniquement de ━)
+    private static final Pattern SEPARATOR_PATTERN = Pattern.compile("^[━]+$");
+    
+    /**
+     * Vérifie si une ligne est une ligne séparatrice (composée uniquement de ━ après suppression des couleurs)
+     */
+    private boolean isSeparatorLine(String line) {
+        // Supprimer les tags MiniMessage et codes couleur legacy pour obtenir le texte visible
+        String stripped = line.replaceAll("<[^>]+>", "").replaceAll("§[0-9a-fk-or]", "").replaceAll("&[0-9a-fk-or]", "").trim();
+        return !stripped.isEmpty() && SEPARATOR_PATTERN.matcher(stripped).matches();
+    }
+    
+    /**
+     * Extrait le préfixe de couleur MiniMessage d'une ligne séparatrice
+     * Ex: "<dark_gray>━━━━━" retourne "<dark_gray>"
+     */
+    private String extractColorPrefix(String line) {
+        int lastTagEnd = 0;
+        int idx = 0;
+        while (idx < line.length()) {
+            if (line.charAt(idx) == '<') {
+                int close = line.indexOf('>', idx);
+                if (close >= 0) {
+                    lastTagEnd = close + 1;
+                    idx = close + 1;
+                } else {
+                    break;
+                }
+            } else if (line.charAt(idx) == '&' || line.charAt(idx) == '§') {
+                lastTagEnd = idx + 2;
+                idx += 2;
+            } else {
+                break;
+            }
+        }
+        return line.substring(0, lastTagEnd);
+    }
+    
+    /**
+     * Extrait le suffixe de fermeture MiniMessage d'une ligne séparatrice
+     * Ex: "<dark_gray>━━━━━</dark_gray>" retourne "</dark_gray>"
+     */
+    private String extractColorSuffix(String line) {
+        // Chercher les tags de fermeture à la fin de la ligne
+        String stripped = line.replaceAll("<[^>]+>", "").replaceAll("§[0-9a-fk-or]", "").replaceAll("&[0-9a-fk-or]", "");
+        String afterContent = line.substring(line.lastIndexOf(stripped.charAt(stripped.length() - 1)) + 1);
+        return afterContent;
+    }
+    
+    /**
+     * Calcule la longueur visible d'un texte (sans codes couleur ni tags MiniMessage)
+     */
+    private int getVisibleLength(String text) {
+        String stripped = text.replaceAll("<[^>]+>", "").replaceAll("§[0-9a-fk-or]", "").replaceAll("&[0-9a-fk-or]", "");
+        return stripped.length();
+    }
+    
+    /**
+     * Ajuste les lignes séparatrices pour correspondre à la longueur maximale de la première ligne.
+     * Parse les placeholders de toutes les lignes non-séparatrices pour calculer la longueur
+     * visible maximale, puis ajuste les séparatrices.
+     */
+    private List<String> adjustSeparatorLines(Player player, List<String> lines) {
+        // Trouver la longueur visible maximale des lignes de contenu (non-séparatrices)
+        int maxLength = 0;
+        for (String line : lines) {
+            if (!isSeparatorLine(line) && !line.trim().isEmpty()) {
+                String parsed = plugin.getPlaceholderManager().parse(player, line);
+                String colored = ScoreboardUtils.color(parsed);
+                // Supprimer les codes couleur legacy (§x) pour obtenir la longueur visible
+                String visible = colored.replaceAll("§[0-9a-fk-or]", "").replaceAll("§x(§[0-9a-f]){6}", "");
+                maxLength = Math.max(maxLength, visible.length());
+            }
+        }
+        
+        // Si aucune ligne de contenu, garder les lignes telles quelles
+        if (maxLength == 0) {
+            return lines;
+        }
+        
+        // Reconstruire les lignes avec les séparatrices ajustées
+        List<String> adjustedLines = new ArrayList<>(lines.size());
+        for (String line : lines) {
+            if (isSeparatorLine(line)) {
+                String prefix = extractColorPrefix(line);
+                String suffix = extractColorSuffix(line);
+                // Générer la séparatrice avec la longueur maximale
+                StringBuilder separator = new StringBuilder(prefix);
+                for (int i = 0; i < maxLength; i++) {
+                    separator.append("━");
+                }
+                separator.append(suffix);
+                adjustedLines.add(separator.toString());
+            } else {
+                adjustedLines.add(line);
+            }
+        }
+        
+        return adjustedLines;
     }
 }

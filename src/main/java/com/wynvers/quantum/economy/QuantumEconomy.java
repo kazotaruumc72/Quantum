@@ -263,6 +263,26 @@ public class QuantumEconomy implements Economy {
         return createPlayerAccount(player);
     }
     
+    /**
+     * Supprime le compte économique d'un joueur
+     */
+    public boolean deletePlayerAccount(OfflinePlayer player) {
+        if (!hasAccount(player)) {
+            return false;
+        }
+        
+        try (Connection conn = plugin.getDatabaseManager().getConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                     "DELETE FROM quantum_player_balances WHERE uuid = ?")) {
+            ps.setString(1, player.getUniqueId().toString());
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            plugin.getQuantumLogger().error("Error deleting player account: " + e.getMessage());
+            return false;
+        }
+    }
+    
     @Override
     public boolean createPlayerAccount(String playerName) {
         // Deprecated, but we need to implement it

@@ -411,7 +411,7 @@ public class QuantumCommand implements CommandExecutor {
         sender.sendMessage("§e/quantum stats [category] §7- Afficher les statistiques");
         sender.sendMessage("§e/quantum storagestats §7- Stats du storage");
         if (sender.hasPermission("quantum.admin")) {
-            sender.sendMessage("§e/quantum eco <create|balance|give|take|set> §7- Gestion économie");
+            sender.sendMessage("§e/quantum eco <create|delete|balance|give|take|set> §7- Gestion économie");
         }
         if (sender.hasPermission("quantum.structure.wand") || sender.hasPermission("quantum.admin")) {
             sender.sendMessage("§e/quantum structure <wand|create> §7- Gestion des structures");

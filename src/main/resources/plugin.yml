@@ -205,6 +205,7 @@ permissions:
       quantum.structure.*: true
       quantum.spawn.*: true
       quantum.chat.*: true
+      quantum.tab.*: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)

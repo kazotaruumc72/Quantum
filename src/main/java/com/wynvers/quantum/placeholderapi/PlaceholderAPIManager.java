@@ -34,7 +34,7 @@ public class PlaceholderAPIManager {
             if (expansion.register()) {
                 this.enabled = true;
                 plugin.getLogger().info("✓ PlaceholderAPI integration enabled! (v2.11.6)");
-                plugin.getLogger().info("  Available placeholders: %quantum_level%, %quantum_job%, %quantum_tower%, and more");
+                plugin.getLogger().info("  Available placeholders: %quantum_level%, %quantum_job%, %quantum_eco_balance%, %quantum_tower%, and more");
             } else {
                 plugin.getLogger().warning("Failed to register PlaceholderAPI expansion");
                 this.enabled = false;

@@ -78,6 +78,19 @@ Use Quantum placeholders in any plugin that supports PlaceholderAPI:
 | `%quantum_storage_capacity%` | Storage capacity | `2000` |
 | `%quantum_storage_used_percent%` | Storage usage percentage | `62%` |
 
+### Economy Placeholders
+
+| Placeholder | Description | Example Output |
+|-------------|-------------|----------------|
+| `%quantum_eco_balance%` | Player's current balance (raw number) | `1234.56` |
+| `%quantum_eco_balance_formatted%` | Player's balance formatted with currency | `1234.56 Dollars` |
+| `%quantum_eco_currency%` | Currency name (singular) | `Dollar` |
+| `%quantum_eco_currency_plural%` | Currency name (plural) | `Dollars` |
+| `%quantum_eco_total_buy%` | Total amount spent on purchases | `5000.00` |
+| `%quantum_eco_total_sell%` | Total amount earned from sales | `7500.00` |
+| `%quantum_eco_net_profit%` | Net profit (sales - purchases) | `2500.00` |
+| `%quantum_eco_transactions%` | Total number of transactions | `42` |
+
 ### Statistics Placeholders
 
 | Placeholder | Description | Example Output |
@@ -112,6 +125,8 @@ scoreboard:
     - "&7Floor: &f%quantum_tower_floor%"
     - ""
     - "&7Storage: &f%quantum_storage_items%&7/&f%quantum_storage_capacity%"
+    - ""
+    - "&7Balance: &a%quantum_eco_balance_formatted%"
 ```
 
 ### Chat Format

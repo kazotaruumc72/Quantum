@@ -169,6 +169,49 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return String.valueOf(plugin.getStatisticsManager().getItemsBought(offlinePlayer.getUniqueId()));
         }
 
+        // Economy placeholders (%quantum_eco_...)
+        if (params.equalsIgnoreCase("eco_balance")) {
+            if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "0";
+            return String.valueOf(plugin.getVaultManager().getBalance(offlinePlayer));
+        }
+
+        if (params.equalsIgnoreCase("eco_balance_formatted")) {
+            if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "0.00";
+            return plugin.getVaultManager().format(plugin.getVaultManager().getBalance(offlinePlayer));
+        }
+
+        if (params.equalsIgnoreCase("eco_currency")) {
+            if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "Dollar";
+            return plugin.getVaultManager().getCurrencyName();
+        }
+
+        if (params.equalsIgnoreCase("eco_currency_plural")) {
+            if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "Dollars";
+            return plugin.getVaultManager().getCurrencyNamePlural();
+        }
+
+        if (player != null) {
+            if (params.equalsIgnoreCase("eco_total_buy")) {
+                if (plugin.getTransactionHistoryManager() == null) return "0.00";
+                return String.format("%.2f", plugin.getTransactionHistoryManager().getTotalBuyAmount(player));
+            }
+
+            if (params.equalsIgnoreCase("eco_total_sell")) {
+                if (plugin.getTransactionHistoryManager() == null) return "0.00";
+                return String.format("%.2f", plugin.getTransactionHistoryManager().getTotalSellAmount(player));
+            }
+
+            if (params.equalsIgnoreCase("eco_net_profit")) {
+                if (plugin.getTransactionHistoryManager() == null) return "0.00";
+                return String.format("%.2f", plugin.getTransactionHistoryManager().getNetProfit(player));
+            }
+
+            if (params.equalsIgnoreCase("eco_transactions")) {
+                if (plugin.getTransactionHistoryManager() == null) return "0";
+                return String.valueOf(plugin.getTransactionHistoryManager().getTotalTransactionCount(player));
+            }
+        }
+
         // Home placeholders
         if (params.equalsIgnoreCase("homes")) {
             if (plugin.getHomeManager() == null) return "0";

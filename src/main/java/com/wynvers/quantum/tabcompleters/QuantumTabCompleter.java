@@ -35,6 +35,7 @@ public class QuantumTabCompleter implements TabCompleter {
             List<String> subcommands = new ArrayList<>(Arrays.asList(
                 "reload",
                 "stats",
+                "statistics",
                 "storagestats",
                 "sstats",
                 "help",
@@ -47,7 +48,10 @@ public class QuantumTabCompleter implements TabCompleter {
                 "info",
                 "mobspawnzone",
                 "setspawn",
-                "setfirstspawn"
+                "setfirstspawn",
+                "structure",
+                "eco",
+                "economy"
             ));
             
             // Ajouter orders si admin
@@ -158,6 +162,12 @@ public class QuantumTabCompleter implements TabCompleter {
                 "all",
                 "config",
                 "config.yml",
+                "armor",
+                "runes",
+                "dungeon",
+                "dungeon.yml",
+                "dungeon_armor",
+                "dungeon_armor.yml",
                 "price",
                 "price.yml",
                 "prices",
@@ -187,7 +197,29 @@ public class QuantumTabCompleter implements TabCompleter {
                 "healthbar",
                 "healthbars",
                 "mob_healthbar",
-                "mob_healthbar.yml"
+                "mob_healthbar.yml",
+                "scoreboard",
+                "scoreboard.yml",
+                "towerscoreboard",
+                "tower_scoreboard",
+                "mobskills",
+                "mob_skills",
+                "mob_skills.yml",
+                "mobanimations",
+                "mob_animations",
+                "furniture",
+                "furniture.yml",
+                "crops",
+                "custom_crops",
+                "custom_crops.yml",
+                "tools",
+                "tools.yml",
+                "structures",
+                "structures.yml",
+                "weapon",
+                "weapons",
+                "dungeon_weapon",
+                "dungeon_weapon.yml"
             );
             
             String input = args[1].toLowerCase();

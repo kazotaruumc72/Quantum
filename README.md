@@ -99,6 +99,7 @@ For detailed build instructions, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 - **[TAB Integration](TAB_INTEGRATION.md)** - TAB API and placeholders
 - **[PlaceholderAPI Integration](PLACEHOLDERAPI_INTEGRATION.md)** - Universal placeholders
 - **[Chat System](CHAT_SYSTEM.md)** - Complete formatted chat system
+- **[Tab Completion Summary](TAB_COMPLETION_SUMMARY.md)** - Complete tab completion for all commands
 - **[Deployment Guide](DEPLOYMENT_GUIDE.md)** - Building and deployment
 
 ### Configuration Files

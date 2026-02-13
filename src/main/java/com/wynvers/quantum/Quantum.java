@@ -729,13 +729,15 @@ public final class Quantum extends JavaPlugin {
         // Zone GUI Command
         if (zoneGUIManager != null && zoneSettingsGUI != null) {
             getCommand("zonegui").setExecutor(new ZoneGUICommand(this, zoneGUIManager, zoneSettingsGUI));
-            logger.success("✓ Zone GUI Command");
+            getCommand("zonegui").setTabCompleter(new com.wynvers.quantum.tabcompleters.ZoneGUITabCompleter(this));
+            logger.success("✓ Zone GUI Command + TabCompleter");
         }
         
         // Apartment Command (preparation phase)
         if (apartmentManager != null) {
             getCommand("apartment").setExecutor(new ApartmentCommand(this, apartmentManager));
-            logger.success("✓ Apartment Command (preparation phase)");
+            getCommand("apartment").setTabCompleter(new com.wynvers.quantum.tabcompleters.ApartmentTabCompleter());
+            logger.success("✓ Apartment Command + TabCompleter (preparation phase)");
         }
         
         // TAB Edit Command
@@ -743,7 +745,18 @@ public final class Quantum extends JavaPlugin {
             TabEditCommand tabEditCommand = new TabEditCommand(this);
             getCommand("tabedit").setExecutor(tabEditCommand);
             getCommand("tabedit").setTabCompleter(tabEditCommand);
-            logger.success("✓ TAB Edit Command registered");
+            
+            // Register tab completer for aliases
+            if (getCommand("tabconfig") != null) {
+                getCommand("tabconfig").setExecutor(tabEditCommand);
+                getCommand("tabconfig").setTabCompleter(tabEditCommand);
+            }
+            if (getCommand("tconfig") != null) {
+                getCommand("tconfig").setExecutor(tabEditCommand);
+                getCommand("tconfig").setTabCompleter(tabEditCommand);
+            }
+            
+            logger.success("✓ TAB Edit Command + TabCompleter (including aliases)");
         }
         
         // Chat Command

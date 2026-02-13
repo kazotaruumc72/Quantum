@@ -145,6 +145,7 @@ public final class Quantum extends JavaPlugin {
     
     // TAB Integration
     private TABManager tabManager;
+    private YamlConfiguration tabConfig;
     
     // PlaceholderAPI Integration
     private PlaceholderAPIManager placeholderAPIManager;
@@ -261,6 +262,7 @@ public final class Quantum extends JavaPlugin {
         initializeNewSystems();
         
         // TAB Integration
+        loadTabConfig();
         this.tabManager = new TABManager(this);
         
         // PlaceholderAPI Integration
@@ -346,7 +348,7 @@ public final class Quantum extends JavaPlugin {
         // Configuration des skills de mobs (MobSkillManager)
         extractResource("mob_skills.yml");
 
-        extractRessource("tab_config.yml");
+        extractResource("tab_config.yml");
 
         logger.success("✓ Default resources extracted");
     }
@@ -381,6 +383,21 @@ public final class Quantum extends JavaPlugin {
             logger.error("Failed to extract resource: " + resourcePath);
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Load tab_config.yml configuration.
+     * Must be called after extractDefaultResources() to ensure the file exists.
+     */
+    private void loadTabConfig() {
+        File configFile = new File(getDataFolder(), "tab_config.yml");
+        if (!configFile.exists()) {
+            logger.warning("tab_config.yml not found - TAB config not loaded");
+            this.tabConfig = new YamlConfiguration();
+            return;
+        }
+        this.tabConfig = YamlConfiguration.loadConfiguration(configFile);
+        logger.success("✓ tab_config.yml loaded");
     }
 
     // ───────────────────── Listeners globaux ─────────────────────
@@ -868,6 +885,10 @@ public final class Quantum extends JavaPlugin {
         
         if (mobAnimationManager != null) mobAnimationManager.reload();
 
+        // TAB config reload
+        loadTabConfig();
+        if (tabManager != null) tabManager.reload();
+
         RuneType.init(this);
         logger.success("✓ Dungeon armor & rune configs reloaded");
 
@@ -1087,6 +1108,14 @@ public final class Quantum extends JavaPlugin {
     
     public TABManager getTabManager() {
         return tabManager;
+    }
+    
+    /**
+     * Get the loaded tab_config.yml configuration.
+     * @return the TAB configuration, never null (empty config if file was missing)
+     */
+    public YamlConfiguration getTabConfig() {
+        return tabConfig;
     }
     
     public PlaceholderAPIManager getPlaceholderAPIManager() {

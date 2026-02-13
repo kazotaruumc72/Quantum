@@ -1,0 +1,655 @@
+# ============================================================================
+# TAB COMPLETION FUNCTIONS - QUANTUM PLUGIN
+# ============================================================================
+# This file documents all tab completion functions available in the Quantum plugin.
+# Each command has its own tab completer that provides smart auto-completion for arguments.
+# ============================================================================
+
+# ADMIN & CORE COMMANDS
+# ============================================================================
+quantum:
+  aliases: [q]
+  description: Main Quantum command with extensive sub-commands
+  tab_completion:
+    level_1:
+      - reload            # Reload plugin configurations
+      - stats             # View plugin statistics
+      - statistics        # Alias for stats
+      - storagestats      # View storage statistics
+      - sstats            # Short alias for storage stats
+      - help              # Show help information
+      - version           # Show plugin version
+      - tower             # Tower management
+      - door              # Tower door management
+      - npc               # NPC management
+      - progress          # View progress
+      - reset             # Reset data
+      - info              # Information commands
+      - mobspawnzone      # Mob spawn zone creation
+      - setspawn          # Set spawn location
+      - setfirstspawn     # Set first spawn location
+      - structure         # Structure management
+      - eco               # Economy commands
+      - economy           # Alias for eco
+      - orders            # Orders system (admin only - requires quantum.admin.orders)
+    
+    # Reload sub-command completions
+    reload:
+      level_2:
+        - all                    # Reload all configurations
+        - config                 # config.yml
+        - config.yml
+        - armor                  # Armor configurations
+        - runes                  # Rune configurations
+        - dungeon                # Dungeon configurations
+        - dungeon.yml
+        - dungeon_armor          # Dungeon armor
+        - dungeon_armor.yml
+        - price                  # Price configurations
+        - price.yml
+        - prices
+        - messages               # Message configurations
+        - messages.yml
+        - messages_gui           # GUI messages
+        - messages_gui.yml
+        - gui                    # GUI configurations
+        - menus                  # Menu configurations
+        - menu
+        - zones                  # Zone configurations
+        - zones.yml
+        - towers                 # Tower configurations
+        - tower
+        - escrow                 # Escrow system
+        - escrow.yml
+        - orders                 # Orders system
+        - orders_template.yml
+        - stats                  # Statistics
+        - statistics
+        - statistics.yml
+        - storage                # Storage configurations
+        - storage.yml
+        - animations             # Animation configurations
+        - animation
+        - animations.yml
+        - healthbar              # Health bar configurations
+        - healthbars
+        - mob_healthbar
+        - mob_healthbar.yml
+        - scoreboard             # Scoreboard configurations
+        - scoreboard.yml
+        - towerscoreboard
+        - tower_scoreboard
+        - mobskills              # Mob skills
+        - mob_skills
+        - mob_skills.yml
+        - mobanimations          # Mob animations
+        - mob_animations
+        - furniture              # Furniture system
+        - furniture.yml
+        - crops                  # Custom crops
+        - custom_crops
+        - custom_crops.yml
+        - tools                  # Tools system
+        - tools.yml
+        - structures             # Structures
+        - structures.yml
+        - weapon                 # Weapons
+        - weapons
+        - dungeon_weapon
+        - dungeon_weapon.yml
+    
+    # Stats sub-command completions
+    stats:
+      level_2:
+        - all                    # All statistics
+        - list                   # List statistics
+        - reload                 # Reload statistics
+        - recalculate            # Recalculate statistics
+        - cultures               # Crop statistics
+        - loots                  # Loot statistics
+        - items                  # Item statistics
+        - potions                # Potion statistics
+        - armures                # Armor statistics
+        - outils                 # Tool statistics
+        - autre                  # Other statistics
+        # NOTE: Additional categories are loaded dynamically from orders_template.yml
+    
+    # Tower sub-command completions
+    tower:
+      level_2:
+        - etage                  # Floor (French)
+        - étage                  # Floor with accent
+        - tp                     # Teleport to floor
+        - info                   # Tower information
+      level_3:
+        dynamic: tower_ids       # Tower IDs from TowerManager (e.g., obsidian_tower, crystal_tower)
+      level_4:
+        dynamic: floor_numbers   # Floor numbers based on selected tower (1-25+)
+    
+    # Door sub-command completions
+    door:
+      level_2:
+        - wand                   # Get door wand tool
+        - create                 # Create a door
+        - delete                 # Delete a door
+        - list                   # List doors
+      level_3:
+        dynamic: tower_ids       # Tower IDs for create/delete
+      level_4:
+        dynamic: floor_numbers   # Floor numbers for create/delete
+    
+    # NPC sub-command completions
+    npc:
+      level_2:
+        - set                    # Set NPC
+        - remove                 # Remove NPC
+        - list                   # List NPCs
+      level_3_set:
+        - goto                   # Set goto NPC
+      level_4_goto:
+        dynamic: tower_ids       # Tower ID for goto NPC
+      level_5_goto:
+        dynamic: floor_numbers   # Floor number for goto NPC
+      level_6_goto:
+        - <model_id>             # Model ID placeholder
+    
+    # Info sub-command completions
+    info:
+      level_2:
+        - animation              # Animation information
+        - anim                   # Short alias
+      level_3_animation:
+        - <model_id>             # Model ID placeholder
+      level_4_animation:
+        - idle                   # Animation types
+        - walk
+        - run
+        - attack
+        - death
+        - spawn
+        - hurt
+        - jump
+        - sit
+        - sleep
+    
+    # Mob spawn zone completions
+    mobspawnzone:
+      level_2:
+        - create                 # Create mob spawn zone
+      level_3_create:
+        dynamic: tower_ids       # Tower ID
+      level_4_create:
+        dynamic: floor_numbers   # Floor number
+    
+    # Orders admin completions (requires quantum.admin.orders)
+    orders:
+      level_2:
+        - button                 # Button management
+      level_3_button:
+        - createcategorie        # Create category
+        - deletecategorie        # Delete category
+      level_4:
+        dynamic: order_categories # Categories from orders_template.yml
+
+# TOWER COMMANDS
+# ============================================================================
+tower:
+  aliases: [towers, tour, tours]
+  description: Tower progression system
+  permission: quantum.tower.*
+  tab_completion:
+    level_1:
+      - progress               # View tower progress (quantum.tower.progress)
+      - reset                  # Reset tower progress (quantum.tower.reset - admin)
+      - tp                     # Teleport to tower floor (quantum.tower.teleport - admin)
+      - reload                 # Reload tower configs (quantum.tower.reload - admin)
+    level_2_progress:
+      # dynamic: player_names    # Player names (requires quantum.tower.progress.others)
+    level_2_reset:
+      # dynamic: player_names    # Player names (admin only)
+    level_2_tp:
+      # dynamic: tower_ids       # Tower IDs
+    level_3_tp:
+      # dynamic: floor_numbers   # Floor numbers
+
+# ARMOR & EQUIPMENT COMMANDS
+# ============================================================================
+armor:
+  aliases: [armure, armour, darmor]
+  description: Dungeon armor management
+  permission: quantum.armor.*
+  tab_completion:
+    level_1:
+      - equip                  # Equip armor piece
+      - unequip                # Unequip armor piece
+      - info                   # Armor information
+      - runes                  # Rune information
+      - help                   # Help information
+    level_2_equip:
+      - helmet                 # Armor slot types
+      - chestplate
+      - leggings
+      - boots
+    level_3_equip:
+      - common                 # Rarity levels
+      - uncommon
+      - rare
+      - epic
+      - legendary
+    level_2_unequip:
+      - helmet                 # Armor slot types
+      - chestplate
+      - leggings
+      - boots
+
+rune:
+  aliases: [runes]
+  description: Rune item management
+  permission: quantum.rune.*
+  tab_completion:
+    level_1:
+      - give                   # Give rune to player (quantum.rune.give)
+      - list                   # List available runes
+    level_2_give:
+      # dynamic: rune_types      # RuneType enum values (FIRE, WATER, EARTH, AIR, LIGHTNING, etc.)
+    level_3_give:
+      - "1"                    # Rune levels
+      - "2"
+      - "3"
+    level_4_give:
+      # dynamic: player_names    # Target player names
+
+weapon:
+  aliases: [dweapon, darme, arme]
+  description: Dungeon weapon management
+  permission: quantum.weapon.*
+  tab_completion:
+    level_1:
+      - upgrade                # Upgrade weapon (quantum.weapon.upgrade)
+      - info                   # Weapon information
+      - give                   # Give weapon (quantum.weapon.give - admin)
+
+tool:
+  aliases: [tools, outil, outils]
+  description: Upgradeable tools management
+  permission: quantum.tool.*
+  tab_completion:
+    level_1:
+      - upgrade                # Upgrade tool (quantum.tool.upgrade)
+      - info                   # Tool information
+      - give                   # Give tool (quantum.tool.give - admin)
+    level_2_give:
+      - pickaxe                # Tool types
+      - pioche                 # French: pickaxe
+      - axe                    # Axe
+      - hache                  # French: axe
+      - hoe                    # Hoe
+      - houe                   # French: hoe
+    level_3_give:
+      - "1"                    # Tool levels (1-5)
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+
+# STORAGE & INVENTORY COMMANDS
+# ============================================================================
+storage:
+  aliases: [store, st]
+  description: Open virtual storage
+  permission: quantum.storage.use
+  tab_completion:
+    level_1:
+      - open                   # Open storage (default)
+      - view                   # View player storage (admin - quantum.admin)
+      - clear                  # Clear storage (admin - quantum.admin)
+      - reload                 # Reload storage (admin - quantum.admin)
+    level_2_view:
+      # dynamic: player_names    # Player names (admin only)
+    level_2_clear:
+      # dynamic: player_names    # Player names (admin only)
+
+qstorage:
+  aliases: [quantumstorage, qs]
+  description: Manage storage (admin-only)
+  permission: quantum.admin
+  tab_completion:
+    level_1:
+      - transfer               # Transfer items to storage
+      - remove                 # Remove items from storage
+    level_2_transfer:
+      - item                   # Transfer specific item
+      - hand                   # Transfer item in hand
+      - all                    # Transfer all matching items
+      # dynamic: nexo_items      # Nexo item IDs (nexo:*)
+      # dynamic: minecraft_items # Minecraft item IDs (minecraft:*)
+    level_3_transfer:
+      - "1"                    # Amounts
+      - "16"
+      - "32"
+      - "64"
+    level_4_transfer_console:
+      # dynamic: player_names    # Player name (console only)
+    level_2_remove:
+      # dynamic: nexo_items      # Nexo item IDs
+      # dynamic: minecraft_items # Minecraft item IDs
+    level_3_remove:
+      # dynamic: inventory_amounts # Amounts based on current inventory
+    level_4_remove_console:
+      # dynamic: player_names    # Player name (console only)
+
+# JOBS SYSTEM COMMANDS
+# ============================================================================
+job:
+  aliases: [metier, jobs, metiers]
+  description: Manage your job
+  permission: quantum.job.use
+  tab_completion:
+    level_1:
+      - join                   # Join a job
+      - leave                  # Leave current job
+      - select                 # Select/switch job
+      - list                   # List available jobs
+      - info                   # Job information
+      - rewards                # View job rewards
+      - top                    # Job leaderboard
+    level_2_join:
+      # dynamic: job_ids         # Job IDs from JobManager
+    level_2_select:
+      # dynamic: job_ids         # Job IDs from JobManager
+    level_2_info:
+      # dynamic: job_ids         # Job IDs from JobManager (optional)
+
+jobadmin:
+  aliases: [jadmin, jobsadmin]
+  description: Manage player jobs (admin)
+  permission: quantum.job.admin
+  tab_completion:
+    level_1:
+      - set                    # Set player job
+      - addexp                 # Add job experience
+      - setlevel               # Set job level
+      - reset                  # Reset job progress
+      - info                   # View job info
+      - reload                 # Reload job configurations
+    level_2:
+      # dynamic: player_names    # Target player names
+    level_3_set:
+      # dynamic: job_ids         # Job IDs
+    level_3_addexp:
+      - "100"                  # Experience amounts
+      - "500"
+      - "1000"
+      - "5000"
+    level_3_setlevel:
+      - "1"                    # Job levels
+      - "5"
+      - "10"
+      - "25"
+      - "50"
+
+# EXPERIENCE & ECONOMY COMMANDS
+# ============================================================================
+qexp:
+  description: Manage player EXP
+  permission: quantum.exp.admin
+  tab_completion:
+    level_1:
+      # dynamic: player_names    # Target player
+    level_2:
+      - give                   # Give EXP
+      - take                   # Take EXP
+      - set                    # Set EXP
+      - reset                  # Reset EXP
+    level_3:
+      - "100"                  # EXP amounts
+      - "500"
+      - "1000"
+      - "5000"
+      - "10000"
+
+# HOME & TELEPORTATION COMMANDS
+# ============================================================================
+home:
+  aliases: [h]
+  description: Teleport to saved home
+  permission: quantum.home.use
+  tab_completion:
+    level_1:
+      # dynamic: player_homes    # Player's saved home names (dynamic from database)
+
+sethome:
+  description: Set home location
+  permission: quantum.home.set
+  tab_completion:
+    level_1:
+      - <name>                 # Home name placeholder
+
+delhome:
+  aliases: [removehome, deletehome]
+  description: Delete home location
+  permission: quantum.home.delete
+  tab_completion:
+    level_1:
+      # dynamic: player_homes    # Player's saved home names
+
+spawn:
+  description: Teleport to spawn
+  permission: quantum.spawn.use
+  tab_completion:
+    # No arguments
+
+apartment:
+  aliases: [apt, appart]
+  description: Manage apartments
+  permission: quantum.apartment.use
+  tab_completion:
+    level_1:
+      - create                 # Create apartment
+      - upgrade                # Upgrade apartment
+      - invite                 # Invite player
+      - remove                 # Remove player
+      - lock                   # Lock apartment
+      - unlock                 # Unlock apartment
+      - tp                     # Teleport to apartment
+      - teleport               # Alias for tp
+    level_2_create:
+      - <name>                 # Apartment name placeholder
+    level_2_invite:
+      # dynamic: player_names    # Player to invite
+    level_2_remove:
+      # dynamic: player_names    # Player to remove
+
+# UI & DISPLAY COMMANDS
+# ============================================================================
+menu:
+  aliases: [openmenu]
+  description: Open custom menu
+  permission: quantum.menu.open
+  tab_completion:
+    level_1:
+      - open                   # Open menu
+      - list                   # List menus (admin)
+      - reload                 # Reload menus (admin)
+    level_2_open:
+      - main                   # Example menu names
+      - shop
+      - settings
+      # dynamic: menu_names      # Menu names from config
+
+healthbar:
+  aliases: [hpbar, hp]
+  description: Change mob health display mode
+  permission: quantum.healthbar.use
+  tab_completion:
+    level_1:
+      - pourcentage            # Percentage display (French)
+      - coeurs                 # Hearts display (French)
+      - info                   # Current setting info
+
+qscoreboard:
+  aliases: [qsb]
+  description: Toggle scoreboard visibility
+  tab_completion:
+    level_1:
+      - on                     # Enable scoreboard
+      - off                    # Disable scoreboard
+      - status                 # Check status
+      - enable                 # Enable (alias)
+      - disable                # Disable (alias)
+      - show                   # Show (alias)
+      - hide                   # Hide (alias)
+      - activer                # Enable (French)
+      - desactiver             # Disable (French)
+      - statut                 # Status (French)
+      # dynamic: player_names    # Player names (admin only - quantum.admin)
+
+chat:
+  description: Manage chat system
+  permission: quantum.chat.admin
+  tab_completion:
+    level_1:
+      - reload                 # Reload chat configuration (quantum.chat.reload)
+
+tabedit:
+  aliases: [tabconfig, tconfig]
+  description: Edit TAB header/footer for groups
+  permission: quantum.tab.edit
+  tab_completion:
+    level_1:
+      - header                 # Edit header
+      - footer                 # Edit footer
+      - reload                 # Reload TAB config
+      - list                   # List TAB groups
+    level_2_header_footer:
+      # dynamic: tab_groups      # TAB group names (elite, mvp+, mvp, vip+, vip, default)
+    level_3:
+      - add                    # Add line
+      - remove                 # Remove line
+      - set                    # Set line
+      - clear                  # Clear all lines
+
+# SHOP & TRADING COMMANDS
+# ============================================================================
+offre:
+  aliases: [order, createorder]
+  description: Create buy order
+  permission: quantum.orders.create
+  tab_completion:
+    level_1:
+      # dynamic: order_items     # Item IDs from orders_template.yml
+    level_2:
+      - "1"                    # Quantity suggestions
+      - "8"
+      - "16"
+      - "32"
+      - "64"
+      - "128"
+      - "256"
+    level_3:
+      - "10"                   # Price suggestions
+      - "50"
+      - "100"
+      - "500"
+      - "1000"
+
+recherche:
+  aliases: [search, chercher]
+  description: Search for active orders
+  permission: quantum.orders.search
+  tab_completion:
+    level_1:
+      # dynamic: all_order_items # All item IDs from OrderManager
+
+rechercher:
+  aliases: [orders, ordres]
+  description: Open orders categories menu
+  permission: quantum.orders.search
+  tab_completion:
+    # No arguments - opens menu directly
+
+# ZONE & REGION COMMANDS
+# ============================================================================
+zonegui:
+  aliases: [zoneconfig, zgui]
+  description: Open zone configuration GUI
+  permission: quantum.zone.configure
+  tab_completion:
+    level_1:
+      # dynamic: worldguard_regions # WorldGuard region names from player's world
+
+zoneexit:
+  description: Force player to exit zone (console only)
+  tab_completion:
+    level_1:
+      # dynamic: player_names    # Player names
+
+# GAMEMODE SHORTCUTS
+# ============================================================================
+gmc:
+  description: Change to creative mode
+  permission: quantum.gamemode.creative
+  tab_completion:
+    # No arguments
+
+gms:
+  description: Change to survival mode
+  permission: quantum.gamemode.survival
+  tab_completion:
+    # No arguments
+
+gmsp:
+  description: Change to spectator mode
+  permission: quantum.gamemode.spectator
+  tab_completion:
+    # No arguments
+
+gma:
+  description: Change to adventure mode
+  permission: quantum.gamemode.adventure
+  tab_completion:
+    # No arguments
+
+# ============================================================================
+# DYNAMIC COMPLETION SOURCES
+# ============================================================================
+# This section describes where dynamic completions are loaded from:
+#
+# tower_ids:            TowerManager.getAllTowers()
+# floor_numbers:        TowerConfig.getTotalFloors() for specific tower
+# player_names:         Bukkit.getOnlinePlayers()
+# job_ids:              JobManager.getAvailableJobs()
+# rune_types:           RuneType enum values
+# order_items:          orders_template.yml categories and items
+# all_order_items:      OrderManager.getAllItems()
+# order_categories:     orders_template.yml root keys
+# player_homes:         Database query for player's saved homes
+# tab_groups:           tab_config.yml groups section
+# worldguard_regions:   WorldGuard API - player's current world regions
+# menu_names:           Menu configuration files in resources/menus/
+# nexo_items:           Nexo plugin item registry
+# minecraft_items:      Minecraft Material enum
+# inventory_amounts:    Based on player's current inventory quantities
+#
+# ============================================================================
+# PERMISSION-BASED FILTERING
+# ============================================================================
+# Many tab completers filter suggestions based on player permissions:
+#
+# - quantum.admin.orders: Shows "orders" sub-command in /quantum
+# - quantum.tower.progress.others: Shows other player names in /tower progress
+# - quantum.admin: Shows admin-only sub-commands in various commands
+# - quantum.tab.edit: Required for all /tabedit completions
+# - quantum.zone.configure: Required for /zonegui completions
+#
+# ============================================================================
+# NOTES
+# ============================================================================
+# - All tab completers filter results based on partial input matching
+# - Most completers are case-insensitive for user convenience
+# - Dynamic completions are fetched in real-time from managers and configs
+# - Some completions show placeholder text (e.g., <model_id>, <name>)
+# - Hierarchical commands support nested argument completion
+# - Console-only commands show appropriate player selection
+#
+# ============================================================================

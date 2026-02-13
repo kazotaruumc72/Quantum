@@ -190,6 +190,11 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return plugin.getVaultManager().getCurrencyNamePlural();
         }
 
+        if (params.equalsIgnoreCase("eco_symbol")) {
+            if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "$";
+            return plugin.getVaultManager().getSymbol();
+        }
+
         if (player != null) {
             if (params.equalsIgnoreCase("eco_total_buy")) {
                 if (plugin.getTransactionHistoryManager() == null) return "0.00";
@@ -209,6 +214,34 @@ public class QuantumExpansion extends PlaceholderExpansion {
             if (params.equalsIgnoreCase("eco_transactions")) {
                 if (plugin.getTransactionHistoryManager() == null) return "0";
                 return String.valueOf(plugin.getTransactionHistoryManager().getTotalTransactionCount(player));
+            }
+        }
+
+        // Per-currency placeholders: eco_<id>_balance, eco_<id>_balance_formatted, eco_<id>_symbol, etc.
+        if (plugin.getVaultManager() != null) {
+            String lowerParams = params.toLowerCase();
+            for (String currencyId : plugin.getVaultManager().getCurrencyIds()) {
+                String prefix = "eco_" + currencyId + "_";
+                if (lowerParams.startsWith(prefix)) {
+                    String subParam = lowerParams.substring(prefix.length());
+                    com.wynvers.quantum.economy.QuantumEconomy eco = plugin.getVaultManager().getCurrency(currencyId);
+                    if (eco == null) return "0";
+                    
+                    switch (subParam) {
+                        case "balance":
+                            return String.valueOf(eco.getBalance(offlinePlayer));
+                        case "balance_formatted":
+                            return eco.format(eco.getBalance(offlinePlayer));
+                        case "symbol":
+                            return eco.getSymbol();
+                        case "currency":
+                            return eco.currencyNameSingular();
+                        case "currency_plural":
+                            return eco.currencyNamePlural();
+                        default:
+                            return "0";
+                    }
+                }
             }
         }
 

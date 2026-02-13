@@ -757,10 +757,12 @@ public class PlaceholderManager {
     /**
      * Handle economy-related placeholders
      * Supports: eco_balance, eco_balance_formatted, eco_currency, eco_currency_plural,
-     *           eco_total_buy, eco_total_sell, eco_net_profit, eco_transactions
+     *           eco_symbol, eco_total_buy, eco_total_sell, eco_net_profit, eco_transactions
+     * Per-currency: eco_<id>_balance, eco_<id>_balance_formatted, eco_<id>_symbol,
+     *               eco_<id>_currency, eco_<id>_currency_plural
      */
     private String handleEcoPlaceholder(Player player, String params) {
-        // Balance placeholders (don't require online player for basic balance)
+        // Primary currency placeholders
         if (params.equals("eco_balance")) {
             if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "0";
             return String.valueOf(plugin.getVaultManager().getBalance(player));
@@ -779,6 +781,11 @@ public class PlaceholderManager {
         if (params.equals("eco_currency_plural")) {
             if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "Dollars";
             return plugin.getVaultManager().getCurrencyNamePlural();
+        }
+        
+        if (params.equals("eco_symbol")) {
+            if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "$";
+            return plugin.getVaultManager().getSymbol();
         }
         
         // Transaction-based placeholders
@@ -800,6 +807,33 @@ public class PlaceholderManager {
         if (params.equals("eco_transactions")) {
             if (plugin.getTransactionHistoryManager() == null) return "0";
             return String.valueOf(plugin.getTransactionHistoryManager().getTotalTransactionCount(player));
+        }
+        
+        // Per-currency placeholders: eco_<id>_balance, eco_<id>_balance_formatted, eco_<id>_symbol, etc.
+        if (plugin.getVaultManager() != null) {
+            for (String currencyId : plugin.getVaultManager().getCurrencyIds()) {
+                String prefix = "eco_" + currencyId + "_";
+                if (params.startsWith(prefix)) {
+                    String subParam = params.substring(prefix.length());
+                    com.wynvers.quantum.economy.QuantumEconomy eco = plugin.getVaultManager().getCurrency(currencyId);
+                    if (eco == null) return "0";
+                    
+                    switch (subParam) {
+                        case "balance":
+                            return String.valueOf(eco.getBalance(player));
+                        case "balance_formatted":
+                            return eco.format(eco.getBalance(player));
+                        case "symbol":
+                            return eco.getSymbol();
+                        case "currency":
+                            return eco.currencyNameSingular();
+                        case "currency_plural":
+                            return eco.currencyNamePlural();
+                        default:
+                            return "0";
+                    }
+                }
+            }
         }
         
         return "0";

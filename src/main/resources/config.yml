@@ -21,6 +21,73 @@ database:
 
 
 # ───────────────────────────────────────────────────────────────
+# ECONOMY
+# ───────────────────────────────────────────────────────────────
+# 
+# Configuration des monnaies du serveur
+# La première monnaie définie est la monnaie principale (utilisée par Vault)
+# 
+# Le champ 'symbol' accepte :
+#   - Caractères classiques : "$", "€", "£", "¥"
+#   - Unicode / emojis : "⛃", "◉", "✦"
+#   - Glyphes Nexo (MiniMessage) : "<glyph:coin_icon>"
+#   - Glyphes Nexo (PlaceholderAPI) : "%nexo_glyphid%"
+# 
+# Format disponible pour 'format':
+#   %amount%   - Le montant formaté (ex: 1234.56)
+#   %symbol%   - Le symbole de la monnaie
+#   %currency% - Le nom de la monnaie (singulier ou pluriel)
+# 
+# Placeholders PlaceholderAPI (monnaie principale):
+#   %quantum_eco_balance%                - Solde brut
+#   %quantum_eco_balance_formatted%      - Solde formaté avec symbole
+#   %quantum_eco_symbol%                 - Symbole de la monnaie
+#   %quantum_eco_currency%               - Nom (singulier)
+#   %quantum_eco_currency_plural%        - Nom (pluriel)
+#   %quantum_eco_total_buy%              - Total des achats
+#   %quantum_eco_total_sell%             - Total des ventes
+#   %quantum_eco_net_profit%             - Profit net
+#   %quantum_eco_transactions%           - Nombre de transactions
+# 
+# Placeholders par monnaie (remplacer <id> par l'identifiant):
+#   %quantum_eco_<id>_balance%           - Solde
+#   %quantum_eco_<id>_balance_formatted% - Solde formaté
+#   %quantum_eco_<id>_symbol%            - Symbole
+#   %quantum_eco_<id>_currency%          - Nom (singulier)
+#   %quantum_eco_<id>_currency_plural%   - Nom (pluriel)
+# 
+economy:
+  currencies:
+    # Monnaie principale (Dollar) - utilisée par Vault
+    dollar:
+      name: "Dollar"
+      name-plural: "Dollars"
+      symbol: "$"
+      starting-balance: 0.0
+      format: "%amount%%symbol%"
+    # Exemple avec un glyphe Nexo (décommentez pour activer)
+    # token:
+    #   name: "Token"
+    #   name-plural: "Tokens"
+    #   symbol: "<glyph:token_icon>"    # Glyphe Nexo via MiniMessage
+    #   starting-balance: 0.0
+    #   format: "%amount% %symbol%"
+    # Exemple avec un glyphe Nexo via PlaceholderAPI
+    # gem:
+    #   name: "Gem"
+    #   name-plural: "Gems"
+    #   symbol: "%nexo_gem_icon%"       # Glyphe Nexo via PlaceholderAPI
+    #   starting-balance: 0.0
+    #   format: "%symbol% %amount%"
+    # Exemple avec un caractère Unicode
+    # coin:
+    #   name: "Coin"
+    #   name-plural: "Coins"
+    #   symbol: "◉"                     # Caractère Unicode
+    #   starting-balance: 0.0
+    #   format: "%amount% %symbol%"
+
+# ───────────────────────────────────────────────────────────────
 # STORAGE
 # ───────────────────────────────────────────────────────────────
 storage:

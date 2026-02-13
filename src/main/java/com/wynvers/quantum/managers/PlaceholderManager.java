@@ -213,6 +213,11 @@ public class PlaceholderManager {
             return handleKillPlaceholder(player, params);
         }
         
+        // === ECONOMY ===
+        if (params.startsWith("eco_")) {
+            return handleEcoPlaceholder(player, params);
+        }
+        
         // === ORDER CREATION SESSION ===
         if (params.startsWith("order_")) {
             return handleOrderPlaceholder(player, params);
@@ -744,6 +749,57 @@ public class PlaceholderManager {
         // These should be handled via customPlaceholders in the menu rendering
         if (params.matches("history_\\d+_.*") || params.contains("{slot}")) {
             return ""; // Empty to avoid showing unresolved placeholders
+        }
+        
+        return "0";
+    }
+    
+    /**
+     * Handle economy-related placeholders
+     * Supports: eco_balance, eco_balance_formatted, eco_currency, eco_currency_plural,
+     *           eco_total_buy, eco_total_sell, eco_net_profit, eco_transactions
+     */
+    private String handleEcoPlaceholder(Player player, String params) {
+        // Balance placeholders (don't require online player for basic balance)
+        if (params.equals("eco_balance")) {
+            if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "0";
+            return String.valueOf(plugin.getVaultManager().getBalance(player));
+        }
+        
+        if (params.equals("eco_balance_formatted")) {
+            if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "0.00";
+            return plugin.getVaultManager().format(plugin.getVaultManager().getBalance(player));
+        }
+        
+        if (params.equals("eco_currency")) {
+            if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "Dollar";
+            return plugin.getVaultManager().getCurrencyName();
+        }
+        
+        if (params.equals("eco_currency_plural")) {
+            if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "Dollars";
+            return plugin.getVaultManager().getCurrencyNamePlural();
+        }
+        
+        // Transaction-based placeholders
+        if (params.equals("eco_total_buy")) {
+            if (plugin.getTransactionHistoryManager() == null) return "0.00";
+            return String.format("%.2f", plugin.getTransactionHistoryManager().getTotalBuyAmount(player));
+        }
+        
+        if (params.equals("eco_total_sell")) {
+            if (plugin.getTransactionHistoryManager() == null) return "0.00";
+            return String.format("%.2f", plugin.getTransactionHistoryManager().getTotalSellAmount(player));
+        }
+        
+        if (params.equals("eco_net_profit")) {
+            if (plugin.getTransactionHistoryManager() == null) return "0.00";
+            return String.format("%.2f", plugin.getTransactionHistoryManager().getNetProfit(player));
+        }
+        
+        if (params.equals("eco_transactions")) {
+            if (plugin.getTransactionHistoryManager() == null) return "0";
+            return String.valueOf(plugin.getTransactionHistoryManager().getTotalTransactionCount(player));
         }
         
         return "0";

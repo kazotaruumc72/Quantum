@@ -1,0 +1,171 @@
+# ====================================
+#  QUANTUM - Catalogue de Mobilier
+# ====================================
+# Catalogue public pour acheter du mobilier
+# Commande: /catalogue
+# Les joueurs peuvent parcourir les catégories
+# et acheter du mobilier pour leur appartement
+
+menu_title: '&6&l✦ Catalogue Mobilier ✦'
+open_command: catalogue
+size: 54
+
+items:
+  'title_info':
+    slot: 4
+    material: BOOKSHELF
+    amount: 1
+    display_name: '&6&lCatalogue de Mobilier'
+    lore:
+      - '&7Parcourez les catégories'
+      - '&7et achetez du mobilier'
+      - '&7pour votre appartement !'
+      - ''
+      - '&7Solde: &6%quantum_eco_balance_formatted%'
+
+  # ── CATÉGORIES ──
+  'cat_tapis':
+    slot: 19
+    material: WHITE_CARPET
+    amount: 1
+    display_name: '&f&l🟫 Tapis'
+    lore:
+      - '&7Parcourez notre collection'
+      - '&7de tapis et moquettes'
+      - ''
+      - '&eCliquez pour voir'
+    left_click:
+      actions:
+        - '[close]'
+        - '[menu] furniture_tapis'
+
+  'cat_chaises':
+    slot: 21
+    material: OAK_STAIRS
+    amount: 1
+    display_name: '&e&l🪑 Chaises & Sièges'
+    lore:
+      - '&7Parcourez notre collection'
+      - '&7de chaises et sièges'
+      - ''
+      - '&eCliquez pour voir'
+    left_click:
+      actions:
+        - '[close]'
+        - '[menu] furniture_chaises'
+
+  'cat_tables':
+    slot: 23
+    material: OAK_PRESSURE_PLATE
+    amount: 1
+    display_name: '&6&l🪵 Tables'
+    lore:
+      - '&7Parcourez notre collection'
+      - '&7de tables et bureaux'
+      - ''
+      - '&eCliquez pour voir'
+    left_click:
+      actions:
+        - '[close]'
+        - '[menu] furniture_tables'
+
+  'cat_lumiere':
+    slot: 25
+    material: LANTERN
+    amount: 1
+    display_name: '&b&l💡 Éclairage'
+    lore:
+      - '&7Parcourez notre collection'
+      - '&7de lampes et lumières'
+      - ''
+      - '&eCliquez pour voir'
+    left_click:
+      actions:
+        - '[close]'
+        - '[menu] furniture_lumiere'
+
+  'cat_deco':
+    slot: 29
+    material: FLOWER_POT
+    amount: 1
+    display_name: '&d&l🌸 Décoration'
+    lore:
+      - '&7Parcourez notre collection'
+      - '&7d''objets décoratifs'
+      - ''
+      - '&eCliquez pour voir'
+    left_click:
+      actions:
+        - '[close]'
+        - '[menu] furniture_deco'
+
+  'cat_rangement':
+    slot: 31
+    material: CHEST
+    amount: 1
+    display_name: '&a&l📦 Rangement'
+    lore:
+      - '&7Parcourez notre collection'
+      - '&7de meubles de rangement'
+      - ''
+      - '&eCliquez pour voir'
+    left_click:
+      actions:
+        - '[close]'
+        - '[menu] furniture_rangement'
+
+  'cat_autre':
+    slot: 33
+    material: ITEM_FRAME
+    amount: 1
+    display_name: '&7&l✨ Autre'
+    lore:
+      - '&7Parcourez le reste'
+      - '&7de notre catalogue'
+      - ''
+      - '&eCliquez pour voir'
+    left_click:
+      actions:
+        - '[close]'
+        - '[menu] furniture_autre'
+
+  'my_catalogue':
+    slot: 40
+    material: ENDER_CHEST
+    amount: 1
+    display_name: '&d&l📦 Mon Mobilier'
+    lore:
+      - '&7Voir votre mobilier personnel'
+      - '&7et le placer dans votre appartement'
+      - ''
+      - '&eCliquez pour voir'
+    left_click:
+      actions:
+        - '[close]'
+        - '[menu] personnal_catalogue'
+
+  'filler':
+    slots:
+      - 0-3
+      - 5-8
+      - 9-18
+      - 20
+      - 22
+      - 24
+      - 26-28
+      - 30
+      - 32
+      - 34-39
+      - 41-44
+    material: BLACK_STAINED_GLASS_PANE
+    amount: 1
+    display_name: ' '
+
+  'close':
+    slot: 49
+    material: BARRIER
+    amount: 1
+    display_name: '&c&lFermer'
+    left_click:
+      actions:
+        - '[close]'

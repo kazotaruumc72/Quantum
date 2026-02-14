@@ -111,7 +111,8 @@ public class TowerInventoryManager {
         SavedInventory(PlayerInventory inv) {
             this.contents = cloneArray(inv.getContents());
             this.armor = cloneArray(inv.getArmorContents());
-            this.offhand = inv.getItemInOffHand().clone();
+            ItemStack offhandItem = inv.getItemInOffHand();
+            this.offhand = offhandItem != null ? offhandItem.clone() : null;
         }
 
         void restoreTo(PlayerInventory inv) {

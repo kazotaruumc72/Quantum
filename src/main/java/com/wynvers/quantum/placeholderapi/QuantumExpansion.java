@@ -2,16 +2,18 @@ package com.wynvers.quantum.placeholderapi;
 
 import com.wynvers.quantum.Quantum;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+
 /**
  * PlaceholderAPI Expansion for Quantum Plugin
  * Provides custom placeholders for use with PlaceholderAPI
  * Reference: https://github.com/PlaceholderAPI/PlaceholderAPI
- * Version: 2.11.6 (Compatible with Minecraft 1.21.11)
  */
 public class QuantumExpansion extends PlaceholderExpansion {
 
@@ -38,7 +40,8 @@ public class QuantumExpansion extends PlaceholderExpansion {
 
     @Override
     public boolean persist() {
-        return true; // This expansion should persist through reloads
+        // This expansion should persist through reloads
+        return true;
     }
 
     @Override
@@ -52,27 +55,38 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return null;
         }
 
-        // Get online player if available
+        // Normalisation en minuscules
+        String p = params.toLowerCase();
         Player player = offlinePlayer.getPlayer();
-        
-        // Level placeholders
-        if (params.equalsIgnoreCase("level")) {
+
+        // ==========================
+        // NIVEAU / EXP (scoreboard)
+        // ==========================
+        // Aliases :
+        // %quantum_level%            -> level
+        // %quantum_player_level%     -> player_level
+        // %quantum_exp%              -> exp
+        // %quantum_player_exp%       -> player_exp
+        // %quantum_exp_required%     -> exp_required
+        // %quantum_player_exp_required% -> player_exp_required
+
+        if (p.equals("level") || p.equals("player_level")) {
             if (plugin.getPlayerLevelManager() == null) return "0";
             return String.valueOf(plugin.getPlayerLevelManager().getLevel(offlinePlayer.getUniqueId()));
         }
-        
-        if (params.equalsIgnoreCase("exp")) {
+
+        if (p.equals("exp") || p.equals("player_exp")) {
             if (plugin.getPlayerLevelManager() == null) return "0";
             return String.valueOf(plugin.getPlayerLevelManager().getExp(offlinePlayer.getUniqueId()));
         }
-        
-        if (params.equalsIgnoreCase("exp_required")) {
+
+        if (p.equals("exp_required") || p.equals("player_exp_required")) {
             if (plugin.getPlayerLevelManager() == null) return "0";
             int level = plugin.getPlayerLevelManager().getLevel(offlinePlayer.getUniqueId());
             return String.valueOf(plugin.getPlayerLevelManager().getExpForLevel(level + 1));
         }
-        
-        if (params.equalsIgnoreCase("exp_progress")) {
+
+        if (p.equals("exp_progress")) {
             if (plugin.getPlayerLevelManager() == null) return "0%";
             int level = plugin.getPlayerLevelManager().getLevel(offlinePlayer.getUniqueId());
             int currentExp = plugin.getPlayerLevelManager().getExp(offlinePlayer.getUniqueId());
@@ -82,62 +96,106 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return progress + "%";
         }
 
-        // Job placeholders
-        if (params.equalsIgnoreCase("job")) {
+        // ============
+        // JOB SYSTEM
+        // ============
+        if (p.equals("job")) {
             if (plugin.getJobManager() == null) return "None";
             var jobData = plugin.getJobManager().getPlayerJob(offlinePlayer.getUniqueId());
             if (jobData == null) return "None";
             var job = plugin.getJobManager().getJob(jobData.getJobId());
             return job != null ? job.getDisplayName() : "Unknown";
         }
-        
-        if (params.equalsIgnoreCase("job_level")) {
+
+        if (p.equals("job_level")) {
             if (plugin.getJobManager() == null) return "0";
             var jobData = plugin.getJobManager().getPlayerJob(offlinePlayer.getUniqueId());
             return jobData != null ? String.valueOf(jobData.getLevel()) : "0";
         }
-        
-        if (params.equalsIgnoreCase("job_exp")) {
+
+        if (p.equals("job_exp")) {
             if (plugin.getJobManager() == null) return "0";
             var jobData = plugin.getJobManager().getPlayerJob(offlinePlayer.getUniqueId());
             return jobData != null ? String.valueOf(jobData.getExperience()) : "0";
         }
 
-        // Tower placeholders (require online player)
+        // =================
+        // TOWER (joueur)
+        // =================
         if (player != null) {
-            if (params.equalsIgnoreCase("tower")) {
+            if (p.equals("tower")) {
                 if (plugin.getTowerManager() == null) return "None";
                 var tower = plugin.getTowerManager().getPlayerTower(player);
                 return tower != null ? tower.getId() : "None";
             }
-            
-            if (params.equalsIgnoreCase("tower_name")) {
+
+            if (p.equals("tower_name")) {
                 if (plugin.getTowerManager() == null) return "None";
                 var tower = plugin.getTowerManager().getPlayerTower(player);
                 return tower != null ? tower.getName() : "None";
             }
-            
-            if (params.equalsIgnoreCase("tower_floor")) {
+
+            if (p.equals("tower_floor")) {
                 if (plugin.getTowerManager() == null) return "0";
                 return String.valueOf(plugin.getTowerManager().getPlayerFloor(player.getUniqueId()));
             }
         }
 
-        // Storage placeholders
-        if (params.equalsIgnoreCase("storage_items")) {
+        // ===========================
+        // TOWERS GLOBAL (scoreboard)
+        // ===========================
+        if (p.equals("towers_completed") || p.equals("towers_total") || p.equals("towers_percentage")) {
+            if (plugin.getTowerManager() == null) return "0";
+
+            var towerManager = plugin.getTowerManager();
+            Map<String, com.wynvers.quantum.towers.TowerConfig> towers = towerManager.getAllTowers();
+            if (towers.isEmpty()) return "0";
+
+            com.wynvers.quantum.towers.TowerProgress progress =
+                    towerManager.getProgress(offlinePlayer.getUniqueId());
+
+            if (p.equals("towers_completed")) {
+                return String.valueOf(progress.getCompletedTowersCount(towers));
+            }
+
+            if (p.equals("towers_total")) {
+                return String.valueOf(towers.size());
+            }
+
+            // towers_percentage
+            int totalFloors = 0;
+            int completedFloors = 0;
+
+            for (Map.Entry<String, com.wynvers.quantum.towers.TowerConfig> entry : towers.entrySet()) {
+                String towerId = entry.getKey();
+                com.wynvers.quantum.towers.TowerConfig tower = entry.getValue();
+                totalFloors += tower.getTotalFloors();
+                completedFloors += progress.getFloorProgress(towerId);
+            }
+
+            if (totalFloors == 0) return "0";
+            double percentage = (completedFloors * 100.0) / totalFloors;
+            return String.format("%.1f", percentage);
+        }
+
+        // ==============
+        // STORAGE
+        // ==============
+        if (p.equals("storage_items")) {
             if (plugin.getStorageManager() == null) return "0";
             var storage = plugin.getStorageManager().getPlayerStorage(offlinePlayer.getUniqueId());
             return storage != null ? String.valueOf(storage.getTotalItemCount()) : "0";
         }
-        
-        if (params.equalsIgnoreCase("storage_capacity")) {
+
+        // utilisé pour la 2ᵉ valeur du scoreboard
+        if (p.equals("storage_capacity")) {
             if (plugin.getStorageManager() == null || plugin.getStorageUpgradeManager() == null) return "0";
-            if (player == null) return "0"; // Need online player to get capacity
+            if (player == null) return "0"; // nécessite un joueur en ligne
             var state = plugin.getStorageUpgradeManager().getState(player);
             return String.valueOf(plugin.getStorageUpgradeManager().getMaxStacks(state));
         }
-        
-        if (params.equalsIgnoreCase("storage_used_percent")) {
+
+        if (p.equals("storage_used_percent")) {
             if (plugin.getStorageManager() == null || plugin.getStorageUpgradeManager() == null) return "0%";
             var storage = plugin.getStorageManager().getPlayerStorage(offlinePlayer.getUniqueId());
             if (storage == null || player == null) return "0%";
@@ -148,85 +206,92 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return percent + "%";
         }
 
-        // Statistics placeholders
-        if (params.equalsIgnoreCase("orders_created")) {
+        // ====================
+        // STATISTIQUES ORDERS
+        // ====================
+        if (p.equals("orders_created")) {
             if (plugin.getStatisticsManager() == null) return "0";
             return String.valueOf(plugin.getStatisticsManager().getOrdersCreated(offlinePlayer.getUniqueId()));
         }
-        
-        if (params.equalsIgnoreCase("orders_filled")) {
+
+        if (p.equals("orders_filled")) {
             if (plugin.getStatisticsManager() == null) return "0";
             return String.valueOf(plugin.getStatisticsManager().getOrdersFilled(offlinePlayer.getUniqueId()));
         }
-        
-        if (params.equalsIgnoreCase("items_sold")) {
+
+        if (p.equals("items_sold")) {
             if (plugin.getStatisticsManager() == null) return "0";
             return String.valueOf(plugin.getStatisticsManager().getItemsSold(offlinePlayer.getUniqueId()));
         }
-        
-        if (params.equalsIgnoreCase("items_bought")) {
+
+        if (p.equals("items_bought")) {
             if (plugin.getStatisticsManager() == null) return "0";
             return String.valueOf(plugin.getStatisticsManager().getItemsBought(offlinePlayer.getUniqueId()));
         }
 
-        // Economy placeholders (%quantum_eco_...)
-        if (params.equalsIgnoreCase("eco_balance")) {
+        // =========
+        // ECONOMIE
+        // =========
+        if (p.equals("eco_balance")) {
             if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "0";
             return String.valueOf(plugin.getVaultManager().getBalance(offlinePlayer));
         }
 
-        if (params.equalsIgnoreCase("eco_balance_formatted")) {
+        if (p.equals("eco_balance_formatted")) {
             if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "0.00";
             return plugin.getVaultManager().format(plugin.getVaultManager().getBalance(offlinePlayer));
         }
 
-        if (params.equalsIgnoreCase("eco_currency")) {
+        if (p.equals("eco_currency")) {
             if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "Dollar";
             return plugin.getVaultManager().getCurrencyName();
         }
 
-        if (params.equalsIgnoreCase("eco_currency_plural")) {
+        if (p.equals("eco_currency_plural")) {
             if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "Dollars";
             return plugin.getVaultManager().getCurrencyNamePlural();
         }
 
-        if (params.equalsIgnoreCase("eco_symbol")) {
+        if (p.equals("eco_symbol")) {
             if (plugin.getVaultManager() == null || !plugin.getVaultManager().isEnabled()) return "$";
             return plugin.getVaultManager().getSymbol();
         }
 
         if (player != null) {
-            if (params.equalsIgnoreCase("eco_total_buy")) {
+            if (p.equals("eco_total_buy")) {
                 if (plugin.getTransactionHistoryManager() == null) return "0.00";
                 return String.format("%.2f", plugin.getTransactionHistoryManager().getTotalBuyAmount(player));
             }
 
-            if (params.equalsIgnoreCase("eco_total_sell")) {
+            if (p.equals("eco_total_sell")) {
                 if (plugin.getTransactionHistoryManager() == null) return "0.00";
                 return String.format("%.2f", plugin.getTransactionHistoryManager().getTotalSellAmount(player));
             }
 
-            if (params.equalsIgnoreCase("eco_net_profit")) {
+            if (p.equals("eco_net_profit")) {
                 if (plugin.getTransactionHistoryManager() == null) return "0.00";
                 return String.format("%.2f", plugin.getTransactionHistoryManager().getNetProfit(player));
             }
 
-            if (params.equalsIgnoreCase("eco_transactions")) {
+            if (p.equals("eco_transactions")) {
                 if (plugin.getTransactionHistoryManager() == null) return "0";
                 return String.valueOf(plugin.getTransactionHistoryManager().getTotalTransactionCount(player));
             }
         }
 
-        // Per-currency placeholders: eco_<id>_balance, eco_<id>_balance_formatted, eco_<id>_symbol, etc.
+        // ==========================
+        // ECONOMIE MULTI‑DEVISES
+        // ==========================
         if (plugin.getVaultManager() != null) {
-            String lowerParams = params.toLowerCase();
+            String lowerParams = p;
             for (String currencyId : plugin.getVaultManager().getCurrencyIds()) {
-                String prefix = "eco_" + currencyId + "_";
+                String prefix = "eco_" + currencyId.toLowerCase() + "_";
                 if (lowerParams.startsWith(prefix)) {
                     String subParam = lowerParams.substring(prefix.length());
-                    com.wynvers.quantum.economy.QuantumEconomy eco = plugin.getVaultManager().getCurrency(currencyId);
+                    com.wynvers.quantum.economy.QuantumEconomy eco =
+                            plugin.getVaultManager().getCurrency(currencyId);
                     if (eco == null) return "0";
-                    
+
                     switch (subParam) {
                         case "balance":
                             return String.valueOf(eco.getBalance(offlinePlayer));
@@ -245,13 +310,15 @@ public class QuantumExpansion extends PlaceholderExpansion {
             }
         }
 
-        // Home placeholders
-        if (params.equalsIgnoreCase("homes")) {
+        // =========
+        // HOMES
+        // =========
+        if (p.equals("homes")) {
             if (plugin.getHomeManager() == null) return "0";
             return String.valueOf(plugin.getHomeManager().getHomeCount(offlinePlayer.getUniqueId()));
         }
-        
-        if (params.equalsIgnoreCase("homes_max")) {
+
+        if (p.equals("homes_max")) {
             if (player == null || plugin.getHomeManager() == null) return "0";
             return String.valueOf(plugin.getHomeManager().getMaxHomes(player));
         }

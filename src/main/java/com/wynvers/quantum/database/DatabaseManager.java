@@ -13,6 +13,7 @@ public class DatabaseManager {
 
     private final Quantum plugin;
     private Connection connection;
+    private boolean connected;
 
     public DatabaseManager(Quantum plugin) {
         this.plugin = plugin;
@@ -58,7 +59,10 @@ public class DatabaseManager {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             this.connection = DriverManager.getConnection(url, user, pass);
-            plugin.getQuantumLogger().success("Connected to MySQL database '" + db + "'");
+            if (!connected) {
+                plugin.getQuantumLogger().success("Connected to MySQL database '" + db + "'");
+                connected = true;
+            }
         } catch (Exception e) {
             plugin.getQuantumLogger().error("Failed to connect to MySQL: " + e.getMessage());
             e.printStackTrace();
@@ -67,6 +71,7 @@ public class DatabaseManager {
 
     public Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
+            connected = false;
             connect();
         }
         return connection;

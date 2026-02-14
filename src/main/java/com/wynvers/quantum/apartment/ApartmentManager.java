@@ -436,7 +436,8 @@ public class ApartmentManager {
     private void startContractCheckTask() {
         // Check contracts every 5 minutes (6000 ticks)
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
-            for (Apartment apt : apartments.values()) {
+            List<Apartment> snapshot = new ArrayList<>(apartments.values());
+            for (Apartment apt : snapshot) {
                 if (apt.getOwnerId() != null && apt.isContractExpired()) {
                     Bukkit.getScheduler().runTask(plugin, () -> handleContractExpiry(apt));
                 }

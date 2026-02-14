@@ -145,7 +145,18 @@ public class PlaceholderManager {
             return String.valueOf(plugin.getPlayerLevelManager()
                     .getExp(player.getUniqueId()));
         }
-    
+
+
+                // === SERVER INFO ===
+        // %quantum_online% - Joueurs en ligne
+        if (params.equals("online")) {
+            return String.valueOf(org.bukkit.Bukkit.getOnlinePlayers().size());
+        }
+
+        // %quantum_max_players% - Maximum de joueurs
+        if (params.equals("max_players")) {
+            return String.valueOf(org.bukkit.Bukkit.getMaxPlayers());
+        }
         // %quantum_exp_required% ou %quantum_player_exp_required%
         if (params.equals("player_exp_required") || params.equals("exp_required")) {
             if (plugin.getPlayerLevelManager() == null) return "0";

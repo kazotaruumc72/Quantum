@@ -191,4 +191,11 @@ public class SpawnManager {
     public boolean hasFirstSpawn() {
         return firstSpawn != null;
     }
+
+    /**
+     * Get the plugin instance
+     */
+    public Quantum getPlugin() {
+        return plugin;
+    }
 }

@@ -165,9 +165,15 @@ commands:
     permission: quantum.zone.configure
   
   apartment:
-    description: Manage your apartment (Preparation Phase)
-    usage: /apartment [create|upgrade|invite|remove|lock|unlock|tp]
+    description: Manage your apartment
+    usage: /apartment [create|upgrade|invite|remove|lock|unlock|tp|contrat|catalogue]
     aliases: [apt, appart]
+    permission: quantum.apartment.use
+
+  catalogue:
+    description: Open furniture catalogue to buy furniture for your apartment
+    usage: /catalogue
+    aliases: [catalog, mobilier]
     permission: quantum.apartment.use
   
   chat:
@@ -592,5 +598,26 @@ permissions:
   
   quantum.tab.vip:
     description: VIP TAB header and footer
+    default: false
+
+  # Join/Leave message permissions (LuckPerms)
+  quantum.join.elite:
+    description: Elite join/leave message format
+    default: false
+
+  quantum.join.mvp+:
+    description: MVP+ join/leave message format
+    default: false
+
+  quantum.join.mvp:
+    description: MVP join/leave message format
+    default: false
+
+  quantum.join.vip+:
+    description: VIP+ join/leave message format
+    default: false
+
+  quantum.join.vip:
+    description: VIP join/leave message format
     default: false
 

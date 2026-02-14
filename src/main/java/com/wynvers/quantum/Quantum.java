@@ -326,6 +326,11 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/statistics.yml");
         extractResource("menus/rune_equipment.yml");
 
+        extractResource("menus/quantum_admin.yml");
+        extractResource("menus/deadline_adder.yml");
+        extractResource("menus/personnal_catalogue.yml");
+        extractResource("menus/furniture_catalogue.yml");
+
         // Templates / messages
         extractResource("orders_template.yml");
         extractResource("messages.yml");
@@ -754,11 +759,24 @@ public final class Quantum extends JavaPlugin {
             logger.success("✓ Zone GUI Command + TabCompleter");
         }
         
-        // Apartment Command (preparation phase)
+        // Apartment Command
         if (apartmentManager != null) {
             getCommand("apartment").setExecutor(new ApartmentCommand(this, apartmentManager));
             getCommand("apartment").setTabCompleter(new com.wynvers.quantum.tabcompleters.ApartmentTabCompleter());
-            logger.success("✓ Apartment Command + TabCompleter (preparation phase)");
+            logger.success("✓ Apartment Command + TabCompleter");
+        }
+
+        // Catalogue Command (furniture catalogue)
+        if (apartmentManager != null && menuManager != null) {
+            getCommand("catalogue").setExecutor((sender, cmd, label, args) -> {
+                if (sender instanceof org.bukkit.entity.Player player) {
+                    menuManager.openMenu(player, "furniture_catalogue");
+                } else {
+                    sender.sendMessage("§cCette commande ne peut être utilisée que par un joueur.");
+                }
+                return true;
+            });
+            logger.success("✓ Catalogue Command (furniture catalogue)");
         }
         
         // TAB Edit Command

@@ -194,7 +194,7 @@ public class QScoreboardCommand implements CommandExecutor {
         if (sender.equals(target)) {
             sender.sendMessage(ScoreboardUtils.color(statusMsg));
         } else {
-            String msg = statusMsg + " §7pour " + target.getName();
+            String msg = statusMsg + " <gray>pour " + target.getName() + "</gray>";
             sender.sendMessage(ScoreboardUtils.color(msg));
         }
     }

@@ -13,38 +13,29 @@ scoreboard:
   lines:
     - "<dark_gray>━━━━━━━━━━━━━━━━━━━━"
     - ""
-    - "<gold><bold>Niveau:</bold></gold>"
-    - "  <white>%quantum_player_level%</white> <gray>(%quantum_player_exp%/%quantum_player_exp_required%)</gray>"
-    - ""
-    - "<aqua><bold>Stockage:</bold></aqua>"
-    - "  <white>%quantum_storage_items%</white> <gray>items</gray>"
-    - "  <white>%quantum_storage_total%</white> <gray>total</gray>"
-    - ""
-    - "<light_purple><bold>Tours:</bold></light_purple>"
-    - "  <white>%quantum_towers_completed%/%quantum_towers_total%</white>"
-    - "  <gray>(%quantum_towers_percentage%%)</gray>"
-    - ""
-    - "<yellow><bold>En ligne:</bold></yellow>"
-    - "  <white>%server_online%</white><gray>/<white>%server_max_players%</white>"
+    - "<gold><bold>Niveau:</bold></gold> <white>%quantum_player_level%</white> <gray>(%quantum_player_exp%/%quantum_player_exp_required%)</gray>"
+    - "<aqua><bold>Stockage:</bold></aqua> <white>%quantum_storage_items%</white><gray>/</gray><white>%quantum_storage_total%</white>"
+    - "<light_purple><bold>Tours:</bold></light_purple> <white>%quantum_towers_completed%/%quantum_towers_total%</white> <gray>(%quantum_towers_percentage%%)</gray>"
+    - "<yellow><bold>En ligne:</bold></yellow> <white>%server_online%</white><gray>/</gray><white>%server_max_players%</white>"
     - ""
     - "<dark_gray>━━━━━━━━━━━━━━━━━━━━"
 
 # Messages pour les commandes scoreboard
 messages:
-  scoreboard_enabled: "&aScoreboard activé!"
-  scoreboard_disabled: "&cScoreboard désactivé!"
+  scoreboard_enabled: "<green>Scoreboard activé!</green>"
+  scoreboard_disabled: "<red>Scoreboard désactivé!</red>"
   
   status:
-    enabled: "&aVotre scoreboard est activé"
-    disabled: "&cVotre scoreboard est désactivé"
+    enabled: "<green>Votre scoreboard est activé</green>"
+    disabled: "<red>Votre scoreboard est désactivé</red>"
   
   admin:
-    scoreboard_enabled: "&aScoreboard activé pour &e{player}"
-    scoreboard_disabled: "&cScoreboard désactivé pour &e{player}"
+    scoreboard_enabled: "<green>Scoreboard activé pour <yellow>{player}</yellow></green>"
+    scoreboard_disabled: "<red>Scoreboard désactivé pour <yellow>{player}</yellow></red>"
   
   errors:
-    player_only: "&cCette commande ne peut être exécutée que par un joueur!"
-    player_not_found: "&cJoueur &e{player} &cintrouvable!"
-    no_permission: "&cVous n'avez pas la permission d'utiliser cette commande!"
-    invalid_usage: "&cUtilisation: /qscoreboard [on|off|status] [joueur]"
-    invalid_action: "&cAction invalide! Utilisez: on, off ou status"
+    player_only: "<red>Cette commande ne peut être exécutée que par un joueur!</red>"
+    player_not_found: "<red>Joueur <yellow>{player}</yellow> introuvable!</red>"
+    no_permission: "<red>Vous n'avez pas la permission d'utiliser cette commande!</red>"
+    invalid_usage: "<red>Utilisation: /qscoreboard [on|off|status] [joueur]</red>"
+    invalid_action: "<red>Action invalide! Utilisez: on, off ou status</red>"

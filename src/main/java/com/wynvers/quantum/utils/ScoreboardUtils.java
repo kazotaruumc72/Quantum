@@ -8,11 +8,17 @@ import org.bukkit.ChatColor;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Collections;
+import java.util.regex.Pattern;
 
 public class ScoreboardUtils {
     
     // Instance statique de MiniMessage pour parsing
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    
+    // Pattern pour détecter les tags MiniMessage (ex: <red>, <bold>, <gradient:#FFF:#000>, </red>, <#FF0000>)
+    private static final Pattern MINIMESSAGE_TAG_PATTERN = Pattern.compile(
+        "</?[a-z_#][a-z0-9_:#.]*(?:\\s[^>]*)?>", Pattern.CASE_INSENSITIVE
+    );
     
     // Serializer pour convertir Component en legacy text (§c format)
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = 
@@ -69,27 +75,11 @@ public class ScoreboardUtils {
         }
         
         // Détecter si c'est du MiniMessage (contient des tags)
-        // Optimisé: vérifier d'abord les conditions de base avant les checks détaillés
+        // Utilise un pattern regex pour détecter tout tag MiniMessage valide
         boolean isMiniMessage = false;
         int openBracket = text.indexOf('<');
         if (openBracket >= 0 && text.indexOf('>', openBracket) > openBracket) {
-            // Quick check for common MiniMessage patterns
-            isMiniMessage = text.contains("<gradient:") || 
-                text.contains("<bold>") || 
-                text.contains("<italic>") || 
-                text.contains("<underlined>") || 
-                text.contains("<strikethrough>") || 
-                text.contains("<obfuscated>") ||
-                text.contains("<color:") ||
-                text.contains("<rainbow>") ||
-                text.contains("</") || // Closing tags
-                // Named colors (most common ones only)
-                text.contains("<gold>") || 
-                text.contains("<gray>") || 
-                text.contains("<aqua>") || 
-                text.contains("<red>") || 
-                text.contains("<yellow>") || 
-                text.contains("<white>");
+            isMiniMessage = MINIMESSAGE_TAG_PATTERN.matcher(text).find();
         }
         
         String result;

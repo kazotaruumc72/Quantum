@@ -123,33 +123,40 @@ public class PlaceholderManager {
         if (player == null) {
             return "0";
         }
-
-        if (params.equals("player_level") || params.equals("level")) {
-            if (plugin.getPlayerLevelManager() == null) return "0";
-            return String.valueOf(plugin.getPlayerLevelManager()
-                    .getLevel(player.getUniqueId()));
-        }
-        
-        // %quantum_exp% ou %quantum_player_exp%
-        if (params.equals("player_exp") || params.equals("exp")) {
-            if (plugin.getPlayerLevelManager() == null) return "0";
-            return String.valueOf(plugin.getPlayerLevelManager()
-                    .getExp(player.getUniqueId()));
-        }
-        
-        // %quantum_exp_required% ou %quantum_player_exp_required%
-        if (params.equals("player_exp_required") || params.equals("exp_required")) {
-            if (plugin.getPlayerLevelManager() == null) return "0";
-            int level = plugin.getPlayerLevelManager().getLevel(player.getUniqueId());
-            return String.valueOf(plugin.getPlayerLevelManager()
-                    .getExpForLevel(level + 1));
-        }
         
         // Strip "quantum_" prefix if present to normalize placeholder names
         // After this, 'params' contains the core placeholder name (e.g., "mode", "order_item_name")
         String params = placeholder;
         if (params.startsWith("quantum_")) {
             params = params.substring(8); // Remove "quantum_" prefix
+        }
+
+        String params = placeholder;
+        if (params.startsWith("quantum_")) {
+            params = params.substring(8); // Remove "quantum_" prefix
+        }
+    
+        // === PLAYER LEVEL / EXP ===
+        // %quantum_level% ou %quantum_player_level%
+        if (params.equals("player_level") || params.equals("level")) {
+            if (plugin.getPlayerLevelManager() == null) return "0";
+            return String.valueOf(plugin.getPlayerLevelManager()
+                    .getLevel(player.getUniqueId()));
+        }
+    
+        // %quantum_exp% ou %quantum_player_exp%
+        if (params.equals("player_exp") || params.equals("exp")) {
+            if (plugin.getPlayerLevelManager() == null) return "0";
+            return String.valueOf(plugin.getPlayerLevelManager()
+                    .getExp(player.getUniqueId()));
+        }
+    
+        // %quantum_exp_required% ou %quantum_player_exp_required%
+        if (params.equals("player_exp_required") || params.equals("exp_required")) {
+            if (plugin.getPlayerLevelManager() == null) return "0";
+            int level = plugin.getPlayerLevelManager().getLevel(player.getUniqueId());
+            return String.valueOf(plugin.getPlayerLevelManager()
+                    .getExpForLevel(level + 1));
         }
         
         // === STORAGE MODE ===

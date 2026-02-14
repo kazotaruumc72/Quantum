@@ -130,11 +130,6 @@ public class PlaceholderManager {
         if (params.startsWith("quantum_")) {
             params = params.substring(8); // Remove "quantum_" prefix
         }
-
-        String params = placeholder;
-        if (params.startsWith("quantum_")) {
-            params = params.substring(8); // Remove "quantum_" prefix
-        }
     
         // === PLAYER LEVEL / EXP ===
         // %quantum_level% ou %quantum_player_level%

@@ -1,0 +1,166 @@
+# ========================================
+#  QUANTUM - Catalogue Mobilier
+# ========================================
+#
+# Liste de tous les meubles disponibles à l'achat
+# Chaque meuble est défini par:
+#   nexo_id: ID Nexo du furniture
+#   categorie: Catégorie dans le catalogue (tapis, chaises, tables, lumiere, deco, rangement, autre)
+#   prix: Prix d'achat en dollars
+#
+# Les catégories correspondent aux sous-menus:
+#   tapis     → furniture_tapis.yml
+#   chaises   → furniture_chaises.yml
+#   tables    → furniture_tables.yml
+#   lumiere   → furniture_lumiere.yml
+#   deco      → furniture_deco.yml
+#   rangement → furniture_rangement.yml
+#   autre     → furniture_autre.yml
+
+mobilier:
+  # ── TAPIS ──
+  tapis_blanc:
+    nexo_id: "tapis_blanc"
+    categorie: "tapis"
+    prix: 500
+
+  tapis_rouge:
+    nexo_id: "tapis_rouge"
+    categorie: "tapis"
+    prix: 500
+
+  tapis_bleu:
+    nexo_id: "tapis_bleu"
+    categorie: "tapis"
+    prix: 500
+
+  moquette_grise:
+    nexo_id: "moquette_grise"
+    categorie: "tapis"
+    prix: 750
+
+  # ── CHAISES & SIÈGES ──
+  chaise_bois:
+    nexo_id: "chaise_bois"
+    categorie: "chaises"
+    prix: 300
+
+  chaise_moderne:
+    nexo_id: "chaise_moderne"
+    categorie: "chaises"
+    prix: 600
+
+  fauteuil:
+    nexo_id: "fauteuil"
+    categorie: "chaises"
+    prix: 1000
+
+  canape:
+    nexo_id: "canape"
+    categorie: "chaises"
+    prix: 1500
+
+  # ── TABLES ──
+  table_bois:
+    nexo_id: "table_bois"
+    categorie: "tables"
+    prix: 400
+
+  table_moderne:
+    nexo_id: "table_moderne"
+    categorie: "tables"
+    prix: 800
+
+  bureau:
+    nexo_id: "bureau"
+    categorie: "tables"
+    prix: 1200
+
+  table_basse:
+    nexo_id: "table_basse"
+    categorie: "tables"
+    prix: 600
+
+  # ── ÉCLAIRAGE ──
+  lampe_bureau:
+    nexo_id: "lampe_bureau"
+    categorie: "lumiere"
+    prix: 250
+
+  lampadaire:
+    nexo_id: "lampadaire"
+    categorie: "lumiere"
+    prix: 500
+
+  lustre:
+    nexo_id: "lustre"
+    categorie: "lumiere"
+    prix: 1500
+
+  lanterne_murale:
+    nexo_id: "lanterne_murale"
+    categorie: "lumiere"
+    prix: 350
+
+  # ── DÉCORATION ──
+  vase_fleurs:
+    nexo_id: "vase_fleurs"
+    categorie: "deco"
+    prix: 200
+
+  tableau:
+    nexo_id: "tableau"
+    categorie: "deco"
+    prix: 400
+
+  plante_pot:
+    nexo_id: "plante_pot"
+    categorie: "deco"
+    prix: 150
+
+  miroir:
+    nexo_id: "miroir"
+    categorie: "deco"
+    prix: 350
+
+  # ── RANGEMENT ──
+  armoire:
+    nexo_id: "armoire"
+    categorie: "rangement"
+    prix: 1000
+
+  commode:
+    nexo_id: "commode"
+    categorie: "rangement"
+    prix: 800
+
+  etagere:
+    nexo_id: "etagere"
+    categorie: "rangement"
+    prix: 500
+
+  coffre_deco:
+    nexo_id: "coffre_deco"
+    categorie: "rangement"
+    prix: 600
+
+  # ── AUTRE ──
+  tele:
+    nexo_id: "tele"
+    categorie: "autre"
+    prix: 2000
+
+  horloge:
+    nexo_id: "horloge"
+    categorie: "autre"
+    prix: 300
+
+  aquarium:
+    nexo_id: "aquarium"
+    categorie: "autre"
+    prix: 1500
+
+  tapis_roulant:
+    nexo_id: "tapis_roulant"
+    categorie: "autre"
+    prix: 2500

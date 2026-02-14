@@ -330,6 +330,13 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/deadline_adder.yml");
         extractResource("menus/personnal_catalogue.yml");
         extractResource("menus/furniture_catalogue.yml");
+        extractResource("menus/furniture_tapis.yml");
+        extractResource("menus/furniture_chaises.yml");
+        extractResource("menus/furniture_tables.yml");
+        extractResource("menus/furniture_lumiere.yml");
+        extractResource("menus/furniture_deco.yml");
+        extractResource("menus/furniture_rangement.yml");
+        extractResource("menus/furniture_autre.yml");
 
         // Templates / messages
         extractResource("orders_template.yml");
@@ -338,6 +345,7 @@ public final class Quantum extends JavaPlugin {
         
         // NEW: Furniture, Crops, Tools, and Weapon configs
         extractResource("furniture.yml");
+        extractResource("mobilier.yml");
         extractResource("custom_crops.yml");
         extractResource("tools.yml");
         extractResource("structures.yml");

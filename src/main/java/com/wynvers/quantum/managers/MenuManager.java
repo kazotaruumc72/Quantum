@@ -391,6 +391,16 @@ public class MenuManager {
         activeMenus.remove(player.getUniqueId());
     }
     
+    public void openMenu(Player player, String menuId) {
+        Menu menu = getMenu(menuId);
+        if (menu == null) {
+            plugin.getQuantumLogger().warning("Menu introuvable: " + menuId);
+            return;
+        }
+        
+        menu.open(player, plugin);
+    }
+    
     public void openMenuWithSession(Player player, String menuId, OrderCreationSession session, ItemStack displayItem) {
         Menu menu = getMenu(menuId);
         if (menu == null) {

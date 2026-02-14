@@ -107,6 +107,13 @@ public class ApartmentCommand implements CommandExecutor {
         }
 
         String name = args[1];
+
+        // Validate apartment name (alphanumeric + underscore, max 32 chars)
+        if (name.length() > 32 || !name.matches("[a-zA-Z0-9_-]+")) {
+            player.sendMessage("§cNom invalide. Utilisez uniquement des lettres, chiffres, - et _ (max 32 caractères).");
+            return;
+        }
+
         Apartment.Size size = Apartment.Size.SMALL;
 
         if (args.length >= 3) {

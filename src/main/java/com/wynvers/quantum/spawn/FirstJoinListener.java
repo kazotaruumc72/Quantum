@@ -88,11 +88,14 @@ public class FirstJoinListener implements Listener {
     }
 
     /**
-     * Parse placeholders and convert MiniMessage to Component
+     * Parse placeholders and convert MiniMessage to Component.
+     * Player name is escaped to prevent MiniMessage injection.
      */
     private Component parsePlaceholders(String message, Player player) {
+        // Escape player name to prevent MiniMessage tag injection
+        String safeName = miniMessage.escapeTags(player.getName());
         String parsed = message
-                .replace("%player%", player.getName())
+                .replace("%player%", safeName)
                 .replace("%online%", String.valueOf(Bukkit.getOnlinePlayers().size()))
                 .replace("%max_players%", String.valueOf(Bukkit.getMaxPlayers()));
         return miniMessage.deserialize(parsed);

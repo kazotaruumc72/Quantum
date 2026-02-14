@@ -37,6 +37,21 @@ public class PlaceholderManager {
     public String parse(Player player, String text) {
         if (text == null) {
             return text;
+
+                    // CRITICAL FIX: Protect vanilla Java format strings from placeholder parsing
+        final String VANILLA_MARKER = "\u0001VF\u0001";
+        Map<String, String> vanillaFormats = new java.util.HashMap<>();
+        int idx = 0;
+        Pattern vanillaPattern = Pattern.compile("%(s|d|f|n|x|o|e|g|a|h|b|c)");
+        Matcher vanillaMatcher = vanillaPattern.matcher(text);
+        StringBuffer tempText = new StringBuffer();
+        while (vanillaMatcher.find()) {
+            String marker = VANILLA_MARKER + idx++;
+            vanillaFormats.put(marker, vanillaMatcher.group());
+            vanillaMatcher.appendReplacement(tempText, Matcher.quoteReplacement(marker));
+        }
+        vanillaMatcher.appendTail(tempText);
+        text = tempText.toString();
         }
 
         // Use regex to find and replace all placeholders
@@ -50,7 +65,12 @@ public class PlaceholderManager {
         }
         matcher.appendTail(result);
         
-        return result.toString();
+        
+        // CRITICAL FIX: Restore vanilla format strings
+        String finalResult = result.toString();
+        for (Map.Entry<String, String> entry : vanillaFormats.entrySet()) {
+            finalResult = finalResult.replace(entry.getKey(), entry.getValue());
+        }
     }
     
     /**

@@ -40,7 +40,7 @@ public class PlaceholderManager {
 
                     // CRITICAL FIX: Protect vanilla Java format strings from placeholder parsing
         final String VANILLA_MARKER = "\u0001VF\u0001";
-        Map<String, String> vanillaFormats = new java.util.HashMap<>();
+        vanillaFormats = new java.util.HashMap<>();
         int idx = 0;
         Pattern vanillaPattern = Pattern.compile("%(s|d|f|n|x|o|e|g|a|h|b|c)");
         Matcher vanillaMatcher = vanillaPattern.matcher(text);
@@ -67,6 +67,7 @@ public class PlaceholderManager {
         
         
         // CRITICAL FIX: Restore vanilla format strings
+                Map<String, String> vanillaFormats = new java.util.HashMap<>();
         String finalResult = result.toString();
         for (Map.Entry<String, String> entry : vanillaFormats.entrySet()) {
             finalResult = finalResult.replace(entry.getKey(), entry.getValue());

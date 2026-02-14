@@ -1,0 +1,162 @@
+# ====================================
+#  QUANTUM - Ajout de Deadline Appartement
+# ====================================
+# Menu pour prolonger le contrat d'un appartement
+# Le prix varie selon la taille de l'appartement
+# Commande: /appart contrat adddeadline
+
+menu_title: '&6&l✦ Prolonger le Contrat ✦'
+size: 27
+
+items:
+  'info_head':
+    slot: 4
+    material: PLAYER_HEAD
+    amount: 1
+    skull_owner: '%player%'
+    display_name: '&e&lVotre Appartement'
+    lore:
+      - '&7Taille: &f%quantum_apartment_size%'
+      - '&7Expire: &f%quantum_apartment_deadline%'
+      - ''
+      - '&7Choisissez une durée ci-dessous'
+
+  'add_7_days':
+    slot: 10
+    material: PAPER
+    amount: 7
+    display_name: '&a&l+7 Jours'
+    lore:
+      - '&7Prolonge votre contrat de 7 jours'
+      - ''
+      - '&7Prix: &6500$ &8(Petit)'
+      - '&7Prix: &6750$ &8(Moyen)'
+      - '&7Prix: &61000$ &8(Grand)'
+      - ''
+      - '&eCliquez pour acheter'
+    left_click:
+      actions:
+        - '[close]'
+        - '[console] apartment adddeadline %player% 7'
+        - '[message] &a✔ Contrat prolongé de 7 jours !'
+        - '[sound] ENTITY_PLAYER_LEVELUP'
+
+  'add_14_days':
+    slot: 11
+    material: PAPER
+    amount: 14
+    display_name: '&a&l+14 Jours'
+    lore:
+      - '&7Prolonge votre contrat de 14 jours'
+      - ''
+      - '&7Prix: &6900$ &8(Petit)'
+      - '&7Prix: &61350$ &8(Moyen)'
+      - '&7Prix: &61800$ &8(Grand)'
+      - ''
+      - '&eCliquez pour acheter'
+    left_click:
+      actions:
+        - '[close]'
+        - '[console] apartment adddeadline %player% 14'
+        - '[message] &a✔ Contrat prolongé de 14 jours !'
+        - '[sound] ENTITY_PLAYER_LEVELUP'
+
+  'add_30_days':
+    slot: 12
+    material: PAPER
+    amount: 30
+    display_name: '&e&l+30 Jours'
+    lore:
+      - '&7Prolonge votre contrat de 30 jours'
+      - ''
+      - '&7Prix: &61500$ &8(Petit)'
+      - '&7Prix: &62250$ &8(Moyen)'
+      - '&7Prix: &63000$ &8(Grand)'
+      - ''
+      - '&eCliquez pour acheter'
+    left_click:
+      actions:
+        - '[close]'
+        - '[console] apartment adddeadline %player% 30'
+        - '[message] &a✔ Contrat prolongé de 30 jours !'
+        - '[sound] ENTITY_PLAYER_LEVELUP'
+
+  'add_60_days':
+    slot: 14
+    material: GOLD_INGOT
+    amount: 1
+    display_name: '&6&l+60 Jours'
+    lore:
+      - '&7Prolonge votre contrat de 60 jours'
+      - ''
+      - '&7Prix: &62500$ &8(Petit)'
+      - '&7Prix: &63750$ &8(Moyen)'
+      - '&7Prix: &65000$ &8(Grand)'
+      - ''
+      - '&eCliquez pour acheter'
+    left_click:
+      actions:
+        - '[close]'
+        - '[console] apartment adddeadline %player% 60'
+        - '[message] &a✔ Contrat prolongé de 60 jours !'
+        - '[sound] ENTITY_PLAYER_LEVELUP'
+
+  'add_90_days':
+    slot: 15
+    material: DIAMOND
+    amount: 1
+    display_name: '&b&l+90 Jours'
+    lore:
+      - '&7Prolonge votre contrat de 90 jours'
+      - ''
+      - '&7Prix: &63500$ &8(Petit)'
+      - '&7Prix: &65250$ &8(Moyen)'
+      - '&7Prix: &67000$ &8(Grand)'
+      - ''
+      - '&eCliquez pour acheter'
+    left_click:
+      actions:
+        - '[close]'
+        - '[console] apartment adddeadline %player% 90'
+        - '[message] &a✔ Contrat prolongé de 90 jours !'
+        - '[sound] ENTITY_PLAYER_LEVELUP'
+
+  'add_365_days':
+    slot: 16
+    material: NETHER_STAR
+    amount: 1
+    display_name: '&d&l+365 Jours (1 an)'
+    lore:
+      - '&7Prolonge votre contrat d''un an !'
+      - ''
+      - '&7Prix: &610000$ &8(Petit)'
+      - '&7Prix: &615000$ &8(Moyen)'
+      - '&7Prix: &620000$ &8(Grand)'
+      - ''
+      - '&eCliquez pour acheter'
+    left_click:
+      actions:
+        - '[close]'
+        - '[console] apartment adddeadline %player% 365'
+        - '[message] &a✔ Contrat prolongé de 365 jours !'
+        - '[sound] ENTITY_PLAYER_LEVELUP'
+
+  'filler':
+    slots:
+      - 0-3
+      - 5-9
+      - 17-18
+      - 19-21
+      - 23-26
+    material: GRAY_STAINED_GLASS_PANE
+    amount: 1
+    display_name: ' '
+
+  'close':
+    slot: 22
+    material: BARRIER
+    amount: 1
+    display_name: '&c&lFermer'
+    left_click:
+      actions:
+        - '[close]'

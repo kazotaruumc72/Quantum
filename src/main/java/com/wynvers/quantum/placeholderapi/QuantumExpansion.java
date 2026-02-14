@@ -96,6 +96,11 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return progress + "%";
         }
 
+        if (p.equals("max_level")) {
+            if (plugin.getPlayerLevelManager() == null) return "1000";
+            return String.valueOf(plugin.getPlayerLevelManager().getMaxLevel());
+        }
+
         // ============
         // JOB SYSTEM
         // ============
@@ -307,6 +312,54 @@ public class QuantumExpansion extends PlaceholderExpansion {
                             return "0";
                     }
                 }
+            }
+        }
+
+        // =====================
+        // APARTMENT
+        // =====================
+        if (p.equals("apartment_zone")) {
+            if (plugin.getApartmentManager() == null) return "Aucun";
+            var apt = plugin.getApartmentManager().getPlayerApartment(offlinePlayer.getUniqueId());
+            return apt != null && !apt.getZoneName().isEmpty() ? apt.getZoneName() : "Aucun";
+        }
+
+        if (p.equals("apartment_name")) {
+            if (plugin.getApartmentManager() == null) return "Aucun";
+            var apt = plugin.getApartmentManager().getPlayerApartment(offlinePlayer.getUniqueId());
+            return apt != null ? apt.getApartmentName() : "Aucun";
+        }
+
+        if (p.equals("apartment_size")) {
+            if (plugin.getApartmentManager() == null) return "Aucun";
+            var apt = plugin.getApartmentManager().getPlayerApartment(offlinePlayer.getUniqueId());
+            return apt != null ? apt.getSize().getDisplayName() : "Aucun";
+        }
+
+        if (p.equals("apartment_deadline")) {
+            if (plugin.getApartmentManager() == null) return "Aucun";
+            var apt = plugin.getApartmentManager().getPlayerApartment(offlinePlayer.getUniqueId());
+            return apt != null ? plugin.getApartmentManager().getFormattedDeadline(apt) : "Aucun contrat";
+        }
+
+        if (p.equals("apartment_furniture_count")) {
+            if (plugin.getApartmentManager() == null) return "0";
+            var apt = plugin.getApartmentManager().getPlayerApartment(offlinePlayer.getUniqueId());
+            return apt != null ? String.valueOf(apt.getFurniture().size()) : "0";
+        }
+
+        // =====================
+        // COORDINATES
+        // =====================
+        if (player != null) {
+            if (p.equals("player_x")) {
+                return String.valueOf(player.getLocation().getBlockX());
+            }
+            if (p.equals("player_y")) {
+                return String.valueOf(player.getLocation().getBlockY());
+            }
+            if (p.equals("player_z")) {
+                return String.valueOf(player.getLocation().getBlockZ());
             }
         }
 

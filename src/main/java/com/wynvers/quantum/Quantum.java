@@ -119,6 +119,7 @@ public final class Quantum extends JavaPlugin {
     private MobAnimationManager mobAnimationManager;  // NEW: Mob animations
     private SpawnSelectionManager spawnSelectionManager; // NEW: spawn zone selection
     private HealthBarManager healthBarManager;       // NEW: Health bar display system
+    private TowerInventoryManager towerInventoryManager; // Per-world tower inventories
     private StorageUpgradeManager storageUpgradeManager;
 
 
@@ -241,6 +242,7 @@ public final class Quantum extends JavaPlugin {
         // Tower zone management (supports both WorldGuard and internal regions)
         this.killTracker = new KillTracker(this);
         this.scoreboardHandler = new TowerScoreboardHandler(this);
+        this.towerInventoryManager = new TowerInventoryManager(this);
         this.zoneManager = new ZoneManager(this); // s'enregistre lui-même en listener
         
         // WorldGuard GUI (only if WorldGuard is available)
@@ -323,6 +325,11 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/history.yml");
         extractResource("menus/statistics.yml");
         extractResource("menus/rune_equipment.yml");
+
+        extractResource("menus/quantum_admin.yml");
+        extractResource("menus/deadline_adder.yml");
+        extractResource("menus/personnal_catalogue.yml");
+        extractResource("menus/furniture_catalogue.yml");
 
         // Templates / messages
         extractResource("orders_template.yml");
@@ -752,11 +759,24 @@ public final class Quantum extends JavaPlugin {
             logger.success("✓ Zone GUI Command + TabCompleter");
         }
         
-        // Apartment Command (preparation phase)
+        // Apartment Command
         if (apartmentManager != null) {
             getCommand("apartment").setExecutor(new ApartmentCommand(this, apartmentManager));
             getCommand("apartment").setTabCompleter(new com.wynvers.quantum.tabcompleters.ApartmentTabCompleter());
-            logger.success("✓ Apartment Command + TabCompleter (preparation phase)");
+            logger.success("✓ Apartment Command + TabCompleter");
+        }
+
+        // Catalogue Command (furniture catalogue)
+        if (apartmentManager != null && menuManager != null) {
+            getCommand("catalogue").setExecutor((sender, cmd, label, args) -> {
+                if (sender instanceof org.bukkit.entity.Player player) {
+                    menuManager.openMenu(player, "furniture_catalogue");
+                } else {
+                    sender.sendMessage("§cCette commande ne peut être utilisée que par un joueur.");
+                }
+                return true;
+            });
+            logger.success("✓ Catalogue Command (furniture catalogue)");
         }
         
         // TAB Edit Command
@@ -1012,6 +1032,10 @@ public final class Quantum extends JavaPlugin {
 
     public TowerManager getTowerManager() {
         return towerManager;
+    }
+
+    public TowerInventoryManager getTowerInventoryManager() {
+        return towerInventoryManager;
     }
 
     public ScoreboardManager getScoreboardManager() {

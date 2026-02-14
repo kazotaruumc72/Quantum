@@ -1,0 +1,53 @@
+# ====================================
+#  QUANTUM - Catalogue Personnel
+# ====================================
+# Liste le mobilier que possède le joueur
+# Si rupture de contrat, le mobilier est stocké ici
+# Accessible via /appart catalogue ou dans l'appartement
+
+menu_title: '&d&l✦ Mon Mobilier ✦'
+size: 54
+
+items:
+  'info':
+    slot: 4
+    material: PAINTING
+    amount: 1
+    display_name: '&d&lCatalogue Personnel'
+    lore:
+      - '&7Voici votre mobilier personnel'
+      - '&7Placez-le dans votre appartement !'
+      - ''
+      - '&7Mobilier possédé: &f%quantum_apartment_furniture_count%'
+      - ''
+      - '&8Si votre contrat expire, votre'
+      - '&8mobilier sera stocké ici'
+
+  # NOTE: Les items de mobilier sont ajoutés dynamiquement
+  # par le plugin en fonction du mobilier du joueur.
+  # Les slots 9-44 sont réservés pour le mobilier.
+
+  'filler_top':
+    slots:
+      - 0-3
+      - 5-8
+    material: PURPLE_STAINED_GLASS_PANE
+    amount: 1
+    display_name: ' '
+
+  'filler_bottom':
+    slots:
+      - 45-48
+      - 50-53
+    material: PURPLE_STAINED_GLASS_PANE
+    amount: 1
+    display_name: ' '
+
+  'close':
+    slot: 49
+    material: BARRIER
+    amount: 1
+    display_name: '&c&lFermer'
+    left_click:
+      actions:
+        - '[close]'

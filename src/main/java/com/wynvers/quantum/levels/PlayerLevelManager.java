@@ -17,11 +17,13 @@ public class PlayerLevelManager {
 
     private final Quantum plugin;
     private final DatabaseManager databaseManager;
+    private final int maxLevel;
     private final Map<UUID, PlayerLevelData> cache = new HashMap<>();
 
     public PlayerLevelManager(Quantum plugin, DatabaseManager databaseManager) {
         this.plugin = plugin;
         this.databaseManager = databaseManager;
+        this.maxLevel = plugin.getConfig().getInt("levels.max-level", 1000);
     }
 
     public PlayerLevelData getData(UUID uuid) {
@@ -154,7 +156,7 @@ public class PlayerLevelManager {
         int level = data.getLevel();
 
         int needed = getRequiredExp(level);
-        while (exp >= needed) {
+        while (exp >= needed && level < maxLevel) {
             exp -= needed;
             level++;
             needed = getRequiredExp(level);
@@ -222,7 +224,7 @@ public class PlayerLevelManager {
         int remainingExp = amount;
 
         // Calculer le niveau basé sur l'XP totale
-        while (remainingExp >= getRequiredExp(level)) {
+        while (remainingExp >= getRequiredExp(level) && level < maxLevel) {
             remainingExp -= getRequiredExp(level);
             level++;
         }
@@ -264,5 +266,9 @@ public class PlayerLevelManager {
      */
     public int getExpForLevel(int level) {
         return getRequiredExp(level);
+    }
+
+    public int getMaxLevel() {
+        return maxLevel;
     }
 }

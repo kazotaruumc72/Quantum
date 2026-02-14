@@ -4,6 +4,7 @@ import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.levels.PlayerLevelManager;
 import com.wynvers.quantum.regions.InternalRegionManager;
 import com.wynvers.quantum.towers.TowerConfig;
+import com.wynvers.quantum.towers.TowerInventoryManager;
 import com.wynvers.quantum.towers.TowerManager;
 import com.wynvers.quantum.towers.TowerScoreboardHandler;
 import org.bukkit.Bukkit;
@@ -44,6 +45,7 @@ public class ZoneManager implements Listener {
     private final TowerScoreboardHandler scoreboardHandler;
     private final InternalRegionManager regionManager;
     private final boolean useWorldGuard;
+    private final TowerInventoryManager towerInventoryManager;
     
     // Cache reflection classes for WorldGuard to avoid repeated lookups
     private static Class<?> worldGuardClass;
@@ -79,6 +81,7 @@ public class ZoneManager implements Listener {
         
         // Check if WorldGuard is available
         this.useWorldGuard = Bukkit.getPluginManager().getPlugin("WorldGuard") != null;
+        this.towerInventoryManager = plugin.getTowerInventoryManager();
         
         if (useWorldGuard) {
             plugin.getQuantumLogger().info("WorldGuard detected - using WorldGuard for region detection");
@@ -148,6 +151,10 @@ public class ZoneManager implements Listener {
         if (currentRegion.containsKey(uuid)) {
             handleLeaveTower(player);
             currentRegion.remove(uuid);
+        }
+        // Cleanup tower inventory data
+        if (towerInventoryManager != null) {
+            towerInventoryManager.cleanup(uuid);
         }
     }
 
@@ -375,6 +382,10 @@ public class ZoneManager implements Listener {
 
         // OK : enregistrer la position, spawners + scoreboard
         towerManager.updateCurrentLocation(player, towerId, floor);
+        // Swap to tower inventory
+        if (towerInventoryManager != null && !towerInventoryManager.isInTower(player.getUniqueId())) {
+            towerInventoryManager.onEnterTower(player, towerId);
+        }
         if (!scoreboardHandler.hasTowerScoreboard(player)) {
             scoreboardHandler.enableTowerScoreboard(player, towerId);
         }
@@ -396,6 +407,9 @@ public class ZoneManager implements Listener {
         if (tower == null) return true;
 
         towerManager.updateCurrentLocation(player, towerId, floor);
+        if (towerInventoryManager != null && !towerInventoryManager.isInTower(player.getUniqueId())) {
+            towerInventoryManager.onEnterTower(player, towerId);
+        }
         if (!scoreboardHandler.hasTowerScoreboard(player)) {
             scoreboardHandler.enableTowerScoreboard(player, towerId);
         }
@@ -408,6 +422,12 @@ public class ZoneManager implements Listener {
      * Gere la sortie de tour (clear location + scoreboard)
      */
     private void handleLeaveTower(Player player) {
+        // Restore main inventory and unequip dungeon armor
+        if (towerInventoryManager != null) {
+            String regionName = currentRegion.get(player.getUniqueId());
+            String towerId = regionName != null ? towerManager.getTowerByRegion(regionName) : null;
+            towerInventoryManager.onLeaveTower(player, towerId);
+        }
         towerManager.clearCurrentLocation(player);
         if (scoreboardHandler.hasTowerScoreboard(player)) {
             scoreboardHandler.disableTowerScoreboard(player);

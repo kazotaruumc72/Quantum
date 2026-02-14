@@ -1,0 +1,223 @@
+# ====================================
+#  QUANTUM - Menu Admin
+# ====================================
+# Menu d'administration Quantum
+# Commande: /menu quantum_admin
+# Permission: quantum.admin
+
+menu_title: '&6&l✦ Administration Quantum ✦'
+open_command: quantumadmin
+size: 54
+
+items:
+  # ── MÉTÉO ──
+  'weather_clear':
+    slot: 10
+    material: SUNFLOWER
+    amount: 1
+    display_name: '&e&l☀ Beau Temps'
+    lore:
+      - '&7Active le beau temps'
+      - '&7sur le monde actuel'
+      - ''
+      - '&eCliquez pour activer'
+    left_click:
+      actions:
+        - '[console] weather clear %world%'
+        - '[message] &a☀ Beau temps activé !'
+        - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP'
+
+  'weather_rain':
+    slot: 11
+    material: WATER_BUCKET
+    amount: 1
+    display_name: '&b&l🌧 Pluie'
+    lore:
+      - '&7Active la pluie'
+      - '&7sur le monde actuel'
+      - ''
+      - '&eCliquez pour activer'
+    left_click:
+      actions:
+        - '[console] weather rain %world%'
+        - '[message] &b🌧 Pluie activée !'
+        - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP'
+
+  'weather_thunder':
+    slot: 12
+    material: LIGHTNING_ROD
+    amount: 1
+    display_name: '&c&l⚡ Orage'
+    lore:
+      - '&7Active l''orage'
+      - '&7sur le monde actuel'
+      - ''
+      - '&eCliquez pour activer'
+    left_click:
+      actions:
+        - '[console] weather thunder %world%'
+        - '[message] &c⚡ Orage activé !'
+        - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP'
+
+  # ── TIME ──
+  'time_day':
+    slot: 14
+    material: CLOCK
+    amount: 1
+    display_name: '&e&l☀ Jour'
+    lore:
+      - '&7Change le temps en jour'
+      - ''
+      - '&eCliquez pour activer'
+    left_click:
+      actions:
+        - '[console] time set day %world%'
+        - '[message] &e☀ Il fait maintenant jour !'
+        - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP'
+
+  'time_night':
+    slot: 15
+    material: COAL
+    amount: 1
+    display_name: '&9&l☾ Nuit'
+    lore:
+      - '&7Change le temps en nuit'
+      - ''
+      - '&eCliquez pour activer'
+    left_click:
+      actions:
+        - '[console] time set night %world%'
+        - '[message] &9☾ Il fait maintenant nuit !'
+        - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP'
+
+  # ── MOBS QUANTUM ──
+  'mob_spawn_toggle':
+    slot: 16
+    material: ZOMBIE_HEAD
+    amount: 1
+    display_name: '&c&l⚔ Spawn Mobs Quantum'
+    lore:
+      - '&7Active/désactive le spawn'
+      - '&7des mobs Quantum dans les tours'
+      - ''
+      - '&eCliquez pour toggle'
+    left_click:
+      actions:
+        - '[console] quantum tower spawner toggleall'
+        - '[message] &c⚔ Toggle des spawners Quantum !'
+        - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP'
+
+  # ── GESTION JOUEURS ──
+  'heal_self':
+    slot: 28
+    material: GOLDEN_APPLE
+    amount: 1
+    display_name: '&a&l❤ Se Soigner'
+    lore:
+      - '&7Restaure toute votre vie'
+      - '&7et votre faim'
+      - ''
+      - '&eCliquez pour vous soigner'
+    left_click:
+      actions:
+        - '[console] heal %player%'
+        - '[message] &a❤ Vie et faim restaurées !'
+        - '[sound] ENTITY_PLAYER_LEVELUP'
+
+  'fly_toggle':
+    slot: 29
+    material: ELYTRA
+    amount: 1
+    display_name: '&b&l✈ Toggle Fly'
+    lore:
+      - '&7Active/désactive le vol'
+      - ''
+      - '&eCliquez pour toggle'
+    left_click:
+      actions:
+        - '[console] fly %player%'
+        - '[message] &b✈ Vol togglé !'
+        - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP'
+
+  'gamemode_creative':
+    slot: 30
+    material: GRASS_BLOCK
+    amount: 1
+    display_name: '&a&l🎮 Créatif'
+    lore:
+      - '&7Passe en mode Créatif'
+      - ''
+      - '&eCliquez pour changer'
+    left_click:
+      actions:
+        - '[console] gamemode creative %player%'
+        - '[message] &a🎮 Mode créatif activé !'
+        - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP'
+
+  'gamemode_survival':
+    slot: 31
+    material: IRON_SWORD
+    amount: 1
+    display_name: '&c&l⚔ Survie'
+    lore:
+      - '&7Passe en mode Survie'
+      - ''
+      - '&eCliquez pour changer'
+    left_click:
+      actions:
+        - '[console] gamemode survival %player%'
+        - '[message] &c⚔ Mode survie activé !'
+        - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP'
+
+  'gamemode_spectator':
+    slot: 32
+    material: ENDER_EYE
+    amount: 1
+    display_name: '&7&l👁 Spectateur'
+    lore:
+      - '&7Passe en mode Spectateur'
+      - ''
+      - '&eCliquez pour changer'
+    left_click:
+      actions:
+        - '[console] gamemode spectator %player%'
+        - '[message] &7👁 Mode spectateur activé !'
+        - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP'
+
+  # ── RELOAD ──
+  'reload_plugin':
+    slot: 34
+    material: REDSTONE
+    amount: 1
+    display_name: '&c&l⟳ Reload Quantum'
+    lore:
+      - '&7Recharge la configuration'
+      - '&7du plugin Quantum'
+      - ''
+      - '&eCliquez pour recharger'
+    left_click:
+      actions:
+        - '[console] quantum reload'
+        - '[message] &a⟳ Configuration rechargée !'
+        - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP'
+
+  # ── FILLERS ──
+  'filler':
+    slots:
+      - 0-9
+      - 17-27
+      - 35-44
+    material: BLACK_STAINED_GLASS_PANE
+    amount: 1
+    display_name: ' '
+
+  'close':
+    slot: 49
+    material: BARRIER
+    amount: 1
+    display_name: '&c&lFermer'
+    lore:
+      - '&7Fermer le menu'
+    left_click:
+      actions:
+        - '[close]'

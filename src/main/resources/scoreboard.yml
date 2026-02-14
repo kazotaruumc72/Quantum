@@ -18,6 +18,9 @@ scoreboard:
     - "<light_purple><bold>Tours:</bold></light_purple> <white>%quantum_towers_completed%/1</white> <gray>(0.0%)</gray>"
     - "<yellow><bold>En ligne:</bold></yellow> <white>%quantum_online%</white><gray>/</gray><white>%quantum_max_players%</white>"
     - ""
+    - "<green><bold>Coords:</bold></green> <white>%quantum_player_x% %quantum_player_y% %quantum_player_z%</white>"
+    - "<gold><bold>Appart:</bold></gold> <white>%quantum_apartment_zone%</white>"
+    - ""
     - "<dark_gray>━━━━━━━━━━━━━━━━━━━━"
 
 # Messages pour les commandes scoreboard

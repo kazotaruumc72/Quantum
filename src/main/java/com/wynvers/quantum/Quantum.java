@@ -119,6 +119,7 @@ public final class Quantum extends JavaPlugin {
     private MobAnimationManager mobAnimationManager;  // NEW: Mob animations
     private SpawnSelectionManager spawnSelectionManager; // NEW: spawn zone selection
     private HealthBarManager healthBarManager;       // NEW: Health bar display system
+    private TowerInventoryManager towerInventoryManager; // Per-world tower inventories
     private StorageUpgradeManager storageUpgradeManager;
 
 
@@ -241,6 +242,7 @@ public final class Quantum extends JavaPlugin {
         // Tower zone management (supports both WorldGuard and internal regions)
         this.killTracker = new KillTracker(this);
         this.scoreboardHandler = new TowerScoreboardHandler(this);
+        this.towerInventoryManager = new TowerInventoryManager(this);
         this.zoneManager = new ZoneManager(this); // s'enregistre lui-même en listener
         
         // WorldGuard GUI (only if WorldGuard is available)
@@ -1012,6 +1014,10 @@ public final class Quantum extends JavaPlugin {
 
     public TowerManager getTowerManager() {
         return towerManager;
+    }
+
+    public TowerInventoryManager getTowerInventoryManager() {
+        return towerInventoryManager;
     }
 
     public ScoreboardManager getScoreboardManager() {

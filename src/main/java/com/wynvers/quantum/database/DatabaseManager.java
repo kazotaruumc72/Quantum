@@ -71,7 +71,6 @@ public class DatabaseManager {
 
     public Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
-            connected = false;
             connect();
         }
         return connection;

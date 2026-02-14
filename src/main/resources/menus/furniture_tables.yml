@@ -1,0 +1,51 @@
+# ====================================
+#  QUANTUM - Catalogue Tables
+# ====================================
+# Sous-catégorie: Tables & Bureaux
+
+menu_title: '&6&l🪵 Tables & Bureaux'
+size: 54
+
+items:
+  'title_info':
+    slot: 4
+    material: OAK_PRESSURE_PLATE
+    amount: 1
+    display_name: '&6&lTables & Bureaux'
+    lore:
+      - '&7Parcourez notre collection'
+      - '&7de tables et bureaux'
+      - ''
+      - '&7Solde: &6%quantum_eco_balance_formatted%'
+
+  # NOTE: Les items de mobilier sont ajoutés dynamiquement
+  # par le plugin en fonction du mobilier.yml (catégorie: tables)
+  # Les slots 9-44 sont réservés pour les items.
+
+  'filler_top':
+    slots:
+      - 0-3
+      - 5-8
+    material: BLACK_STAINED_GLASS_PANE
+    amount: 1
+    display_name: ' '
+
+  'filler_bottom':
+    slots:
+      - 45-48
+      - 50-53
+    material: BLACK_STAINED_GLASS_PANE
+    amount: 1
+    display_name: ' '
+
+  'back':
+    slot: 49
+    material: ARROW
+    amount: 1
+    display_name: '&e&l← Retour'
+    lore:
+      - '&7Retour au catalogue'
+    left_click:
+      actions:
+        - '[close]'
+        - '[menu] furniture_catalogue'

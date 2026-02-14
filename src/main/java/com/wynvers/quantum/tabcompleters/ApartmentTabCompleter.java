@@ -5,8 +5,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,48 +12,55 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * TabCompleter for /apartment command
- * Provides auto-completion for apartment subcommands and player names
+ * Tab completer for apartment commands
  */
 public class ApartmentTabCompleter implements TabCompleter {
-    
+
+    private static final List<String> SUBCOMMANDS = Arrays.asList(
+            "create", "upgrade", "invite", "remove", "lock", "unlock", "tp", "teleport", "contrat", "catalogue"
+    );
+
+    private static final List<String> SIZES = Arrays.asList("petit", "moyen", "grand");
+
+    private static final List<String> CONTRACT_SUBS = Arrays.asList("adddeadline");
+
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> completions = new ArrayList<>();
-        
-        if (!sender.hasPermission("quantum.apartment.use")) {
-            return completions;
-        }
-        
+
         if (args.length == 1) {
-            // Subcommands
-            completions.addAll(Arrays.asList(
-                "create",
-                "upgrade",
-                "invite",
-                "remove",
-                "lock",
-                "unlock",
-                "tp",
-                "teleport"
-            ));
+            String input = args[0].toLowerCase();
+            completions = SUBCOMMANDS.stream()
+                    .filter(s -> s.startsWith(input))
+                    .collect(Collectors.toList());
         } else if (args.length == 2) {
-            String subCommand = args[0].toLowerCase();
-            
-            if (subCommand.equals("invite") || subCommand.equals("remove")) {
-                // Add online player names
-                completions.addAll(Bukkit.getOnlinePlayers().stream()
-                    .map(Player::getName)
-                    .collect(Collectors.toList()));
-            } else if (subCommand.equals("create")) {
-                // Placeholder for apartment name
-                completions.add("<name>");
+            String sub = args[0].toLowerCase();
+            String input = args[1].toLowerCase();
+
+            switch (sub) {
+                case "invite", "remove" -> {
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        if (player.getName().toLowerCase().startsWith(input)) {
+                            completions.add(player.getName());
+                        }
+                    }
+                }
+                case "create" -> completions.add("<nom>");
+                case "contrat" -> completions = CONTRACT_SUBS.stream()
+                        .filter(s -> s.startsWith(input))
+                        .collect(Collectors.toList());
+            }
+        } else if (args.length == 3) {
+            String sub = args[0].toLowerCase();
+            String input = args[2].toLowerCase();
+
+            if ("create".equals(sub)) {
+                completions = SIZES.stream()
+                        .filter(s -> s.startsWith(input))
+                        .collect(Collectors.toList());
             }
         }
-        
-        // Filter based on input
-        return completions.stream()
-            .filter(s -> s.toLowerCase().startsWith(args[args.length - 1].toLowerCase()))
-            .collect(Collectors.toList());
+
+        return completions;
     }
 }

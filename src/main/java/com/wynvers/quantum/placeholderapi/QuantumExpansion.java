@@ -96,6 +96,11 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return progress + "%";
         }
 
+        if (p.equals("max_level")) {
+            if (plugin.getPlayerLevelManager() == null) return "1000";
+            return String.valueOf(plugin.getPlayerLevelManager().getMaxLevel());
+        }
+
         // ============
         // JOB SYSTEM
         // ============

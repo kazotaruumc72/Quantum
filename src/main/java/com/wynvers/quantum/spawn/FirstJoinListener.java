@@ -78,9 +78,13 @@ public class FirstJoinListener implements Listener {
     private String getFormatForPlayer(Player player, String configPath) {
         ConfigurationSection formatsSection = config.getConfigurationSection(configPath + ".formats");
         if (formatsSection != null) {
-            for (String permission : formatsSection.getKeys(false)) {
-                if (player.hasPermission(permission)) {
-                    return formatsSection.getString(permission);
+            // Use getKeys(true) to resolve dotted permission keys (e.g. quantum.join.elite)
+            // that Bukkit YAML splits into nested sections. getString() returns null for
+            // intermediate section nodes, so only leaf values (actual format strings) are used.
+            for (String permission : formatsSection.getKeys(true)) {
+                String format = formatsSection.getString(permission);
+                if (format != null && player.hasPermission(permission)) {
+                    return format;
                 }
             }
         }

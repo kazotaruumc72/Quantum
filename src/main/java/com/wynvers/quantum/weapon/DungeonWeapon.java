@@ -1,11 +1,6 @@
 package com.wynvers.quantum.weapon;
 
 import com.nexomc.nexo.api.NexoItems;
-import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import com.sk89q.worldguard.protection.regions.RegionContainer;
-import com.sk89q.worldguard.protection.regions.RegionQuery;
 import com.wynvers.quantum.Quantum;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -23,7 +18,7 @@ import java.util.Set;
 
 /**
  * Système d'arme de donjon améliorable
- * Utilisable uniquement dans les zones de donjon (WorldGuard)
+ * Utilisable uniquement dans les zones de donjon
  */
 public class DungeonWeapon {
     
@@ -205,32 +200,27 @@ public class DungeonWeapon {
     }
     
     /**
-     * Vérifie si le joueur est dans un donjon
+     * Vérifie si le joueur est dans un donjon via TowerManager
      */
     public boolean isInDungeon(Player player) {
-        return isInDungeon(player.getLocation());
+        if (plugin.getTowerManager() != null) {
+            com.wynvers.quantum.towers.TowerProgress progress = 
+                plugin.getTowerManager().getProgress(player.getUniqueId());
+            return progress != null && progress.getCurrentTower() != null;
+        }
+        return false;
     }
     
     /**
-     * Vérifie si une location est dans un donjon
+     * Vérifie si une location est dans un donjon via InternalRegionManager
      */
     public boolean isInDungeon(Location location) {
-        try {
-            RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-            RegionQuery query = container.createQuery();
-            
-            com.sk89q.worldedit.util.Location loc = com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(location);
-            ApplicableRegionSet regions = query.getApplicableRegions(loc);
-            
-            for (ProtectedRegion region : regions) {
-                if (dungeonRegions.contains(region.getId())) {
-                    return true;
-                }
+        if (plugin.getInternalRegionManager() != null) {
+            String region = plugin.getInternalRegionManager().getRegionAt(location);
+            if (region != null && plugin.getTowerManager() != null) {
+                return plugin.getTowerManager().getTowerByRegion(region) != null;
             }
-        } catch (Exception e) {
-            // WorldGuard non disponible ou erreur
         }
-        
         return false;
     }
     

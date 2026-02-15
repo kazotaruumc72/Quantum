@@ -29,21 +29,13 @@ import com.wynvers.quantum.jobs.JobAdminTabCompleter;
 import com.wynvers.quantum.home.HomeManager;
 import com.wynvers.quantum.tab.TABManager;
 import com.wynvers.quantum.placeholderapi.PlaceholderAPIManager;
-import com.wynvers.quantum.worldguard.gui.ZoneGUIManager;
-import com.wynvers.quantum.worldguard.gui.ZoneSettingsGUI;
-import com.wynvers.quantum.apartment.ApartmentManager;
-import com.wynvers.quantum.commands.*;
-import com.wynvers.quantum.database.DatabaseManager;
-import com.wynvers.quantum.healthbar.HealthBarListener;
-import com.wynvers.quantum.healthbar.HealthBarManager;
+import com.wynvers.quantum.worldguard.ZoneManager;
 import com.wynvers.quantum.levels.PlayerLevelListener;
 import com.wynvers.quantum.levels.PlayerLevelManager;
 import com.wynvers.quantum.listeners.DoorSelectionListener;
 import com.wynvers.quantum.listeners.MenuListener;
 import com.wynvers.quantum.listeners.ScoreboardListener;
-import com.wynvers.quantum.listeners.SpawnSelectionListener;
 import com.wynvers.quantum.listeners.StorageListener;
-import com.wynvers.quantum.listeners.TowerKillListener;
 import com.wynvers.quantum.managers.*;
 import com.wynvers.quantum.menu.StorageSettingsMenuListener;
 import com.wynvers.quantum.orders.OrderAcceptanceHandler;
@@ -59,8 +51,6 @@ import com.wynvers.quantum.towers.*;
 import com.wynvers.quantum.transactions.TransactionHistoryManager;
 import com.wynvers.quantum.utils.ActionExecutor;
 import com.wynvers.quantum.utils.Logger;
-import com.wynvers.quantum.worldguard.KillTracker;
-import com.wynvers.quantum.worldguard.ZoneManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -106,19 +96,13 @@ public final class Quantum extends JavaPlugin {
     private StorageStatsManager storageStatsManager;
     private TransactionHistoryManager transactionHistoryManager;   // NEW
     private TradingStatisticsManager tradingStatisticsManager;     // NEW
-    private ZoneManager zoneManager;        // Tower zone management (supports WorldGuard or internal)
-    private KillTracker killTracker;       // Kill tracking for (anciens) systèmes
+    private ZoneManager zoneManager;        // Tower zone management (internal regions)
+    private com.wynvers.quantum.regions.InternalRegionManager internalRegionManager; // Internal region system
+    private SpawnSelectionManager spawnSelectionManager; // Zone selection tool (netherite axe)
     private TowerManager towerManager;     // Tower progression system
     private TowerScoreboardHandler scoreboardHandler; // Tower scoreboard
-    private com.wynvers.quantum.regions.InternalRegionManager internalRegionManager; // Internal region system
-    private MobSkillManager mobSkillManager;          // NEW: Mob skills titles/subtitles
-    private MobSkillExecutor mobSkillExecutor;        // NEW: Mob skills execution
     private TowerDoorManager doorManager;
     private TowerNPCManager npcManager;
-    private TowerLootManager lootManager;
-    private MobAnimationManager mobAnimationManager;  // NEW: Mob animations
-    private SpawnSelectionManager spawnSelectionManager; // NEW: spawn zone selection
-    private HealthBarManager healthBarManager;       // NEW: Health bar display system
     private TowerInventoryManager towerInventoryManager; // Per-world tower inventories
     private StorageUpgradeManager storageUpgradeManager;
 
@@ -150,10 +134,6 @@ public final class Quantum extends JavaPlugin {
     
     // PlaceholderAPI Integration
     private PlaceholderAPIManager placeholderAPIManager;
-    
-    // WorldGuard Zone GUI
-    private ZoneGUIManager zoneGUIManager;
-    private ZoneSettingsGUI zoneSettingsGUI;
     
     // Apartment System (preparation phase)
     private ApartmentManager apartmentManager;
@@ -203,27 +183,16 @@ public final class Quantum extends JavaPlugin {
         this.runeItem = new RuneItem(this);
         logger.success("✓ Dungeon Armor & Rune system initialized! (9 runes with 3 levels)");
 
-        // HealthBar System
-        this.healthBarManager = new HealthBarManager(this);
-        logger.success("✓ HealthBar system initialized! (Mob health display)");
-
         // Tours
         this.towerManager = new TowerManager(this);
-        getServer().getPluginManager().registerEvents(new TowerDamageListener(this), this);
 
         this.doorManager = new TowerDoorManager(this);
         this.npcManager = new TowerNPCManager(this);
-        this.lootManager = new TowerLootManager(this);
-        lootManager.loadFromConfig(YamlConfiguration.loadConfiguration(new File(getDataFolder(), "towers.yml")));
         
-        // Mob Animation Manager
-        this.mobAnimationManager = new MobAnimationManager(this);
-        logger.success("✓ Mob Animation Manager initialized!");
-        
-        // Spawn Selection Manager + Listener (hache netherite pour définir zones de spawn)
+        // Spawn Selection Manager + Listener (hache netherite pour définir zones)
         this.spawnSelectionManager = new SpawnSelectionManager();
         Bukkit.getPluginManager().registerEvents(
-                new SpawnSelectionListener(this, spawnSelectionManager),
+                new com.wynvers.quantum.listeners.SpawnSelectionListener(this, spawnSelectionManager),
                 this
         );
         logger.success("✓ Spawn Selection Manager + Listener initialized!");
@@ -231,28 +200,14 @@ public final class Quantum extends JavaPlugin {
         // Enregistrer les listeners
         getServer().getPluginManager().registerEvents(new DoorSelectionListener(this, doorManager), this);
 
-        // Mob Skills System
-        this.mobSkillManager = new MobSkillManager(this);
-        this.mobSkillExecutor = new MobSkillExecutor(this);
-
-        // Internal Region Manager (works with or without WorldGuard)
+        // Internal Region Manager
         this.internalRegionManager = new com.wynvers.quantum.regions.InternalRegionManager(this);
         loadInternalRegions();
-        
-        // Tower zone management (supports both WorldGuard and internal regions)
-        this.killTracker = new KillTracker(this);
+
+        // Tower zone management (internal regions)
         this.scoreboardHandler = new TowerScoreboardHandler(this);
         this.towerInventoryManager = new TowerInventoryManager(this);
         this.zoneManager = new ZoneManager(this); // s'enregistre lui-même en listener
-        
-        // WorldGuard GUI (only if WorldGuard is available)
-        if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
-            // Zone GUI System
-            this.zoneGUIManager = new ZoneGUIManager(this);
-            this.zoneSettingsGUI = new ZoneSettingsGUI(this, zoneGUIManager);
-            logger.success("✓ WorldGuard integration enabled!");
-            logger.success("✓ Zone GUI system initialized!");
-        }
         
         logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
         logger.success("✓ Integrated tower scoreboard ready!");
@@ -351,7 +306,6 @@ public final class Quantum extends JavaPlugin {
         extractResource("structures.yml");
         extractResource("dungeon_weapon.yml");
         extractResource("jobs.yml");
-        extractResource("zone_configs.yml");
 
         extractResource("scoreboard.yml");
         extractResource("dungeon.yml");
@@ -360,9 +314,6 @@ public final class Quantum extends JavaPlugin {
         // Configuration des tours (TowerManager)
         extractResource("towers.yml");
         
-        // Configuration des skills de mobs (MobSkillManager)
-        extractResource("mob_skills.yml");
-
         extractResource("tab_config.yml");
 
         logger.success("✓ Default resources extracted");
@@ -440,19 +391,6 @@ public final class Quantum extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new RuneApplyListener(runeItem, dungeonArmor), this);
         logger.success("✓ Rune Apply Listener (drag & drop runes)");
 
-        if (towerManager != null) {
-            Bukkit.getPluginManager().registerEvents(
-                    new TowerKillListener(this, towerManager, playerLevelManager, doorManager, lootManager), this
-            );
-            logger.success("✓ Tower Kill Listener (XP on mob kill)");
-        }
-        
-        // HealthBar Listener
-        if (healthBarManager != null) {
-            Bukkit.getPluginManager().registerEvents(new HealthBarListener(this, healthBarManager), this);
-            logger.success("✓ HealthBar Listener (mob health display)");
-        }
-        
         // TAB Listener
         if (tabManager != null && tabManager.isEnabled()) {
             Bukkit.getPluginManager().registerEvents(new com.wynvers.quantum.tab.TABListener(this), this);
@@ -701,13 +639,6 @@ public final class Quantum extends JavaPlugin {
         getCommand("qexp").setExecutor(new QexpCommand(this, playerLevelManager));
         getCommand("qexp").setTabCompleter(new QexpTabCompleter());
         
-        // HealthBar Command
-        if (healthBarManager != null) {
-            getCommand("healthbar").setExecutor(new HealthBarCommand(this, healthBarManager));
-            getCommand("healthbar").setTabCompleter(new HealthBarTabCompleter());
-            logger.success("✓ HealthBar Command + TabCompleter");
-        }
-        
         // NEW: Tool and Weapon Commands
         if (toolManager != null) {
             getCommand("tool").setExecutor(new ToolCommand(this));
@@ -758,13 +689,6 @@ public final class Quantum extends JavaPlugin {
             getCommand("spawn").setExecutor(spawnCommand);
             getCommand("spawn").setTabCompleter(spawnTabCompleter);
             logger.success("✓ Spawn Command + TabCompleter");
-        }
-        
-        // Zone GUI Command
-        if (zoneGUIManager != null && zoneSettingsGUI != null) {
-            getCommand("zonegui").setExecutor(new ZoneGUICommand(this, zoneGUIManager, zoneSettingsGUI));
-            getCommand("zonegui").setTabCompleter(new com.wynvers.quantum.tabcompleters.ZoneGUITabCompleter(this));
-            logger.success("✓ Zone GUI Command + TabCompleter");
         }
         
         // Apartment Command
@@ -835,21 +759,6 @@ public final class Quantum extends JavaPlugin {
             logger.success("✓ Tower scoreboards cleared");
         }
         
-        if (mobSkillExecutor != null) {
-            mobSkillExecutor.shutdown();
-            logger.success("✓ Mob skills stopped");
-        }
-        
-        if (mobAnimationManager != null) {
-            mobAnimationManager.shutdown();
-            logger.success("✓ Mob animations stopped");
-        }
-        
-        if (healthBarManager != null) {
-            healthBarManager.shutdown();
-            logger.success("✓ HealthBar displays cleaned up");
-        }
-        
         if (tabManager != null && tabManager.isEnabled()) {
             tabManager.shutdown();
             logger.success("✓ TAB manager stopped");
@@ -908,10 +817,6 @@ public final class Quantum extends JavaPlugin {
 
         // zoneManager.reloadConfig() supprimé (nouveau ZoneManager n'a plus cette méthode)
         if (towerManager != null) towerManager.reload();
-        
-        if (mobSkillManager != null) mobSkillManager.reload();
-        
-        if (mobAnimationManager != null) mobAnimationManager.reload();
 
         // TAB config reload
         loadTabConfig();
@@ -1030,14 +935,6 @@ public final class Quantum extends JavaPlugin {
         return zoneManager;
     }
     
-    public com.wynvers.quantum.regions.InternalRegionManager getInternalRegionManager() {
-        return internalRegionManager;
-    }
-
-    public KillTracker getKillTracker() {
-        return killTracker;
-    }
-
     public TowerManager getTowerManager() {
         return towerManager;
     }
@@ -1063,26 +960,6 @@ public final class Quantum extends JavaPlugin {
         return scoreboardHandler;
     }
     
-    public MobSkillManager getMobSkillManager() {
-        return mobSkillManager;
-    }
-    
-    public MobSkillExecutor getMobSkillExecutor() {
-        return mobSkillExecutor;
-    }
-    
-    public MobAnimationManager getMobAnimationManager() {
-        return mobAnimationManager;
-    }
-    
-    public SpawnSelectionManager getSpawnSelectionManager() {
-        return spawnSelectionManager;
-    }
-    
-    public HealthBarManager getHealthBarManager() {
-        return healthBarManager;
-    }
-    
     // NEW: Getters pour les managers des tours
     public TowerDoorManager getDoorManager() {
         return doorManager;
@@ -1092,8 +969,12 @@ public final class Quantum extends JavaPlugin {
         return npcManager;
     }
     
-    public TowerLootManager getLootManager() {
-        return lootManager;
+    public com.wynvers.quantum.regions.InternalRegionManager getInternalRegionManager() {
+        return internalRegionManager;
+    }
+    
+    public SpawnSelectionManager getSpawnSelectionManager() {
+        return spawnSelectionManager;
     }
 
     public DungeonArmor getDungeonArmor() {
@@ -1152,14 +1033,6 @@ public final class Quantum extends JavaPlugin {
     
     public PlaceholderAPIManager getPlaceholderAPIManager() {
         return placeholderAPIManager;
-    }
-    
-    public ZoneGUIManager getZoneGUIManager() {
-        return zoneGUIManager;
-    }
-    
-    public ZoneSettingsGUI getZoneSettingsGUI() {
-        return zoneSettingsGUI;
     }
     
     public ApartmentManager getApartmentManager() {

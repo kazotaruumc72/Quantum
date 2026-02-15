@@ -13,7 +13,6 @@ public class TowerProgress {
     private final Map<String, Integer> towerProgress; // towerId -> highest floor completed
     private String currentTower;
     private int currentFloor;
-    private final Map<String, Integer> currentKills; // mobId -> kills
     private final Map<String, Integer> runsByTower = new HashMap<>();
 
     public int getRuns(String towerId) {
@@ -28,7 +27,6 @@ public class TowerProgress {
         this.towerProgress = new HashMap<>();
         this.currentTower = null;
         this.currentFloor = 0;
-        this.currentKills = new HashMap<>();
     }
     
     public UUID getPlayerUuid() {
@@ -97,38 +95,6 @@ public class TowerProgress {
     }
     
     /**
-     * Get kills for current floor
-     * @param mobId Mob ID
-     * @return Number of kills
-     */
-    public int getKills(String mobId) {
-        return currentKills.getOrDefault(mobId, 0);
-    }
-    
-    /**
-     * Add a kill for current floor
-     * @param mobId Mob ID
-     */
-    public void addKill(String mobId) {
-        currentKills.put(mobId, getKills(mobId) + 1);
-    }
-    
-    /**
-     * Reset kills for current floor
-     */
-    public void resetKills() {
-        currentKills.clear();
-    }
-    
-    /**
-     * Get current kills map
-     * @return Map of mob ID to kills
-     */
-    public Map<String, Integer> getCurrentKills() {
-        return new HashMap<>(currentKills);
-    }
-    
-    /**
      * Check if player has completed a specific floor
      * @param towerId Tower ID
      * @param floor Floor number
@@ -170,7 +136,6 @@ public class TowerProgress {
         towerProgress.clear();
         currentTower = null;
         currentFloor = 0;
-        currentKills.clear();
     }
     
     /**
@@ -182,7 +147,6 @@ public class TowerProgress {
         if (towerId.equals(currentTower)) {
             currentTower = null;
             currentFloor = 0;
-            currentKills.clear();
         }
     }
 }

@@ -15,8 +15,6 @@ depend:
 softdepend:
   - Vault
   - LuckPerms
-  - WorldEdit
-  - WorldGuard
   - TAB
   - PlaceholderAPI
 
@@ -90,11 +88,6 @@ commands:
     usage: /qexp <player> <give|take|set|reset> [amount]
     permission: quantum.exp.admin
   
-  healthbar:
-    description: Change mob health display mode
-    usage: /healthbar <pourcentage|coeurs|info>
-    aliases: [hpbar, hp]
-  
   tool:
     description: Manage upgradeable tools (pickaxe, axe, hoe)
     usage: /tool <upgrade|info|give> [args]
@@ -158,12 +151,6 @@ commands:
     usage: /spawn
     permission: quantum.spawn.use
   
-  zonegui:
-    description: Open zone configuration GUI
-    usage: /zonegui [region_name]
-    aliases: [zoneconfig, zgui]
-    permission: quantum.zone.configure
-  
   apartment:
     description: Manage your apartment
     usage: /apartment [create|upgrade|invite|remove|lock|unlock|tp|contrat|catalogue]
@@ -199,12 +186,10 @@ permissions:
       quantum.menu.open: true
       quantum.menu.admin: true
       quantum.orders.*: true
-      quantum.zone.bypass: true
       quantum.tower.*: true
       quantum.armor.*: true
       quantum.rune.*: true
       quantum.exp.admin: true
-      quantum.healthbar.use: true
       quantum.tool.*: true
       quantum.weapon.*: true
       quantum.job.*: true
@@ -274,11 +259,6 @@ permissions:
     description: Elite order duration (90 days)
     default: false
   
-  # WorldGuard zone permissions
-  quantum.zone.bypass:
-    description: Bypass zone restrictions (can enter and exit freely)
-    default: op
-  
   # Tower system permissions
   quantum.tower.*:
     description: All tower permissions
@@ -346,11 +326,6 @@ permissions:
   quantum.exp.admin:
     description: Allows using /qexp to manage player EXP
     default: op
-  
-  # HealthBar system
-  quantum.healthbar.use:
-    description: Allows changing health bar display mode
-    default: true
   
   # Tool system (Pickaxe, Axe, Hoe)
   quantum.tool.*:
@@ -496,11 +471,6 @@ permissions:
   
   quantum.spawn.setfirst:
     description: Set first spawn location
-    default: op
-  
-  # Zone configuration
-  quantum.zone.configure:
-    description: Configure WorldGuard zones via GUI
     default: op
   
   # Apartment system (preparation phase)

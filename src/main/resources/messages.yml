@@ -178,14 +178,6 @@ tools:
       - "<gray>/tool give <type> <niveau> <white>- Obtenir un outil</white></gray>"
 
 # ═══════════════════════════════════════════════════════════════════════════
-#   ❤️ SECTION 11: MESSAGES DE BARRE DE VIE (HEALTHBAR)
-# ═══════════════════════════════════════════════════════════════════════════
-
-healthbar:
-  mode-changed-percentage: "<green>✔ [HealthBar]</green> <white>Mode changé : Pourcentage</white>\n<gray>Les barres de vie s'afficheront en pourcentage.</gray>"
-  mode-changed-hearts: "<green>✔ [HealthBar]</green> <white>Mode changé : Cœurs ❤</white>\n<gray>Les barres de vie s'afficheront en cœurs.</gray>"
-
-# ═══════════════════════════════════════════════════════════════════════════
 #   📦 SECTION 12: MESSAGES DE STOCKAGE AVANCÉS
 # ═══════════════════════════════════════════════════════════════════════════
 

@@ -1,9 +1,6 @@
 package com.wynvers.quantum.towers;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.towers.TowerSpawnerManager;
-import com.wynvers.quantum.managers.ScoreboardManager;
-import com.wynvers.quantum.worldguard.ZoneManager;
 import com.wynvers.quantum.managers.ScoreboardManager;
 import com.wynvers.quantum.managers.ScoreboardConfig;
 import org.bukkit.Bukkit;
@@ -16,10 +13,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * Manages tower system - configuration, progress tracking, and integration
@@ -29,7 +22,6 @@ public class TowerManager {
     private final Quantum plugin;
     private final Map<String, TowerConfig> towers;
     private final Map<UUID, TowerProgress> playerProgress;
-    private final TowerSpawnerManager spawnerManager;
     private File progressFile;
     
     public TowerManager(Quantum plugin) {
@@ -39,15 +31,6 @@ public class TowerManager {
         
         loadTowers();
         loadProgress();
-
-        this.spawnerManager = new TowerSpawnerManager(plugin, this);
-        this.spawnerManager.loadFromConfig(
-                YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "towers.yml"))
-        );
-    }
-
-    public TowerSpawnerManager getSpawnerManager() {
-        return spawnerManager;
     }
 
     /**
@@ -228,8 +211,8 @@ public class TowerManager {
     }
     
     /**
-     * Get tower by WorldGuard region name
-     * @param regionName WorldGuard region name
+     * Get tower by region name
+     * @param regionName Region name
      * @return Tower ID or null
      */
     public String getTowerByRegion(String regionName) {
@@ -250,8 +233,8 @@ public class TowerManager {
     }
     
     /**
-     * Get floor number from WorldGuard region name
-     * @param regionName WorldGuard region name
+     * Get floor number from region name
+     * @param regionName Region name
      * @return Floor number or -1
      */
     public int getFloorByRegion(String regionName) {
@@ -278,7 +261,6 @@ public class TowerManager {
     public void completeFloor(Player player, String towerId, int floor) {
         TowerProgress progress = getProgress(player.getUniqueId());
         progress.setFloorProgress(towerId, floor);
-        progress.resetKills();
         
         TowerConfig tower = getTower(towerId);
         if (tower == null) return;
@@ -313,7 +295,6 @@ public class TowerManager {
         TowerProgress progress = getProgress(player.getUniqueId());
         progress.setCurrentTower(towerId);
         progress.setCurrentFloor(floor);
-        progress.resetKills(); // Nouveau run / nouvel étage -> on remet les kills à zéro
         
         plugin.getQuantumLogger().info("Player " + player.getName() + " entered " + towerId + " floor " + floor);
 
@@ -328,11 +309,6 @@ public class TowerManager {
         if (towerScoreboardHandler != null) {
             towerScoreboardHandler.enableTowerScoreboard(player, towerId);
         }
-        
-        // Demarrer les spawners
-        if (spawnerManager != null) {
-            spawnerManager.startFloorSpawners(player, towerId, floor);
-        }
     }
     
     /**
@@ -343,7 +319,6 @@ public class TowerManager {
         TowerProgress progress = getProgress(player.getUniqueId());
         progress.setCurrentTower(null);
         progress.setCurrentFloor(0);
-        progress.resetKills();
     
         // Désactiver le scoreboard de tour
         TowerScoreboardHandler towerScoreboardHandler = plugin.getTowerScoreboardHandler();
@@ -406,21 +381,6 @@ public class TowerManager {
                 }.runTaskTimer(plugin, updateInterval, updateInterval);
             }
         }
-    
-        // Arreter les spawners
-        if (spawnerManager != null) {
-            spawnerManager.stopSpawners(player);
-        }
-    }
-    
-    /**
-     * Add a kill for current floor
-     * @param player Player
-     * @param mobId Mob ID
-     */
-    public void addKill(Player player, String mobId) {
-        TowerProgress progress = getProgress(player.getUniqueId());
-        progress.addKill(mobId);
     }
     
     /**
@@ -454,25 +414,7 @@ public class TowerManager {
         // Reload tower configs
         loadTowers();
         
-        // Reload spawner configs
-        File towersFile = new File(plugin.getDataFolder(), "towers.yml");
-        FileConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
-        spawnerManager.loadFromConfig(config);
-        
-        // Restart spawners for players currently in towers
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            TowerProgress progress = getProgress(player.getUniqueId());
-            String currentTower = progress.getCurrentTower();
-            int currentFloor = progress.getCurrentFloor();
-            
-            if (currentTower != null && currentFloor > 0) {
-                plugin.getQuantumLogger().info("Restarting spawners for " + player.getName() + " in " + currentTower + " floor " + currentFloor);
-                spawnerManager.stopSpawners(player);
-                spawnerManager.startFloorSpawners(player, currentTower, currentFloor);
-            }
-        }
-        
-        plugin.getQuantumLogger().success("Towers and spawners reloaded from towers.yml");
+        plugin.getQuantumLogger().success("Towers reloaded from towers.yml");
     }
     
     /**

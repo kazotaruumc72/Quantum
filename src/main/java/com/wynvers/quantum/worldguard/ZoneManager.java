@@ -7,14 +7,11 @@ import com.wynvers.quantum.towers.TowerConfig;
 import com.wynvers.quantum.towers.TowerInventoryManager;
 import com.wynvers.quantum.towers.TowerManager;
 import com.wynvers.quantum.towers.TowerScoreboardHandler;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -30,7 +27,7 @@ import java.util.UUID;
 
 /**
  * Gere l'entree / sortie des regions liees aux tours.
- * Supporte a la fois WorldGuard (si disponible) et le systeme de regions interne.
+ * Utilise le systeme de regions interne.
  *
  * - Detecte quand un joueur entre / sort d'un etage de tour (region)
  * - Verifie les niveaux min/max de la tour (PlayerLevelManager)
@@ -44,23 +41,7 @@ public class ZoneManager implements Listener {
     private final PlayerLevelManager levelManager;
     private final TowerScoreboardHandler scoreboardHandler;
     private final InternalRegionManager regionManager;
-    private final boolean useWorldGuard;
     private final TowerInventoryManager towerInventoryManager;
-    
-    // Cache reflection classes for WorldGuard to avoid repeated lookups
-    private static Class<?> worldGuardClass;
-    private static Class<?> bukkitAdapterClass;
-    private static Class<?> blockVector3Class;
-    
-    static {
-        try {
-            worldGuardClass = Class.forName("com.sk89q.worldguard.WorldGuard");
-            bukkitAdapterClass = Class.forName("com.sk89q.worldedit.bukkit.BukkitAdapter");
-            blockVector3Class = Class.forName("com.sk89q.worldedit.math.BlockVector3");
-        } catch (ClassNotFoundException e) {
-            // WorldGuard not available, reflection classes will be null
-        }
-    }
 
     private final Map<UUID, String> currentRegion = new HashMap<>();
     private static final int REGION_CACHE_SIZE = 100;
@@ -78,19 +59,10 @@ public class ZoneManager implements Listener {
         this.levelManager = plugin.getPlayerLevelManager();
         this.scoreboardHandler = plugin.getTowerScoreboardHandler();
         this.regionManager = plugin.getInternalRegionManager();
-        
-        // Check if WorldGuard is available
-        this.useWorldGuard = Bukkit.getPluginManager().getPlugin("WorldGuard") != null;
         this.towerInventoryManager = plugin.getTowerInventoryManager();
-        
-        if (useWorldGuard) {
-            plugin.getQuantumLogger().info("WorldGuard detected - using WorldGuard for region detection");
-        } else {
-            plugin.getQuantumLogger().info("WorldGuard not found - using internal region system");
-        }
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        plugin.getQuantumLogger().success("ZoneManager (tours) initialized");
+        plugin.getQuantumLogger().success("ZoneManager (tours) initialized - using internal region system");
     }
 
     @EventHandler
@@ -159,31 +131,11 @@ public class ZoneManager implements Listener {
     }
 
     /**
-     * Handle player death in tower - reset kill counter
-     */
-    @EventHandler
-    public void onPlayerDeath(PlayerDeathEvent event) {
-        Player player = event.getEntity();
-        UUID uuid = player.getUniqueId();
-
-        // If player is in a tower when they die, reset their kill counter
-        if (currentRegion.containsKey(uuid)) {
-            String regionName = currentRegion.get(uuid);
-            if (isTowerRegion(regionName)) {
-                // Reset kill counter
-                towerManager.getProgress(uuid).resetKills();
-                plugin.getQuantumLogger().info("Player " + player.getName() + " died in tower - kill counter reset");
-            }
-        }
-    }
-
-    /**
      * Handle player respawn - if they respawn outside tower, clean up
      */
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        Location respawnLoc = event.getRespawnLocation();
         
         // Check 1 tick after respawn to see if they're still in a tower
         new BukkitRunnable() {
@@ -191,7 +143,7 @@ public class ZoneManager implements Listener {
             public void run() {
                 if (player.isOnline()) {
                     Location currentLoc = player.getLocation();
-                    String regionName = getWorldGuardRegionAt(currentLoc);
+                    String regionName = getRegionAt(currentLoc);
                     UUID uuid = player.getUniqueId();
                     String previousRegion = currentRegion.get(uuid);
                     
@@ -212,7 +164,7 @@ public class ZoneManager implements Listener {
     private void checkRegionChange(Player player, Location from, Location to, PlayerMoveEvent moveEvent) {
         UUID uuid = player.getUniqueId();
         String previousRegion = currentRegion.get(uuid);
-        String newRegion = getWorldGuardRegionAt(to);
+        String newRegion = getRegionAt(to);
 
         // Pas de changement de region
         if (Objects.equals(previousRegion, newRegion)) {
@@ -267,64 +219,11 @@ public class ZoneManager implements Listener {
     }
 
     /**
-     * Retourne le nom d'une region a cette location.
-     * Utilise WorldGuard si disponible, sinon le systeme interne.
+     * Retourne le nom d'une region a cette location via le systeme interne.
      * @return nom de la region ou null s'il n'y en a pas
      */
-    private String getWorldGuardRegionAt(Location loc) {
-        if (useWorldGuard) {
-            return getWorldGuardRegionAtWG(loc);
-        } else {
-            return regionManager.getRegionAt(loc);
-        }
-    }
-    
-    /**
-     * Retourne le nom d'une region WorldGuard a cette location
-     * (premiere trouvee), ou null s'il n'y en a pas.
-     */
-    private String getWorldGuardRegionAtWG(Location loc) {
-        try {
-            // Check if reflection classes are available
-            if (worldGuardClass == null || bukkitAdapterClass == null || blockVector3Class == null) {
-                return null;
-            }
-            
-            World world = loc.getWorld();
-            if (world == null) return null;
-
-            Object worldGuardInstance = worldGuardClass.getMethod("getInstance").invoke(null);
-            Object platform = worldGuardClass.getMethod("getPlatform").invoke(worldGuardInstance);
-            Object regionContainer = platform.getClass().getMethod("getRegionContainer").invoke(platform);
-            
-            Object adaptedWorld = bukkitAdapterClass.getMethod("adapt", World.class).invoke(null, world);
-            Object regionManager = regionContainer.getClass().getMethod("get", Class.forName("com.sk89q.worldedit.world.World")).invoke(regionContainer, adaptedWorld);
-            
-            if (regionManager == null) return null;
-            
-            Object blockVector = blockVector3Class.getMethod("at", int.class, int.class, int.class)
-                .invoke(null, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-            
-            Object applicableRegionSet = regionManager.getClass()
-                .getMethod("getApplicableRegions", blockVector3Class)
-                .invoke(regionManager, blockVector);
-            
-            Iterable<?> regions = (Iterable<?>) applicableRegionSet;
-            for (Object region : regions) {
-                return (String) region.getClass().getMethod("getId").invoke(region);
-            }
-            
-            return null;
-        } catch (Exception e) {
-            // WorldGuard not available or reflection failed
-            plugin.getQuantumLogger().warning(
-                "Failed to query WorldGuard region at location " + 
-                loc.getWorld().getName() + " " + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ() + 
-                ": " + e.getClass().getSimpleName() + " - " + e.getMessage()
-            );
-            plugin.getQuantumLogger().error("Stack trace:", e);
-            return null;
-        }
+    private String getRegionAt(Location loc) {
+        return regionManager.getRegionAt(loc);
     }
 
     /**
@@ -344,7 +243,7 @@ public class ZoneManager implements Listener {
         // Not in cache, perform lookup
         String towerId = towerManager.getTowerByRegion(regionName);
         int floor = towerManager.getFloorByRegion(regionName);
-        boolean result = towerId != null && floor >= 0;  // ← Note: >= 0 au lieu de > 0
+        boolean result = towerId != null && floor >= 0;
         
         // Cache the result
         regionIsTowerCache.put(regionName, result);
@@ -380,7 +279,7 @@ public class ZoneManager implements Listener {
             return false;
         }
 
-        // OK : enregistrer la position, spawners + scoreboard
+        // OK : enregistrer la position + scoreboard
         towerManager.updateCurrentLocation(player, towerId, floor);
         // Swap to tower inventory
         if (towerInventoryManager != null && !towerInventoryManager.isInTower(player.getUniqueId())) {

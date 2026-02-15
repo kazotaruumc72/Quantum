@@ -21,7 +21,7 @@ public class TowerConfig {
 
     private String worldGuardRegion;
     
-    // Map floor number -> WorldGuard region name
+    // Map floor number -> region name
     private final Map<Integer, String> floorRegions;
     
     public TowerConfig(String id, String name, String world, int totalFloors, List<Integer> bossFloors, int finalBossFloor, int minLevel, int maxLevel) {

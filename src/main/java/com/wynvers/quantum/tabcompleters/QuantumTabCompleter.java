@@ -45,8 +45,6 @@ public class QuantumTabCompleter implements TabCompleter {
                 "npc",
                 "progress",
                 "reset",
-                "info",
-                "mobspawnzone",
                 "setspawn",
                 "setfirstspawn",
                 "structure",
@@ -65,22 +63,6 @@ public class QuantumTabCompleter implements TabCompleter {
                 if (subcmd.toLowerCase().startsWith(input)) {
                     completions.add(subcmd);
                 }
-            }
-        }
-        // Tab completion pour /quantum mobspawnzone
-        else if (args[0].equalsIgnoreCase("mobspawnzone")) {
-            if (args.length == 2) {
-                // /quantum mobspawnzone <create>
-                completions.add("create");
-            }
-            else if (args.length == 3 && args[1].equalsIgnoreCase("create")) {
-                // /quantum mobspawnzone create <tower_id>
-                completions.addAll(getTowerIds());
-            }
-            else if (args.length == 4 && args[1].equalsIgnoreCase("create")) {
-                // /quantum mobspawnzone create <tower_id> <floor>
-                String towerId = args[2];
-                completions.addAll(getFloorsForTower(towerId));
             }
         }
         // Tab completion pour /quantum tower
@@ -194,19 +176,10 @@ public class QuantumTabCompleter implements TabCompleter {
                 "animations",
                 "animation",
                 "animations.yml",
-                "healthbar",
-                "healthbars",
-                "mob_healthbar",
-                "mob_healthbar.yml",
                 "scoreboard",
                 "scoreboard.yml",
                 "towerscoreboard",
                 "tower_scoreboard",
-                "mobskills",
-                "mob_skills",
-                "mob_skills.yml",
-                "mobanimations",
-                "mob_animations",
                 "furniture",
                 "furniture.yml",
                 "crops",

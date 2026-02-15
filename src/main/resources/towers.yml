@@ -4,14 +4,10 @@
 # Documentation complète du système:
 # - Portes automatiques (disparition 30s)
 # - NPC avec Model Engine
-# - Loots Nexo/MythicMobs avec %chance
-# - Commandes avec %chance (style DeluxeMenus)
-# - Skills des mobs (15 types)
-# - Animations Model Engine (spawn, idle, walk, attack, death)
-# - Scaling automatique par nombre de runs
-# - display_name: Nom affiché au-dessus du mob (utilisé par mob_healthbar.yml)
-# - healthbar_offset: Offset vertical de la healthbar (OPTIONNEL, voir mob_healthbar.yml)
-# - ⚠️ Régions de spawn OBLIGATOIRES (voir notes en fin de fichier)
+# - Régions WorldGuard par étage
+# - Récompenses par étage (Nexo/MythicMobs/commandes)
+#
+# ⚠️ Le système de mobs sera géré par MythicMobs ultérieurement.
 
 towers:
   tower_water:
@@ -20,43 +16,6 @@ towers:
     worldguard_region: "tower_water_global"
     min_level: 1
     max_level: 26
-    
-    # Loots par mob (global à tous les étages de cette tour)
-    mob_loots:
-      slime_basic:
-        nexo:
-          - id: "slime_fragment"
-            amount: 1
-            chance: 50.0
-            message: "&a+1 Fragment de Slime"
-          - id: "water_essence"
-            amount: 1
-            chance: 25.0
-            message: "&b+1 Essence d'Eau"
-        mythic:
-          - id: "CommonDungeon"
-            amount: 1
-            chance: 100.0
-        commands:
-          # Format simple (100% chance)
-          - "eco give %player% 10"
-          
-          # Format avec chance
-          - cmd: "xp give %player% 5"
-            chance: 100.0
-          - cmd: "give %player% gold_nugget 1"
-            chance: 30.0
-
-      water_guardian:
-        nexo:
-          - id: "guardian_scale"
-            amount: 1
-            chance: 40.0
-            message: "&9+1 Écaille de Gardien"
-        commands:
-          - "eco give %player% 25"
-          - cmd: "give %player% prismarine_shard 2"
-            chance: 50.0
 
     # Configuration des étages
     floors:
@@ -73,73 +32,7 @@ towers:
           yaw: 90.0
           pitch: 0.0
 
-        # Spawners de mobs
-        spawners:
-          slime_pack_1:
-            type: ZOMBIE
-            model: "slime_basic"        # Model Engine ID
-            display_name: "&bSlime d'Eau"  # Nom affiché au-dessus du mob
-            base_health: 40.0
-            damage: 4
-            amount: 3                    # Nombre initial
-            interval: 60                 # Secondes entre spawns
-            max_alive: 10                # Maximum de mobs vivants
-
-            # Scaling par nombre de runs
-            scaling:
-              health_per_run_percent: 5  # +5% HP par run
-              amount_per_run: 1          # +1 mob tous les X runs
-              max_extra_amount: 5        # Maximum +5 mobs
-
-            # Skills du mob
-            skills:
-              - id: iceberg
-                interval: 25
-                duration: 8
-                radius: 2
-                height: 4
-              - id: slowness
-                interval: 30
-                duration: 5
-                amplifier: 1
-
-            # Animations Model Engine
-            animations:
-              spawn: "slime_spawn"
-              idle: "slime_idle"
-              walk: "slime_walk"
-              attack: "slime_attack"
-              death: "slime_death"
-
-          slime_pack_2:
-            type: ZOMBIE
-            model: "slime_basic"
-            display_name: "&bSlime d'Eau"
-            base_health: 40.0
-            damage: 4
-            amount: 2
-            interval: 45
-            max_alive: 8
-
-            scaling:
-              health_per_run_percent: 5
-              amount_per_run: 1
-              max_extra_amount: 3
-
-            skills:
-              - id: slowness
-                interval: 20
-                duration: 4
-                amplifier: 2
-
-            animations:
-              spawn: "slime_spawn"
-              idle: "slime_idle"
-              walk: "slime_walk"
-              attack: "slime_attack"
-              death: "slime_death"
-
-        # Récompenses de fin d'étage (automatiques quand tous les mobs sont tués)
+        # Récompenses de fin d'étage
         rewards:
           nexo:
             - id: "water_key"
@@ -193,43 +86,6 @@ towers:
           yaw: 180.0
           pitch: 0.0
 
-        spawners:
-          water_guardian_pack:
-            type: ZOMBIE
-            model: "water_guardian"
-            display_name: "&3Gardien de l'Eau"
-            base_health: 80.0
-            damage: 6
-            amount: 4
-            interval: 50
-            max_alive: 12
-
-            scaling:
-              health_per_run_percent: 7
-              amount_per_run: 1
-              max_extra_amount: 6
-
-            skills:
-              - id: iceberg
-                interval: 20
-                duration: 10
-                radius: 3
-                height: 5
-              - id: slowness
-                interval: 25
-                duration: 6
-                amplifier: 2
-              - id: pull
-                interval: 35
-                strength: 2
-
-            animations:
-              spawn: "guardian_rise"
-              idle: "guardian_idle"
-              walk: "guardian_walk"
-              attack: "guardian_thrust"
-              death: "guardian_dissolve"
-
         rewards:
           nexo:
             - id: "water_key"
@@ -266,78 +122,6 @@ towers:
           z: 300.5
           yaw: 270.0
           pitch: 0.0
-
-        spawners:
-          water_knight_boss:
-            type: ZOMBIE
-            model: "water_knight_boss"
-            display_name: "&3&l⚔ Chevalier de l'Eau ⚔"
-            base_health: 200.0
-            damage: 10
-            amount: 1
-            interval: 120
-            max_alive: 1
-
-            scaling:
-              health_per_run_percent: 10
-              amount_per_run: 0        # Pas de scaling de quantité pour les boss
-              max_extra_amount: 0
-
-            skills:
-              - id: iceberg
-                interval: 15
-                duration: 8
-                radius: 4
-                height: 6
-              - id: fireprison
-                interval: 25
-                duration: 5
-              - id: explosion
-                interval: 30
-                damage: 15
-                radius: 3
-              - id: pull
-                interval: 20
-                strength: 3
-              - id: weakness
-                interval: 35
-                duration: 10
-                amplifier: 2
-
-            animations:
-              spawn: "boss_epic_entrance"
-              idle: "boss_breathing"
-              walk: "boss_heavy_walk"
-              attack: "boss_power_slash"
-              death: "boss_explosion_death"
-
-          # Adds du boss
-          water_minion:
-            type: ZOMBIE
-            model: "slime_basic"
-            display_name: "&bServiteur d'Eau"
-            base_health: 30.0
-            damage: 3
-            amount: 2
-            interval: 40
-            max_alive: 6
-
-            scaling:
-              health_per_run_percent: 5
-              amount_per_run: 1
-              max_extra_amount: 4
-
-            skills:
-              - id: slowness
-                interval: 20
-                duration: 4
-                amplifier: 1
-
-            animations:
-              idle: "slime_idle"
-              walk: "slime_walk"
-              attack: "slime_attack"
-              death: "slime_death"
 
         rewards:
           nexo:
@@ -386,18 +170,6 @@ towers:
     worldguard_region: "tower_fire_global"
     min_level: 20
     max_level: 50
-    
-    mob_loots:
-      fire_imp:
-        nexo:
-          - id: "fire_essence"
-            amount: 1
-            chance: 50.0
-            message: "&c+1 Essence de Feu"
-        commands:
-          - "eco give %player% 20"
-          - cmd: "give %player% blaze_powder 1"
-            chance: 40.0
 
     floors:
       1:
@@ -410,42 +182,6 @@ towers:
           z: 400.5
           yaw: 0.0
           pitch: 0.0
-
-        spawners:
-          fire_imp_pack:
-            type: BLAZE
-            model: "fire_imp"
-            display_name: "&cDiablotin de Feu"            
-            base_health: 60.0
-            damage: 8
-            amount: 3
-            interval: 55
-            max_alive: 10
-
-            scaling:
-              health_per_run_percent: 6
-              amount_per_run: 1
-              max_extra_amount: 5
-
-            skills:
-              - id: fire
-                interval: 20
-                duration: 6
-                radius: 3
-              - id: firestorm
-                interval: 35
-                duration: 8
-                radius: 4
-              - id: blindness
-                interval: 40
-                duration: 5
-
-            animations:
-              spawn: "imp_summon"
-              idle: "imp_float"
-              walk: "imp_fly"
-              attack: "imp_fireball"
-              death: "imp_explode"
 
         rewards:
           nexo:
@@ -467,35 +203,6 @@ towers:
 # NOTES DE CONFIGURATION
 # =======================================
 
-# DISPLAY_NAME:
-# - Nom affiché au-dessus du mob avec codes couleur Minecraft (&a, &b, etc.)
-# - Utilisé par mob_healthbar.yml pour associer la configuration de healthbar
-# - Doit être unique pour chaque type de mob
-
-# ANIMATIONS:
-# - spawn: Joué une fois au spawn
-# - idle: Boucle quand immobile
-# - walk: Joué quand le mob bouge
-# - attack: Joué lors d'une attaque
-# - death: Joué à la mort
-
-# SKILLS DISPONIBLES:
-# - iceberg: Colonnes de glace
-# - fire: Zone de feu
-# - fireprison: Prison de feu
-# - firestorm: Pluie de boules de feu
-# - slowness: Effet de lenteur
-# - weakness: Effet de faiblesse
-# - poison: Effet de poison
-# - wither: Effet wither
-# - blindness: Cécité
-# - darkness: Obscurité
-# - explosion: Explosion
-# - lightning: Foudre
-# - teleport: Téléportation aléatoire
-# - knockback: Repousse
-# - pull: Attire vers le mob
-
 # COMMANDES:
 # Format simple: "commande" (100% chance)
 # Format avec chance: {cmd: "commande", chance: 50.0}
@@ -505,33 +212,3 @@ towers:
 # %uuid% - UUID du joueur
 # %world% - Nom du monde
 # %x%, %y%, %z% - Coordonnées
-
-# RÉGIONS DE SPAWN (OBLIGATOIRE):
-# ⚠️ Important: Les mobs ne spawn PLUS aléatoirement près du joueur !
-# Chaque spawner DOIT avoir une région de spawn définie.
-# 
-# Méthode 1 - Commande automatique (RECOMMANDÉ):
-#   1. Tenir une hache en netherite (être OP)
-#   2. Clic gauche sur un bloc → Position 1
-#   3. Clic droit sur un bloc → Position 2
-#   4. /quantum mobspawnzone create <tower_id> <floor>
-#   → Applique automatiquement la zone à tous les spawners de l'étage
-#
-# Méthode 2 - Configuration manuelle:
-#   spawners:
-#     spawner_id:
-#       type: ZOMBIE
-#       # ... config normale ...
-#       region:
-#         world: "world"
-#         x1: 100.5
-#         y1: 65.0
-#         z1: 200.5
-#         x2: 150.5
-#         y2: 75.0
-#         z2: 250.5
-#
-# Sans région configurée:
-# - Les mobs ne spawneront PAS
-# - Un avertissement sera affiché dans la console
-# - Utilisez /quantum mobspawnzone create pour corriger

@@ -44,6 +44,7 @@ public class ChatListener implements Listener {
             JobManager jobManager = plugin.getJobManager();
             if (jobManager != null && jobManager.getPlayerJob(player.getUniqueId()) == null) {
                 event.setCancelled(true);
+                player.sendMessage("§cVous devez avoir un métier pour parler dans le chat !");
                 return;
             }
         }

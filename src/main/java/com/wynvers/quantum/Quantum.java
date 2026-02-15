@@ -27,6 +27,8 @@ import com.wynvers.quantum.jobs.JobAdminCommand;
 import com.wynvers.quantum.jobs.JobTabCompleter;
 import com.wynvers.quantum.jobs.JobAdminTabCompleter;
 import com.wynvers.quantum.home.HomeManager;
+import com.wynvers.quantum.database.DatabaseManager;
+import com.wynvers.quantum.apartment.ApartmentManager;
 import com.wynvers.quantum.tab.TABManager;
 import com.wynvers.quantum.placeholderapi.PlaceholderAPIManager;
 import com.wynvers.quantum.worldguard.ZoneManager;

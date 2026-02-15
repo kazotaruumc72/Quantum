@@ -381,6 +381,10 @@ permissions:
     description: Use job system
     default: true
   
+  quantum.job.bypass:
+    description: Bypass job requirement for block break/place/chat
+    default: false
+  
   quantum.job.admin:
     description: Admin job commands
   # Structure system

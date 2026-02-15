@@ -1,6 +1,7 @@
 package com.wynvers.quantum.chat;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.jobs.JobManager;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -37,6 +38,16 @@ public class ChatListener implements Listener {
         }
         
         Player player = event.getPlayer();
+        
+        // Bloquer le chat si le joueur n'a pas de métier
+        if (!player.hasPermission("quantum.job.bypass")) {
+            JobManager jobManager = plugin.getJobManager();
+            if (jobManager != null && jobManager.getPlayerJob(player.getUniqueId()) == null) {
+                event.setCancelled(true);
+                player.sendMessage("§cVous devez avoir un métier pour parler dans le chat !");
+                return;
+            }
+        }
         
         // Récupérer le message original
         Component originalMessage = event.message();

@@ -7,6 +7,7 @@ import com.nexomc.nexo.mechanics.furniture.FurnitureMechanic;
 import com.wynvers.quantum.Quantum;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.core.mobs.ActiveMob;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -37,6 +38,32 @@ public class JobActionListener implements Listener {
     public JobActionListener(Quantum plugin, JobManager jobManager) {
         this.plugin = plugin;
         this.jobManager = jobManager;
+    }
+    
+    /**
+     * Bloque le cassage de bloc si le joueur n'a pas de métier
+     */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onBlockBreakNoJob(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        if (player.hasPermission("quantum.job.bypass")) return;
+        if (jobManager.getPlayerJob(player.getUniqueId()) == null) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "Vous devez avoir un métier pour casser des blocs !");
+        }
+    }
+    
+    /**
+     * Bloque le placement de bloc si le joueur n'a pas de métier
+     */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onBlockPlaceNoJob(BlockPlaceEvent event) {
+        Player player = event.getPlayer();
+        if (player.hasPermission("quantum.job.bypass")) return;
+        if (jobManager.getPlayerJob(player.getUniqueId()) == null) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "Vous devez avoir un métier pour poser des blocs !");
+        }
     }
     
     /**

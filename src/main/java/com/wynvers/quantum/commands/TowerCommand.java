@@ -237,7 +237,7 @@ public class TowerCommand implements CommandExecutor {
         // For now, just send a message (you'll need to add actual teleportation logic)
         sender.sendMessage("§aTentative de téléportation vers: " + tower.getName() + " - Étage " + floor);
         sender.sendMessage("§7Région: " + regionName);
-        sender.sendMessage("§e⚠ Note: Configuration du spawn de la région requise dans WorldGuard");
+        sender.sendMessage("§e⚠ Note: Configuration du spawn de la région requise");
         
         return true;
     }

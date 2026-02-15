@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,13 +18,6 @@ public class PlaceholderManager {
 
     private final Quantum plugin;
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("%([^%]+)%");
-    
-    // Cache for tower kill requirements to avoid repeated YAML file reads
-    // Key: towerId + "|" + floor (using | as delimiter to avoid collisions with tower IDs)
-    // Value: required kills
-    private final Map<String, Integer> killRequirementsCache = new ConcurrentHashMap<>();
-    private volatile long lastCacheRefresh = 0;
-    private static final long CACHE_TTL = 300000; // 5 minutes in milliseconds
 
     public PlaceholderManager(Quantum plugin) {
         this.plugin = plugin;
@@ -264,11 +257,6 @@ public class PlaceholderManager {
             return handleTowerPlaceholder(player, params);
         }
         
-        // === KILL TRACKING ===
-        if (params.startsWith("killed_")) {
-            return handleKillPlaceholder(player, params);
-        }
-        
         // === ECONOMY ===
         if (params.startsWith("eco_")) {
             return handleEcoPlaceholder(player, params);
@@ -455,9 +443,7 @@ public class PlaceholderManager {
         }
         
         // Additional tower placeholders
-        if (params.equals("tower_kills_current") || params.equals("tower_kills_required") || 
-            params.equals("tower_kills_progress") || params.equals("tower_percentage") ||
-            params.equals("tower_next_boss") || params.equals("tower_status")) {
+        if (params.equals("tower_next_boss") || params.equals("tower_status")) {
             return handleCurrentTowerPlaceholder(player, params, currentTowerId, progress, towerManager);
         }
         
@@ -510,30 +496,6 @@ public class PlaceholderManager {
     private String handleCurrentTowerPlaceholder(Player player, String params, String currentTowerId, 
             com.wynvers.quantum.towers.TowerProgress progress, com.wynvers.quantum.towers.TowerManager towerManager) {
         if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
-        
-        Map<String, Integer> kills = progress.getCurrentKills();
-        int currentKills = kills.values().stream().mapToInt(Integer::intValue).sum();
-        
-        if (params.equals("tower_kills_current")) {
-            return Integer.toString(currentKills);
-        }
-        
-        if (params.equals("tower_kills_required")) {
-            int floor = progress.getCurrentFloor();
-            return Integer.toString(getRequiredKills(currentTowerId, floor));
-        }
-        
-        if (params.equals("tower_kills_progress")) {
-            int required = getRequiredKills(currentTowerId, progress.getCurrentFloor());
-            return currentKills + "/" + required;
-        }
-        
-        if (params.equals("tower_percentage")) {
-            int required = getRequiredKills(currentTowerId, progress.getCurrentFloor());
-            if (required == 0) return "0";
-            int percentage = (currentKills * 100) / required;
-            return Integer.toString(Math.min(percentage, 100));
-        }
         
         if (params.equals("tower_next_boss")) {
             com.wynvers.quantum.towers.TowerConfig tower = towerManager.getTower(currentTowerId);
@@ -589,104 +551,6 @@ public class PlaceholderManager {
         }
         
         return "0";
-    }
-    
-    /**
-     * Get required kills for a floor from towers.yml configuration
-     * Uses caching to avoid repeated YAML file reads
-     */
-    private int getRequiredKills(String towerId, int floor) {
-        // Check cache first - using | as delimiter to prevent collisions
-        String cacheKey = towerId + "|" + floor;
-        
-        // Refresh cache if TTL has expired
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastCacheRefresh > CACHE_TTL) {
-            killRequirementsCache.clear();
-            lastCacheRefresh = currentTime;
-        }
-        
-        // Return cached value if available
-        Integer cached = killRequirementsCache.get(cacheKey);
-        if (cached != null) {
-            return cached;
-        }
-        
-        // Calculate and cache
-        int total = calculateRequiredKills(towerId, floor);
-        killRequirementsCache.put(cacheKey, total);
-        return total;
-    }
-    
-    /**
-     * Calculate required kills from YAML configuration
-     */
-    private int calculateRequiredKills(String towerId, int floor) {
-        try {
-            java.io.File towersFile = new java.io.File(plugin.getDataFolder(), "towers.yml");
-            if (!towersFile.exists()) return 0;
-            
-            org.bukkit.configuration.file.YamlConfiguration config = 
-                org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(towersFile);
-            
-            String path = "towers." + towerId + ".floors." + floor + ".spawners";
-            org.bukkit.configuration.ConfigurationSection spawnersSection = config.getConfigurationSection(path);
-            
-            if (spawnersSection == null) return 0;
-            
-            int total = 0;
-            for (String spawnerKey : spawnersSection.getKeys(false)) {
-                org.bukkit.configuration.ConfigurationSection spawner = spawnersSection.getConfigurationSection(spawnerKey);
-                if (spawner != null) {
-                    int amount = spawner.getInt("amount", 0);
-                    total += amount;
-                }
-            }
-            
-            return total;
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-    
-    /**
-     * Handle kill tracking placeholders
-     */
-    private String handleKillPlaceholder(Player player, String params) {
-        if (plugin.getKillTracker() == null) {
-            return "false";
-        }
-        
-        // Extract mob_id and amount
-        String[] parts = params.substring(7).split("_");
-        if (parts.length < 2) {
-            return "false";
-        }
-        
-        // Reconstruct the mob_id (may contain underscores)
-        StringBuilder mobIdBuilder = new StringBuilder();
-        for (int i = 0; i < parts.length - 1; i++) {
-            if (i > 0) mobIdBuilder.append("_");
-            mobIdBuilder.append(parts[i]);
-        }
-        String mobId = mobIdBuilder.toString();
-        
-        // Last element is the amount
-        int requiredAmount;
-        try {
-            requiredAmount = Integer.parseInt(parts[parts.length - 1]);
-        } catch (NumberFormatException e) {
-            return "false";
-        }
-        
-        // Check if player has reached the quota
-        boolean hasReached = plugin.getKillTracker().hasReachedQuota(
-            player.getUniqueId(), 
-            mobId, 
-            requiredAmount
-        );
-        
-        return hasReached ? "true" : "false";
     }
     
     /**

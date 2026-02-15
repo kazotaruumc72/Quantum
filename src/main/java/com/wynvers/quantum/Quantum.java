@@ -29,11 +29,7 @@ import com.wynvers.quantum.jobs.JobAdminTabCompleter;
 import com.wynvers.quantum.home.HomeManager;
 import com.wynvers.quantum.tab.TABManager;
 import com.wynvers.quantum.placeholderapi.PlaceholderAPIManager;
-import com.wynvers.quantum.worldguard.gui.ZoneGUIManager;
-import com.wynvers.quantum.worldguard.gui.ZoneSettingsGUI;
-import com.wynvers.quantum.apartment.ApartmentManager;
-import com.wynvers.quantum.commands.*;
-import com.wynvers.quantum.database.DatabaseManager;
+import com.wynvers.quantum.worldguard.ZoneManager;
 import com.wynvers.quantum.levels.PlayerLevelListener;
 import com.wynvers.quantum.levels.PlayerLevelManager;
 import com.wynvers.quantum.listeners.DoorSelectionListener;
@@ -55,7 +51,6 @@ import com.wynvers.quantum.towers.*;
 import com.wynvers.quantum.transactions.TransactionHistoryManager;
 import com.wynvers.quantum.utils.ActionExecutor;
 import com.wynvers.quantum.utils.Logger;
-import com.wynvers.quantum.worldguard.ZoneManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -101,7 +96,9 @@ public final class Quantum extends JavaPlugin {
     private StorageStatsManager storageStatsManager;
     private TransactionHistoryManager transactionHistoryManager;   // NEW
     private TradingStatisticsManager tradingStatisticsManager;     // NEW
-    private ZoneManager zoneManager;        // Tower zone management (supports WorldGuard or internal)
+    private ZoneManager zoneManager;        // Tower zone management (internal regions)
+    private com.wynvers.quantum.regions.InternalRegionManager internalRegionManager; // Internal region system
+    private SpawnSelectionManager spawnSelectionManager; // Zone selection tool (netherite axe)
     private TowerManager towerManager;     // Tower progression system
     private TowerScoreboardHandler scoreboardHandler; // Tower scoreboard
     private TowerDoorManager doorManager;
@@ -137,10 +134,6 @@ public final class Quantum extends JavaPlugin {
     
     // PlaceholderAPI Integration
     private PlaceholderAPIManager placeholderAPIManager;
-    
-    // WorldGuard Zone GUI
-    private ZoneGUIManager zoneGUIManager;
-    private ZoneSettingsGUI zoneSettingsGUI;
     
     // Apartment System (preparation phase)
     private ApartmentManager apartmentManager;
@@ -196,22 +189,25 @@ public final class Quantum extends JavaPlugin {
         this.doorManager = new TowerDoorManager(this);
         this.npcManager = new TowerNPCManager(this);
         
+        // Spawn Selection Manager + Listener (hache netherite pour définir zones)
+        this.spawnSelectionManager = new SpawnSelectionManager();
+        Bukkit.getPluginManager().registerEvents(
+                new com.wynvers.quantum.listeners.SpawnSelectionListener(this, spawnSelectionManager),
+                this
+        );
+        logger.success("✓ Spawn Selection Manager + Listener initialized!");
+        
         // Enregistrer les listeners
         getServer().getPluginManager().registerEvents(new DoorSelectionListener(this, doorManager), this);
 
-        // Tower zone management (supports both WorldGuard and internal regions)
+        // Internal Region Manager
+        this.internalRegionManager = new com.wynvers.quantum.regions.InternalRegionManager(this);
+        loadInternalRegions();
+
+        // Tower zone management (internal regions)
         this.scoreboardHandler = new TowerScoreboardHandler(this);
         this.towerInventoryManager = new TowerInventoryManager(this);
         this.zoneManager = new ZoneManager(this); // s'enregistre lui-même en listener
-        
-        // WorldGuard GUI (only if WorldGuard is available)
-        if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
-            // Zone GUI System
-            this.zoneGUIManager = new ZoneGUIManager(this);
-            this.zoneSettingsGUI = new ZoneSettingsGUI(this, zoneGUIManager);
-            logger.success("✓ WorldGuard integration enabled!");
-            logger.success("✓ Zone GUI system initialized!");
-        }
         
         logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
         logger.success("✓ Integrated tower scoreboard ready!");
@@ -310,7 +306,6 @@ public final class Quantum extends JavaPlugin {
         extractResource("structures.yml");
         extractResource("dungeon_weapon.yml");
         extractResource("jobs.yml");
-        extractResource("zone_configs.yml");
 
         extractResource("scoreboard.yml");
         extractResource("dungeon.yml");
@@ -515,6 +510,78 @@ public final class Quantum extends JavaPlugin {
         logger.success("✓ Jobs System initialized! (" + jobManager.getAllJobs().size() + " jobs available)");
     }
     
+    // ───────────────────── Internal Regions Loading ─────────────────────
+    
+    /**
+     * Load internal regions from towers.yml configuration
+     * Regions are loaded from the tower configuration and registered with InternalRegionManager
+     */
+    private void loadInternalRegions() {
+        File towersFile = new File(getDataFolder(), "towers.yml");
+        if (!towersFile.exists()) {
+            logger.warning("towers.yml not found - internal regions not loaded");
+            return;
+        }
+        
+        org.bukkit.configuration.file.FileConfiguration config = 
+            org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(towersFile);
+        
+        org.bukkit.configuration.ConfigurationSection towersSection = config.getConfigurationSection("towers");
+        if (towersSection == null) {
+            logger.warning("No 'towers' section in towers.yml");
+            return;
+        }
+        
+        int regionsLoaded = 0;
+        
+        for (String towerId : towersSection.getKeys(false)) {
+            org.bukkit.configuration.ConfigurationSection towerSection = towersSection.getConfigurationSection(towerId);
+            if (towerSection == null) continue;
+            
+            // Load floor regions
+            org.bukkit.configuration.ConfigurationSection floorsSection = towerSection.getConfigurationSection("floors");
+            if (floorsSection == null) continue;
+            
+            for (String floorKey : floorsSection.getKeys(false)) {
+                org.bukkit.configuration.ConfigurationSection floorSection = floorsSection.getConfigurationSection(floorKey);
+                if (floorSection == null) continue;
+                
+                // Check if this floor has region coordinates (for internal system)
+                String regionName = floorSection.getString("worldguard_region");
+                if (regionName == null || regionName.isEmpty()) continue;
+                
+                // Try to load region from internal format
+                org.bukkit.configuration.ConfigurationSection regionSection = floorSection.getConfigurationSection("region");
+                if (regionSection != null) {
+                    if (internalRegionManager.loadRegionFromConfig(regionName, regionSection)) {
+                        regionsLoaded++;
+                    }
+                }
+            }
+        }
+        
+        // Also load from separate regions.yml if it exists
+        File regionsFile = new File(getDataFolder(), "regions.yml");
+        if (regionsFile.exists()) {
+            org.bukkit.configuration.file.FileConfiguration regionsConfig = 
+                org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(regionsFile);
+            
+            org.bukkit.configuration.ConfigurationSection regionsSection = regionsConfig.getConfigurationSection("regions");
+            if (regionsSection != null) {
+                for (String regionId : regionsSection.getKeys(false)) {
+                    org.bukkit.configuration.ConfigurationSection regionSection = regionsSection.getConfigurationSection(regionId);
+                    if (regionSection != null) {
+                        if (internalRegionManager.loadRegionFromConfig(regionId, regionSection)) {
+                            regionsLoaded++;
+                        }
+                    }
+                }
+            }
+        }
+        
+        logger.success("✓ Internal Regions loaded! (" + regionsLoaded + " regions registered)");
+    }
+
     // ───────────────────── Commandes ─────────────────────
 
     private void registerCommands() {
@@ -622,13 +689,6 @@ public final class Quantum extends JavaPlugin {
             getCommand("spawn").setExecutor(spawnCommand);
             getCommand("spawn").setTabCompleter(spawnTabCompleter);
             logger.success("✓ Spawn Command + TabCompleter");
-        }
-        
-        // Zone GUI Command
-        if (zoneGUIManager != null && zoneSettingsGUI != null) {
-            getCommand("zonegui").setExecutor(new ZoneGUICommand(this, zoneGUIManager, zoneSettingsGUI));
-            getCommand("zonegui").setTabCompleter(new com.wynvers.quantum.tabcompleters.ZoneGUITabCompleter(this));
-            logger.success("✓ Zone GUI Command + TabCompleter");
         }
         
         // Apartment Command
@@ -908,6 +968,14 @@ public final class Quantum extends JavaPlugin {
     public TowerNPCManager getNPCManager() {
         return npcManager;
     }
+    
+    public com.wynvers.quantum.regions.InternalRegionManager getInternalRegionManager() {
+        return internalRegionManager;
+    }
+    
+    public SpawnSelectionManager getSpawnSelectionManager() {
+        return spawnSelectionManager;
+    }
 
     public DungeonArmor getDungeonArmor() {
         return dungeonArmor;
@@ -965,14 +1033,6 @@ public final class Quantum extends JavaPlugin {
     
     public PlaceholderAPIManager getPlaceholderAPIManager() {
         return placeholderAPIManager;
-    }
-    
-    public ZoneGUIManager getZoneGUIManager() {
-        return zoneGUIManager;
-    }
-    
-    public ZoneSettingsGUI getZoneSettingsGUI() {
-        return zoneSettingsGUI;
     }
     
     public ApartmentManager getApartmentManager() {

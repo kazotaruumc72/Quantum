@@ -3,7 +3,7 @@
 # ========================================
 #
 # Configuration de l'arme de donjon améliorable
-# Utilisable uniquement dans les donjons (zones WorldGuard)
+# Utilisable uniquement dans les donjons
 # Système d'amélioration similaire à l'armure de donjon
 
 # ========================================
@@ -74,9 +74,9 @@ weapon:
     9_to_10: 200000
 
 # ========================================
-#  Zones de donjon (WorldGuard regions)
+#  Zones de donjon
 # ========================================
-# Liste des régions WorldGuard considérées comme donjons
+# Liste des régions considérées comme donjons
 # L'arme ne peut être utilisée QUE dans ces zones
 dungeon_regions:
   - "dungeon_1"

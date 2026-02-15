@@ -26,8 +26,7 @@ public class QuantumCommand implements CommandExecutor {
             plugin, 
             plugin.getTowerManager(), 
             plugin.getDoorManager(), 
-            plugin.getNPCManager(), 
-            plugin.getLootManager()
+            plugin.getNPCManager()
         );
         this.structureCommand = new StructureCommand(plugin, plugin.getStructureSelectionManager());
         this.economyCommand = new EconomyCommand(plugin);
@@ -70,7 +69,7 @@ public class QuantumCommand implements CommandExecutor {
         // Tower-related commands - delegate to QuantumTowerCommand
         if (subCommand.equals("tower") || subCommand.equals("door") || subCommand.equals("npc") ||
             subCommand.equals("progress") || subCommand.equals("reset") || 
-            subCommand.equals("info") || subCommand.equals("mobspawnzone")) {
+            subCommand.equals("info")) {
             return towerCommand.onCommand(sender, command, label, args);
         }
         
@@ -279,33 +278,6 @@ public class QuantumCommand implements CommandExecutor {
                             }
                             break;
 
-                        case "mobskills":
-                        case "mob_skills":
-                        case "mob_skills.yml":
-                            if (plugin.getMobSkillManager() != null) {
-                                plugin.getMobSkillManager().reload();
-                                sender.sendMessage("§a§l✓ §amob_skills.yml rechargé!");
-                            }
-                            break;
-
-                        case "mobanimations":
-                        case "mob_animations":
-                            if (plugin.getMobAnimationManager() != null) {
-                                plugin.getMobAnimationManager().reload();
-                                sender.sendMessage("§a§l✓ §aMob animations rechargées!");
-                            }
-                            break;
-
-                        case "healthbar":
-                        case "healthbars":
-                        case "mob_healthbar":
-                        case "mob_healthbar.yml":
-                            if (plugin.getHealthBarManager() != null) {
-                                plugin.getHealthBarManager().reload();
-                                sender.sendMessage("§a§l✓ §amob_healthbar.yml rechargé!");
-                            }
-                            break;
-
                         case "furniture":
                         case "furniture.yml":
                             if (plugin.getFurnitureManager() != null) {
@@ -390,9 +362,6 @@ public class QuantumCommand implements CommandExecutor {
         if (plugin.getAnimationManager() != null) plugin.getAnimationManager().reload();
         if (plugin.getScoreboardConfig() != null) plugin.getScoreboardConfig().reload();
         if (plugin.getTowerScoreboardHandler() != null) plugin.getTowerScoreboardHandler().reload();
-        if (plugin.getMobSkillManager() != null) plugin.getMobSkillManager().reload();
-        if (plugin.getMobAnimationManager() != null) plugin.getMobAnimationManager().reload();
-        if (plugin.getHealthBarManager() != null) plugin.getHealthBarManager().reload();
         if (plugin.getFurnitureManager() != null) plugin.getFurnitureManager().reload();
         if (plugin.getCustomCropManager() != null) plugin.getCustomCropManager().reload();
         if (plugin.getToolManager() != null) plugin.getToolManager().reload();

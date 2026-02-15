@@ -90,23 +90,6 @@ items:
         - '[message] &9☾ Il fait maintenant nuit !'
         - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP'
 
-  # ── MOBS QUANTUM ──
-  'mob_spawn_toggle':
-    slot: 16
-    material: ZOMBIE_HEAD
-    amount: 1
-    display_name: '&c&l⚔ Spawn Mobs Quantum'
-    lore:
-      - '&7Active/désactive le spawn'
-      - '&7des mobs Quantum dans les tours'
-      - ''
-      - '&eCliquez pour toggle'
-    left_click:
-      actions:
-        - '[console] quantum tower spawner toggleall'
-        - '[message] &c⚔ Toggle des spawners Quantum !'
-        - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP'
-
   # ── GESTION JOUEURS ──
   'heal_self':
     slot: 28

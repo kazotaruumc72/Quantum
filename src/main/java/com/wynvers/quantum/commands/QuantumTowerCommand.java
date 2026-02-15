@@ -1,11 +1,7 @@
 package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.listeners.DoorSelectionListener;
 import com.wynvers.quantum.towers.*;
-import com.ticxo.modelengine.api.ModelEngineAPI;
-import com.ticxo.modelengine.api.model.ActiveModel;
-import com.ticxo.modelengine.api.model.ModeledEntity;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -15,8 +11,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 import java.io.File;
@@ -24,7 +18,7 @@ import java.util.*;
 
 /**
  * Commande principale du système de tours
- * Gère: portes, NPC, téléportation, progression, animations, zones de spawn
+ * Gère: portes, NPC, téléportation, progression, zones
  */
 public class QuantumTowerCommand implements CommandExecutor {
     
@@ -32,17 +26,14 @@ public class QuantumTowerCommand implements CommandExecutor {
     private final TowerManager towerManager;
     private final TowerDoorManager doorManager;
     private final TowerNPCManager npcManager;
-    private final TowerLootManager lootManager;
     private final SpawnSelectionManager selectionManager;
     
     public QuantumTowerCommand(Quantum plugin, TowerManager towerManager, 
-                              TowerDoorManager doorManager, TowerNPCManager npcManager,
-                              TowerLootManager lootManager) {
+                              TowerDoorManager doorManager, TowerNPCManager npcManager) {
         this.plugin = plugin;
         this.towerManager = towerManager;
         this.doorManager = doorManager;
         this.npcManager = npcManager;
-        this.lootManager = lootManager;
         this.selectionManager = plugin.getSpawnSelectionManager();
     }
     
@@ -69,216 +60,12 @@ public class QuantumTowerCommand implements CommandExecutor {
                 return handleReset(sender, args);
             case "reload":
                 return handleReload(sender);
-            case "info":
-                return handleInfo(sender, args);
             case "mobspawnzone":
                 return handleMobSpawnZone(sender, args);
             default:
                 sendMainHelp(sender);
                 return true;
         }
-    }
-    
-    // ==================== INFO COMMANDS ====================
-    
-    private boolean handleInfo(CommandSender sender, String[] args) {
-        if (args.length < 2) {
-            sender.sendMessage("§cUsage: /quantum info <animation>");
-            return true;
-        }
-        
-        String infoType = args[1].toLowerCase();
-        
-        switch (infoType) {
-            case "animation":
-            case "anim":
-                return handleInfoAnimation(sender, args);
-            default:
-                sender.sendMessage("§cType d'info inconnu: " + infoType);
-                return true;
-        }
-    }
-    
-    private boolean handleInfoAnimation(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("§cCette commande est réservée aux joueurs.");
-            return true;
-        }
-        
-        if (!sender.hasPermission("quantum.info.animation")) {
-            sender.sendMessage("§cVous n'avez pas la permission!");
-            return true;
-        }
-        
-        Player player = (Player) sender;
-        
-        // Si aucun argument, afficher l'aide
-        if (args.length < 3) {
-            sender.sendMessage("§6§m══════════════════════════════");
-            sender.sendMessage("§6§lInfo Animations Model Engine");
-            sender.sendMessage("");
-            sender.sendMessage("§eUsage:");
-            sender.sendMessage("§7/quantum info animation <model_id> §8- Lister les animations");
-            sender.sendMessage("§7/quantum info animation <model_id> <animation> §8- Tester une animation");
-            sender.sendMessage("");
-            sender.sendMessage("§7Un zombie sera spawné à votre position avec le modèle.");
-            sender.sendMessage("§6§m══════════════════════════════");
-            return true;
-        }
-        
-        String modelId = args[2];
-        
-        // Si animation spécifiée, tester
-        if (args.length >= 4) {
-            String animationName = args[3];
-            return testAnimation(player, modelId, animationName);
-        } else {
-            // Sinon, lister les animations disponibles
-            return listAnimations(player, modelId);
-        }
-    }
-    
-    /**
-     * Spawner un mob avec le modèle et tester une animation
-     */
-    private boolean testAnimation(Player player, String modelId, String animationName) {
-        // Vérifier si Model Engine est activé
-        if (Bukkit.getPluginManager().getPlugin("ModelEngine") == null) {
-            player.sendMessage("§c§l[Anim] §cModel Engine n'est pas installé!");
-            return true;
-        }
-        
-        Location spawnLoc = player.getLocation().add(player.getLocation().getDirection().multiply(3));
-        
-        // Spawner un zombie
-        LivingEntity mob = (LivingEntity) player.getWorld().spawnEntity(spawnLoc, EntityType.ZOMBIE);
-        mob.setCustomName("§e§l[TEST] §f" + modelId);
-        mob.setCustomNameVisible(true);
-        
-        // Appliquer le modèle via Model Engine API
-        try {
-            ModeledEntity modeledEntity = ModelEngineAPI.createModeledEntity(mob);
-            ActiveModel activeModel = ModelEngineAPI.createActiveModel(modelId);
-            
-            if (activeModel == null) {
-                player.sendMessage("§c§l[Anim] §cModèle introuvable: " + modelId);
-                player.sendMessage("§7Vérifiez que le modèle existe dans Model Engine.");
-                mob.remove();
-                return true;
-            }
-            
-            modeledEntity.addModel(activeModel, true);
-            
-            player.sendMessage("§a§l[Anim] §aModèle appliqué: §f" + modelId);
-            
-            // Attendre un peu puis jouer l'animation
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (mob.isValid() && !mob.isDead()) {
-                    activeModel.getAnimationHandler().playAnimation(animationName, 0.3, 0.3, 1, true);
-                    
-                    player.sendMessage("§a§l[Anim] §aAnimation jouée: §f" + animationName);
-                    player.sendMessage("§7Le mob sera supprimé dans 10 secondes...");
-                    
-                    // Supprimer le mob après 10 secondes
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                        if (mob.isValid()) {
-                            ModelEngineAPI.removeModeledEntity(mob.getUniqueId());
-                            mob.remove();
-                        }
-                    }, 200L);
-                }
-            }, 20L);
-            
-        } catch (Exception e) {
-            player.sendMessage("§c§l[Anim] §cErreur: " + e.getMessage());
-            e.printStackTrace();
-            mob.remove();
-        }
-        
-        return true;
-    }
-    
-    /**
-     * Lister les animations du modèle via Model Engine API
-     */
-    private boolean listAnimations(Player player, String modelId) {
-        // Vérifier si Model Engine est activé
-        if (Bukkit.getPluginManager().getPlugin("ModelEngine") == null) {
-            player.sendMessage("§c§l[Anim] §cModel Engine n'est pas installé!");
-            return true;
-        }
-        
-        Location spawnLoc = player.getLocation().add(player.getLocation().getDirection().multiply(3));
-        
-        // Spawner un zombie avec le modèle
-        LivingEntity mob = (LivingEntity) player.getWorld().spawnEntity(spawnLoc, EntityType.ZOMBIE);
-        mob.setCustomName("§e§l[TEST] §f" + modelId);
-        mob.setCustomNameVisible(true);
-        
-        try {
-            // Créer le modèle via Model Engine API
-            ModeledEntity modeledEntity = ModelEngineAPI.createModeledEntity(mob);
-            ActiveModel activeModel = ModelEngineAPI.createActiveModel(modelId);
-            
-            if (activeModel == null) {
-                player.sendMessage("§c§l[Anim] §cModèle introuvable: " + modelId);
-                player.sendMessage("§7Vérifiez que le modèle existe dans Model Engine.");
-                mob.remove();
-                return true;
-            }
-            
-            modeledEntity.addModel(activeModel, true);
-            
-            // Récupérer les animations depuis le blueprint du modèle
-            Set<String> animations = new HashSet<>();
-            
-            // Utiliser getBlueprint().getAnimations() pour obtenir les animations
-            if (activeModel.getBlueprint() != null && activeModel.getBlueprint().getAnimations() != null) {
-                animations.addAll(activeModel.getBlueprint().getAnimations().keySet());
-            }
-            
-            player.sendMessage("§6§m══════════════════════════════");
-            player.sendMessage("§6§lAnimations - " + modelId);
-            player.sendMessage("");
-            
-            if (animations.isEmpty()) {
-                player.sendMessage("§c§lAucune animation trouvée dans ce modèle!");
-                player.sendMessage("§7Vérifiez que votre .bbmodel contient des animations.");
-            } else {
-                player.sendMessage("§a" + animations.size() + " animation(s) disponible(s):");
-                player.sendMessage("");
-                
-                // Trier et afficher les animations
-                List<String> sortedAnims = new ArrayList<>(animations);
-                Collections.sort(sortedAnims);
-                
-                for (String anim : sortedAnims) {
-                    player.sendMessage("§7- §f" + anim + " §8[§e/quantum info anim " + modelId + " " + anim + "§8]");
-                }
-            }
-            
-            player.sendMessage("");
-            player.sendMessage("§7Cliquez sur une commande pour tester l'animation.");
-            player.sendMessage("§7Le mob sera supprimé dans 30 secondes...");
-            player.sendMessage("§6§m══════════════════════════════");
-            
-            // Supprimer le mob après 30 secondes
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (mob.isValid()) {
-                    ModelEngineAPI.removeModeledEntity(mob.getUniqueId());
-                    mob.remove();
-                    player.sendMessage("§7§l[Anim] §7Mob de test supprimé.");
-                }
-            }, 600L);
-            
-        } catch (Exception e) {
-            player.sendMessage("§c§l[Anim] §cErreur: " + e.getMessage());
-            player.sendMessage("§7Vérifiez que le modèle existe dans Model Engine.");
-            e.printStackTrace();
-            mob.remove();
-        }
-        
-        return true;
     }
     
     // ==================== TOWER COMMANDS ====================
@@ -645,7 +432,7 @@ public class QuantumTowerCommand implements CommandExecutor {
         return true;
     }
     
-    // ==================== MOB SPAWN ZONE COMMANDS ====================
+    // ==================== ZONE COMMANDS ====================
     
     private boolean handleMobSpawnZone(CommandSender sender, String[] args) {
         if (!(sender instanceof Player)) {
@@ -669,7 +456,7 @@ public class QuantumTowerCommand implements CommandExecutor {
 
         TowerConfig tower = towerManager.getTower(towerId);
         if (tower == null) {
-            player.sendMessage("§c§l[SpawnZone] §cTour introuvable: " + towerId);
+            player.sendMessage("§c§l[Zone] §cTour introuvable: " + towerId);
             return true;
         }
 
@@ -677,12 +464,12 @@ public class QuantumTowerCommand implements CommandExecutor {
         try {
             floor = Integer.parseInt(args[3]);
         } catch (NumberFormatException e) {
-            player.sendMessage("§c§l[SpawnZone] §cÉtage invalide: " + args[3]);
+            player.sendMessage("§c§l[Zone] §cÉtage invalide: " + args[3]);
             return true;
         }
 
         if (floor < 1 || floor > tower.getTotalFloors()) {
-            player.sendMessage("§c§l[SpawnZone] §cÉtage invalide. Min: 1, Max: " + tower.getTotalFloors());
+            player.sendMessage("§c§l[Zone] §cÉtage invalide. Min: 1, Max: " + tower.getTotalFloors());
             return true;
         }
 
@@ -691,14 +478,14 @@ public class QuantumTowerCommand implements CommandExecutor {
         Location pos2 = selectionManager.getPos2(player.getUniqueId());
 
         if (pos1 == null || pos2 == null) {
-            player.sendMessage("§c§l[SpawnZone] §cVous devez d'abord définir Pos1 et Pos2 avec la hache en netherite.");
+            player.sendMessage("§c§l[Zone] §cVous devez d'abord définir Pos1 et Pos2 avec la hache en netherite.");
             player.sendMessage("§7Clic gauche bloc = Pos1, Clic droit bloc = Pos2.");
             return true;
         }
 
         if (pos1.getWorld() == null || pos2.getWorld() == null ||
                 !pos1.getWorld().getName().equals(pos2.getWorld().getName())) {
-            player.sendMessage("§c§l[SpawnZone] §cPos1 et Pos2 doivent être dans le même monde.");
+            player.sendMessage("§c§l[Zone] §cPos1 et Pos2 doivent être dans le même monde.");
             return true;
         }
 
@@ -711,45 +498,33 @@ public class QuantumTowerCommand implements CommandExecutor {
         double y2 = Math.max(pos1.getY(), pos2.getY());
         double z2 = Math.max(pos1.getZ(), pos2.getZ());
 
-        // Charger towers.yml
+        // Enregistrer la zone dans towers.yml
         File towersFile = new File(plugin.getDataFolder(), "towers.yml");
         if (!towersFile.exists()) {
-            player.sendMessage("§c§l[SpawnZone] §cFichier towers.yml introuvable.");
+            player.sendMessage("§c§l[Zone] §cFichier towers.yml introuvable.");
             return true;
         }
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
-        String spawnersPath = "towers." + towerId + ".floors." + floor + ".spawners";
-        ConfigurationSection spawnersSection = config.getConfigurationSection(spawnersPath);
-
-        if (spawnersSection == null || spawnersSection.getKeys(false).isEmpty()) {
-            player.sendMessage("§c§l[SpawnZone] §cAucun spawner trouvé pour cet étage.");
-            return true;
-        }
-
-        // Appliquer la même zone à tous les spawners de l'étage
-        for (String spawnerId : spawnersSection.getKeys(false)) {
-            String base = spawnersPath + "." + spawnerId + ".region";
-            config.set(base + ".world", worldName);
-            config.set(base + ".x1", x1);
-            config.set(base + ".y1", y1);
-            config.set(base + ".z1", z1);
-            config.set(base + ".x2", x2);
-            config.set(base + ".y2", y2);
-            config.set(base + ".z2", z2);
-        }
+        String regionPath = "towers." + towerId + ".floors." + floor + ".region";
+        config.set(regionPath + ".world", worldName);
+        config.set(regionPath + ".x1", x1);
+        config.set(regionPath + ".y1", y1);
+        config.set(regionPath + ".z1", z1);
+        config.set(regionPath + ".x2", x2);
+        config.set(regionPath + ".y2", y2);
+        config.set(regionPath + ".z2", z2);
 
         try {
             config.save(towersFile);
         } catch (Exception e) {
-            player.sendMessage("§c§l[SpawnZone] §cErreur lors de l'enregistrement de towers.yml: " + e.getMessage());
+            player.sendMessage("§c§l[Zone] §cErreur lors de l'enregistrement de towers.yml: " + e.getMessage());
             return true;
         }
 
         // Recharger les tours pour prendre en compte la nouvelle région
         towerManager.reload();
-        player.sendMessage("§a§l[SpawnZone] §aZone de spawn enregistrée pour tous les spawners de "
-                + towerId + " étage " + floor + ".");
+        player.sendMessage("§a§l[Zone] §aZone enregistrée pour " + towerId + " étage " + floor + ".");
 
         return true;
     }
@@ -852,8 +627,7 @@ public class QuantumTowerCommand implements CommandExecutor {
         sender.sendMessage("§e/quantum tower etage <id> <floor> §8- Téléportation");
         sender.sendMessage("§e/quantum door <wand|create|delete|list> §8- Gestion portes");
         sender.sendMessage("§e/quantum npc <set|remove|list> §8- Gestion NPC");
-        sender.sendMessage("§e/quantum mobspawnzone create <id> <floor> §8- Zone de spawn");
-        sender.sendMessage("§e/quantum info animation <model> §8- Test animations");
+        sender.sendMessage("§e/quantum mobspawnzone create <id> <floor> §8- Définir zone");
         sender.sendMessage("§e/quantum progress [player] §8- Voir progression");
         sender.sendMessage("§e/quantum reset <player> §8- Reset progression");
         sender.sendMessage("§e/quantum reload §8- Recharger configs");

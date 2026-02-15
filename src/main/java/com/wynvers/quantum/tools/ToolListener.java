@@ -95,13 +95,6 @@ public class ToolListener implements Listener {
                     }
                 }
             }
-            
-            String message = toolManager.getConfig().getString("messages.oneshot_activated", "&e⚡ One-shot activé! Structure complète coupée!");
-            player.sendMessage(message.replace('&', '§'));
-            
-            String costMessage = toolManager.getConfig().getString("messages.oneshot_cost", "&7Coût: {cost}$");
-            costMessage = costMessage.replace("{cost}", "5000");
-            player.sendMessage(costMessage.replace('&', '§'));
         }
     }
     

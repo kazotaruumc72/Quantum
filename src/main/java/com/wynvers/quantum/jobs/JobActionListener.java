@@ -40,6 +40,30 @@ public class JobActionListener implements Listener {
     }
     
     /**
+     * Bloque le cassage de bloc si le joueur n'a pas de métier
+     */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onBlockBreakNoJob(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        if (player.hasPermission("quantum.job.bypass")) return;
+        if (jobManager.getPlayerJob(player.getUniqueId()) == null) {
+            event.setCancelled(true);
+        }
+    }
+    
+    /**
+     * Bloque le placement de bloc si le joueur n'a pas de métier
+     */
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onBlockPlaceNoJob(BlockPlaceEvent event) {
+        Player player = event.getPlayer();
+        if (player.hasPermission("quantum.job.bypass")) return;
+        if (jobManager.getPlayerJob(player.getUniqueId()) == null) {
+            event.setCancelled(true);
+        }
+    }
+    
+    /**
      * Action: BREAK - Casser un bloc (Nexo ou vanilla)
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

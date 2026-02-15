@@ -31,7 +31,6 @@ public class ActionPreview {
         JobData jobData = jobManager.getPlayerJob(player.getUniqueId());
         
         if (jobData == null) {
-            sendActionBar(player, ChatColor.RED + "⚠ Aucun métier sélectionné");
             return;
         }
         
@@ -40,7 +39,6 @@ public class ActionPreview {
         
         // Vérifier si la structure est valide pour ce métier
         if (!job.isValidStructure(structureId)) {
-            sendActionBar(player, ChatColor.RED + "⚠ Structure invalide pour votre métier");
             return;
         }
         

@@ -479,7 +479,6 @@ public class JobManager {
     public void handleStructureTap(Player player, String structureId, String structureState) {
         JobData jobData = playerJobs.get(player.getUniqueId());
         if (jobData == null) {
-            player.sendMessage(config.getString("messages.no_job_selected", ""));
             return;
         }
         
@@ -488,7 +487,6 @@ public class JobManager {
         
         // Vérifier si la structure est valide pour ce métier
         if (!job.isValidStructure(structureId)) {
-            player.sendMessage(config.getString("messages.invalid_structure", ""));
             return;
         }
         
@@ -516,13 +514,6 @@ public class JobManager {
         if (economy != null && finalMoney > 0) {
             economy.depositPlayer(player, finalMoney);
         }
-        
-        // Message
-        String message = config.getString("messages.structure_tapped", "")
-            .replace("{exp}", String.valueOf(finalExp))
-            .replace("{job_name}", job.getDisplayName())
-            .replace("{money}", String.format("%.1f", finalMoney));
-        player.sendMessage(message);
     }
     
     /**

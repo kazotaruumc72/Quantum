@@ -128,7 +128,7 @@ public class ToolListener implements Listener {
                 if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                     // Ne pas annuler si le joueur tient un bloc plaçable (pour ne pas empêcher le placement)
                     ItemStack heldItem = player.getInventory().getItemInMainHand();
-                    if (heldItem != null && heldItem.getType().isBlock() && heldItem.getType() != org.bukkit.Material.AIR) {
+                    if (heldItem.getType().isBlock() && heldItem.getType() != org.bukkit.Material.AIR) {
                         return;
                     }
                     jobManager.showStructureTapPreview(player, structureId, stateName);

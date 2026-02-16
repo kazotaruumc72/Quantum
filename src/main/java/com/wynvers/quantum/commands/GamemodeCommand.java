@@ -52,14 +52,17 @@ public class GamemodeCommand implements CommandExecutor {
             return true;
         }
 
+        // Format gamemode name for display (e.g., CREATIVE -> Creative)
+        String modeName = gameMode.name().charAt(0) + gameMode.name().substring(1).toLowerCase();
+
         // Check permission
         String permission = "quantum.gamemode." + gameMode.name().toLowerCase();
         if (!player.hasPermission(permission) && !player.hasPermission("quantum.gamemode.*")) {
             if (messageManager != null) {
                 messageManager.sendPrefixedMessage(player, "gamemode.no-permission",
-                        Map.of("mode", gameMode.name()));
+                        Map.of("mode", modeName));
             } else {
-                player.sendMessage("§cVous n'avez pas la permission de changer en mode " + gameMode.name() + ".");
+                player.sendMessage("§cVous n'avez pas la permission de changer en mode " + modeName + ".");
             }
             return true;
         }
@@ -68,9 +71,9 @@ public class GamemodeCommand implements CommandExecutor {
         player.setGameMode(gameMode);
         if (messageManager != null) {
             messageManager.sendPrefixedMessage(player, "gamemode.changed",
-                    Map.of("mode", gameMode.name()));
+                    Map.of("mode", modeName));
         } else {
-            player.sendMessage("§aGamemode changé en §e" + gameMode.name() + "§a.");
+            player.sendMessage("§aGamemode changé en §e" + modeName + "§a.");
         }
         
         return true;

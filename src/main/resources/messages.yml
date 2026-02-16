@@ -143,6 +143,16 @@ info:
   session-expired: "<yellow>⚠ Session expirée.</yellow>"
 
 # ═══════════════════════════════════════════════════════════════════════════
+#   🎮 SECTION 9b: MESSAGES DE GAMEMODE
+# ═══════════════════════════════════════════════════════════════════════════
+
+gamemode:
+  player-only: "<red>✖ Cette commande ne peut être exécutée que par un joueur.</red>"
+  unknown-command: "<red>✖ Commande de gamemode inconnue.</red>"
+  no-permission: "<red>✖ Vous n'avez pas la permission de changer en mode %mode%.</red>"
+  changed: "<green>✔ Gamemode changé en <yellow>%mode%</yellow>.</green>"
+
+# ═══════════════════════════════════════════════════════════════════════════
 #   🔨 SECTION 10: MESSAGES D'OUTILS (TOOLS)
 # ═══════════════════════════════════════════════════════════════════════════
 

@@ -124,10 +124,15 @@ public class ToolListener implements Listener {
                 String structureId = structureInfo[0];
                 String stateName = structureInfo[1];
                 
-                // Right-click: Afficher la preview
+                // Right-click: Afficher la preview (sans annuler le placement de blocs)
                 if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+                    // Ne pas annuler si le joueur tient un bloc plaçable (pour ne pas empêcher le placement)
+                    ItemStack heldItem = player.getInventory().getItemInMainHand();
+                    if (heldItem != null && heldItem.getType().isBlock() && heldItem.getType() != org.bukkit.Material.AIR) {
+                        return;
+                    }
                     jobManager.showStructureTapPreview(player, structureId, stateName);
-                    event.setCancelled(true);  // Annuler l'event pour éviter d'ouvrir des GUIs
+                    event.setCancelled(true);
                     return;
                 }
                 

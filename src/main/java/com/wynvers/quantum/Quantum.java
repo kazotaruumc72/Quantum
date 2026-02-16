@@ -686,7 +686,7 @@ public final class Quantum extends JavaPlugin {
         }
         
         // Gamemode Shortcuts
-        GamemodeCommand gamemodeCommand = new GamemodeCommand();
+        GamemodeCommand gamemodeCommand = new GamemodeCommand(messageManager);
         getCommand("gmc").setExecutor(gamemodeCommand);
         getCommand("gms").setExecutor(gamemodeCommand);
         getCommand("gmsp").setExecutor(gamemodeCommand);

@@ -60,6 +60,17 @@ public class QuantumExpansion extends PlaceholderExpansion {
         Player player = offlinePlayer.getPlayer();
 
         // ==========================
+        // SERVER INFO
+        // ==========================
+        if (p.equals("online")) {
+            return String.valueOf(Bukkit.getOnlinePlayers().size());
+        }
+
+        if (p.equals("max_players")) {
+            return String.valueOf(Bukkit.getMaxPlayers());
+        }
+
+        // ==========================
         // NIVEAU / EXP (scoreboard)
         // ==========================
         // Aliases :

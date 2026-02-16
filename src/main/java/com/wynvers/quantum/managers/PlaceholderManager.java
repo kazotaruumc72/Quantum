@@ -272,6 +272,26 @@ public class PlaceholderManager {
             return handleHistoryPlaceholder(player, params);
         }
         
+        // === COORDINATES ===
+        // %quantum_player_x% / %quantum_player_y% / %quantum_player_z%
+        if (params.equals("player_x")) {
+            return String.valueOf(player.getLocation().getBlockX());
+        }
+        if (params.equals("player_y")) {
+            return String.valueOf(player.getLocation().getBlockY());
+        }
+        if (params.equals("player_z")) {
+            return String.valueOf(player.getLocation().getBlockZ());
+        }
+        
+        // === APARTMENT ===
+        // %quantum_apartment_zone%
+        if (params.equals("apartment_zone")) {
+            if (plugin.getApartmentManager() == null) return "Aucun";
+            var apt = plugin.getApartmentManager().getPlayerApartment(player.getUniqueId());
+            return apt != null && !apt.getZoneName().isEmpty() ? apt.getZoneName() : "Aucun";
+        }
+        
         // Default: return null to preserve the original placeholder syntax (e.g., %unknown_placeholder%)
         return null;
     }

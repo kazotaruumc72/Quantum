@@ -3,8 +3,6 @@ package com.wynvers.quantum.tab;
 import com.wynvers.quantum.Quantum;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.neznamy.tab.api.TabAPI;
-import me.neznamy.tab.api.TabPlayer;
-import me.neznamy.tab.api.placeholder.Placeholder;
 import me.neznamy.tab.api.placeholder.PlaceholderManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -49,33 +47,38 @@ public class TABManager {
     }
 
     private void initialize() {
-        // Check if TAB is loaded
-        if (Bukkit.getPluginManager().getPlugin("TAB") == null) {
-            plugin.getLogger().warning("TAB plugin not found - TAB integration disabled");
-            return;
-        }
-
         try {
-            // Load TAB configuration
+            // Load TAB configuration (always needed for header/footer)
             loadConfig();
             
-            // Get TAB API instance
-            this.tabAPI = TabAPI.getInstance();
+            // If no groups loaded, nothing to do
+            if (groups.isEmpty()) {
+                plugin.getLogger().warning("No TAB groups configured - TAB system disabled");
+                return;
+            }
             
-            // Register custom Quantum placeholders
-            registerPlaceholders();
+            // Try TAB API integration (optional - only if TAB plugin is installed)
+            if (Bukkit.getPluginManager().getPlugin("TAB") != null) {
+                try {
+                    this.tabAPI = TabAPI.getInstance();
+                    registerPlaceholders();
+                    registerServerPlaceholders();
+                    plugin.getLogger().info("✓ TAB API integration enabled (placeholders registered)");
+                } catch (Exception e) {
+                    plugin.getLogger().warning("TAB API integration failed: " + e.getMessage());
+                    this.tabAPI = null;
+                }
+            } else {
+                plugin.getLogger().info("TAB plugin not found - using standalone header/footer system");
+            }
             
-            // Register server placeholders
-            registerServerPlaceholders();
-            
-            // Start refresh task
+            // Start refresh task (always, for header/footer)
             startRefreshTask();
             
             this.enabled = true;
-            plugin.getLogger().info("✓ TAB integration enabled! (v5.5.0, Header/Footer system active)");
-            plugin.getLogger().info("✓ Loaded " + groups.size() + " header/footer groups");
+            plugin.getLogger().info("✓ TAB system enabled! (Header/Footer active, " + groups.size() + " groups loaded)");
         } catch (Exception e) {
-            plugin.getLogger().severe("Failed to initialize TAB integration: " + e.getMessage());
+            plugin.getLogger().severe("Failed to initialize TAB system: " + e.getMessage());
             e.printStackTrace();
             this.enabled = false;
         }
@@ -226,11 +229,7 @@ public class TABManager {
         if (!enabled) return;
         
         try {
-            TabPlayer tabPlayer = tabAPI.getPlayer(player.getUniqueId());
-            if (tabPlayer != null) {
-                // Set header and footer based on player's permissions
-                updatePlayerHeaderFooter(player);
-            }
+            updatePlayerHeaderFooter(player);
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to update TAB for player " + player.getName() + ": " + e.getMessage());
         }
@@ -321,8 +320,12 @@ public class TABManager {
         }
         
         // Replace Quantum placeholders
-        text = text.replace("%quantum_level%", 
-            String.valueOf(plugin.getPlayerLevelManager().getLevel(player.getUniqueId())));
+        if (plugin.getPlayerLevelManager() != null) {
+            text = text.replace("%quantum_level%", 
+                String.valueOf(plugin.getPlayerLevelManager().getLevel(player.getUniqueId())));
+        } else {
+            text = text.replace("%quantum_level%", "0");
+        }
         
         if (plugin.getJobManager() != null) {
             var jobData = plugin.getJobManager().getPlayerJob(player.getUniqueId());

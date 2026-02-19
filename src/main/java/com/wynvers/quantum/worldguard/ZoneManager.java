@@ -7,6 +7,8 @@ import com.wynvers.quantum.towers.TowerConfig;
 import com.wynvers.quantum.towers.TowerInventoryManager;
 import com.wynvers.quantum.towers.TowerManager;
 import com.wynvers.quantum.towers.TowerScoreboardHandler;
+import com.wynvers.quantum.towers.events.TowerEnterEvent;
+import com.wynvers.quantum.towers.events.TowerLeaveEvent;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -279,6 +281,11 @@ public class ZoneManager implements Listener {
             return false;
         }
 
+        // Fire enter event – allow external plugins to cancel
+        TowerEnterEvent enterEvent = new TowerEnterEvent(player, tower, floor);
+        plugin.getServer().getPluginManager().callEvent(enterEvent);
+        if (enterEvent.isCancelled()) return false;
+
         // OK : enregistrer la position + scoreboard
         towerManager.updateCurrentLocation(player, towerId, floor);
         // Swap to tower inventory
@@ -305,6 +312,11 @@ public class ZoneManager implements Listener {
         TowerConfig tower = towerManager.getTower(towerId);
         if (tower == null) return true;
 
+        // Fire enter event – allow external plugins to cancel even for bypass
+        TowerEnterEvent enterEvent = new TowerEnterEvent(player, tower, floor);
+        plugin.getServer().getPluginManager().callEvent(enterEvent);
+        if (enterEvent.isCancelled()) return false;
+
         towerManager.updateCurrentLocation(player, towerId, floor);
         if (towerInventoryManager != null && !towerInventoryManager.isInTower(player.getUniqueId())) {
             towerInventoryManager.onEnterTower(player, towerId);
@@ -322,9 +334,11 @@ public class ZoneManager implements Listener {
      */
     private void handleLeaveTower(Player player) {
         // Restore main inventory and unequip dungeon armor
+        String regionName = currentRegion.get(player.getUniqueId());
+        String towerId = regionName != null ? towerManager.getTowerByRegion(regionName) : null;
+        int floor = regionName != null ? towerManager.getFloorByRegion(regionName) : 0;
+
         if (towerInventoryManager != null) {
-            String regionName = currentRegion.get(player.getUniqueId());
-            String towerId = regionName != null ? towerManager.getTowerByRegion(regionName) : null;
             towerInventoryManager.onLeaveTower(player, towerId);
         }
         towerManager.clearCurrentLocation(player);
@@ -332,5 +346,14 @@ public class ZoneManager implements Listener {
             scoreboardHandler.disableTowerScoreboard(player);
         }
         player.sendMessage("\u00a77Tu quittes la tour.");
+
+        // Fire leave event after cleanup so listeners see clean state
+        if (towerId != null) {
+            TowerConfig tower = towerManager.getTower(towerId);
+            if (tower != null) {
+                TowerLeaveEvent leaveEvent = new TowerLeaveEvent(player, tower, floor);
+                plugin.getServer().getPluginManager().callEvent(leaveEvent);
+            }
+        }
     }
 }

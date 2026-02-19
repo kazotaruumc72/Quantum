@@ -6,39 +6,46 @@ import com.wynvers.quantum.towers.TowerManager;
 import com.wynvers.quantum.towers.TowerProgress;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
+import java.io.File;
 import java.util.Map;
 
 /**
  * Tower system command handler
- * /tower progress - Show progress
- * /tower reset <player> - Reset progress (admin)
+ * /tower progress           - Show progress
+ * /tower reset <player>     - Reset progress (admin)
  * /tower tp <tower> <floor> - Teleport to floor (admin)
+ * /tower complete <player> <tower> <floor> - Mark floor as complete (admin)
+ * /tower reload             - Reload tower configs (admin)
  */
 public class TowerCommand implements CommandExecutor {
-    
+
     private final Quantum plugin;
     private final TowerManager towerManager;
-    
+
     public TowerCommand(Quantum plugin) {
         this.plugin = plugin;
         this.towerManager = plugin.getTowerManager();
     }
-    
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        
+
         if (args.length == 0) {
             sendHelp(sender);
             return true;
         }
-        
+
         String subCommand = args[0].toLowerCase();
-        
+
         switch (subCommand) {
             case "progress":
                 return handleProgress(sender, args);
@@ -47,6 +54,8 @@ public class TowerCommand implements CommandExecutor {
             case "tp":
             case "teleport":
                 return handleTeleport(sender, args);
+            case "complete":
+                return handleComplete(sender, args);
             case "reload":
                 return handleReload(sender);
             default:
@@ -54,13 +63,13 @@ public class TowerCommand implements CommandExecutor {
                 return true;
         }
     }
-    
+
     /**
      * Show tower progress
      */
     private boolean handleProgress(CommandSender sender, String[] args) {
         Player target;
-        
+
         // /tower progress [player]
         if (args.length > 1) {
             if (!sender.hasPermission("quantum.tower.progress.others")) {
@@ -79,29 +88,29 @@ public class TowerCommand implements CommandExecutor {
             }
             target = (Player) sender;
         }
-        
+
         showProgress(sender, target);
         return true;
     }
-    
+
     /**
      * Display tower progress for a player
      */
     private void showProgress(CommandSender sender, Player target) {
         TowerProgress progress = towerManager.getProgress(target.getUniqueId());
         Map<String, TowerConfig> towers = towerManager.getAllTowers();
-        
+
         sender.sendMessage("§6§m──────────────────────────────");
         sender.sendMessage("§6§l§nProgression des Tours - " + target.getName());
         sender.sendMessage("");
-        
+
         // Show progress for each tower
         for (Map.Entry<String, TowerConfig> entry : towers.entrySet()) {
             String towerId = entry.getKey();
             TowerConfig tower = entry.getValue();
             int completed = progress.getFloorProgress(towerId);
             int total = tower.getTotalFloors();
-            
+
             String status;
             if (completed >= tower.getFinalBossFloor()) {
                 status = "§a§l✓ COMPLÉTÉE";
@@ -110,9 +119,9 @@ public class TowerCommand implements CommandExecutor {
             } else {
                 status = "§7§lNON COMMENCÉE";
             }
-            
+
             sender.sendMessage(tower.getName() + "§7: §f" + completed + "/" + total + " " + status);
-            
+
             // Show next boss if in progress
             if (completed > 0 && completed < tower.getFinalBossFloor()) {
                 int nextBoss = tower.getNextBossFloor(completed);
@@ -121,9 +130,9 @@ public class TowerCommand implements CommandExecutor {
                 }
             }
         }
-        
+
         sender.sendMessage("");
-        
+
         // Global stats
         int towersCompleted = progress.getCompletedTowersCount(towers);
         int totalFloors = progress.getTotalFloorsCompleted();
@@ -131,10 +140,10 @@ public class TowerCommand implements CommandExecutor {
         int maxFloors = towers.values().stream()
                 .mapToInt(TowerConfig::getTotalFloors)
                 .sum();
-        
+
         sender.sendMessage("§6Tours complétées: §f" + towersCompleted + "/" + maxTowers);
         sender.sendMessage("§6Étages totaux: §f" + totalFloors + "/" + maxFloors);
-        
+
         // Current location
         String currentTower = progress.getCurrentTower();
         if (currentTower != null) {
@@ -144,10 +153,10 @@ public class TowerCommand implements CommandExecutor {
                 sender.sendMessage("§e➤ Actuellement: §f" + tower.getName() + " - Étage " + progress.getCurrentFloor());
             }
         }
-        
+
         sender.sendMessage("§6§m──────────────────────────────");
     }
-    
+
     /**
      * Reset player progress
      */
@@ -156,18 +165,18 @@ public class TowerCommand implements CommandExecutor {
             sender.sendMessage("§cVous n'avez pas la permission de reset la progression.");
             return true;
         }
-        
+
         if (args.length < 2) {
             sender.sendMessage("§cUsage: /tower reset <joueur> [tower]");
             return true;
         }
-        
+
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
             sender.sendMessage("§cJoueur introuvable: " + args[1]);
             return true;
         }
-        
+
         // Reset specific tower or all
         if (args.length > 2) {
             String towerId = args[2];
@@ -176,7 +185,7 @@ public class TowerCommand implements CommandExecutor {
                 sender.sendMessage("§cTour introuvable: " + towerId);
                 return true;
             }
-            
+
             towerManager.resetTowerProgress(target.getUniqueId(), towerId);
             sender.sendMessage("§aProgression de " + target.getName() + " reset pour: " + tower.getName());
             target.sendMessage("§eVotre progression pour " + tower.getName() + " a été réinitialisée.");
@@ -185,39 +194,39 @@ public class TowerCommand implements CommandExecutor {
             sender.sendMessage("§aProgression complète de " + target.getName() + " reset.");
             target.sendMessage("§eVotre progression dans toutes les tours a été réinitialisée.");
         }
-        
+
         return true;
     }
-    
+
     /**
-     * Teleport to tower floor
+     * Teleport to tower floor using the spawn coordinates from towers.yml
      */
     private boolean handleTeleport(CommandSender sender, String[] args) {
         if (!sender.hasPermission("quantum.tower.teleport")) {
             sender.sendMessage("§cVous n'avez pas la permission de téléportation.");
             return true;
         }
-        
+
         if (!(sender instanceof Player)) {
             sender.sendMessage("§cCette commande est réservée aux joueurs.");
             return true;
         }
-        
+
         if (args.length < 3) {
             sender.sendMessage("§cUsage: /tower tp <tower> <floor>");
             return true;
         }
-        
+
         Player player = (Player) sender;
         String towerId = args[1];
-        
+
         TowerConfig tower = towerManager.getTower(towerId);
         if (tower == null) {
             sender.sendMessage("§cTour introuvable: " + towerId);
             sender.sendMessage("§7Tours disponibles: " + String.join(", ", towerManager.getAllTowers().keySet()));
             return true;
         }
-        
+
         int floor;
         try {
             floor = Integer.parseInt(args[2]);
@@ -225,23 +234,101 @@ public class TowerCommand implements CommandExecutor {
             sender.sendMessage("§cNuméro d'étage invalide: " + args[2]);
             return true;
         }
-        
-        if (floor < 1 || floor > tower.getFinalBossFloor()) {
-            sender.sendMessage("§cÉtage invalide. Min: 1, Max: " + tower.getFinalBossFloor());
+
+        if (floor < 1 || floor > tower.getTotalFloors()) {
+            sender.sendMessage("§cÉtage invalide. Min: 1, Max: " + tower.getTotalFloors());
             return true;
         }
-        
-        // Try to get spawn location from WorldGuard region
-        String regionName = towerId + "_floor_" + floor;
-        
-        // For now, just send a message (you'll need to add actual teleportation logic)
-        sender.sendMessage("§aTentative de téléportation vers: " + tower.getName() + " - Étage " + floor);
-        sender.sendMessage("§7Région: " + regionName);
-        sender.sendMessage("§e⚠ Note: Configuration du spawn de la région requise");
-        
+
+        Location spawnLoc = getFloorSpawnLocation(towerId, floor);
+        if (spawnLoc == null) {
+            sender.sendMessage("§cAucun point de spawn configuré pour " + tower.getName() + " étage " + floor + ".");
+            sender.sendMessage("§7Configurez la section 'spawn' dans towers.yml pour cet étage.");
+            return true;
+        }
+
+        player.teleport(spawnLoc);
+        player.sendMessage("§a§l✓ §aTéléportation vers: §f" + tower.getName() + " §7Étage " + floor);
+        towerManager.updateCurrentLocation(player, towerId, floor);
         return true;
     }
-    
+
+    /**
+     * Read spawn location from towers.yml for a given tower floor.
+     */
+    private Location getFloorSpawnLocation(String towerId, int floor) {
+        File towersFile = new File(plugin.getDataFolder(), "towers.yml");
+        if (!towersFile.exists()) return null;
+
+        FileConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
+        ConfigurationSection spawnSection = config.getConfigurationSection(
+                "towers." + towerId + ".floors." + floor + ".spawn");
+        if (spawnSection == null) return null;
+
+        String worldName = spawnSection.getString("world");
+        if (worldName == null) return null;
+
+        World world = Bukkit.getWorld(worldName);
+        if (world == null) return null;
+
+        return new Location(
+                world,
+                spawnSection.getDouble("x"),
+                spawnSection.getDouble("y"),
+                spawnSection.getDouble("z"),
+                (float) spawnSection.getDouble("yaw", 0.0),
+                (float) spawnSection.getDouble("pitch", 0.0)
+        );
+    }
+
+    /**
+     * Mark a floor as complete for a player (admin command).
+     * Triggers all rewards and events as if the player cleared the floor normally.
+     */
+    private boolean handleComplete(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("quantum.tower.complete")) {
+            sender.sendMessage("§cVous n'avez pas la permission.");
+            return true;
+        }
+
+        if (args.length < 4) {
+            sender.sendMessage("§cUsage: /tower complete <joueur> <tower> <floor>");
+            return true;
+        }
+
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null) {
+            sender.sendMessage("§cJoueur introuvable: " + args[1]);
+            return true;
+        }
+
+        String towerId = args[2];
+        TowerConfig tower = towerManager.getTower(towerId);
+        if (tower == null) {
+            sender.sendMessage("§cTour introuvable: " + towerId);
+            return true;
+        }
+
+        int floor;
+        try {
+            floor = Integer.parseInt(args[3]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage("§cNuméro d'étage invalide: " + args[3]);
+            return true;
+        }
+
+        if (floor < 1 || floor > tower.getTotalFloors()) {
+            sender.sendMessage("§cÉtage invalide. Min: 1, Max: " + tower.getTotalFloors());
+            return true;
+        }
+
+        towerManager.completeFloor(target, towerId, floor);
+        if (!target.equals(sender)) {
+            sender.sendMessage("§aÉtage §f" + floor + " §ade §f" + tower.getName() + " §amarqué comme complété pour §f" + target.getName() + "§a.");
+        }
+        return true;
+    }
+
     /**
      * Reload tower configurations
      */
@@ -250,12 +337,12 @@ public class TowerCommand implements CommandExecutor {
             sender.sendMessage("§cVous n'avez pas la permission de reload.");
             return true;
         }
-        
+
         towerManager.reload();
         sender.sendMessage("§aConfigurations des tours rechargées! (" + towerManager.getTowerCount() + " tours)");
         return true;
     }
-    
+
     /**
      * Send help message
      */
@@ -265,20 +352,24 @@ public class TowerCommand implements CommandExecutor {
         sender.sendMessage("");
         sender.sendMessage("§e/tower progress §7- Voir votre progression");
         sender.sendMessage("§e/tower progress <joueur> §7- Voir la progression d'un joueur");
-        
+
         if (sender.hasPermission("quantum.tower.reset")) {
             sender.sendMessage("§e/tower reset <joueur> §7- Réinitialiser la progression");
             sender.sendMessage("§e/tower reset <joueur> <tower> §7- Réinitialiser une tour");
         }
-        
+
         if (sender.hasPermission("quantum.tower.teleport")) {
             sender.sendMessage("§e/tower tp <tower> <floor> §7- Téléportation à un étage");
         }
-        
+
+        if (sender.hasPermission("quantum.tower.complete")) {
+            sender.sendMessage("§e/tower complete <joueur> <tower> <floor> §7- Marquer un étage comme complété");
+        }
+
         if (sender.hasPermission("quantum.tower.reload")) {
             sender.sendMessage("§e/tower reload §7- Recharger les configurations");
         }
-        
+
         sender.sendMessage("§6§m──────────────────────────────");
     }
 }

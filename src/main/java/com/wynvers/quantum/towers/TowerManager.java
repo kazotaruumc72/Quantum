@@ -3,6 +3,8 @@ package com.wynvers.quantum.towers;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.managers.ScoreboardManager;
 import com.wynvers.quantum.managers.ScoreboardConfig;
+import com.wynvers.quantum.towers.events.TowerCompleteEvent;
+import com.wynvers.quantum.towers.events.TowerFloorCompleteEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -23,12 +25,14 @@ public class TowerManager {
     private final Map<String, TowerConfig> towers;
     private final Map<UUID, TowerProgress> playerProgress;
     private File progressFile;
+    private TowerRewardManager rewardManager;
     
     public TowerManager(Quantum plugin) {
         this.plugin = plugin;
         this.towers = new HashMap<>();
         this.playerProgress = new HashMap<>();
-        
+        this.rewardManager = new TowerRewardManager(plugin);
+
         loadTowers();
         loadProgress();
     }
@@ -259,29 +263,40 @@ public class TowerManager {
      * @param floor Floor number
      */
     public void completeFloor(Player player, String towerId, int floor) {
-        TowerProgress progress = getProgress(player.getUniqueId());
-        progress.setFloorProgress(towerId, floor);
-        
         TowerConfig tower = getTower(towerId);
         if (tower == null) return;
-        
-        // Si final boss, incrementer les runs
+
+        // Fire cancellable event – external plugins may veto the completion
+        TowerFloorCompleteEvent floorEvent = new TowerFloorCompleteEvent(player, tower, floor);
+        Bukkit.getPluginManager().callEvent(floorEvent);
+        if (floorEvent.isCancelled()) return;
+
+        TowerProgress progress = getProgress(player.getUniqueId());
+        progress.setFloorProgress(towerId, floor);
+
+        // Distribute rewards for this floor
+        rewardManager.giveFloorRewards(player, towerId, floor);
+
+        // Si final boss, incrementer les runs et broadcast
         if (tower.isFinalBoss(floor)) {
             progress.incrementRuns(towerId);
-        }
-        
-        saveProgress();
-        
-        // Send completion message
-        if (tower.isFinalBoss(floor)) {
+            saveProgress();
+
+            int runs = progress.getRuns(towerId);
+            TowerCompleteEvent completeEvent = new TowerCompleteEvent(player, tower, runs);
+            Bukkit.getPluginManager().callEvent(completeEvent);
+
             player.sendMessage("§6§l✦ TOUR COMPLETEE ✦");
             player.sendMessage("§7Vous avez termine: §f" + tower.getName());
             Bukkit.broadcastMessage("§6§l[TOURS] §f" + player.getName() + " §7a complete §f" + tower.getName() + "§7!");
-        } else if (tower.isBossFloor(floor)) {
-            player.sendMessage("§a§l✓ BOSS VAINCU!");
-            player.sendMessage("§7Etage §f" + floor + " §7termine!");
         } else {
-            player.sendMessage("§a§l✓ Etage " + floor + " termine!");
+            saveProgress();
+            if (tower.isBossFloor(floor)) {
+                player.sendMessage("§a§l✓ BOSS VAINCU!");
+                player.sendMessage("§7Etage §f" + floor + " §7termine!");
+            } else {
+                player.sendMessage("§a§l✓ Etage " + floor + " termine!");
+            }
         }
     }
     
@@ -423,6 +438,14 @@ public class TowerManager {
      */
     public int getTowerCount() {
         return towers.size();
+    }
+
+    /**
+     * Get the reward manager
+     * @return TowerRewardManager instance
+     */
+    public TowerRewardManager getRewardManager() {
+        return rewardManager;
     }
 
     /**

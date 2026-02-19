@@ -44,6 +44,10 @@ public class TowerTabCompleter implements TabCompleter {
             if (sender.hasPermission("quantum.tower.teleport")) {
                 completions.add("tp");
             }
+
+            if (sender.hasPermission("quantum.tower.complete")) {
+                completions.add("complete");
+            }
             
             if (sender.hasPermission("quantum.tower.reload")) {
                 completions.add("reload");
@@ -116,6 +120,32 @@ public class TowerTabCompleter implements TabCompleter {
                         
                         return filterCompletions(floors, args[2]);
                     }
+                }
+            }
+        }
+
+        // /tower complete <player> <tower> <floor>
+        if (args[0].equalsIgnoreCase("complete")) {
+            if (args.length == 2) {
+                return filterCompletions(
+                    Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
+                        .collect(Collectors.toList()),
+                    args[1]
+                );
+            }
+            if (args.length == 3 && plugin.getTowerManager() != null) {
+                return filterCompletions(plugin.getTowerManager().getTowerIds(), args[2]);
+            }
+            if (args.length == 4 && plugin.getTowerManager() != null) {
+                String towerId = args[2];
+                TowerConfig tower = plugin.getTowerManager().getTower(towerId);
+                if (tower != null) {
+                    List<String> floors = new ArrayList<>();
+                    for (int i = 1; i <= tower.getTotalFloors(); i++) {
+                        floors.add(String.valueOf(i));
+                    }
+                    return filterCompletions(floors, args[3]);
                 }
             }
         }

@@ -23,8 +23,11 @@ towers:
       1:
         worldguard_region: "donjon_eau_1"
         
-        # Nombre de mobs MythicMobs à tuer pour ouvrir la porte de cet étage (0 = pas de prérequis)
-        mob_kills_required: 10
+        # Mobs à tuer pour ouvrir la porte de cet étage
+        # Format: 'mm:MythicMobsId:quantite' ou 'entity_type:quantite'
+        mob_kills_required:
+          - 'mm:WaterSoldier:8'
+          - 'drowned:2'
         
         # Point de spawn (utilisé par /quantum tower etage et NPC)
         spawn:
@@ -80,7 +83,9 @@ towers:
       # ==================== ÉTAGE 2 ====================
       2:
         worldguard_region: "donjon_eau_2"
-        mob_kills_required: 15
+        mob_kills_required:
+          - 'mm:WaterGuard:10'
+          - 'mm:WaterArcher:5'
         
         spawn:
           world: "world"
@@ -118,7 +123,8 @@ towers:
       # ==================== ÉTAGE 3 - MINI BOSS ====================
       3:
         worldguard_region: "donjon_eau_3"
-        mob_kills_required: 1
+        mob_kills_required:
+          - 'mm:WaterKnight:1'
         
         spawn:
           world: "world"
@@ -208,9 +214,11 @@ towers:
 # NOTES DE CONFIGURATION
 # =======================================
 
-# COMMANDES:
-# Format simple: "commande" (100% chance)
-# Format avec chance: {cmd: "commande", chance: 50.0}
+# MOB_KILLS_REQUIRED:
+# Format liste: une entrée par type de mob requis
+# - 'mm:MythicMobsId:quantite'  -> mob MythicMobs (ex: 'mm:SkeletonKing:5')
+# - 'entity_type:quantite'       -> mob vanilla Minecraft (ex: 'zombie:3', 'CREEPER:2')
+# La porte s'ouvre uniquement quand TOUS les prérequis sont satisfaits.
 
 # PLACEHOLDERS DISPONIBLES:
 # %player% - Nom du joueur

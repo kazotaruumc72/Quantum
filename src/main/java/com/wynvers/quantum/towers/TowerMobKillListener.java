@@ -1,22 +1,30 @@
 package com.wynvers.quantum.towers;
 
 import com.wynvers.quantum.Quantum;
+import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDeathEvent;
+
+import java.util.List;
 
 /**
- * Listens for MythicMobs death events inside tower floor regions.
+ * Listens for mob death events (MythicMobs and vanilla) inside tower floor regions.
  *
- * <p>When a player kills a MythicMobs mob while in a tower floor:
- * <ol>
- *   <li>The kill count for that floor is incremented in {@link TowerProgress}.</li>
- *   <li>If the total reaches the {@code mob_kills_required} threshold configured in
- *       towers.yml, the corresponding floor door is opened (blocks disappear for 30 s).</li>
- * </ol>
+ * <p>Config format in towers.yml:
+ * <pre>
+ * mob_kills_required:
+ *   - 'mm:SkeletonKing:5'   # MythicMobs mob
+ *   - 'zombie:3'             # vanilla Minecraft mob
+ * </pre>
+ *
+ * <p>When all requirements for the current floor are met the door opens (blocks
+ * disappear for 30 s via {@link TowerDoorManager}).
  */
 public class TowerMobKillListener implements Listener {
 
@@ -30,12 +38,47 @@ public class TowerMobKillListener implements Listener {
         this.doorManager = plugin.getDoorManager();
     }
 
+    // ------------------------------------------------------------------ //
+    // MythicMobs kills
+    // ------------------------------------------------------------------ //
+
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onMythicMobDeath(MythicMobDeathEvent event) {
-        // We only care about kills made by a player.
         Entity killer = event.getKiller();
         if (!(killer instanceof Player player)) return;
 
+        String mythicId = event.getMobType().getInternalName();
+        String mobKey = "mm:" + mythicId;
+
+        handleKill(player, mobKey);
+    }
+
+    // ------------------------------------------------------------------ //
+    // Vanilla Minecraft kills
+    // ------------------------------------------------------------------ //
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onEntityDeath(EntityDeathEvent event) {
+        LivingEntity entity = event.getEntity();
+        Player killer = entity.getKiller();
+        if (killer == null) return;
+
+        // Skip MythicMobs mobs to avoid double-counting
+        try {
+            if (MythicBukkit.inst().getMobManager().isActiveMob(entity)) return;
+        } catch (NoClassDefFoundError | NullPointerException ignored) {
+            // MythicBukkit not available at runtime – treat as vanilla
+        }
+
+        String mobKey = "mc:" + entity.getType().name();
+        handleKill(killer, mobKey);
+    }
+
+    // ------------------------------------------------------------------ //
+    // Shared logic
+    // ------------------------------------------------------------------ //
+
+    private void handleKill(Player player, String mobKey) {
         TowerProgress progress = towerManager.getProgress(player.getUniqueId());
         String towerId = progress.getCurrentTower();
         int floor = progress.getCurrentFloor();
@@ -45,20 +88,39 @@ public class TowerMobKillListener implements Listener {
         TowerConfig tower = towerManager.getTower(towerId);
         if (tower == null) return;
 
-        int required = tower.getFloorMobKillsRequired(floor);
-        if (required <= 0) return; // no kill requirement on this floor
+        List<FloorMobRequirement> requirements = tower.getFloorMobRequirements(floor);
+        if (requirements.isEmpty()) return;
 
-        // Increment and check
-        progress.incrementFloorMobKills(towerId, floor);
-        int kills = progress.getFloorMobKills(towerId, floor);
+        // Check if this mob key is part of any requirement on this floor
+        boolean relevant = false;
+        for (FloorMobRequirement req : requirements) {
+            if (req.getKey().equals(mobKey)) {
+                relevant = true;
+                break;
+            }
+        }
+        if (!relevant) return;
 
-        if (kills >= required) {
+        // Increment this mob's counter
+        progress.incrementFloorMobKills(towerId, floor, mobKey);
+
+        // Check whether ALL requirements are now satisfied
+        if (areAllRequirementsMet(progress, towerId, floor, requirements)) {
             plugin.getQuantumLogger().info(
-                    "[Tower] " + player.getName() + " reached kill goal on " + towerId
-                    + " floor " + floor + " (" + kills + "/" + required + ") – opening door");
-            // Reset counter so the door can be triggered again after it closes
+                    "[Tower] " + player.getName() + " met all kill requirements on "
+                    + towerId + " floor " + floor + " - opening door");
             progress.resetFloorMobKills(towerId, floor);
             doorManager.openDoor(towerId, floor, player);
         }
+    }
+
+    private boolean areAllRequirementsMet(TowerProgress progress, String towerId, int floor,
+                                           List<FloorMobRequirement> requirements) {
+        for (FloorMobRequirement req : requirements) {
+            if (progress.getFloorMobKills(towerId, floor, req.getKey()) < req.getAmount()) {
+                return false;
+            }
+        }
+        return true;
     }
 }

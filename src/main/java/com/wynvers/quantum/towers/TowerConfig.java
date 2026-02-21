@@ -1,5 +1,7 @@
 package com.wynvers.quantum.towers;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +25,8 @@ public class TowerConfig {
     
     // Map floor number -> region name
     private final Map<Integer, String> floorRegions;
-    // Map floor number -> required mob kills to open door
-    private final Map<Integer, Integer> floorMobKillsRequired;
+    // Map floor number -> list of mob-kill requirements to open door
+    private final Map<Integer, List<FloorMobRequirement>> floorMobRequirements;
     
     public TowerConfig(String id, String name, String world, int totalFloors, List<Integer> bossFloors, int finalBossFloor, int minLevel, int maxLevel) {
         this.id = id;
@@ -37,7 +39,7 @@ public class TowerConfig {
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;
         this.floorRegions = new HashMap<>();
-        this.floorMobKillsRequired = new HashMap<>();
+        this.floorMobRequirements = new HashMap<>();
     }
     
     public int getMinLevel() { 
@@ -120,18 +122,35 @@ public class TowerConfig {
     }
     
     /**
-     * Set the required mob kills to open the door for a specific floor.
+     * Set the mob-kill requirements list to open the door for a specific floor.
      */
-    public void setFloorMobKillsRequired(int floor, int required) {
-        floorMobKillsRequired.put(floor, required);
+    public void setFloorMobRequirements(int floor, List<FloorMobRequirement> requirements) {
+        floorMobRequirements.put(floor, new ArrayList<>(requirements));
     }
 
     /**
-     * Get the required mob kills to open the door for a specific floor.
-     * Returns 0 if not configured (door opens without kills).
+     * Get the mob-kill requirements for a specific floor.
+     * Returns an empty list if not configured (door opens without kills).
      */
+    public List<FloorMobRequirement> getFloorMobRequirements(int floor) {
+        return floorMobRequirements.getOrDefault(floor, Collections.emptyList());
+    }
+
+    /**
+     * Returns {@code true} if the given floor has at least one mob-kill requirement.
+     */
+    public boolean hasFloorMobRequirements(int floor) {
+        List<FloorMobRequirement> reqs = floorMobRequirements.get(floor);
+        return reqs != null && !reqs.isEmpty();
+    }
+
+    /**
+     * @deprecated Use {@link #getFloorMobRequirements(int)} instead.
+     *             Returns the total required kills across all requirement entries, or 0 if none.
+     */
+    @Deprecated
     public int getFloorMobKillsRequired(int floor) {
-        return floorMobKillsRequired.getOrDefault(floor, 0);
+        return getFloorMobRequirements(floor).stream().mapToInt(FloorMobRequirement::getAmount).sum();
     }
 
     /**

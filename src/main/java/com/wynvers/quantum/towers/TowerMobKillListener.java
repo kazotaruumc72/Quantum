@@ -65,7 +65,7 @@ public class TowerMobKillListener implements Listener {
 
         // Skip MythicMobs mobs to avoid double-counting
         try {
-            if (MythicBukkit.inst().getMobManager().isActiveMob(entity)) return;
+            if (MythicBukkit.inst().getMobManager().isActiveMob(entity.getUniqueId())) return;
         } catch (NoClassDefFoundError | NullPointerException ignored) {
             // MythicBukkit not available at runtime – treat as vanilla
         }

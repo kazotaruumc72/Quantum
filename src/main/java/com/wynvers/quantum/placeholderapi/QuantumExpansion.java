@@ -155,6 +155,26 @@ public class QuantumExpansion extends PlaceholderExpansion {
                 if (plugin.getTowerManager() == null) return "0";
                 return String.valueOf(plugin.getTowerManager().getPlayerFloor(player.getUniqueId()));
             }
+
+            if (p.equals("tower_kills")) {
+                if (plugin.getTowerManager() == null) return "0";
+                var progress = plugin.getTowerManager().getProgress(player.getUniqueId());
+                String towerId = progress.getCurrentTower();
+                int floor = progress.getCurrentFloor();
+                if (towerId == null || floor <= 0) return "0";
+                return String.valueOf(progress.getFloorMobKills(towerId, floor));
+            }
+
+            if (p.equals("tower_kills_required")) {
+                if (plugin.getTowerManager() == null) return "0";
+                var progress = plugin.getTowerManager().getProgress(player.getUniqueId());
+                String towerId = progress.getCurrentTower();
+                int floor = progress.getCurrentFloor();
+                if (towerId == null || floor <= 0) return "0";
+                var tower = plugin.getTowerManager().getTower(towerId);
+                if (tower == null) return "0";
+                return String.valueOf(tower.getFloorMobKillsRequired(floor));
+            }
         }
 
         // ===========================

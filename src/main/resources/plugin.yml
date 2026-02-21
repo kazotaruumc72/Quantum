@@ -17,6 +17,7 @@ softdepend:
   - LuckPerms
   - TAB
   - PlaceholderAPI
+  - WorldGuard
 
 commands:
   quantum:

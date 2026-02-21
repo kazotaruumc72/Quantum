@@ -14,6 +14,8 @@ public class TowerProgress {
     private String currentTower;
     private int currentFloor;
     private final Map<String, Integer> runsByTower = new HashMap<>();
+    // towerId -> (floor -> (mobKey -> kills this session))
+    private final Map<String, Map<Integer, Map<String, Integer>>> floorMobKills = new HashMap<>();
 
     public int getRuns(String towerId) {
         return runsByTower.getOrDefault(towerId, 0);
@@ -21,6 +23,54 @@ public class TowerProgress {
     
     public void incrementRuns(String towerId) {
         runsByTower.put(towerId, getRuns(towerId) + 1);
+    }
+
+    /**
+     * Get the number of kills for a specific mob key on a specific floor this session.
+     *
+     * @param towerId tower ID
+     * @param floor   floor number
+     * @param mobKey  key as returned by {@link FloorMobRequirement#getKey()}
+     */
+    public int getFloorMobKills(String towerId, int floor, String mobKey) {
+        Map<Integer, Map<String, Integer>> byFloor = floorMobKills.get(towerId);
+        if (byFloor == null) return 0;
+        Map<String, Integer> byMob = byFloor.get(floor);
+        if (byMob == null) return 0;
+        return byMob.getOrDefault(mobKey, 0);
+    }
+
+    /**
+     * Get the total number of kills across all mob types on a specific floor this session.
+     * Used for backward-compatible PlaceholderAPI placeholder.
+     */
+    public int getFloorMobKills(String towerId, int floor) {
+        Map<Integer, Map<String, Integer>> byFloor = floorMobKills.get(towerId);
+        if (byFloor == null) return 0;
+        Map<String, Integer> byMob = byFloor.get(floor);
+        if (byMob == null) return 0;
+        return byMob.values().stream().mapToInt(Integer::intValue).sum();
+    }
+
+    /**
+     * Increment the kill counter for a specific mob key on a specific floor.
+     *
+     * @param towerId tower ID
+     * @param floor   floor number
+     * @param mobKey  key as returned by {@link FloorMobRequirement#getKey()}
+     */
+    public void incrementFloorMobKills(String towerId, int floor, String mobKey) {
+        floorMobKills.computeIfAbsent(towerId, k -> new HashMap<>())
+                     .computeIfAbsent(floor, k -> new HashMap<>())
+                     .merge(mobKey, 1, Integer::sum);
+    }
+
+    /**
+     * Reset all mob kill counters for a specific floor.
+     */
+    public void resetFloorMobKills(String towerId, int floor) {
+        Map<Integer, Map<String, Integer>> byFloor = floorMobKills.get(towerId);
+        if (byFloor != null) byFloor.remove(floor);
     }
     public TowerProgress(UUID playerUuid) {
         this.playerUuid = playerUuid;

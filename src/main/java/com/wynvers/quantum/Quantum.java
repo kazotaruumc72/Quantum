@@ -233,6 +233,12 @@ public final class Quantum extends JavaPlugin {
         this.towerInventoryManager = new TowerInventoryManager(this);
         this.zoneManager = new ZoneManager(this); // s'enregistre lui-même en listener
         
+        // Register MythicMobs kill listener for tower doors (softdepend)
+        if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
+            Bukkit.getPluginManager().registerEvents(new com.wynvers.quantum.towers.TowerMobKillListener(this), this);
+            logger.success("✓ Tower mob-kill listener registered (MythicMobs detected)");
+        }
+        
         logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
         logger.success("✓ Integrated tower scoreboard ready!");
 

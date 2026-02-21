@@ -92,6 +92,33 @@ public class TowerManager {
                             tower.setFloorRegion(floorNum, regionName);
                             plugin.getQuantumLogger().info("  Floor " + floorNum + " -> region: " + regionName);
                         }
+                        // mob_kills_required: list format (new) or plain int (legacy)
+                        List<?> mobKillsList = floorSection.getList("mob_kills_required");
+                        if (mobKillsList != null && !mobKillsList.isEmpty()) {
+                            // New list format: ['mm:MobId:5', 'zombie:3', ...]
+                            List<FloorMobRequirement> reqs = new ArrayList<>();
+                            for (Object entry : mobKillsList) {
+                                FloorMobRequirement req = FloorMobRequirement.parse(String.valueOf(entry));
+                                if (req != null) {
+                                    reqs.add(req);
+                                } else {
+                                    plugin.getQuantumLogger().warning(
+                                            "  Invalid mob_kills_required entry '" + entry + "' in tower " + towerId + " floor " + floorNum);
+                                }
+                            }
+                            if (!reqs.isEmpty()) {
+                                tower.setFloorMobRequirements(floorNum, reqs);
+                                plugin.getQuantumLogger().info("  Floor " + floorNum + " -> " + reqs.size() + " mob kill requirement(s)");
+                            }
+                        } else {
+                            // Legacy plain-int format (kept for backward compatibility)
+                            int legacy = floorSection.getInt("mob_kills_required", 0);
+                            if (legacy > 0) {
+                                plugin.getQuantumLogger().warning(
+                                        "  Floor " + floorNum + " uses legacy mob_kills_required integer (" + legacy + "). "
+                                        + "Please migrate to the list format: [\"mm:MobId:" + legacy + "\"] or [\"zombie:" + legacy + "\"]");
+                            }
+                        }
                     }
                 } catch (NumberFormatException e) {
                     plugin.getQuantumLogger().warning("Invalid floor number: " + floorKey + " in tower " + towerId);

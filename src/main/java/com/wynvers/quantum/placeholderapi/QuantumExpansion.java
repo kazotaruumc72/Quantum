@@ -156,7 +156,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
                 return String.valueOf(plugin.getTowerManager().getPlayerFloor(player.getUniqueId()));
             }
 
-            if (p.equals("tower_kills")) {
+            if (p.equals("tower_kills") || p.equals("tower_kills_current")) {
                 if (plugin.getTowerManager() == null) return "0";
                 var progress = plugin.getTowerManager().getProgress(player.getUniqueId());
                 String towerId = progress.getCurrentTower();
@@ -174,6 +174,21 @@ public class QuantumExpansion extends PlaceholderExpansion {
                 var tower = plugin.getTowerManager().getTower(towerId);
                 if (tower == null) return "0";
                 return String.valueOf(tower.getFloorMobKillsRequired(floor));
+            }
+
+            if (p.equals("tower_percentage")) {
+                if (plugin.getTowerManager() == null) return "0";
+                var progress = plugin.getTowerManager().getProgress(player.getUniqueId());
+                String towerId = progress.getCurrentTower();
+                int floor = progress.getCurrentFloor();
+                if (towerId == null || floor <= 0) return "0";
+                var tower = plugin.getTowerManager().getTower(towerId);
+                if (tower == null) return "0";
+                int required = tower.getFloorMobKillsRequired(floor);
+                if (required <= 0) return "100";
+                int kills = progress.getFloorMobKills(towerId, floor);
+                int pct = (int) Math.min(100, (kills * 100.0) / required);
+                return String.valueOf(pct);
             }
         }
 

@@ -462,6 +462,36 @@ public class PlaceholderManager {
             return completed + "/" + total;
         }
         
+        // Mob kills on the current floor
+        if (params.equals("tower_kills") || params.equals("tower_kills_current")) {
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
+            int floor = progress.getCurrentFloor();
+            if (floor <= 0) return "0";
+            return Integer.toString(progress.getFloorMobKills(currentTowerId, floor));
+        }
+
+        if (params.equals("tower_kills_required")) {
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
+            int floor = progress.getCurrentFloor();
+            if (floor <= 0) return "0";
+            com.wynvers.quantum.towers.TowerConfig tower = towerManager.getTower(currentTowerId);
+            if (tower == null) return "0";
+            return Integer.toString(tower.getFloorMobKillsRequired(floor));
+        }
+
+        if (params.equals("tower_percentage")) {
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
+            int floor = progress.getCurrentFloor();
+            if (floor <= 0) return "0";
+            com.wynvers.quantum.towers.TowerConfig tower = towerManager.getTower(currentTowerId);
+            if (tower == null) return "0";
+            int required = tower.getFloorMobKillsRequired(floor);
+            if (required <= 0) return "100";
+            int kills = progress.getFloorMobKills(currentTowerId, floor);
+            int pct = (int) Math.min(100, (kills * 100.0) / required);
+            return Integer.toString(pct);
+        }
+
         // Additional tower placeholders
         if (params.equals("tower_next_boss") || params.equals("tower_status")) {
             return handleCurrentTowerPlaceholder(player, params, currentTowerId, progress, towerManager);

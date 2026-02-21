@@ -92,6 +92,11 @@ public class TowerManager {
                             tower.setFloorRegion(floorNum, regionName);
                             plugin.getQuantumLogger().info("  Floor " + floorNum + " -> region: " + regionName);
                         }
+                        int mobKillsRequired = floorSection.getInt("mob_kills_required", 0);
+                        if (mobKillsRequired > 0) {
+                            tower.setFloorMobKillsRequired(floorNum, mobKillsRequired);
+                            plugin.getQuantumLogger().info("  Floor " + floorNum + " -> mob_kills_required: " + mobKillsRequired);
+                        }
                     }
                 } catch (NumberFormatException e) {
                     plugin.getQuantumLogger().warning("Invalid floor number: " + floorKey + " in tower " + towerId);

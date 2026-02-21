@@ -14,6 +14,8 @@ public class TowerProgress {
     private String currentTower;
     private int currentFloor;
     private final Map<String, Integer> runsByTower = new HashMap<>();
+    // towerId -> (floor -> mob kills this session)
+    private final Map<String, Map<Integer, Integer>> floorMobKills = new HashMap<>();
 
     public int getRuns(String towerId) {
         return runsByTower.getOrDefault(towerId, 0);
@@ -21,6 +23,31 @@ public class TowerProgress {
     
     public void incrementRuns(String towerId) {
         runsByTower.put(towerId, getRuns(towerId) + 1);
+    }
+
+    /**
+     * Get the number of MythicMobs kills on a specific floor this session.
+     */
+    public int getFloorMobKills(String towerId, int floor) {
+        Map<Integer, Integer> byFloor = floorMobKills.get(towerId);
+        if (byFloor == null) return 0;
+        return byFloor.getOrDefault(floor, 0);
+    }
+
+    /**
+     * Increment the MythicMobs kill counter for a specific floor.
+     */
+    public void incrementFloorMobKills(String towerId, int floor) {
+        floorMobKills.computeIfAbsent(towerId, k -> new HashMap<>())
+                     .merge(floor, 1, Integer::sum);
+    }
+
+    /**
+     * Reset the MythicMobs kill counter for a specific floor.
+     */
+    public void resetFloorMobKills(String towerId, int floor) {
+        Map<Integer, Integer> byFloor = floorMobKills.get(towerId);
+        if (byFloor != null) byFloor.remove(floor);
     }
     public TowerProgress(UUID playerUuid) {
         this.playerUuid = playerUuid;

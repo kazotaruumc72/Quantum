@@ -1,5 +1,10 @@
 package com.wynvers.quantum.worldguard;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.levels.PlayerLevelManager;
 import com.wynvers.quantum.regions.InternalRegionManager;
@@ -9,6 +14,7 @@ import com.wynvers.quantum.towers.TowerManager;
 import com.wynvers.quantum.towers.TowerScoreboardHandler;
 import com.wynvers.quantum.towers.events.TowerEnterEvent;
 import com.wynvers.quantum.towers.events.TowerLeaveEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -54,6 +60,8 @@ public class ZoneManager implements Listener {
         }
     };
     private static final String BYPASS_PERMISSION = "quantum.tower.bypass";
+    // true when WorldGuard is detected and has not thrown an error yet
+    private boolean worldGuardWorking;
 
     public ZoneManager(Quantum plugin) {
         this.plugin = plugin;
@@ -62,9 +70,11 @@ public class ZoneManager implements Listener {
         this.scoreboardHandler = plugin.getTowerScoreboardHandler();
         this.regionManager = plugin.getInternalRegionManager();
         this.towerInventoryManager = plugin.getTowerInventoryManager();
+        this.worldGuardWorking = Bukkit.getPluginManager().getPlugin("WorldGuard") != null;
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        plugin.getQuantumLogger().success("ZoneManager (tours) initialized - using internal region system");
+        String regionBackend = worldGuardWorking ? "WorldGuard" : "internal region system";
+        plugin.getQuantumLogger().success("ZoneManager (tours) initialized - using " + regionBackend);
     }
 
     @EventHandler
@@ -221,11 +231,47 @@ public class ZoneManager implements Listener {
     }
 
     /**
-     * Retourne le nom d'une region a cette location via le systeme interne.
+     * Retourne le nom d'une region a cette location.
+     * Uses WorldGuard when available, otherwise falls back to the internal system.
      * @return nom de la region ou null s'il n'y en a pas
      */
     private String getRegionAt(Location loc) {
+        if (worldGuardWorking) {
+            return getWorldGuardRegionAt(loc);
+        }
         return regionManager.getRegionAt(loc);
+    }
+
+    /**
+     * Query WorldGuard for the highest-priority region that matches a tower floor.
+     * Returns null when the location is not inside any configured tower region.
+     */
+    private String getWorldGuardRegionAt(Location loc) {
+        if (loc == null || loc.getWorld() == null) return null;
+        try {
+            RegionManager wgManager =
+                    WorldGuard.getInstance().getPlatform().getRegionContainer()
+                              .get(BukkitAdapter.adapt(loc.getWorld()));
+            if (wgManager == null) return null;
+
+            BlockVector3 pos = BlockVector3.at(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+            com.sk89q.worldguard.protection.ApplicableRegionSet regions =
+                    wgManager.getApplicableRegions(pos);
+
+            // Iterate regions and return the first one that belongs to a tower floor
+            for (ProtectedRegion region : regions) {
+                String id = region.getId();
+                if (towerManager.getTowerByRegion(id) != null) {
+                    return id;
+                }
+            }
+        } catch (Exception e) {
+            // WorldGuard threw an unexpected error – switch to internal system and log once
+            worldGuardWorking = false;
+            plugin.getQuantumLogger().warning("[ZoneManager] WorldGuard lookup failed, switching to internal regions: " + e.getMessage());
+            return regionManager.getRegionAt(loc);
+        }
+        return null;
     }
 
     /**

@@ -95,6 +95,14 @@
             <scope>provided</scope>
         </dependency>
         
+        <!-- WorldGuard -->
+        <dependency>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-bukkit</artifactId>
+            <version>7.0.9</version>
+            <scope>provided</scope>
+        </dependency>
+        
         <!-- Model Engine -->
         <dependency>
             <groupId>com.ticxo.modelengine</groupId>

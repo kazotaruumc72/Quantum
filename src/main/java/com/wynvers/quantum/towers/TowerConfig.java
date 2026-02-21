@@ -23,6 +23,8 @@ public class TowerConfig {
     
     // Map floor number -> region name
     private final Map<Integer, String> floorRegions;
+    // Map floor number -> required mob kills to open door
+    private final Map<Integer, Integer> floorMobKillsRequired;
     
     public TowerConfig(String id, String name, String world, int totalFloors, List<Integer> bossFloors, int finalBossFloor, int minLevel, int maxLevel) {
         this.id = id;
@@ -35,6 +37,7 @@ public class TowerConfig {
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;
         this.floorRegions = new HashMap<>();
+        this.floorMobKillsRequired = new HashMap<>();
     }
     
     public int getMinLevel() { 
@@ -116,6 +119,21 @@ public class TowerConfig {
         this.scoreboardLines.addAll(lines);
     }
     
+    /**
+     * Set the required mob kills to open the door for a specific floor.
+     */
+    public void setFloorMobKillsRequired(int floor, int required) {
+        floorMobKillsRequired.put(floor, required);
+    }
+
+    /**
+     * Get the required mob kills to open the door for a specific floor.
+     * Returns 0 if not configured (door opens without kills).
+     */
+    public int getFloorMobKillsRequired(int floor) {
+        return floorMobKillsRequired.getOrDefault(floor, 0);
+    }
+
     /**
      * Set the WorldGuard region name for a specific floor
      */

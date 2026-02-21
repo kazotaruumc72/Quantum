@@ -29,7 +29,6 @@ You can define regions directly in your tower floor configurations:
 towers:
   tower_water:
     name: "§b§lTour de l'Eau"
-    worldguard_region: "tower_water_global"  # Used by WorldGuard if available
     min_level: 1
     max_level: 26
     
@@ -190,7 +189,6 @@ The internal region system is designed for performance:
 towers:
   tower_water:
     name: "§b§lTour de l'Eau"
-    worldguard_region: "tower_water_global"
     min_level: 1
     max_level: 26
     

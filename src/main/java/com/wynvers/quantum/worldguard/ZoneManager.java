@@ -231,11 +231,11 @@ public class ZoneManager implements Listener {
     }
 
     /**
-     * Retourne le nom d'une region a cette location.
+     * Retourne le nom d'une région de tour a cette location.
      * Uses WorldGuard when available, otherwise falls back to the internal system.
-     * @return nom de la region ou null s'il n'y en a pas
+     * @return nom de la région ou null s'il n'y en a pas
      */
-    private String getRegionAt(Location loc) {
+    public String getRegionAt(Location loc) {
         if (worldGuardWorking) {
             return getWorldGuardRegionAt(loc);
         }

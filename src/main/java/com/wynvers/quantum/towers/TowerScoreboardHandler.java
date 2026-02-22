@@ -167,6 +167,15 @@ public class TowerScoreboardHandler {
     }
 
     /**
+     * Force an immediate scoreboard refresh for a player (e.g. after a mob kill).
+     */
+    public void forceUpdate(Player player) {
+        if (playersInTower.contains(player.getUniqueId())) {
+            updateScoreboard(player);
+        }
+    }
+
+    /**
      * Recharge la configuration
      */
     public void reload() {

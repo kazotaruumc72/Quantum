@@ -48,6 +48,7 @@ public class QuantumTabCompleter implements TabCompleter {
                 "setspawn",
                 "setfirstspawn",
                 "structure",
+                "wand",
                 "eco",
                 "economy"
             ));
@@ -97,6 +98,12 @@ public class QuantumTabCompleter implements TabCompleter {
                 // /quantum door create/delete <tower_id> <floor>
                 String towerId = args[2];
                 completions.addAll(getFloorsForTower(towerId));
+            }
+        }
+        // Tab completion pour /quantum wand
+        else if (args[0].equalsIgnoreCase("wand")) {
+            if (args.length == 2) {
+                completions.addAll(Arrays.asList("door", "structure"));
             }
         }
         // Tab completion pour /quantum npc

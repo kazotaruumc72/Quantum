@@ -57,7 +57,7 @@ public class MobKillRewardListener implements Listener {
             if (dungeonWeapon.isDungeonWeapon(mainHand)) {
                 int weaponExp = reward.getWeaponExp();
                 for (int i = 0; i < weaponExp; i++) {
-                    dungeonArmor.addKillExperience(mainHand);
+                    dungeonWeapon.addKillExperience(mainHand);
                 }
             }
         }

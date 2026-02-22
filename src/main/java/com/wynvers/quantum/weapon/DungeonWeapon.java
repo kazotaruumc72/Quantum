@@ -25,6 +25,7 @@ public class DungeonWeapon {
     private final Quantum plugin;
     private final NamespacedKey weaponKey;
     private final NamespacedKey levelKey;
+    private final NamespacedKey weaponExpKey;
     private YamlConfiguration config;
     private Set<String> dungeonRegions;
     
@@ -32,6 +33,7 @@ public class DungeonWeapon {
         this.plugin = plugin;
         this.weaponKey = new NamespacedKey(plugin, "dungeon_weapon");
         this.levelKey = new NamespacedKey(plugin, "weapon_level");
+        this.weaponExpKey = new NamespacedKey(plugin, "weapon_exp");
         this.dungeonRegions = new HashSet<>();
         loadConfig();
     }
@@ -101,6 +103,33 @@ public class DungeonWeapon {
         
         Integer level = meta.getPersistentDataContainer().get(levelKey, PersistentDataType.INTEGER);
         return level != null ? level : 1;
+    }
+    
+    /**
+     * Ajoute de l'XP de kill à l'arme de donjon
+     */
+    public void addKillExperience(ItemStack weapon) {
+        if (!isDungeonWeapon(weapon)) return;
+        
+        ItemMeta meta = weapon.getItemMeta();
+        if (meta == null) return;
+        
+        PersistentDataType<Integer, Integer> type = PersistentDataType.INTEGER;
+        int currentExp = meta.getPersistentDataContainer().getOrDefault(weaponExpKey, type, 0);
+        meta.getPersistentDataContainer().set(weaponExpKey, type, currentExp + 1);
+        weapon.setItemMeta(meta);
+    }
+    
+    /**
+     * Récupère l'XP accumulée de l'arme de donjon
+     */
+    public int getWeaponExp(ItemStack weapon) {
+        if (!isDungeonWeapon(weapon)) return 0;
+        
+        ItemMeta meta = weapon.getItemMeta();
+        if (meta == null) return 0;
+        
+        return meta.getPersistentDataContainer().getOrDefault(weaponExpKey, PersistentDataType.INTEGER, 0);
     }
     
     /**

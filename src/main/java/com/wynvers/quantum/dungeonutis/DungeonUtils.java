@@ -3,6 +3,7 @@ package com.wynvers.quantum.dungeonutis;
 import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.jobs.JobData;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -175,11 +176,11 @@ public class DungeonUtils {
         // Get player's current job
         if (plugin.getJobManager() == null) return false;
 
-        String playerJob = plugin.getJobManager().getPlayerJob(player.getUniqueId());
-        if (playerJob == null) return false;
+        JobData jobData = plugin.getJobManager().getPlayerJob(player.getUniqueId());
+        if (jobData == null) return false;
 
         // Check if job is compatible
-        return type.getCompatibleJob().equalsIgnoreCase(playerJob);
+        return type.getCompatibleJob().equalsIgnoreCase(jobData.getJobId());
     }
 
     /**

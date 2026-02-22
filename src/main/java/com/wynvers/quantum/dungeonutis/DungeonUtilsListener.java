@@ -1,6 +1,7 @@
 package com.wynvers.quantum.dungeonutis;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.jobs.JobData;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -42,8 +43,8 @@ public class DungeonUtilsListener implements Listener {
         // Check if player has a job and if it's compatible
         if (plugin.getJobManager() == null) return;
 
-        String playerJob = plugin.getJobManager().getPlayerJob(player.getUniqueId());
-        if (playerJob == null) {
+        JobData jobData = plugin.getJobManager().getPlayerJob(player.getUniqueId());
+        if (jobData == null) {
             String message = plugin.getDungeonUtils().getConfig().getString("messages.no_job", "&c✖ Vous devez avoir un métier pour utiliser cet outil!");
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
             event.setCancelled(true);
@@ -80,8 +81,8 @@ public class DungeonUtilsListener implements Listener {
         // Check if player has a job and if it's compatible
         if (plugin.getJobManager() == null) return;
 
-        String playerJob = plugin.getJobManager().getPlayerJob(player.getUniqueId());
-        if (playerJob == null) {
+        JobData jobData = plugin.getJobManager().getPlayerJob(player.getUniqueId());
+        if (jobData == null) {
             String message = plugin.getDungeonUtils().getConfig().getString("messages.no_job", "&c✖ Vous devez avoir un métier pour utiliser cette arme!");
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
             event.setCancelled(true);

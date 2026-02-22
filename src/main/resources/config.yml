@@ -55,7 +55,14 @@ database:
 #   %quantum_eco_<id>_symbol%            - Symbole
 #   %quantum_eco_<id>_currency%          - Nom (singulier)
 #   %quantum_eco_<id>_currency_plural%   - Nom (pluriel)
-# 
+#
+# Exemples pour les Gems:
+#   %quantum_eco_gems_balance%           - Solde brut des gems
+#   %quantum_eco_gems_balance_formatted% - Solde des gems formaté (ex: 100 ◆)
+#   %quantum_eco_gems_symbol%            - Symbole des gems (◆)
+#   %quantum_eco_gems_currency%          - Nom singulier (Gem)
+#   %quantum_eco_gems_currency_plural%   - Nom pluriel (Gems)
+#
 economy:
   currencies:
     # Monnaie principale (Dollar) - utilisée par Vault
@@ -65,6 +72,13 @@ economy:
       symbol: "$"
       starting-balance: 0.0
       format: "%amount%%symbol%"
+    # Monnaie secondaire (Gems) - Placeholder: %quantum_eco_gems_balance%
+    gems:
+      name: "Gem"
+      name-plural: "Gems"
+      symbol: "◆"
+      starting-balance: 0.0
+      format: "%amount% %symbol%"
     # Exemple avec un glyphe Nexo (décommentez pour activer)
     # token:
     #   name: "Token"

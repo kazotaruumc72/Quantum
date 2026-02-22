@@ -93,11 +93,7 @@ quantum:
         - tools.yml
         - structures             # Structures
         - structures.yml
-        - weapon                 # Weapons
-        - weapons
-        - dungeon_weapon
-        - dungeon_weapon.yml
-    
+
     # Stats sub-command completions
     stats:
       level_2:

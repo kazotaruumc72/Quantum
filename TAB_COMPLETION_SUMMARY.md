@@ -25,9 +25,8 @@ Ajouté toutes les options manquantes pour `/quantum reload`:
 - `crops`, `custom_crops`, `custom_crops.yml` - Cultures personnalisées
 - `tools`, `tools.yml` - Outils améliorables
 - `structures`, `structures.yml` - Structures
-- `weapon`, `weapons`, `dungeon_weapon`, `dungeon_weapon.yml` - Armes de donjon
 
-**Total**: 30+ options de rechargement disponibles
+**Total**: 29+ options de rechargement disponibles
 
 ### 2. ZoneGUITabCompleter.java (Nouveau)
 **Fichier**: `src/main/java/com/wynvers/quantum/tabcompleters/ZoneGUITabCompleter.java`

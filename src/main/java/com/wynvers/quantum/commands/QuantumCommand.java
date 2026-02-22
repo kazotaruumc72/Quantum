@@ -311,16 +311,6 @@ public class QuantumCommand implements CommandExecutor {
                             }
                             break;
 
-                        case "weapon":
-                        case "weapons":
-                        case "dungeon_weapon":
-                        case "dungeon_weapon.yml":
-                            if (plugin.getDungeonWeapon() != null) {
-                                plugin.getDungeonWeapon().reload();
-                                sender.sendMessage("§a§l✓ §adungeon_weapon.yml rechargé!");
-                            }
-                            break;
-
                         default:
                             sender.sendMessage("§c⚠ Type de reload invalide!");
                             break;
@@ -366,8 +356,7 @@ public class QuantumCommand implements CommandExecutor {
         if (plugin.getCustomCropManager() != null) plugin.getCustomCropManager().reload();
         if (plugin.getToolManager() != null) plugin.getToolManager().reload();
         if (plugin.getStructureManager() != null) plugin.getStructureManager().reload();
-        if (plugin.getDungeonWeapon() != null) plugin.getDungeonWeapon().reload();
-        
+
         // Vider le cache de couleurs après tous les rechargements
         com.wynvers.quantum.utils.ScoreboardUtils.clearCache();
 

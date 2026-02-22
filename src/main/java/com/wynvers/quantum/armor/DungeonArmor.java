@@ -24,6 +24,7 @@ public class DungeonArmor {
     public final JavaPlugin plugin;
     private final NamespacedKey armorKey;
     private final NamespacedKey levelKey;
+    private final NamespacedKey armorExpKey;
     private final NamespacedKey runesKey;
     private final NamespacedKey rarityKey;
     private final NamespacedKey creationDateKey;
@@ -33,11 +34,12 @@ public class DungeonArmor {
         this.plugin = plugin;
         this.armorKey = new NamespacedKey(plugin, "dungeon_armor");
         this.levelKey = new NamespacedKey(plugin, "armor_level");
+        this.armorExpKey = new NamespacedKey(plugin, "armor_exp");
         this.runesKey = new NamespacedKey(plugin, "armor_runes");
         this.rarityKey = new NamespacedKey(plugin, "armor_rarity");
         this.creationDateKey = new NamespacedKey(plugin, "creation_date");
         loadConfig();
-        
+
         // Initialiser les raretés depuis la config
         ArmorRarity.init(plugin);
     }
@@ -106,6 +108,7 @@ public class DungeonArmor {
             PersistentDataContainer data = meta.getPersistentDataContainer();
             data.set(armorKey, PersistentDataType.BYTE, (byte) 1);
             data.set(levelKey, PersistentDataType.INTEGER, 0);
+            data.set(armorExpKey, PersistentDataType.INTEGER, 0);
             data.set(rarityKey, PersistentDataType.STRING, rarity.name());
             data.set(creationDateKey, PersistentDataType.LONG, System.currentTimeMillis());
             
@@ -182,27 +185,61 @@ public class DungeonArmor {
     
     public void addKillExperience(ItemStack armor) {
         if (!isDungeonArmor(armor)) return;
-        
+
         ItemMeta meta = armor.getItemMeta();
         if (meta == null) return;
-        
+
         PersistentDataContainer data = meta.getPersistentDataContainer();
+        int currentExp = data.getOrDefault(armorExpKey, PersistentDataType.INTEGER, 0);
         int currentLevel = data.getOrDefault(levelKey, PersistentDataType.INTEGER, 0);
-        int newLevel = currentLevel + 1;
-        
-        data.set(levelKey, PersistentDataType.INTEGER, newLevel);
+        int newExp = currentExp + 1;
+
+        data.set(armorExpKey, PersistentDataType.INTEGER, newExp);
+
+        // Recalculer le niveau basé sur l'XP accumulée
+        int newLevel = calculateLevel(newExp);
+
+        if (newLevel != currentLevel) {
+            data.set(levelKey, PersistentDataType.INTEGER, newLevel);
+        }
+
         armor.setItemMeta(meta);
         updateArmorLore(armor, newLevel);
     }
     
     public int getArmorLevel(ItemStack armor) {
         if (!isDungeonArmor(armor)) return 0;
-        
+
         ItemMeta meta = armor.getItemMeta();
         if (meta == null) return 0;
-        
+
         PersistentDataContainer data = meta.getPersistentDataContainer();
         return data.getOrDefault(levelKey, PersistentDataType.INTEGER, 0);
+    }
+
+    public int getArmorExp(ItemStack armor) {
+        if (!isDungeonArmor(armor)) return 0;
+
+        ItemMeta meta = armor.getItemMeta();
+        if (meta == null) return 0;
+
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        return data.getOrDefault(armorExpKey, PersistentDataType.INTEGER, 0);
+    }
+
+    /**
+     * Calcule le niveau basé sur l'XP accumulée
+     * Formule: 100 XP par niveau (niveau 0 = 0-99 XP, niveau 1 = 100-199 XP, etc.)
+     */
+    private int calculateLevel(int exp) {
+        return exp / 100;
+    }
+
+    /**
+     * Calcule l'XP requis pour atteindre le prochain niveau
+     */
+    private int getExpForNextLevel(int currentLevel) {
+        return (currentLevel + 1) * 100;
     }
     
     public int getMaxRuneSlots(ItemStack armor) {
@@ -301,16 +338,20 @@ public class DungeonArmor {
     private void updateArmorLore(ItemStack armor, int level) {
         ItemMeta meta = armor.getItemMeta();
         if (meta == null) return;
-        
+
         ArmorRarity rarity = getArmorRarity(armor);
         Map<RuneType, Integer> runes = getAppliedRunesWithLevels(armor);
         int maxSlots = rarity.getMaxRuneSlots();
-        
+
+        // Obtenir l'XP actuelle
+        int currentExp = getArmorExp(armor);
+        int expForNextLevel = getExpForNextLevel(level);
+
         List<String> lore = new ArrayList<>();
         lore.add("");
         lore.add("§8╭────────────────────────╮");
         lore.add("§8│ " + rarity.getDisplayName() + " §8│");
-        lore.add("§8│ §6§lNIVEAU §r§e" + level + " §8│ §b§lXP §r§3" + (level * 100) + "/" + ((level + 1) * 100) + " §8│");
+        lore.add("§8│ §6§lNIVEAU §r§e" + level + " §8│ §b§lXP §r§3" + currentExp + "/" + expForNextLevel + " §8│");
         lore.add("§8╰────────────────────────╯");
         lore.add("");
         

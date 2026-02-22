@@ -135,6 +135,9 @@ public final class Quantum extends JavaPlugin {
     private ArmorManager armorManager;
     private RuneItem runeItem;
     
+    // Mob Bestiary (mobs.yml)
+    private MobConfig mobConfig;
+    
     // NEW: Furniture, Crops, Tools, and Weapon systems
     private FurnitureManager furnitureManager;
     private CustomCropManager customCropManager;
@@ -248,6 +251,15 @@ public final class Quantum extends JavaPlugin {
         logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
         logger.success("✓ Integrated tower scoreboard ready!");
 
+        // Mob Bestiary (mobs.yml) - XP rewards for kills
+        this.mobConfig = new MobConfig(this);
+        try {
+            Bukkit.getPluginManager().registerEvents(new MobKillRewardListener(this, mobConfig), this);
+            logger.success("✓ Mob bestiary & kill reward listener registered!");
+        } catch (NoClassDefFoundError e) {
+            logger.warning("⚠ Could not register mob kill reward listener: " + e.getMessage());
+        }
+
         // Managers généraux
         initializeManagers();
         
@@ -346,6 +358,7 @@ public final class Quantum extends JavaPlugin {
         extractResource("scoreboard.yml");
         extractResource("dungeon.yml");
         extractResource("dungeon_armor.yml");
+        extractResource("mobs.yml");
 
         // Configuration des tours (TowerManager)
         extractResource("towers.yml");
@@ -1085,5 +1098,9 @@ public final class Quantum extends JavaPlugin {
     
     public DungeonWeapon getDungeonWeapon() {
         return dungeonWeapon;
+    }
+
+    public MobConfig getMobConfig() {
+        return mobConfig;
     }
 }

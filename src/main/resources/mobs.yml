@@ -1,0 +1,71 @@
+# ========================================
+#  QUANTUM - Bestiaire / Configuration des Mobs
+# ========================================
+#
+# Définit pour chaque type de mob:
+#   - player_exp: XP donnée au joueur (système de niveaux Quantum)
+#   - armor_exp: XP donnée à chaque pièce d'armure de donjon équipée
+#     (helmet, chestplate, leggings, boots)
+#   - weapon_exp: XP donnée à l'arme de donjon utilisée pour tuer
+#
+# Types de mobs supportés:
+#   - Mobs vanilla Minecraft (ZOMBIE, SKELETON, CREEPER, etc.)
+#   - Mobs MythicMobs (préfixe mm: ex: mm:SkeletonKing)
+#
+# Si un mob n'est pas listé, les valeurs par défaut sont utilisées.
+
+# ========================================
+#  Valeurs par défaut
+# ========================================
+defaults:
+  player_exp: 5
+  armor_exp:
+    helmet: 1
+    chestplate: 1
+    leggings: 1
+    boots: 1
+  weapon_exp: 2
+
+# ========================================
+#  Mobs configurés
+# ========================================
+# Ajoutez vos mobs ici.
+# Les mobs vanilla utilisent leur EntityType (ZOMBIE, SKELETON, etc.)
+# Les mobs MythicMobs utilisent le préfixe mm: (mm:SkeletonKing, etc.)
+#
+# Si un mob n'est pas listé ici, les valeurs par défaut ci-dessus
+# seront utilisées automatiquement.
+
+mobs:
+  # ========================================
+  #  Mobs MythicMobs (préfixe mm:)
+  # ========================================
+  # Ajoutez vos mobs MythicMobs ici avec le préfixe mm:
+  # Exemple:
+  #
+  # "mm:WaterSoldier":
+  #   player_exp: 25
+  #   armor_exp:
+  #     helmet: 6
+  #     chestplate: 6
+  #     leggings: 6
+  #     boots: 6
+  #   weapon_exp: 8
+  #
+  # "mm:WaterGuard":
+  #   player_exp: 30
+  #   armor_exp:
+  #     helmet: 8
+  #     chestplate: 8
+  #     leggings: 8
+  #     boots: 8
+  #   weapon_exp: 10
+  #
+  # "mm:SkeletonKing":
+  #   player_exp: 100
+  #   armor_exp:
+  #     helmet: 25
+  #     chestplate: 25
+  #     leggings: 25
+  #     boots: 25
+  #   weapon_exp: 30

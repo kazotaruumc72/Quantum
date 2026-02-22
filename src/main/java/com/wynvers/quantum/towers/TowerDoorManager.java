@@ -15,7 +15,7 @@ import java.util.*;
 
 /**
  * Gère les portes des tours avec système de sélection WorldEdit-style
- * Les portes disparaissent pendant 30s puis réapparaissent
+ * Les portes disparaissent pendant 1m30s puis réapparaissent
  */
 public class TowerDoorManager {
     
@@ -65,6 +65,10 @@ public class TowerDoorManager {
             if (doorSection == null) continue;
             
             DoorConfig config = DoorConfig.fromConfig(doorSection);
+            if (config == null) {
+                plugin.getQuantumLogger().warning("Failed to load door config: " + doorId + " (world not loaded?)");
+                continue;
+            }
             doorConfigs.put(doorId, config);
         }
         
@@ -145,7 +149,7 @@ public class TowerDoorManager {
     }
     
     /**
-     * Ouvre une porte (fait disparaître les blocks pendant 30s)
+     * Ouvre une porte (fait disparaître les blocks pendant 1m30s)
      */
     public void openDoor(String towerId, int floor, Player player) {
         String doorId = towerId + "_" + floor;
@@ -191,10 +195,10 @@ public class TowerDoorManager {
             player.playSound(player.getLocation(), Sound.BLOCK_IRON_DOOR_OPEN, 1.0f, 0.8f);
         }
         
-        // Programmer la fermeture dans 30 secondes
+        // Programmer la fermeture dans 1m30s (90 secondes)
         BukkitTask closeTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
             closeDoor(doorId, true);
-        }, 30 * 20L); // 30 secondes
+        }, 90 * 20L); // 1m30s
         
         doorCloseTasks.put(doorId, closeTask);
         

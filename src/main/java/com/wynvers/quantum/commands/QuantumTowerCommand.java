@@ -616,6 +616,9 @@ public class QuantumTowerCommand implements CommandExecutor {
         towerManager.reload();
         doorManager.loadDoors();
         npcManager.loadNPCs();
+        if (plugin.getMobConfig() != null) {
+            plugin.getMobConfig().reload();
+        }
         
         sender.sendMessage("§a§l✓ §aConfigurations rechargées!");
         return true;

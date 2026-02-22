@@ -135,6 +135,9 @@ public final class Quantum extends JavaPlugin {
     private ArmorManager armorManager;
     private RuneItem runeItem;
     
+    // Mob Bestiary (mobs.yml)
+    private MobConfig mobConfig;
+    
     // NEW: Furniture, Crops, Tools, and Weapon systems
     private FurnitureManager furnitureManager;
     private CustomCropManager customCropManager;
@@ -233,14 +236,29 @@ public final class Quantum extends JavaPlugin {
         this.towerInventoryManager = new TowerInventoryManager(this);
         this.zoneManager = new ZoneManager(this); // s'enregistre lui-même en listener
         
-        // Register MythicMobs kill listener for tower doors (softdepend)
-        if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
+        // Register mob kill listener for tower doors (vanilla + MythicMobs if available)
+        try {
             Bukkit.getPluginManager().registerEvents(new com.wynvers.quantum.towers.TowerMobKillListener(this), this);
-            logger.success("✓ Tower mob-kill listener registered (MythicMobs detected)");
+            if (Bukkit.getPluginManager().getPlugin("MythicMobs") != null) {
+                logger.success("✓ Tower mob-kill listener registered (MythicMobs + vanilla)");
+            } else {
+                logger.success("✓ Tower mob-kill listener registered (vanilla only)");
+            }
+        } catch (NoClassDefFoundError e) {
+            logger.warning("⚠ Could not register tower mob-kill listener: " + e.getMessage());
         }
         
         logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
         logger.success("✓ Integrated tower scoreboard ready!");
+
+        // Mob Bestiary (mobs.yml) - XP rewards for kills
+        this.mobConfig = new MobConfig(this);
+        try {
+            Bukkit.getPluginManager().registerEvents(new MobKillRewardListener(this, mobConfig), this);
+            logger.success("✓ Mob bestiary & kill reward listener registered!");
+        } catch (NoClassDefFoundError e) {
+            logger.warning("⚠ Could not register mob kill reward listener: " + e.getMessage());
+        }
 
         // Managers généraux
         initializeManagers();
@@ -340,6 +358,7 @@ public final class Quantum extends JavaPlugin {
         extractResource("scoreboard.yml");
         extractResource("dungeon.yml");
         extractResource("dungeon_armor.yml");
+        extractResource("mobs.yml");
 
         // Configuration des tours (TowerManager)
         extractResource("towers.yml");
@@ -1079,5 +1098,9 @@ public final class Quantum extends JavaPlugin {
     
     public DungeonWeapon getDungeonWeapon() {
         return dungeonWeapon;
+    }
+
+    public MobConfig getMobConfig() {
+        return mobConfig;
     }
 }

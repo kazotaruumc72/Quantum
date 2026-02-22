@@ -441,7 +441,7 @@ public class JobManager {
     public double getExpMultiplier(UUID uuid, boolean inDungeon) {
         List<ActiveBooster> boosters = activeBoosters.get(uuid);
         if (boosters == null || boosters.isEmpty()) return 1.0;
-        
+
         double multiplier = 1.0;
         for (ActiveBooster booster : boosters) {
             if (booster.getBoosterType().equals("exp_booster") && !booster.isExpired()) {
@@ -450,17 +450,37 @@ public class JobManager {
                 }
             }
         }
-        
+
         return multiplier;
     }
-    
+
+    /**
+     * Récupère le multiplicateur d'XP actif pour un joueur avec bonus d'outil de donjon
+     */
+    public double getExpMultiplier(Player player, boolean inDungeon) {
+        double baseMultiplier = getExpMultiplier(player.getUniqueId(), inDungeon);
+
+        // Check for dungeon utils bonus
+        if (plugin.getDungeonUtils() != null) {
+            ItemStack item = player.getInventory().getItemInMainHand();
+            if (plugin.getDungeonUtils().isDungeonUtil(item)) {
+                if (plugin.getDungeonUtils().canUseForJob(player, item)) {
+                    double dungeonBonus = plugin.getDungeonUtils().getJobExpBonus(item);
+                    baseMultiplier *= dungeonBonus;
+                }
+            }
+        }
+
+        return baseMultiplier;
+    }
+
     /**
      * Récupère le multiplicateur d'argent actif pour un joueur
      */
     public double getMoneyMultiplier(UUID uuid, boolean inDungeon) {
         List<ActiveBooster> boosters = activeBoosters.get(uuid);
         if (boosters == null || boosters.isEmpty()) return 1.0;
-        
+
         double multiplier = 1.0;
         for (ActiveBooster booster : boosters) {
             if (booster.getBoosterType().equals("money_booster") && !booster.isExpired()) {
@@ -469,8 +489,28 @@ public class JobManager {
                 }
             }
         }
-        
+
         return multiplier;
+    }
+
+    /**
+     * Récupère le multiplicateur d'argent actif pour un joueur avec bonus d'outil de donjon
+     */
+    public double getMoneyMultiplier(Player player, boolean inDungeon) {
+        double baseMultiplier = getMoneyMultiplier(player.getUniqueId(), inDungeon);
+
+        // Check for dungeon utils bonus
+        if (plugin.getDungeonUtils() != null) {
+            ItemStack item = player.getInventory().getItemInMainHand();
+            if (plugin.getDungeonUtils().isDungeonUtil(item)) {
+                if (plugin.getDungeonUtils().canUseForJob(player, item)) {
+                    double dungeonBonus = plugin.getDungeonUtils().getJobMoneyBonus(item);
+                    baseMultiplier *= dungeonBonus;
+                }
+            }
+        }
+
+        return baseMultiplier;
     }
     
     /**
@@ -499,10 +539,10 @@ public class JobManager {
         
         // Vérifier si le joueur est dans un donjon
         boolean inDungeon = isPlayerInDungeon(player);
-        
-        // Appliquer les multiplicateurs
-        double expMultiplier = getExpMultiplier(player.getUniqueId(), inDungeon);
-        double moneyMultiplier = getMoneyMultiplier(player.getUniqueId(), inDungeon);
+
+        // Appliquer les multiplicateurs (includes dungeon utils bonus)
+        double expMultiplier = getExpMultiplier(player, inDungeon);
+        double moneyMultiplier = getMoneyMultiplier(player, inDungeon);
         
         int finalExp = (int) (baseExp * expMultiplier);
         double finalMoney = baseMoney * moneyMultiplier;
@@ -545,10 +585,10 @@ public class JobManager {
         
         // Vérifier si le joueur est dans un donjon
         boolean inDungeon = isPlayerInDungeon(player);
-        
-        // Appliquer les multiplicateurs
-        double expMultiplier = getExpMultiplier(player.getUniqueId(), inDungeon);
-        double moneyMultiplier = getMoneyMultiplier(player.getUniqueId(), inDungeon);
+
+        // Appliquer les multiplicateurs (includes dungeon utils bonus)
+        double expMultiplier = getExpMultiplier(player, inDungeon);
+        double moneyMultiplier = getMoneyMultiplier(player, inDungeon);
         
         int finalExp = (int) (baseExp * expMultiplier);
         double finalMoney = baseMoney * moneyMultiplier;
@@ -603,10 +643,10 @@ public class JobManager {
         
         // Vérifier si le joueur est dans un donjon
         boolean inDungeon = isPlayerInDungeon(player);
-        
-        // Appliquer les multiplicateurs
-        double expMultiplier = getExpMultiplier(player.getUniqueId(), inDungeon);
-        double moneyMultiplier = getMoneyMultiplier(player.getUniqueId(), inDungeon);
+
+        // Appliquer les multiplicateurs (includes dungeon utils bonus)
+        double expMultiplier = getExpMultiplier(player, inDungeon);
+        double moneyMultiplier = getMoneyMultiplier(player, inDungeon);
         
         int finalExp = (int) (baseExp * expMultiplier);
         double finalMoney = baseMoney * moneyMultiplier;
@@ -662,10 +702,10 @@ public class JobManager {
         
         // Vérifier si le joueur est dans un donjon
         boolean inDungeon = isPlayerInDungeon(player);
-        
-        // Appliquer les multiplicateurs
-        double expMultiplier = getExpMultiplier(player.getUniqueId(), inDungeon);
-        double moneyMultiplier = getMoneyMultiplier(player.getUniqueId(), inDungeon);
+
+        // Appliquer les multiplicateurs (includes dungeon utils bonus)
+        double expMultiplier = getExpMultiplier(player, inDungeon);
+        double moneyMultiplier = getMoneyMultiplier(player, inDungeon);
         
         int finalExp = (int) (baseExp * expMultiplier);
         double finalMoney = baseMoney * moneyMultiplier;

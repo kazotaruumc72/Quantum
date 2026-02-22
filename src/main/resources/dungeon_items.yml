@@ -1,0 +1,84 @@
+# ========================================
+#  QUANTUM - Dungeon Items Configuration
+# ========================================
+#
+# This file defines which items should stay in the dungeon and not be transferred to the main world.
+# When a player leaves a dungeon, these items will be kept in their dungeon inventory
+# and won't be available in the main world.
+#
+# When a player enters a dungeon, these items will be preserved and restored to their dungeon inventory.
+
+# ========================================
+#  Item Retention Rules
+# ========================================
+
+# Should dungeon armor be kept in dungeon? (default: true)
+keep_dungeon_armor: true
+
+# Should dungeon tools and weapons be kept in dungeon? (default: true)
+keep_dungeon_utils: true
+
+# Should MythicMobs items be kept in dungeon? (default: false)
+# When enabled, all MythicMobs custom items will stay in the dungeon
+keep_mythicmobs_items: false
+
+# ========================================
+#  Specific Item Types
+# ========================================
+# Configure which specific types should be kept in dungeons
+# Set to false to allow that type to leave the dungeon
+
+item_types:
+  # Tools
+  PICKAXE: true     # Dungeon pickaxes stay in dungeon
+  AXE: true         # Dungeon axes stay in dungeon
+  HOE: true         # Dungeon hoes stay in dungeon
+
+  # Weapons
+  SWORD: true       # Dungeon swords stay in dungeon
+  BOW: true         # Dungeon bows stay in dungeon
+  KATANA: true      # Dungeon katanas stay in dungeon
+  BROADSWORD: true  # Dungeon broadswords stay in dungeon
+  SHIELD: true      # Dungeon shields stay in dungeon
+
+# ========================================
+#  Exception List
+# ========================================
+# List specific Nexo item IDs that should be allowed to leave the dungeon
+# even if they match the dungeon item pattern above
+# Example: ["special_pickaxe_common", "quest_sword_rare"]
+
+exceptions:
+  enabled: false
+  nexo_ids: []
+  # Example:
+  # - "special_pickaxe_common"
+  # - "quest_sword_rare"
+
+# ========================================
+#  MythicMobs Item Filtering
+# ========================================
+# Configure which MythicMobs items should stay in dungeon
+# Works only when keep_mythicmobs_items is set to true
+
+mythicmobs:
+  # Filter mode: "whitelist", "blacklist", or "all"
+  # - "all": All MythicMobs items stay in dungeon (default)
+  # - "whitelist": Only MythicMobs items listed below stay in dungeon
+  # - "blacklist": All MythicMobs items stay EXCEPT those listed below
+  filter_mode: "all"
+
+  # List of MythicMobs item IDs
+  # Used for whitelist or blacklist depending on filter_mode
+  item_ids: []
+  # Example:
+  # - "dungeon_sword"
+  # - "cursed_helmet"
+  # - "magic_pickaxe"
+
+# ========================================
+#  Messages
+# ========================================
+messages:
+  dungeon_item_kept: "&e⚠ Les items de donjon restent dans le donjon!"
+  dungeon_item_restored: "&a✓ Items de donjon restaurés!"

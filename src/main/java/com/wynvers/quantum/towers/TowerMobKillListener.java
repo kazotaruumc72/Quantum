@@ -3,6 +3,7 @@ package com.wynvers.quantum.towers;
 import com.wynvers.quantum.Quantum;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -50,7 +51,7 @@ public class TowerMobKillListener implements Listener {
         String mythicId = event.getMobType().getInternalName();
         String mobKey = "mm:" + mythicId;
 
-        handleKill(player, mobKey);
+        handleKill(player, mobKey, event.getEntity().getLocation());
     }
 
     // ------------------------------------------------------------------ //
@@ -71,14 +72,14 @@ public class TowerMobKillListener implements Listener {
         }
 
         String mobKey = "mc:" + entity.getType().name();
-        handleKill(killer, mobKey);
+        handleKill(killer, mobKey, entity.getLocation());
     }
 
     // ------------------------------------------------------------------ //
     // Shared logic
     // ------------------------------------------------------------------ //
 
-    private void handleKill(Player player, String mobKey) {
+    private void handleKill(Player player, String mobKey, Location entityLoc) {
         TowerProgress progress = towerManager.getProgress(player.getUniqueId());
         String towerId = progress.getCurrentTower();
         int floor = progress.getCurrentFloor();
@@ -87,6 +88,14 @@ public class TowerMobKillListener implements Listener {
 
         TowerConfig tower = towerManager.getTower(towerId);
         if (tower == null) return;
+
+        // Verify the mob died within the floor's configured region (if one is set)
+        String floorRegion = tower.getFloorRegion(floor);
+        if (floorRegion != null && entityLoc != null) {
+            com.wynvers.quantum.worldguard.ZoneManager zoneMan = plugin.getZoneManager();
+            String entityRegion = zoneMan != null ? zoneMan.getRegionAt(entityLoc) : null;
+            if (!floorRegion.equalsIgnoreCase(entityRegion)) return;
+        }
 
         List<FloorMobRequirement> requirements = tower.getFloorMobRequirements(floor);
         if (requirements.isEmpty()) return;
@@ -103,6 +112,12 @@ public class TowerMobKillListener implements Listener {
 
         // Increment this mob's counter
         progress.incrementFloorMobKills(towerId, floor, mobKey);
+
+        // Immediately refresh the scoreboard to show the updated kill count
+        TowerScoreboardHandler scoreboardHandler = plugin.getTowerScoreboardHandler();
+        if (scoreboardHandler != null) {
+            scoreboardHandler.forceUpdate(player);
+        }
 
         // Check whether ALL requirements are now satisfied
         if (areAllRequirementsMet(progress, towerId, floor, requirements)) {

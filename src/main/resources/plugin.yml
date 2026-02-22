@@ -100,6 +100,11 @@ commands:
     usage: /weapon <give> <type> [rarity]
     aliases: [weapons, arme, armes]
 
+  dutil:
+    description: Manage dungeon tools (pickaxe, axe, hoe) with rarity system
+    usage: /dutil <give> <type> [rarity]
+    aliases: [dungeonutil, outildonjon, outilsdonjon]
+
   job:
     description: Manage your job
     usage: /job [select|list|info|rewards] [args]
@@ -194,6 +199,7 @@ permissions:
       quantum.exp.admin: true
       quantum.tool.*: true
       quantum.weapon.*: true
+      quantum.dutil.*: true
       quantum.job.*: true
       quantum.structure.*: true
       quantum.spawn.*: true
@@ -364,6 +370,17 @@ permissions:
 
   quantum.weapon.give:
     description: Give dungeon weapons to players
+    default: op
+
+  # Dungeon Utils system (Pickaxe, Axe, Hoe with rarity)
+  quantum.dutil.*:
+    description: All dungeon utils permissions
+    default: op
+    children:
+      quantum.dutil.give: true
+
+  quantum.dutil.give:
+    description: Give dungeon utils tools to players
     default: op
 
   # Jobs system

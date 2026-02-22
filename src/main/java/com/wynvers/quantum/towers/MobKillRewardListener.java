@@ -32,6 +32,15 @@ public class MobKillRewardListener implements Listener {
         Player killer = entity.getKiller();
         if (killer == null) return;
 
+        // Check if the mob was killed in a tower floor region
+        boolean inTowerRegion = isInTowerRegion(killer, entity);
+
+        // Disable vanilla mob loots if killed in a tower region
+        if (inTowerRegion) {
+            event.getDrops().clear();
+            event.setDroppedExp(0);
+        }
+
         // Déterminer le type de mob et la récompense
         MobConfig.MobReward reward = resolveReward(entity);
 
@@ -93,5 +102,29 @@ public class MobKillRewardListener implements Listener {
         for (int i = 0; i < armorExp; i++) {
             dungeonArmor.addKillExperience(armor);
         }
+    }
+
+    /**
+     * Vérifie si le joueur est dans une région de tour (étage).
+     */
+    private boolean isInTowerRegion(Player player, LivingEntity entity) {
+        TowerProgress progress = plugin.getTowerManager().getProgress(player.getUniqueId());
+        String towerId = progress.getCurrentTower();
+        int floor = progress.getCurrentFloor();
+
+        if (towerId == null || floor <= 0) return false;
+
+        TowerConfig tower = plugin.getTowerManager().getTower(towerId);
+        if (tower == null) return false;
+
+        // Verify the entity died within the floor's configured region
+        String floorRegion = tower.getFloorRegion(floor);
+        if (floorRegion != null) {
+            com.wynvers.quantum.worldguard.ZoneManager zoneMan = plugin.getZoneManager();
+            String entityRegion = zoneMan != null ? zoneMan.getRegionAt(entity.getLocation()) : null;
+            return floorRegion.equalsIgnoreCase(entityRegion);
+        }
+
+        return false;
     }
 }

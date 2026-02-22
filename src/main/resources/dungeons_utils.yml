@@ -1,0 +1,517 @@
+# ========================================
+#  QUANTUM - Dungeon Tools & Weapons Configuration
+# ========================================
+#
+# Configuration des outils et armes de donjon avec 5 niveaux de rareté
+# Ces items comptent pour les jobs et offrent des bonus spéciaux
+
+# ========================================
+#  Système de Raretés (5 niveaux)
+# ========================================
+# Chaque rareté définit:
+#   - display_name: Nom affiché
+#   - color: Couleur du texte
+#   - job_exp_bonus: Bonus d'XP pour les jobs (multiplicateur)
+#   - job_money_bonus: Bonus d'argent pour les jobs (multiplicateur)
+#   - durability_bonus: Bonus de durabilité (multiplicateur)
+#   - enchantments: Liste des enchantements avec niveaux min/max
+
+rarities:
+  COMMON:
+    display_name: "Commun"
+    color: "GRAY"
+    job_exp_bonus: 1.0      # Pas de bonus
+    job_money_bonus: 1.0    # Pas de bonus
+    durability_bonus: 1.0   # Durabilité normale
+
+  UNCOMMON:
+    display_name: "Peu Commun"
+    color: "GREEN"
+    job_exp_bonus: 1.25     # +25% XP
+    job_money_bonus: 1.25   # +25% argent
+    durability_bonus: 1.5   # +50% durabilité
+
+  RARE:
+    display_name: "Rare"
+    color: "BLUE"
+    job_exp_bonus: 1.5      # +50% XP
+    job_money_bonus: 1.5    # +50% argent
+    durability_bonus: 2.0   # +100% durabilité
+
+  EPIC:
+    display_name: "Épique"
+    color: "DARK_PURPLE"
+    job_exp_bonus: 2.0      # +100% XP
+    job_money_bonus: 2.0    # +100% argent
+    durability_bonus: 3.0   # +200% durabilité
+
+  LEGENDARY:
+    display_name: "Légendaire"
+    color: "GOLD"
+    job_exp_bonus: 3.0      # +200% XP
+    job_money_bonus: 3.0    # +200% argent
+    durability_bonus: 5.0   # +400% durabilité
+
+# ========================================
+#  Outils de Donjon - Pioche (Pickaxe)
+# ========================================
+dungeon_pickaxe:
+  display_name: "&6Pioche de Donjon"
+  description:
+    - "&7Une pioche magique forgée"
+    - "&7dans les profondeurs du donjon."
+    - "&7Augmente vos récompenses de jobs."
+
+  # Jobs compatibles
+  compatible_jobs:
+    - "miner"
+
+  # Nexo IDs par rareté
+  nexo_ids:
+    COMMON: "dungeon_pickaxe_common"
+    UNCOMMON: "dungeon_pickaxe_uncommon"
+    RARE: "dungeon_pickaxe_rare"
+    EPIC: "dungeon_pickaxe_epic"
+    LEGENDARY: "dungeon_pickaxe_legendary"
+
+  # Enchantements par rareté
+  enchantments:
+    COMMON:
+      - enchant: "EFFICIENCY"
+        min_level: 1
+        max_level: 2
+      - enchant: "UNBREAKING"
+        min_level: 1
+        max_level: 1
+
+    UNCOMMON:
+      - enchant: "EFFICIENCY"
+        min_level: 2
+        max_level: 3
+      - enchant: "UNBREAKING"
+        min_level: 2
+        max_level: 2
+      - enchant: "FORTUNE"
+        min_level: 1
+        max_level: 1
+
+    RARE:
+      - enchant: "EFFICIENCY"
+        min_level: 3
+        max_level: 4
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "FORTUNE"
+        min_level: 2
+        max_level: 2
+
+    EPIC:
+      - enchant: "EFFICIENCY"
+        min_level: 4
+        max_level: 5
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "FORTUNE"
+        min_level: 3
+        max_level: 3
+
+    LEGENDARY:
+      - enchant: "EFFICIENCY"
+        min_level: 5
+        max_level: 6
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "FORTUNE"
+        min_level: 3
+        max_level: 3
+      - enchant: "MENDING"
+        min_level: 1
+        max_level: 1
+
+# ========================================
+#  Outils de Donjon - Hache (Axe)
+# ========================================
+dungeon_axe:
+  display_name: "&6Hache de Donjon"
+  description:
+    - "&7Une hache enchantée créée"
+    - "&7pour les bûcherons du donjon."
+    - "&7Augmente vos récompenses de jobs."
+
+  # Jobs compatibles
+  compatible_jobs:
+    - "lumberjack"
+
+  # Nexo IDs par rareté
+  nexo_ids:
+    COMMON: "dungeon_axe_common"
+    UNCOMMON: "dungeon_axe_uncommon"
+    RARE: "dungeon_axe_rare"
+    EPIC: "dungeon_axe_epic"
+    LEGENDARY: "dungeon_axe_legendary"
+
+  # Enchantements par rareté
+  enchantments:
+    COMMON:
+      - enchant: "EFFICIENCY"
+        min_level: 1
+        max_level: 2
+      - enchant: "UNBREAKING"
+        min_level: 1
+        max_level: 1
+
+    UNCOMMON:
+      - enchant: "EFFICIENCY"
+        min_level: 2
+        max_level: 3
+      - enchant: "UNBREAKING"
+        min_level: 2
+        max_level: 2
+      - enchant: "SHARPNESS"
+        min_level: 1
+        max_level: 1
+
+    RARE:
+      - enchant: "EFFICIENCY"
+        min_level: 3
+        max_level: 4
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "SHARPNESS"
+        min_level: 2
+        max_level: 2
+
+    EPIC:
+      - enchant: "EFFICIENCY"
+        min_level: 4
+        max_level: 5
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "SHARPNESS"
+        min_level: 3
+        max_level: 3
+
+    LEGENDARY:
+      - enchant: "EFFICIENCY"
+        min_level: 5
+        max_level: 6
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "SHARPNESS"
+        min_level: 4
+        max_level: 4
+      - enchant: "MENDING"
+        min_level: 1
+        max_level: 1
+
+# ========================================
+#  Outils de Donjon - Houe (Hoe)
+# ========================================
+dungeon_hoe:
+  display_name: "&6Houe de Donjon"
+  description:
+    - "&7Une houe mystique pour"
+    - "&7les agriculteurs de donjon."
+    - "&7Augmente vos récompenses de jobs."
+
+  # Jobs compatibles (peut être étendu si un job farmer est ajouté)
+  compatible_jobs:
+    - "farmer"
+
+  # Nexo IDs par rareté
+  nexo_ids:
+    COMMON: "dungeon_hoe_common"
+    UNCOMMON: "dungeon_hoe_uncommon"
+    RARE: "dungeon_hoe_rare"
+    EPIC: "dungeon_hoe_epic"
+    LEGENDARY: "dungeon_hoe_legendary"
+
+  # Enchantements par rareté
+  enchantments:
+    COMMON:
+      - enchant: "EFFICIENCY"
+        min_level: 1
+        max_level: 2
+      - enchant: "UNBREAKING"
+        min_level: 1
+        max_level: 1
+
+    UNCOMMON:
+      - enchant: "EFFICIENCY"
+        min_level: 2
+        max_level: 3
+      - enchant: "UNBREAKING"
+        min_level: 2
+        max_level: 2
+
+    RARE:
+      - enchant: "EFFICIENCY"
+        min_level: 3
+        max_level: 4
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "FORTUNE"
+        min_level: 1
+        max_level: 1
+
+    EPIC:
+      - enchant: "EFFICIENCY"
+        min_level: 4
+        max_level: 5
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "FORTUNE"
+        min_level: 2
+        max_level: 2
+
+    LEGENDARY:
+      - enchant: "EFFICIENCY"
+        min_level: 5
+        max_level: 6
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "FORTUNE"
+        min_level: 3
+        max_level: 3
+      - enchant: "MENDING"
+        min_level: 1
+        max_level: 1
+
+# ========================================
+#  Armes de Donjon - Épée (Sword)
+# ========================================
+dungeon_sword:
+  display_name: "&cÉpée de Donjon"
+  description:
+    - "&7Une lame légendaire forgée"
+    - "&7pour combattre les créatures"
+    - "&7des profondeurs du donjon."
+    - "&7Augmente vos récompenses de jobs."
+
+  # Jobs compatibles
+  compatible_jobs:
+    - "hunter"
+
+  # Nexo IDs par rareté
+  nexo_ids:
+    COMMON: "dungeon_sword_common"
+    UNCOMMON: "dungeon_sword_uncommon"
+    RARE: "dungeon_sword_rare"
+    EPIC: "dungeon_sword_epic"
+    LEGENDARY: "dungeon_sword_legendary"
+
+  # Attributs de base par rareté
+  attributes:
+    COMMON:
+      attack_damage: 7.0
+      attack_speed: 1.6
+    UNCOMMON:
+      attack_damage: 9.0
+      attack_speed: 1.6
+    RARE:
+      attack_damage: 11.0
+      attack_speed: 1.7
+    EPIC:
+      attack_damage: 14.0
+      attack_speed: 1.8
+    LEGENDARY:
+      attack_damage: 18.0
+      attack_speed: 2.0
+
+  # Enchantements par rareté
+  enchantments:
+    COMMON:
+      - enchant: "SHARPNESS"
+        min_level: 1
+        max_level: 2
+      - enchant: "UNBREAKING"
+        min_level: 1
+        max_level: 1
+
+    UNCOMMON:
+      - enchant: "SHARPNESS"
+        min_level: 2
+        max_level: 3
+      - enchant: "UNBREAKING"
+        min_level: 2
+        max_level: 2
+      - enchant: "KNOCKBACK"
+        min_level: 1
+        max_level: 1
+
+    RARE:
+      - enchant: "SHARPNESS"
+        min_level: 3
+        max_level: 4
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "KNOCKBACK"
+        min_level: 1
+        max_level: 1
+      - enchant: "LOOTING"
+        min_level: 1
+        max_level: 2
+
+    EPIC:
+      - enchant: "SHARPNESS"
+        min_level: 4
+        max_level: 5
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "KNOCKBACK"
+        min_level: 2
+        max_level: 2
+      - enchant: "LOOTING"
+        min_level: 2
+        max_level: 3
+      - enchant: "SWEEPING_EDGE"
+        min_level: 2
+        max_level: 2
+
+    LEGENDARY:
+      - enchant: "SHARPNESS"
+        min_level: 5
+        max_level: 7
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "KNOCKBACK"
+        min_level: 2
+        max_level: 2
+      - enchant: "LOOTING"
+        min_level: 3
+        max_level: 3
+      - enchant: "SWEEPING_EDGE"
+        min_level: 3
+        max_level: 3
+      - enchant: "FIRE_ASPECT"
+        min_level: 2
+        max_level: 2
+      - enchant: "MENDING"
+        min_level: 1
+        max_level: 1
+
+# ========================================
+#  Armes de Donjon - Arc (Bow)
+# ========================================
+dungeon_bow:
+  display_name: "&cArc de Donjon"
+  description:
+    - "&7Un arc enchanté pour"
+    - "&7les chasseurs du donjon."
+    - "&7Augmente vos récompenses de jobs."
+
+  # Jobs compatibles
+  compatible_jobs:
+    - "hunter"
+
+  # Nexo IDs par rareté
+  nexo_ids:
+    COMMON: "dungeon_bow_common"
+    UNCOMMON: "dungeon_bow_uncommon"
+    RARE: "dungeon_bow_rare"
+    EPIC: "dungeon_bow_epic"
+    LEGENDARY: "dungeon_bow_legendary"
+
+  # Enchantements par rareté
+  enchantments:
+    COMMON:
+      - enchant: "POWER"
+        min_level: 1
+        max_level: 2
+      - enchant: "UNBREAKING"
+        min_level: 1
+        max_level: 1
+
+    UNCOMMON:
+      - enchant: "POWER"
+        min_level: 2
+        max_level: 3
+      - enchant: "UNBREAKING"
+        min_level: 2
+        max_level: 2
+      - enchant: "PUNCH"
+        min_level: 1
+        max_level: 1
+
+    RARE:
+      - enchant: "POWER"
+        min_level: 3
+        max_level: 4
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "PUNCH"
+        min_level: 1
+        max_level: 1
+      - enchant: "FLAME"
+        min_level: 1
+        max_level: 1
+
+    EPIC:
+      - enchant: "POWER"
+        min_level: 4
+        max_level: 5
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "PUNCH"
+        min_level: 2
+        max_level: 2
+      - enchant: "FLAME"
+        min_level: 1
+        max_level: 1
+      - enchant: "INFINITY"
+        min_level: 1
+        max_level: 1
+
+    LEGENDARY:
+      - enchant: "POWER"
+        min_level: 5
+        max_level: 7
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "PUNCH"
+        min_level: 2
+        max_level: 2
+      - enchant: "FLAME"
+        min_level: 1
+        max_level: 1
+      - enchant: "INFINITY"
+        min_level: 1
+        max_level: 1
+      - enchant: "MENDING"
+        min_level: 1
+        max_level: 1
+
+# ========================================
+#  Messages
+# ========================================
+messages:
+  item_created: "&a✓ {item_name} {rarity} créé!"
+  job_bonus_active: "&e⚡ Bonus de job actif: &a+{exp_bonus}% XP &7| &a+{money_bonus}% $"
+  incompatible_job: "&c✖ Cet outil n'est pas compatible avec votre métier actuel!"
+  no_job: "&c✖ Vous devez avoir un métier pour utiliser cet outil!"
+
+  # Lore des items
+  lore:
+    separator: "&7&m-------------------"
+    rarity_header: "&6&lRareté:"
+    job_bonus_header: "&e&lBonus de Job:"
+    job_exp_bonus: "&8▪ &7XP: &a+{bonus}%"
+    job_money_bonus: "&8▪ &7Argent: &a+{bonus}%"
+    durability_bonus: "&8▪ &7Durabilité: &a+{bonus}%"
+    compatible_jobs: "&7Compatible avec: &e{jobs}"
+    footer: "&7Outil/Arme de Donjon"

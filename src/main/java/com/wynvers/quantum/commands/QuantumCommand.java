@@ -356,8 +356,7 @@ public class QuantumCommand implements CommandExecutor {
         if (plugin.getCustomCropManager() != null) plugin.getCustomCropManager().reload();
         if (plugin.getToolManager() != null) plugin.getToolManager().reload();
         if (plugin.getStructureManager() != null) plugin.getStructureManager().reload();
-        if (plugin.getDungeonWeapon() != null) plugin.getDungeonWeapon().reload();
-        
+
         // Vider le cache de couleurs après tous les rechargements
         com.wynvers.quantum.utils.ScoreboardUtils.clearCache();
 

@@ -130,11 +130,11 @@ public class TowerInventoryManager {
         }
         inv.setArmorContents(armorContents);
 
-        // Check main inventory for weapons
+        // Check main inventory for dungeon items
         ItemStack[] contents = inv.getContents();
         for (int i = 0; i < contents.length; i++) {
             ItemStack item = contents[i];
-            if (item != null && isDungeonWeapon(item)) {
+            if (item != null && isDungeonItem(item)) {
                 dungeonItems.add(item.clone());
                 contents[i] = null;
             }
@@ -190,10 +190,10 @@ public class TowerInventoryManager {
     }
 
     /**
-     * Checks if an item is a dungeon item (armor or weapon)
+     * Checks if an item is a dungeon item (armor only, no weapon)
      */
     private boolean isDungeonItem(ItemStack item) {
-        return isDungeonArmor(item) || isDungeonWeapon(item);
+        return isDungeonArmor(item);
     }
 
     /**
@@ -202,16 +202,6 @@ public class TowerInventoryManager {
     private boolean isDungeonArmor(ItemStack item) {
         if (plugin.getDungeonArmor() != null) {
             return plugin.getDungeonArmor().isDungeonArmor(item);
-        }
-        return false;
-    }
-
-    /**
-     * Checks if an item is a dungeon weapon
-     */
-    private boolean isDungeonWeapon(ItemStack item) {
-        if (plugin.getDungeonWeapon() != null) {
-            return plugin.getDungeonWeapon().isDungeonWeapon(item);
         }
         return false;
     }

@@ -57,6 +57,10 @@ import com.wynvers.quantum.commands.StorageCommand;
 import com.wynvers.quantum.commands.TabEditCommand;
 import com.wynvers.quantum.commands.ToolCommand;
 import com.wynvers.quantum.commands.TowerCommand;
+import com.wynvers.quantum.commands.WeaponCommand;
+import com.wynvers.quantum.commands.WeaponTabCompleter;
+import com.wynvers.quantum.commands.DungeonUtilCommand;
+import com.wynvers.quantum.commands.DungeonUtilTabCompleter;
 import com.wynvers.quantum.managers.*;
 import com.wynvers.quantum.menu.StorageSettingsMenuListener;
 import com.wynvers.quantum.orders.OrderAcceptanceHandler;
@@ -689,6 +693,16 @@ public final class Quantum extends JavaPlugin {
             getCommand("tool").setExecutor(new ToolCommand(this));
             getCommand("tool").setTabCompleter(new ToolTabCompleter());
             logger.success("✓ Tool Command + TabCompleter");
+        }
+
+        if (dungeonUtils != null) {
+            getCommand("weapon").setExecutor(new WeaponCommand(this));
+            getCommand("weapon").setTabCompleter(new WeaponTabCompleter());
+            logger.success("✓ Weapon Command + TabCompleter");
+
+            getCommand("dutil").setExecutor(new DungeonUtilCommand(this));
+            getCommand("dutil").setTabCompleter(new DungeonUtilTabCompleter());
+            logger.success("✓ DungeonUtil Command + TabCompleter");
         }
 
         // Jobs Commands

@@ -497,6 +497,312 @@ dungeon_bow:
         max_level: 1
 
 # ========================================
+#  Armes de Donjon - Katana
+# ========================================
+dungeon_katana:
+  display_name: "&cKatana de Donjon"
+  description:
+    - "&7Une épée légère et tranchante"
+    - "&7forgée dans l'art ancestral."
+    - "&7Vitesse d'attaque supérieure."
+    - "&7Augmente vos récompenses de jobs."
+
+  # Jobs compatibles
+  compatible_jobs:
+    - "hunter"
+
+  # Nexo IDs par rareté
+  nexo_ids:
+    COMMON: "dungeon_katana_common"
+    UNCOMMON: "dungeon_katana_uncommon"
+    RARE: "dungeon_katana_rare"
+    EPIC: "dungeon_katana_epic"
+    LEGENDARY: "dungeon_katana_legendary"
+
+  # Attributs de base par rareté
+  attributes:
+    COMMON:
+      attack_damage: 6.5
+      attack_speed: 2.0
+    UNCOMMON:
+      attack_damage: 8.5
+      attack_speed: 2.2
+    RARE:
+      attack_damage: 10.5
+      attack_speed: 2.4
+    EPIC:
+      attack_damage: 13.0
+      attack_speed: 2.6
+    LEGENDARY:
+      attack_damage: 16.5
+      attack_speed: 2.8
+
+  # Enchantements par rareté
+  enchantments:
+    COMMON:
+      - enchant: "SHARPNESS"
+        min_level: 1
+        max_level: 2
+      - enchant: "UNBREAKING"
+        min_level: 1
+        max_level: 1
+
+    UNCOMMON:
+      - enchant: "SHARPNESS"
+        min_level: 2
+        max_level: 3
+      - enchant: "UNBREAKING"
+        min_level: 2
+        max_level: 2
+      - enchant: "SWEEPING_EDGE"
+        min_level: 1
+        max_level: 1
+
+    RARE:
+      - enchant: "SHARPNESS"
+        min_level: 3
+        max_level: 4
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "SWEEPING_EDGE"
+        min_level: 2
+        max_level: 2
+      - enchant: "LOOTING"
+        min_level: 1
+        max_level: 2
+
+    EPIC:
+      - enchant: "SHARPNESS"
+        min_level: 4
+        max_level: 5
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "SWEEPING_EDGE"
+        min_level: 3
+        max_level: 3
+      - enchant: "LOOTING"
+        min_level: 2
+        max_level: 3
+      - enchant: "FIRE_ASPECT"
+        min_level: 1
+        max_level: 1
+
+    LEGENDARY:
+      - enchant: "SHARPNESS"
+        min_level: 5
+        max_level: 7
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "SWEEPING_EDGE"
+        min_level: 3
+        max_level: 3
+      - enchant: "LOOTING"
+        min_level: 3
+        max_level: 3
+      - enchant: "FIRE_ASPECT"
+        min_level: 2
+        max_level: 2
+      - enchant: "MENDING"
+        min_level: 1
+        max_level: 1
+
+# ========================================
+#  Armes de Donjon - Broadsword (Grande Épée)
+# ========================================
+dungeon_broadsword:
+  display_name: "&cÉpée Large de Donjon"
+  description:
+    - "&7Une épée massive et lourde"
+    - "&7qui inflige d'énormes dégâts."
+    - "&7Dégâts élevés, vitesse réduite."
+    - "&7Augmente vos récompenses de jobs."
+
+  # Jobs compatibles
+  compatible_jobs:
+    - "hunter"
+
+  # Nexo IDs par rareté
+  nexo_ids:
+    COMMON: "dungeon_broadsword_common"
+    UNCOMMON: "dungeon_broadsword_uncommon"
+    RARE: "dungeon_broadsword_rare"
+    EPIC: "dungeon_broadsword_epic"
+    LEGENDARY: "dungeon_broadsword_legendary"
+
+  # Attributs de base par rareté
+  attributes:
+    COMMON:
+      attack_damage: 9.0
+      attack_speed: 1.2
+    UNCOMMON:
+      attack_damage: 11.5
+      attack_speed: 1.2
+    RARE:
+      attack_damage: 14.0
+      attack_speed: 1.3
+    EPIC:
+      attack_damage: 17.5
+      attack_speed: 1.4
+    LEGENDARY:
+      attack_damage: 22.0
+      attack_speed: 1.5
+
+  # Enchantements par rareté
+  enchantments:
+    COMMON:
+      - enchant: "SHARPNESS"
+        min_level: 1
+        max_level: 2
+      - enchant: "UNBREAKING"
+        min_level: 1
+        max_level: 1
+      - enchant: "KNOCKBACK"
+        min_level: 1
+        max_level: 1
+
+    UNCOMMON:
+      - enchant: "SHARPNESS"
+        min_level: 2
+        max_level: 3
+      - enchant: "UNBREAKING"
+        min_level: 2
+        max_level: 2
+      - enchant: "KNOCKBACK"
+        min_level: 1
+        max_level: 2
+
+    RARE:
+      - enchant: "SHARPNESS"
+        min_level: 3
+        max_level: 4
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "KNOCKBACK"
+        min_level: 2
+        max_level: 2
+      - enchant: "LOOTING"
+        min_level: 1
+        max_level: 2
+
+    EPIC:
+      - enchant: "SHARPNESS"
+        min_level: 4
+        max_level: 5
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "KNOCKBACK"
+        min_level: 2
+        max_level: 2
+      - enchant: "LOOTING"
+        min_level: 2
+        max_level: 3
+      - enchant: "SWEEPING_EDGE"
+        min_level: 1
+        max_level: 2
+
+    LEGENDARY:
+      - enchant: "SHARPNESS"
+        min_level: 5
+        max_level: 8
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 3
+      - enchant: "KNOCKBACK"
+        min_level: 2
+        max_level: 2
+      - enchant: "LOOTING"
+        min_level: 3
+        max_level: 3
+      - enchant: "SWEEPING_EDGE"
+        min_level: 2
+        max_level: 3
+      - enchant: "FIRE_ASPECT"
+        min_level: 2
+        max_level: 2
+      - enchant: "MENDING"
+        min_level: 1
+        max_level: 1
+
+# ========================================
+#  Armes de Donjon - Bouclier (Shield)
+# ========================================
+dungeon_shield:
+  display_name: "&9Bouclier de Donjon"
+  description:
+    - "&7Un bouclier robuste forgé"
+    - "&7dans les forges du donjon."
+    - "&7Protection accrue contre les dégâts."
+    - "&7Augmente vos récompenses de jobs."
+
+  # Jobs compatibles
+  compatible_jobs:
+    - "hunter"
+
+  # Nexo IDs par rareté
+  nexo_ids:
+    COMMON: "dungeon_shield_common"
+    UNCOMMON: "dungeon_shield_uncommon"
+    RARE: "dungeon_shield_rare"
+    EPIC: "dungeon_shield_epic"
+    LEGENDARY: "dungeon_shield_legendary"
+
+  # Enchantements par rareté
+  enchantments:
+    COMMON:
+      - enchant: "UNBREAKING"
+        min_level: 1
+        max_level: 2
+
+    UNCOMMON:
+      - enchant: "UNBREAKING"
+        min_level: 2
+        max_level: 3
+      - enchant: "PROTECTION"
+        min_level: 1
+        max_level: 1
+
+    RARE:
+      - enchant: "UNBREAKING"
+        min_level: 3
+        max_level: 4
+      - enchant: "PROTECTION"
+        min_level: 1
+        max_level: 2
+
+    EPIC:
+      - enchant: "UNBREAKING"
+        min_level: 4
+        max_level: 5
+      - enchant: "PROTECTION"
+        min_level: 2
+        max_level: 3
+      - enchant: "BLAST_PROTECTION"
+        min_level: 1
+        max_level: 2
+
+    LEGENDARY:
+      - enchant: "UNBREAKING"
+        min_level: 5
+        max_level: 6
+      - enchant: "PROTECTION"
+        min_level: 3
+        max_level: 4
+      - enchant: "BLAST_PROTECTION"
+        min_level: 2
+        max_level: 3
+      - enchant: "PROJECTILE_PROTECTION"
+        min_level: 2
+        max_level: 3
+      - enchant: "MENDING"
+        min_level: 1
+        max_level: 1
+
+# ========================================
 #  Messages
 # ========================================
 messages:

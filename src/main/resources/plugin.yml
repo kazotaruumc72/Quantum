@@ -95,6 +95,11 @@ commands:
     usage: /tool <upgrade|info|give> [args]
     aliases: [tools, outil, outils]
 
+  weapon:
+    description: Manage dungeon weapons (sword, bow, katana, broadsword, shield)
+    usage: /weapon <give> <type> [rarity]
+    aliases: [weapons, arme, armes]
+
   job:
     description: Manage your job
     usage: /job [select|list|info|rewards] [args]
@@ -188,6 +193,7 @@ permissions:
       quantum.rune.*: true
       quantum.exp.admin: true
       quantum.tool.*: true
+      quantum.weapon.*: true
       quantum.job.*: true
       quantum.structure.*: true
       quantum.spawn.*: true
@@ -336,17 +342,28 @@ permissions:
       quantum.tool.use: true
       quantum.tool.upgrade: true
       quantum.tool.give: true
-  
+
   quantum.tool.use:
     description: Use upgradeable tools
     default: true
-  
+
   quantum.tool.upgrade:
     description: Upgrade tools
     default: true
-  
+
   quantum.tool.give:
     description: Give tools to players
+    default: op
+
+  # Weapon system (Sword, Bow, Katana, Broadsword, Shield)
+  quantum.weapon.*:
+    description: All weapon permissions
+    default: op
+    children:
+      quantum.weapon.give: true
+
+  quantum.weapon.give:
+    description: Give dungeon weapons to players
     default: op
 
   # Jobs system

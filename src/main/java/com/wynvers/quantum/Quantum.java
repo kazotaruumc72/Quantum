@@ -145,7 +145,8 @@ public final class Quantum extends JavaPlugin {
     private StructureManager structureManager;
     private StructureSelectionManager structureSelectionManager;
     private DungeonWeapon dungeonWeapon;
-    
+    private com.wynvers.quantum.dungeonutis.DungeonUtils dungeonUtils;
+
     // Jobs System
     private JobManager jobManager;
     
@@ -551,7 +552,12 @@ public final class Quantum extends JavaPlugin {
         this.dungeonWeapon = new DungeonWeapon(this);
         getServer().getPluginManager().registerEvents(new DungeonWeaponListener(this, dungeonWeapon), this);
         logger.success("✓ Dungeon Weapon System initialized!");
-        
+
+        // Dungeon Utils System (Tools & Weapons with rarity for jobs)
+        this.dungeonUtils = new com.wynvers.quantum.dungeonutis.DungeonUtils(this);
+        getServer().getPluginManager().registerEvents(new com.wynvers.quantum.dungeonutis.DungeonUtilsListener(this), this);
+        logger.success("✓ Dungeon Utils System initialized!");
+
         // Jobs System
         this.jobManager = new JobManager(this, databaseManager);
         getServer().getPluginManager().registerEvents(new JobListener(this, jobManager), this);
@@ -1098,6 +1104,10 @@ public final class Quantum extends JavaPlugin {
     
     public DungeonWeapon getDungeonWeapon() {
         return dungeonWeapon;
+    }
+
+    public com.wynvers.quantum.dungeonutis.DungeonUtils getDungeonUtils() {
+        return dungeonUtils;
     }
 
     public MobConfig getMobConfig() {

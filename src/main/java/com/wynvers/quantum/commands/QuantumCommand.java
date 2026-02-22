@@ -311,16 +311,6 @@ public class QuantumCommand implements CommandExecutor {
                             }
                             break;
 
-                        case "weapon":
-                        case "weapons":
-                        case "dungeon_weapon":
-                        case "dungeon_weapon.yml":
-                            if (plugin.getDungeonWeapon() != null) {
-                                plugin.getDungeonWeapon().reload();
-                                sender.sendMessage("§a§l✓ §adungeon_weapon.yml rechargé!");
-                            }
-                            break;
-
                         default:
                             sender.sendMessage("§c⚠ Type de reload invalide!");
                             break;

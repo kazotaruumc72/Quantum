@@ -2,7 +2,7 @@
 # QUANTUM - Configuration des Tours
 # =======================================
 # Documentation complète du système:
-# - Portes automatiques (disparition 30s)
+# - Portes automatiques (disparition 1m30s)
 # - NPC avec Model Engine
 # - Régions WorldGuard par étage
 # - Récompenses par étage (Nexo/MythicMobs/commandes)

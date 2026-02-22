@@ -25,7 +25,7 @@ import java.util.List;
  * </pre>
  *
  * <p>When all requirements for the current floor are met the door opens (blocks
- * disappear for 30 s via {@link TowerDoorManager}).
+ * disappear for 1m30s via {@link TowerDoorManager}).
  */
 public class TowerMobKillListener implements Listener {
 

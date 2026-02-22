@@ -65,11 +65,16 @@ public class PlayerLevelManager {
                     "SELECT level, exp FROM quantum_player_levels WHERE uuid = ?")) {
                 ps.setString(1, uuid.toString());
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int level = rs.getInt("level");
-                        int exp = rs.getInt("exp");
-                        cache.put(uuid, new PlayerLevelData(uuid, level, exp));
-                        return;
+                    if (rs != null && rs.next()) {
+                        try {
+                            int level = rs.getInt("level");
+                            int exp = rs.getInt("exp");
+                            cache.put(uuid, new PlayerLevelData(uuid, level, exp));
+                            return;
+                        } catch (SQLException e) {
+                            plugin.getQuantumLogger().error("Failed to read player level data from ResultSet for " + uuid + ": " + e.getMessage());
+                            // Fall through to create default entry
+                        }
                     }
                 }
             }

@@ -320,6 +320,14 @@ public class QuantumCommand implements CommandExecutor {
                             }
                             break;
 
+                        case "dungeon_items":
+                        case "dungeon_items.yml":
+                            if (plugin.getTowerInventoryManager() != null) {
+                                plugin.getTowerInventoryManager().reload();
+                                sender.sendMessage("§a§l✓ §adungeon_items.yml rechargé!");
+                            }
+                            break;
+
                         case "jobs":
                         case "jobs.yml":
                             if (plugin.getJobManager() != null) {
@@ -374,6 +382,7 @@ public class QuantumCommand implements CommandExecutor {
         if (plugin.getToolManager() != null) plugin.getToolManager().reload();
         if (plugin.getStructureManager() != null) plugin.getStructureManager().reload();
         if (plugin.getDungeonUtils() != null) plugin.getDungeonUtils().reload();
+        if (plugin.getTowerInventoryManager() != null) plugin.getTowerInventoryManager().reload();
         if (plugin.getJobManager() != null) plugin.getJobManager().reload();
 
         // Vider le cache de couleurs après tous les rechargements

@@ -1,10 +1,13 @@
 package com.wynvers.quantum.towers;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.dungeonutis.DungeonUtilsType;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -20,6 +23,7 @@ import java.util.List;
 public class TowerInventoryManager {
 
     private final Quantum plugin;
+    private YamlConfiguration dungeonItemsConfig;
 
     // Saved main world inventories (contents + armor)
     private final Map<UUID, SavedInventory> savedInventories = new HashMap<>();
@@ -29,6 +33,30 @@ public class TowerInventoryManager {
 
     public TowerInventoryManager(Quantum plugin) {
         this.plugin = plugin;
+        loadDungeonItemsConfig();
+    }
+
+    /**
+     * Load the dungeon_items.yml configuration
+     */
+    private void loadDungeonItemsConfig() {
+        try {
+            File configFile = new File(plugin.getDataFolder(), "dungeon_items.yml");
+            if (!configFile.exists()) {
+                plugin.saveResource("dungeon_items.yml", false);
+            }
+            dungeonItemsConfig = YamlConfiguration.loadConfiguration(configFile);
+            plugin.getQuantumLogger().info("Dungeon items configuration loaded");
+        } catch (Exception e) {
+            plugin.getQuantumLogger().warning("Error loading dungeon_items.yml: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Reload the dungeon items configuration
+     */
+    public void reload() {
+        loadDungeonItemsConfig();
     }
 
     /**
@@ -190,10 +218,36 @@ public class TowerInventoryManager {
     }
 
     /**
-     * Checks if an item is a dungeon item (armor only, no weapon)
+     * Checks if an item is a dungeon item (armor or util)
      */
     private boolean isDungeonItem(ItemStack item) {
-        return isDungeonArmor(item);
+        // Check if it's dungeon armor
+        if (shouldKeepDungeonArmor() && isDungeonArmor(item)) {
+            return true;
+        }
+
+        // Check if it's a dungeon util (tool/weapon)
+        if (shouldKeepDungeonUtils() && isDungeonUtil(item)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if dungeon armor should be kept in dungeon
+     */
+    private boolean shouldKeepDungeonArmor() {
+        if (dungeonItemsConfig == null) return true;
+        return dungeonItemsConfig.getBoolean("keep_dungeon_armor", true);
+    }
+
+    /**
+     * Checks if dungeon utils should be kept in dungeon
+     */
+    private boolean shouldKeepDungeonUtils() {
+        if (dungeonItemsConfig == null) return true;
+        return dungeonItemsConfig.getBoolean("keep_dungeon_utils", true);
     }
 
     /**
@@ -204,6 +258,40 @@ public class TowerInventoryManager {
             return plugin.getDungeonArmor().isDungeonArmor(item);
         }
         return false;
+    }
+
+    /**
+     * Checks if an item is a dungeon util
+     */
+    private boolean isDungeonUtil(ItemStack item) {
+        if (plugin.getDungeonUtils() == null) return false;
+
+        // Check if item is a dungeon util
+        if (!plugin.getDungeonUtils().isDungeonUtil(item)) {
+            return false;
+        }
+
+        // Check if this type should be kept in dungeon
+        DungeonUtilsType type = plugin.getDungeonUtils().getType(item);
+        if (type == null) return false;
+
+        if (dungeonItemsConfig != null) {
+            String path = "item_types." + type.name();
+            if (!dungeonItemsConfig.getBoolean(path, true)) {
+                return false;
+            }
+        }
+
+        // Check exception list (items that can leave dungeon)
+        if (dungeonItemsConfig != null && dungeonItemsConfig.getBoolean("exceptions.enabled", false)) {
+            List<String> exceptions = dungeonItemsConfig.getStringList("exceptions.nexo_ids");
+            String nexoId = com.nexomc.nexo.api.NexoItems.idFromItem(item);
+            if (nexoId != null && exceptions.contains(nexoId)) {
+                return false; // This item is an exception and can leave the dungeon
+            }
+        }
+
+        return true;
     }
 
     /**

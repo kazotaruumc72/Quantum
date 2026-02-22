@@ -13,7 +13,6 @@ towers:
   tower_water:
     # Informations générales
     name: "§b§lTour de l'Eau"
-    worldguard_region: "tower_water_global"
     min_level: 1
     max_level: 26
 

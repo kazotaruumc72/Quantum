@@ -231,6 +231,11 @@ public class TowerInventoryManager {
             return true;
         }
 
+        // Check if it's a MythicMobs item
+        if (shouldKeepMythicMobsItems() && isMythicMobsItem(item)) {
+            return true;
+        }
+
         return false;
     }
 
@@ -248,6 +253,14 @@ public class TowerInventoryManager {
     private boolean shouldKeepDungeonUtils() {
         if (dungeonItemsConfig == null) return true;
         return dungeonItemsConfig.getBoolean("keep_dungeon_utils", true);
+    }
+
+    /**
+     * Checks if MythicMobs items should be kept in dungeon
+     */
+    private boolean shouldKeepMythicMobsItems() {
+        if (dungeonItemsConfig == null) return false;
+        return dungeonItemsConfig.getBoolean("keep_mythicmobs_items", false);
     }
 
     /**
@@ -292,6 +305,56 @@ public class TowerInventoryManager {
         }
 
         return true;
+    }
+
+    /**
+     * Checks if an item is a MythicMobs item
+     */
+    private boolean isMythicMobsItem(ItemStack item) {
+        if (item == null) return false;
+
+        try {
+            // Check if MythicMobs plugin is available
+            if (plugin.getServer().getPluginManager().getPlugin("MythicMobs") == null) {
+                return false;
+            }
+
+            // Try to get the MythicMobs item ID
+            io.lumine.mythic.bukkit.MythicBukkit mythicBukkit = io.lumine.mythic.bukkit.MythicBukkit.inst();
+            if (mythicBukkit == null) return false;
+
+            String mythicId = mythicBukkit.getItemManager().getMythicTypeFromItem(item);
+
+            // If no MythicMobs ID found, it's not a MythicMobs item
+            if (mythicId == null || mythicId.isEmpty()) {
+                return false;
+            }
+
+            // Apply filtering based on configuration
+            if (dungeonItemsConfig == null) return true;
+
+            String filterMode = dungeonItemsConfig.getString("mythicmobs.filter_mode", "all");
+            List<String> itemIds = dungeonItemsConfig.getStringList("mythicmobs.item_ids");
+
+            switch (filterMode.toLowerCase()) {
+                case "whitelist":
+                    // Only keep if in the list
+                    return itemIds.contains(mythicId);
+
+                case "blacklist":
+                    // Keep unless in the list
+                    return !itemIds.contains(mythicId);
+
+                case "all":
+                default:
+                    // Keep all MythicMobs items
+                    return true;
+            }
+        } catch (Exception e) {
+            // MythicMobs not available or error occurred
+            plugin.getQuantumLogger().warning("Error checking MythicMobs item: " + e.getMessage());
+            return false;
+        }
     }
 
     /**

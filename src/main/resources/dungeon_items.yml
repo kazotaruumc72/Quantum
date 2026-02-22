@@ -18,6 +18,10 @@ keep_dungeon_armor: true
 # Should dungeon tools and weapons be kept in dungeon? (default: true)
 keep_dungeon_utils: true
 
+# Should MythicMobs items be kept in dungeon? (default: false)
+# When enabled, all MythicMobs custom items will stay in the dungeon
+keep_mythicmobs_items: false
+
 # ========================================
 #  Specific Item Types
 # ========================================
@@ -50,6 +54,27 @@ exceptions:
   # Example:
   # - "special_pickaxe_common"
   # - "quest_sword_rare"
+
+# ========================================
+#  MythicMobs Item Filtering
+# ========================================
+# Configure which MythicMobs items should stay in dungeon
+# Works only when keep_mythicmobs_items is set to true
+
+mythicmobs:
+  # Filter mode: "whitelist", "blacklist", or "all"
+  # - "all": All MythicMobs items stay in dungeon (default)
+  # - "whitelist": Only MythicMobs items listed below stay in dungeon
+  # - "blacklist": All MythicMobs items stay EXCEPT those listed below
+  filter_mode: "all"
+
+  # List of MythicMobs item IDs
+  # Used for whitelist or blacklist depending on filter_mode
+  item_ids: []
+  # Example:
+  # - "dungeon_sword"
+  # - "cursed_helmet"
+  # - "magic_pickaxe"
 
 # ========================================
 #  Messages

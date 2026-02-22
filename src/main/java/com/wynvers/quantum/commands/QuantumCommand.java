@@ -16,6 +16,7 @@ public class QuantumCommand implements CommandExecutor {
     private final QuantumTowerCommand towerCommand;
     private final StructureCommand structureCommand;
     private final EconomyCommand economyCommand;
+    private final WandCommand wandCommand;
 
     public QuantumCommand(Quantum plugin) {
         this.plugin = plugin;
@@ -23,13 +24,14 @@ public class QuantumCommand implements CommandExecutor {
         this.statsCommand = new StatsCommand(plugin);
         this.storageStatsCommand = new StorageStatsCommand(plugin);
         this.towerCommand = new QuantumTowerCommand(
-            plugin, 
-            plugin.getTowerManager(), 
-            plugin.getDoorManager(), 
+            plugin,
+            plugin.getTowerManager(),
+            plugin.getDoorManager(),
             plugin.getNPCManager()
         );
         this.structureCommand = new StructureCommand(plugin, plugin.getStructureSelectionManager());
         this.economyCommand = new EconomyCommand(plugin);
+        this.wandCommand = new WandCommand(plugin);
     }
 
     @Override
@@ -65,10 +67,15 @@ public class QuantumCommand implements CommandExecutor {
             System.arraycopy(args, 1, newArgs, 0, args.length - 1);
             return structureCommand.onCommand(sender, command, label, newArgs);
         }
-        
+
+        // Wand commands - delegate to WandCommand
+        if (subCommand.equals("wand")) {
+            return wandCommand.onCommand(sender, command, label, args);
+        }
+
         // Tower-related commands - delegate to QuantumTowerCommand
         if (subCommand.equals("tower") || subCommand.equals("door") || subCommand.equals("npc") ||
-            subCommand.equals("progress") || subCommand.equals("reset") || 
+            subCommand.equals("progress") || subCommand.equals("reset") ||
             subCommand.equals("info")) {
             return towerCommand.onCommand(sender, command, label, args);
         }
@@ -401,6 +408,9 @@ public class QuantumCommand implements CommandExecutor {
         }
         if (sender.hasPermission("quantum.structure.wand") || sender.hasPermission("quantum.admin")) {
             sender.sendMessage("§e/quantum structure <wand|create> §7- Gestion des structures");
+        }
+        if (sender.hasPermission("quantum.tower.door.wand") || sender.hasPermission("quantum.admin")) {
+            sender.sendMessage("§e/quantum wand <door|structure> §7- Baguettes de sélection");
         }
         if (sender.hasPermission("quantum.admin.orders")) {
             sender.sendMessage("§e/quantum orders button <create|delete>categorie <nom>");

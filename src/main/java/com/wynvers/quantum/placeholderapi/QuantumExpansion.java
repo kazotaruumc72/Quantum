@@ -59,6 +59,24 @@ public class QuantumExpansion extends PlaceholderExpansion {
         String p = params.toLowerCase();
         Player player = offlinePlayer.getPlayer();
 
+        // Delegate to internal PlaceholderManager for online players
+        // This ensures ALL placeholders work consistently with the internal system
+        if (plugin.getPlaceholderManager() != null && player != null) {
+            // Build the placeholder with "quantum_" prefix if not present
+            String fullPlaceholder = p.startsWith("quantum_") ? "%" + p + "%" : "%quantum_" + p + "%";
+            String internalResult = plugin.getPlaceholderManager().parse(player, fullPlaceholder);
+
+            // If placeholder was resolved (not returned as-is), use that result
+            if (internalResult != null && !internalResult.equals(fullPlaceholder)) {
+                return internalResult;
+            }
+        }
+
+        // ==========================
+        // FALLBACK FOR OFFLINE PLAYERS
+        // These placeholders work for offline players too
+        // ==========================
+
         // ==========================
         // SERVER INFO
         // ==========================

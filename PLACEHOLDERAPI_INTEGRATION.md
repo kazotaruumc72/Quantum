@@ -45,6 +45,8 @@ Use Quantum placeholders in any plugin that supports PlaceholderAPI:
 
 ## Available Placeholders
 
+**Note:** As of the latest version, Quantum PlaceholderAPI integration uses a **delegation system** that automatically makes **ALL internal Quantum placeholders** available through PlaceholderAPI. This means every placeholder that works in Quantum menus and internal systems is also available for use in any PlaceholderAPI-compatible plugin. The placeholders listed below are the most commonly used ones, but many more are available (storage modes, item amounts, tower progress, order details, transaction history, etc.).
+
 ### Player Level Placeholders
 
 | Placeholder | Description | Example Output |
@@ -119,6 +121,69 @@ Replace `<id>` with the currency identifier from `config.yml` (e.g., `dollar`, `
 |-------------|-------------|----------------|
 | `%quantum_homes%` | Number of homes set | `3` |
 | `%quantum_homes_max%` | Maximum homes allowed | `5` |
+
+### Additional Placeholders (via Delegation System)
+
+The following placeholder categories are also available through the delegation system:
+
+#### Storage Mode Placeholders
+| Placeholder | Description | Example Output |
+|-------------|-------------|----------------|
+| `%quantum_mode%` | Current storage mode | `NORMAL` |
+| `%quantum_mode_display%` | Storage mode with colors | `§aNormal Mode` |
+| `%quantum_mode_simple%` | Simple mode display | `Normal` |
+| `%quantum_storage_total%` | Total items (all stacks) | `15000` |
+
+#### Item Amount Placeholders
+| Placeholder | Description | Example Output |
+|-------------|-------------|----------------|
+| `%quantum_amt_<item_id>%` | Amount of specific item | `64` |
+| `%quantum_amt_nexo-<nexo_id>%` | Amount of Nexo custom item | `32` |
+| `%quantum_amt_minecraft-<material>%` | Amount of Minecraft item | `128` |
+
+**Examples:**
+- `%quantum_amt_minecraft-diamond%` - Amount of diamonds in storage
+- `%quantum_amt_nexo-custom_sword%` - Amount of custom Nexo sword in storage
+
+#### Extended Job Placeholders
+| Placeholder | Description | Example Output |
+|-------------|-------------|----------------|
+| `%quantum_job_name%` | Current job display name | `Miner` |
+| `%quantum_job_exp_needed%` | EXP needed for next level | `1000` |
+| `%quantum_job_exp_progress%` | EXP progress display | `500/1000` |
+| `%quantum_job_rank%` | Player's rank in their job | `5` |
+| `%quantum_job_booster_exp%` | Active EXP booster multiplier | `2.0` |
+| `%quantum_job_booster_money%` | Active money booster multiplier | `1.5` |
+| `%quantum_job_boosters_active%` | Number of active boosters | `2` |
+
+#### Extended Tower Placeholders
+| Placeholder | Description | Example Output |
+|-------------|-------------|----------------|
+| `%quantum_tower_current%` | Current tower name | `Fire Tower` |
+| `%quantum_tower_progress%` | Tower progress display | `5/10` |
+| `%quantum_tower_next_boss%` | Next boss floor number | `10` |
+| `%quantum_tower_status%` | Tower status message | `§aIn Progress` |
+| `%quantum_total_floors_completed%` | Total floors across all towers | `25/100` |
+| `%quantum_tower_<id>_progress%` | Specific tower progress | `3/10` |
+| `%quantum_tower_<id>_percentage%` | Specific tower percentage | `30.0` |
+| `%quantum_tower_<id>_completed%` | Whether tower is completed | `false` |
+
+#### Apartment Placeholders
+| Placeholder | Description | Example Output |
+|-------------|-------------|----------------|
+| `%quantum_apartment_name%` | Apartment name | `My Home` |
+| `%quantum_apartment_size%` | Apartment size | `Medium` |
+| `%quantum_apartment_deadline%` | Contract deadline | `30 days` |
+| `%quantum_apartment_furniture_count%` | Number of furniture items | `15` |
+
+#### Coordinate Placeholders
+| Placeholder | Description | Example Output |
+|-------------|-------------|----------------|
+| `%quantum_player_x%` | Player's X coordinate | `125` |
+| `%quantum_player_y%` | Player's Y coordinate | `64` |
+| `%quantum_player_z%` | Player's Z coordinate | `-350` |
+
+**Note:** These placeholders work for online players through the delegation system. Some placeholders may require specific managers to be initialized (e.g., VaultManager for economy placeholders).
 
 ## Usage Examples
 
@@ -317,6 +382,9 @@ public class PlaceholderAPIManager {
 com.wynvers.quantum.placeholderapi/
 ├── PlaceholderAPIManager.java     - Main integration manager
 └── QuantumExpansion.java          - PlaceholderAPI expansion implementation
+
+com.wynvers.quantum.managers/
+└── PlaceholderManager.java        - Internal placeholder resolution (used by delegation)
 ```
 
 ### Initialization Flow
@@ -327,6 +395,50 @@ com.wynvers.quantum.placeholderapi/
 4. Manager creates and registers `QuantumExpansion`
 5. Placeholders are now available to all plugins
 6. On shutdown, expansion is unregistered
+
+### Delegation System (New)
+
+**How It Works:**
+
+The PlaceholderAPI integration now uses a **delegation system** to ensure consistency between internal and external placeholder resolution:
+
+1. When a placeholder is requested through PlaceholderAPI (e.g., `%quantum_eco_balance%`)
+2. `QuantumExpansion.onRequest()` is called
+3. **For online players**: The request is delegated to the internal `PlaceholderManager`
+4. `PlaceholderManager` resolves the placeholder using the same logic as internal menus
+5. The resolved value is returned to PlaceholderAPI
+6. **For offline players**: Fallback logic in `QuantumExpansion` handles the request
+
+**Benefits:**
+
+- ✅ **Complete Placeholder Coverage**: ALL internal placeholders automatically work through PlaceholderAPI
+- ✅ **Consistency**: Same placeholder resolution logic everywhere
+- ✅ **Maintainability**: Only need to update PlaceholderManager for new placeholders
+- ✅ **Backward Compatibility**: Offline player placeholders still work
+- ✅ **Economy Placeholders**: Fully functional through delegation
+
+**Code Example:**
+
+```java
+@Override
+public String onRequest(OfflinePlayer offlinePlayer, String params) {
+    Player player = offlinePlayer.getPlayer();
+
+    // Delegate to internal PlaceholderManager for online players
+    if (plugin.getPlaceholderManager() != null && player != null) {
+        String fullPlaceholder = "%" + params + "%";
+        String result = plugin.getPlaceholderManager().parse(player, fullPlaceholder);
+
+        // If resolved, return the result
+        if (!result.equals(fullPlaceholder)) {
+            return result;
+        }
+    }
+
+    // Fallback for offline players or unresolved placeholders
+    // ... (existing offline player logic)
+}
+```
 
 ## Performance Considerations
 

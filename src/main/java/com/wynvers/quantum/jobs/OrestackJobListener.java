@@ -1,9 +1,8 @@
 package com.wynvers.quantum.jobs;
 
 import com.wynvers.quantum.Quantum;
-import io.github.pigaut.orestack.api.event.OrestackBreakEvent;
-import io.github.pigaut.orestack.api.event.OrestackPlaceEvent;
-import io.github.pigaut.orestack.api.event.OrestackRightClickEvent;
+import io.github.pigaut.orestack.api.event.GeneratorHarvestEvent;
+import io.github.pigaut.orestack.api.event.GeneratorMineEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -11,7 +10,7 @@ import org.bukkit.event.Listener;
 
 /**
  * Écoute les événements Orestack pour le système de métiers
- * Permet aux joueurs de gagner de l'XP en interagissant avec les structures Orestack
+ * Permet aux joueurs de gagner de l'XP en interagissant avec les générateurs Orestack
  */
 public class OrestackJobListener implements Listener {
 
@@ -24,52 +23,28 @@ public class OrestackJobListener implements Listener {
     }
 
     /**
-     * Gère les événements de clic droit sur les structures Orestack
+     * Gère les événements de récolte (clic droit) sur les générateurs Orestack
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onOrestackRightClick(OrestackRightClickEvent event) {
+    public void onGeneratorHarvest(GeneratorHarvestEvent event) {
         Player player = event.getPlayer();
         if (player == null) return;
 
-        // Récupérer l'ID de la structure Orestack
-        String structureId = event.getStructure().getStructureId();
-        if (structureId == null) return;
-
-        // Traiter l'interaction avec la structure
-        jobManager.handleOrestackStructure(player, structureId);
+        // Traiter l'interaction avec le générateur
+        // Utiliser "generator" comme ID car tous ces événements sont pour des générateurs
+        jobManager.handleOrestackStructure(player, "generator");
     }
 
     /**
-     * Gère les événements de casse de structures Orestack
+     * Gère les événements de minage de générateurs Orestack
      */
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onOrestackBreak(OrestackBreakEvent event) {
+    public void onGeneratorMine(GeneratorMineEvent event) {
         Player player = event.getPlayer();
         if (player == null) return;
 
-        // Récupérer l'ID de la structure Orestack
-        String structureId = event.getStructure().getStructureId();
-        if (structureId == null) return;
-
-        // Traiter l'interaction avec la structure
-        jobManager.handleOrestackStructure(player, structureId);
-    }
-
-    /**
-     * Gère les événements de placement de structures Orestack
-     * (optionnel - si certains jobs permettent de placer des structures)
-     */
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onOrestackPlace(OrestackPlaceEvent event) {
-        Player player = event.getPlayer();
-        if (player == null) return;
-
-        // Récupérer l'ID de la structure Orestack
-        String structureId = event.getStructure().getStructureId();
-        if (structureId == null) return;
-
-        // Traiter l'interaction avec la structure
-        // Note: Vous pouvez ajouter une logique différente pour le placement si nécessaire
-        jobManager.handleOrestackStructure(player, structureId);
+        // Traiter l'interaction avec le générateur
+        // Utiliser "generator" comme ID car tous ces événements sont pour des générateurs
+        jobManager.handleOrestackStructure(player, "generator");
     }
 }

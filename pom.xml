@@ -54,6 +54,12 @@
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
+
+        <!-- Orestack -->
+        <repository>
+            <id>jitpack-orestack</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -142,6 +148,14 @@
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
             <version>2.11.6</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Orestack API - https://github.com/pigaut/Orestack -->
+        <dependency>
+            <groupId>io.github.pigaut.orestack.api</groupId>
+            <artifactId>OrestackAPI</artifactId>
+            <version>1.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

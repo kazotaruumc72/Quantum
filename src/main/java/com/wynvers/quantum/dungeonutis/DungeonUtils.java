@@ -30,6 +30,8 @@ public class DungeonUtils {
     private final NamespacedKey dungeonUtilKey;
     private final NamespacedKey rarityKey;
     private final NamespacedKey typeKey;
+    private final NamespacedKey levelKey;
+    private final NamespacedKey expKey;
     private YamlConfiguration config;
     private final Random random;
 
@@ -38,6 +40,8 @@ public class DungeonUtils {
         this.dungeonUtilKey = new NamespacedKey(plugin, "dungeon_util");
         this.rarityKey = new NamespacedKey(plugin, "util_rarity");
         this.typeKey = new NamespacedKey(plugin, "util_type");
+        this.levelKey = new NamespacedKey(plugin, "util_level");
+        this.expKey = new NamespacedKey(plugin, "util_exp");
         this.random = new Random();
         loadConfig();
     }
@@ -101,9 +105,11 @@ public class DungeonUtils {
             data.set(dungeonUtilKey, PersistentDataType.BYTE, (byte) 1);
             data.set(rarityKey, PersistentDataType.STRING, rarity.name());
             data.set(typeKey, PersistentDataType.STRING, type.name());
+            data.set(levelKey, PersistentDataType.INTEGER, 0);
+            data.set(expKey, PersistentDataType.INTEGER, 0);
 
             // Set lore
-            updateLore(meta, type, rarity);
+            updateLore(item, type, rarity, 0, 0);
 
             item.setItemMeta(meta);
         }
@@ -200,6 +206,94 @@ public class DungeonUtils {
     }
 
     /**
+     * Gets the level of a dungeon util
+     */
+    public int getLevel(ItemStack item) {
+        if (!isDungeonUtil(item)) return 0;
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return 0;
+
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        return data.getOrDefault(levelKey, PersistentDataType.INTEGER, 0);
+    }
+
+    /**
+     * Gets the experience of a dungeon util
+     */
+    public int getExp(ItemStack item) {
+        if (!isDungeonUtil(item)) return 0;
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return 0;
+
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        return data.getOrDefault(expKey, PersistentDataType.INTEGER, 0);
+    }
+
+    /**
+     * Adds kill experience to a dungeon util (weapon or tool)
+     * Uses exponential curve with XP reset on level up
+     */
+    public void addKillExperience(ItemStack item) {
+        if (!isDungeonUtil(item)) return;
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return;
+
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        int currentExp = data.getOrDefault(expKey, PersistentDataType.INTEGER, 0);
+        int currentLevel = data.getOrDefault(levelKey, PersistentDataType.INTEGER, 0);
+        int newExp = currentExp + 1;
+
+        // Check if we leveled up with the exponential curve
+        int expForNextLevel = getExpForLevel(currentLevel + 1);
+
+        if (newExp >= expForNextLevel) {
+            // Level up! Reset XP to 0 and increment level
+            int newLevel = currentLevel + 1;
+            data.set(levelKey, PersistentDataType.INTEGER, newLevel);
+            data.set(expKey, PersistentDataType.INTEGER, 0);
+            item.setItemMeta(meta);
+
+            // Update lore
+            DungeonUtilsType type = getType(item);
+            DungeonUtilsRarity rarity = getRarity(item);
+            if (type != null && rarity != null) {
+                updateLore(item, type, rarity, newLevel, 0);
+            }
+        } else {
+            // No level up yet, just add the XP
+            data.set(expKey, PersistentDataType.INTEGER, newExp);
+            item.setItemMeta(meta);
+
+            // Update lore
+            DungeonUtilsType type = getType(item);
+            DungeonUtilsRarity rarity = getRarity(item);
+            if (type != null && rarity != null) {
+                updateLore(item, type, rarity, currentLevel, newExp);
+            }
+        }
+    }
+
+    /**
+     * Calculates the XP required to reach a given level (exponential curve)
+     * Formula: 25 * level * level + 25 * level
+     * Level 1: 50 XP, Level 2: 150 XP, Level 3: 300 XP, Level 5: 750 XP, etc.
+     */
+    private int getExpForLevel(int level) {
+        if (level <= 0) return 0;
+        return 25 * level * level + 25 * level;
+    }
+
+    /**
+     * Calculates the XP required to reach the next level from the current level
+     */
+    private int getExpForNextLevel(int currentLevel) {
+        return getExpForLevel(currentLevel + 1);
+    }
+
+    /**
      * Gets Nexo ID for type and rarity
      */
     private String getNexoId(DungeonUtilsType type, DungeonUtilsRarity rarity) {
@@ -238,9 +332,12 @@ public class DungeonUtils {
     }
 
     /**
-     * Updates item lore with rarity and bonus information
+     * Updates item lore with rarity, level, XP, and bonus information
      */
-    private void updateLore(ItemMeta meta, DungeonUtilsType type, DungeonUtilsRarity rarity) {
+    private void updateLore(ItemStack item, DungeonUtilsType type, DungeonUtilsRarity rarity, int level, int currentExp) {
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) return;
+
         List<String> lore = new ArrayList<>();
 
         // Get description from config
@@ -255,6 +352,10 @@ public class DungeonUtils {
         // Separator
         String separator = config.getString("messages.lore.separator", "&7&m-------------------");
         lore.add(separator.replace('&', '§'));
+
+        // Level and XP progress
+        int expForNextLevel = getExpForNextLevel(level);
+        lore.add("§8│ §6§lNIVEAU §r§e" + level + " §8│ §b§lXP §r§3" + currentExp + "/" + expForNextLevel + " §8│");
 
         // Rarity
         String rarityHeader = config.getString("messages.lore.rarity_header", "&6&lRareté:");
@@ -291,6 +392,7 @@ public class DungeonUtils {
         lore.add(separator.replace('&', '§'));
 
         meta.setLore(lore);
+        item.setItemMeta(meta);
     }
 
     /**

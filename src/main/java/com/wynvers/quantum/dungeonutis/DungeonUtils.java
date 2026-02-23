@@ -108,6 +108,10 @@ public class DungeonUtils {
             data.set(levelKey, PersistentDataType.INTEGER, 0);
             data.set(expKey, PersistentDataType.INTEGER, 0);
 
+            // Apply meta first so updateLore can read the persistent data
+            item.setItemMeta(meta);
+
+            // Set lore (updateLore will get the meta with all the data and add lore)
             item.setItemMeta(meta);
 
             // Set lore (must be called after setItemMeta)

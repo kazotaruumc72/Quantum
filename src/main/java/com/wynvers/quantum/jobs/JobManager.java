@@ -753,6 +753,11 @@ public class JobManager {
             return;
         }
 
+        // Vérifier si c'est un générateur (seuls les générateurs donnent de l'XP)
+        if (!structureId.toLowerCase().contains("generator")) {
+            return;
+        }
+
         // Récupérer les récompenses pour les structures Orestack
         ConfigurationSection actionRewards = config.getConfigurationSection("action_rewards.orestack_structure");
         if (actionRewards == null) return;

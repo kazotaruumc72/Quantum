@@ -112,6 +112,9 @@ public class DungeonUtils {
             item.setItemMeta(meta);
 
             // Set lore (updateLore will get the meta with all the data and add lore)
+            item.setItemMeta(meta);
+
+            // Set lore (must be called after setItemMeta)
             updateLore(item, type, rarity, 0, 0);
         }
 

@@ -14,6 +14,7 @@ import com.wynvers.quantum.crops.CustomCropManager;
 import com.wynvers.quantum.crops.CustomCropListener;
 import com.wynvers.quantum.jobs.JobManager;
 import com.wynvers.quantum.jobs.JobListener;
+import com.wynvers.quantum.jobs.OrestackJobListener;
 import com.wynvers.quantum.jobs.JobActionListener;
 import com.wynvers.quantum.jobs.JobCommand;
 import com.wynvers.quantum.jobs.JobAdminCommand;
@@ -537,6 +538,13 @@ public final class Quantum extends JavaPlugin {
         this.jobManager = new JobManager(this, databaseManager);
         getServer().getPluginManager().registerEvents(new JobListener(this, jobManager), this);
         getServer().getPluginManager().registerEvents(new JobActionListener(this, jobManager), this);
+
+        // Register Orestack listener if Orestack is available
+        if (getServer().getPluginManager().getPlugin("Orestack") != null) {
+            getServer().getPluginManager().registerEvents(new OrestackJobListener(this, jobManager), this);
+            logger.success("✓ Orestack integration enabled for Jobs System!");
+        }
+
         logger.success("✓ Jobs System initialized! (" + jobManager.getAllJobs().size() + " jobs available)");
     }
     

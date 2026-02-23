@@ -25,7 +25,13 @@ jobs:
       - "oak_tree_large"
       - "spruce_tree_snow"
       - "magic_tree"
-    
+
+    # Structures Orestack valides pour ce job
+    valid_orestack_structures:
+      - "oak_generator"
+      - "birch_generator"
+      - "jungle_tree_generator"
+
     # Blocks Nexo valides pour ce job
     valid_nexo_blocks:
       - "magic_log_block"
@@ -106,7 +112,13 @@ jobs:
       - "stone_deposit"
       - "iron_deposit"
       - "gold_deposit"
-    
+
+    # Structures Orestack valides pour ce job
+    valid_orestack_structures:
+      - "iron_ore_generator"
+      - "gold_ore_generator"
+      - "diamond_ore_generator"
+
     # Blocks Nexo valides pour ce job
     valid_nexo_blocks:
       - "ore_vein"
@@ -161,6 +173,7 @@ jobs:
     max_level: 100
     
     valid_structures: []
+    valid_orestack_structures: []
     valid_nexo_blocks: []
     valid_nexo_furniture: []
     
@@ -264,6 +277,11 @@ action_rewards:
     exp: 7
     money: 3
 
+  # Récompenses pour interactions avec structures Orestack
+  orestack_structure:  # Interaction avec une structure Orestack
+    exp: 8
+    money: 4
+
 # Types de boosters
 boosters:
   exp_booster:
@@ -304,7 +322,8 @@ messages:
   action_performed: "&7+{exp} XP {job_name} &7| +{money}$"
   nexo_interaction: "&7+{exp} XP {job_name} &7| +{money}$ &7({nexo_id})"
   quantum_action: "&7+{exp} XP {job_name} &7| +{money}$ &d({mob_type})"
-  
+  orestack_interaction: "&7+{exp} XP {job_name} &7| +{money}$ &9(Orestack: {structure_id})"
+
   # Messages pour le système de preview (NOUVEAU)
   preview_hint: "&8[&7Clic droit pour aperçu&8]"
   preview_no_job: "&c⚠ Aucun métier sélectionné"

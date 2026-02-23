@@ -78,6 +78,7 @@ public class JobManager {
             String icon = jobSection.getString("icon", "minecraft:STONE");
             int maxLevel = jobSection.getInt("max_level", 100);
             List<String> validStructures = jobSection.getStringList("valid_structures");
+            List<String> validOrestackStructures = jobSection.getStringList("valid_orestack_structures");
             List<String> validNexoBlocks = jobSection.getStringList("valid_nexo_blocks");
             List<String> validNexoFurniture = jobSection.getStringList("valid_nexo_furniture");
             
@@ -89,9 +90,9 @@ public class JobManager {
                     allowedActions.put(actionType, actionsSection.getBoolean(actionType));
                 }
             }
-            
-            Job job = new Job(jobId, displayName, description, icon, maxLevel, 
-                validStructures, validNexoBlocks, validNexoFurniture, allowedActions);
+
+            Job job = new Job(jobId, displayName, description, icon, maxLevel,
+                validStructures, validOrestackStructures, validNexoBlocks, validNexoFurniture, allowedActions);
             
             // Charger les récompenses de niveau
             ConfigurationSection rewardsSection = jobSection.getConfigurationSection("level_rewards");
@@ -732,7 +733,65 @@ public class JobManager {
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
         }
     }
-    
+
+    /**
+     * Traite l'interaction avec une structure Orestack
+     * @param player Le joueur qui interagit avec la structure
+     * @param structureId L'ID de la structure Orestack
+     */
+    public void handleOrestackStructure(Player player, String structureId) {
+        JobData jobData = playerJobs.get(player.getUniqueId());
+        if (jobData == null) {
+            return;
+        }
+
+        Job job = jobs.get(jobData.getJobId());
+        if (job == null) return;
+
+        // Vérifier si la structure Orestack est valide pour ce métier
+        if (!job.isValidOrestackStructure(structureId)) {
+            return;
+        }
+
+        // Récupérer les récompenses pour les structures Orestack
+        ConfigurationSection actionRewards = config.getConfigurationSection("action_rewards.orestack_structure");
+        if (actionRewards == null) return;
+
+        int baseExp = actionRewards.getInt("exp", 0);
+        double baseMoney = actionRewards.getDouble("money", 0.0);
+
+        // Vérifier si le joueur est dans un donjon
+        boolean inDungeon = isPlayerInDungeon(player);
+
+        // Appliquer les multiplicateurs (includes dungeon utils bonus)
+        double expMultiplier = getExpMultiplier(player, inDungeon);
+        double moneyMultiplier = getMoneyMultiplier(player, inDungeon);
+
+        int finalExp = (int) (baseExp * expMultiplier);
+        double finalMoney = baseMoney * moneyMultiplier;
+
+        // Donner XP et argent
+        if (finalExp > 0) {
+            addExp(player.getUniqueId(), finalExp);
+        }
+
+        Economy economy = plugin.getVaultManager().getEconomy();
+        if (economy != null && finalMoney > 0) {
+            economy.depositPlayer(player, finalMoney);
+        }
+
+        // Message
+        if (finalExp > 0 || finalMoney > 0) {
+            String message = config.getString("messages.orestack_interaction",
+                "&7+{exp} XP {job_name} &7| +{money}$")
+                .replace("{exp}", String.valueOf(finalExp))
+                .replace("{job_name}", job.getDisplayName())
+                .replace("{money}", String.format("%.1f", finalMoney))
+                .replace("{structure_id}", structureId);
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+        }
+    }
+
     /**
      * Vérifie si un joueur est dans un donjon
      */

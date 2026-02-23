@@ -28,20 +28,25 @@ public class UpgradeablePickaxe extends UpgradeableTool {
             plugin.getQuantumLogger().error("Nexo item not found: " + nexoId + " - Please check that the item exists in your Nexo pack");
             return null;
         }
-        
+
         ItemStack tool = builder.build();
         if (tool == null) {
             plugin.getQuantumLogger().error("Failed to build Nexo item: " + nexoId + " - ItemBuilder returned null");
             return null;
         }
-        
+
         ItemMeta meta = tool.getItemMeta();
         if (meta != null) {
             meta.getPersistentDataContainer().set(typeKey, PersistentDataType.STRING, ToolType.PICKAXE.name());
             meta.getPersistentDataContainer().set(levelKey, PersistentDataType.INTEGER, 1);
             tool.setItemMeta(meta);
         }
-        
+
+        // Update lore with config
+        if (plugin.getToolManager() != null) {
+            updateLore(tool, 1, plugin.getToolManager().getConfig());
+        }
+
         return tool;
     }
     
@@ -95,6 +100,11 @@ public class UpgradeablePickaxe extends UpgradeableTool {
             // Apply the meta with both Nexo data (lore/enchants) and our custom data
             tool.setType(newTool.getType());
             tool.setItemMeta(newMeta);
+        }
+
+        // Update lore with config
+        if (plugin.getToolManager() != null) {
+            updateLore(tool, nextLevel, plugin.getToolManager().getConfig());
         }
 
         return true;

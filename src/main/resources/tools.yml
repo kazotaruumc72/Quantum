@@ -15,7 +15,21 @@
 # ========================================
 pickaxe:
   max_level: 100
-  
+
+  # Nom affiché
+  display_name: "&6Pioche Quantique"
+
+  # Description pour le lore
+  description:
+    - "&7Une pioche avancée qui utilise"
+    - "&7la technologie quantique pour"
+    - "&7extraire plusieurs minerais à la fois."
+    - ""
+    - "&e&lCompétence: &r&bDouble Extraction"
+    - "&8▪ &7Niv 1-3: &ax2 minerais"
+    - "&8▪ &7Niv 4-6: &ax3 minerais"
+    - "&8▪ &7Niv 7-10: &ax4 minerais"
+
   # Nexo IDs pour chaque niveau
   nexo_ids:
     1: "quantum_pickaxe_level1"
@@ -58,7 +72,22 @@ pickaxe:
 # ========================================
 axe:
   max_level: 100
-  
+
+  # Nom affiché
+  display_name: "&6Hache Quantique"
+
+  # Description pour le lore
+  description:
+    - "&7Une hache surpuissante capable"
+    - "&7de couper des structures entières"
+    - "&7d'un seul coup d'arbre."
+    - ""
+    - "&e&lCompétence: &r&bOne-Shot"
+    - "&8▪ &7Niv 1-3: 1/500 chance (0.2%)"
+    - "&8▪ &7Niv 4-6: 1/400 chance (0.25%)"
+    - "&8▪ &7Niv 7-10: 1/300 chance (0.33%)"
+    - "&8▪ &7Coût: &e5000$"
+
   # Nexo IDs pour chaque niveau
   nexo_ids:
     1: "quantum_axe_level1"
@@ -102,7 +131,21 @@ axe:
 # ========================================
 hoe:
   max_level: 100
-  
+
+  # Nom affiché
+  display_name: "&6Houe Quantique"
+
+  # Description pour le lore
+  description:
+    - "&7Une houe mystique qui offre"
+    - "&7des loots rares lors de la"
+    - "&7récolte des cultures."
+    - ""
+    - "&e&lCompétence: &r&bLoot Rare"
+    - "&8▪ &7Niv 1-3: 5% chance, 1 loot max"
+    - "&8▪ &7Niv 4-6: 7.5% chance, 2 loots max"
+    - "&8▪ &7Niv 7-10: 10% chance, 3 loots max"
+
   # Nexo IDs pour chaque niveau
   nexo_ids:
     1: "quantum_hoe_level1"
@@ -171,3 +214,9 @@ messages:
   oneshot_cost: "&7Coût: {cost}$"
   rare_loot_dropped: "&6★ Loot rare obtenu: &e{item_name}"
   invalid_tool: "&cCet outil n'est pas un outil Quantum!"
+
+  # Lore des outils
+  lore:
+    separator: "&7&m-------------------"
+    level_format: "&8│ &6&lNIVEAU &r&e{level} &8│ &3&lMAX: &r&b{max_level} &8│"
+    footer: "&7Outil Quantique"

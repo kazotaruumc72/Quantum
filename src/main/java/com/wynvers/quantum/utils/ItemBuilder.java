@@ -43,21 +43,23 @@ public class ItemBuilder {
         // For Nexo items, preserve the original tooltip/lore from Nexo configuration
         // Only apply custom modifications if explicitly defined in MenuItem
         ItemMeta meta = item.getItemMeta();
-        meta.setTooltipStyle(NamespacedKey.fromString("minecraft:votre_style"));
-        item.setItemMeta(meta);
         if (meta != null) {
             boolean modified = false;
-        
+
+            // Set tooltip style first (if needed)
+            meta.setTooltipStyle(NamespacedKey.fromString("minecraft:votre_style"));
+            modified = true;
+
             // Pour les items Nexo : on laisse Nexo gérer le displayName et le lore (tooltip components)
             if (!menuItem.isNexoItem()) {
-        
+
                 // Display name - seulement pour les items vanilla
                 if (menuItem.getDisplayName() != null) {
                     String displayName = parsePlaceholders(player, menuItem.getDisplayName());
                     meta.setDisplayName(displayName);
                     modified = true;
                 }
-        
+
                 // Lore - seulement pour les items vanilla
                 if (menuItem.getLore() != null && !menuItem.getLore().isEmpty()) {
                     List<String> lore = new ArrayList<>();
@@ -67,21 +69,21 @@ public class ItemBuilder {
                     meta.setLore(lore);
                     modified = true;
                 }
-        
+
                 // Custom model data - seulement pour les items vanilla
                 if (menuItem.getCustomModelData() > 0) {
                     meta.setCustomModelData(menuItem.getCustomModelData());
                     modified = true;
                 }
             }
-        
+
             // Skull owner : OK pour tous les items
             if (meta instanceof SkullMeta && menuItem.getSkullOwner() != null) {
                 String owner = parsePlaceholders(player, menuItem.getSkullOwner());
                 ((SkullMeta) meta).setOwner(owner);
                 modified = true;
             }
-        
+
             if (modified) {
                 item.setItemMeta(meta);
             }

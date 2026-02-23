@@ -8,7 +8,7 @@
 runes:
   force:
     display_name: "§c⚔ Force"
-    max_level: 100
+    max_level: 3
     levels:
       1:
         description: "§7Rune de Force I"
@@ -25,7 +25,7 @@ runes:
 
   speed:
     display_name: "§b⚡ Vitesse"
-    max_level: 100
+    max_level: 3
     levels:
       1:
         description: "§7Rune de Vitesse I"
@@ -42,7 +42,7 @@ runes:
 
   regeneration:
     display_name: "§2💖 Régénération"
-    max_level: 100
+    max_level: 3
     levels:
       1:
         description: "§7Rune de Régénération I"
@@ -59,7 +59,7 @@ runes:
 
   agility:
     display_name: "§d🏃 Saut"
-    max_level: 100
+    max_level: 3
     levels:
       1:
         description: "§7Rune de Saut I"
@@ -76,7 +76,7 @@ runes:
 
   resistance:
     display_name: "§a🛡 Résistance"
-    max_level: 100
+    max_level: 3
     levels:
       1:
         description: "§7+5% réduction dégâts"
@@ -96,7 +96,7 @@ runes:
 
   critical:
     display_name: "§e✨ Critique"
-    max_level: 100
+    max_level: 3
     levels:
       1:
         description: "§7+15% chance coup critique"
@@ -116,7 +116,7 @@ runes:
 
   vampirism:
     display_name: "§5🩸 Vampirisme"
-    max_level: 100
+    max_level: 3
     levels:
       1:
         description: "§7Vole 10% de vie"
@@ -136,7 +136,7 @@ runes:
 
   strength:
     display_name: "§6💪 Puissance"
-    max_level: 100
+    max_level: 3
     levels:
       1:
         description: "§7Force I permanent"
@@ -156,7 +156,7 @@ runes:
 
   defense:
     display_name: "§9🛡️ Défense"
-    max_level: 100
+    max_level: 3
     levels:
       1:
         description: "§7+2 armure"

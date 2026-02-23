@@ -108,10 +108,10 @@ public class DungeonUtils {
             data.set(levelKey, PersistentDataType.INTEGER, 0);
             data.set(expKey, PersistentDataType.INTEGER, 0);
 
-            // Set lore
-            updateLore(item, type, rarity, 0, 0);
-
             item.setItemMeta(meta);
+
+            // Set lore (must be called after setItemMeta)
+            updateLore(item, type, rarity, 0, 0);
         }
 
         return item;

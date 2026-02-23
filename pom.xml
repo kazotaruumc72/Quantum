@@ -158,6 +158,14 @@
             <version>1.1</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- VoxelSpigot - Required by Orestack API for PlayerEvent -->
+        <dependency>
+            <groupId>io.github.pigaut.voxel</groupId>
+            <artifactId>VoxelSpigot</artifactId>
+            <version>1.4.1</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -54,10 +54,10 @@ rarities:
     enchantments:
       - enchant: "PROTECTION"
         min_level: 1
-        max_level: 2
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 1
-        max_level: 1
+        max_level: 100
   
   UNCOMMON:
     display_name: "Peu Commun"
@@ -71,13 +71,13 @@ rarities:
     enchantments:
       - enchant: "PROTECTION"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "THORNS"
         min_level: 1
-        max_level: 1
+        max_level: 100
   
   RARE:
     display_name: "Rare"
@@ -91,16 +91,16 @@ rarities:
     enchantments:
       - enchant: "PROTECTION"
         min_level: 3
-        max_level: 4
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "THORNS"
         min_level: 1
-        max_level: 2
+        max_level: 100
       - enchant: "FIRE_PROTECTION"
         min_level: 1
-        max_level: 2
+        max_level: 100
   
   EPIC:
     display_name: "Épique"
@@ -114,19 +114,19 @@ rarities:
     enchantments:
       - enchant: "PROTECTION"
         min_level: 4
-        max_level: 5
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "THORNS"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "FIRE_PROTECTION"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "BLAST_PROTECTION"
         min_level: 2
-        max_level: 3
+        max_level: 100
   
   LEGENDARY:
     display_name: "Légendaire"
@@ -140,22 +140,22 @@ rarities:
     enchantments:
       - enchant: "PROTECTION"
         min_level: 5
-        max_level: 6
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "THORNS"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "FIRE_PROTECTION"
         min_level: 3
-        max_level: 4
+        max_level: 100
       - enchant: "BLAST_PROTECTION"
         min_level: 3
-        max_level: 4
+        max_level: 100
       - enchant: "PROJECTILE_PROTECTION"
         min_level: 2
-        max_level: 3
+        max_level: 100
 
 # ========================================
 #  Messages et affichage

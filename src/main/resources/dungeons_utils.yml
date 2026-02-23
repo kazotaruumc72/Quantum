@@ -79,57 +79,57 @@ dungeon_pickaxe:
     COMMON:
       - enchant: "EFFICIENCY"
         min_level: 1
-        max_level: 2
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     UNCOMMON:
       - enchant: "EFFICIENCY"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "FORTUNE"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     RARE:
       - enchant: "EFFICIENCY"
         min_level: 3
-        max_level: 4
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "FORTUNE"
         min_level: 2
-        max_level: 2
+        max_level: 100
 
     EPIC:
       - enchant: "EFFICIENCY"
         min_level: 4
-        max_level: 5
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "FORTUNE"
         min_level: 3
-        max_level: 3
+        max_level: 100
 
     LEGENDARY:
       - enchant: "EFFICIENCY"
         min_level: 5
-        max_level: 6
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "FORTUNE"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "MENDING"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
 # ========================================
 #  Outils de Donjon - Hache (Axe)
@@ -158,57 +158,57 @@ dungeon_axe:
     COMMON:
       - enchant: "EFFICIENCY"
         min_level: 1
-        max_level: 2
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     UNCOMMON:
       - enchant: "EFFICIENCY"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "SHARPNESS"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     RARE:
       - enchant: "EFFICIENCY"
         min_level: 3
-        max_level: 4
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "SHARPNESS"
         min_level: 2
-        max_level: 2
+        max_level: 100
 
     EPIC:
       - enchant: "EFFICIENCY"
         min_level: 4
-        max_level: 5
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "SHARPNESS"
         min_level: 3
-        max_level: 3
+        max_level: 100
 
     LEGENDARY:
       - enchant: "EFFICIENCY"
         min_level: 5
-        max_level: 6
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "SHARPNESS"
         min_level: 4
-        max_level: 4
+        max_level: 100
       - enchant: "MENDING"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
 # ========================================
 #  Outils de Donjon - Houe (Hoe)
@@ -237,54 +237,54 @@ dungeon_hoe:
     COMMON:
       - enchant: "EFFICIENCY"
         min_level: 1
-        max_level: 2
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     UNCOMMON:
       - enchant: "EFFICIENCY"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 2
-        max_level: 2
+        max_level: 100
 
     RARE:
       - enchant: "EFFICIENCY"
         min_level: 3
-        max_level: 4
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "FORTUNE"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     EPIC:
       - enchant: "EFFICIENCY"
         min_level: 4
-        max_level: 5
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "FORTUNE"
         min_level: 2
-        max_level: 2
+        max_level: 100
 
     LEGENDARY:
       - enchant: "EFFICIENCY"
         min_level: 5
-        max_level: 6
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "FORTUNE"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "MENDING"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
 # ========================================
 #  Armes de Donjon - Épée (Sword)
@@ -332,75 +332,75 @@ dungeon_sword:
     COMMON:
       - enchant: "SHARPNESS"
         min_level: 1
-        max_level: 2
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     UNCOMMON:
       - enchant: "SHARPNESS"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "KNOCKBACK"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     RARE:
       - enchant: "SHARPNESS"
         min_level: 3
-        max_level: 4
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "KNOCKBACK"
         min_level: 1
-        max_level: 1
+        max_level: 100
       - enchant: "LOOTING"
         min_level: 1
-        max_level: 2
+        max_level: 100
 
     EPIC:
       - enchant: "SHARPNESS"
         min_level: 4
-        max_level: 5
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "KNOCKBACK"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "LOOTING"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "SWEEPING_EDGE"
         min_level: 2
-        max_level: 2
+        max_level: 100
 
     LEGENDARY:
       - enchant: "SHARPNESS"
         min_level: 5
-        max_level: 7
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "KNOCKBACK"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "LOOTING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "SWEEPING_EDGE"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "FIRE_ASPECT"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "MENDING"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
 # ========================================
 #  Armes de Donjon - Arc (Bow)
@@ -429,72 +429,72 @@ dungeon_bow:
     COMMON:
       - enchant: "POWER"
         min_level: 1
-        max_level: 2
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     UNCOMMON:
       - enchant: "POWER"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "PUNCH"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     RARE:
       - enchant: "POWER"
         min_level: 3
-        max_level: 4
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "PUNCH"
         min_level: 1
-        max_level: 1
+        max_level: 100
       - enchant: "FLAME"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     EPIC:
       - enchant: "POWER"
         min_level: 4
-        max_level: 5
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "PUNCH"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "FLAME"
         min_level: 1
-        max_level: 1
+        max_level: 100
       - enchant: "INFINITY"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     LEGENDARY:
       - enchant: "POWER"
         min_level: 5
-        max_level: 7
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "PUNCH"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "FLAME"
         min_level: 1
-        max_level: 1
+        max_level: 100
       - enchant: "INFINITY"
         min_level: 1
-        max_level: 1
+        max_level: 100
       - enchant: "MENDING"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
 # ========================================
 #  Armes de Donjon - Katana
@@ -542,72 +542,72 @@ dungeon_katana:
     COMMON:
       - enchant: "SHARPNESS"
         min_level: 1
-        max_level: 2
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     UNCOMMON:
       - enchant: "SHARPNESS"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "SWEEPING_EDGE"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     RARE:
       - enchant: "SHARPNESS"
         min_level: 3
-        max_level: 4
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "SWEEPING_EDGE"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "LOOTING"
         min_level: 1
-        max_level: 2
+        max_level: 100
 
     EPIC:
       - enchant: "SHARPNESS"
         min_level: 4
-        max_level: 5
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "SWEEPING_EDGE"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "LOOTING"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "FIRE_ASPECT"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     LEGENDARY:
       - enchant: "SHARPNESS"
         min_level: 5
-        max_level: 7
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "SWEEPING_EDGE"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "LOOTING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "FIRE_ASPECT"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "MENDING"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
 # ========================================
 #  Armes de Donjon - Broadsword (Grande Épée)
@@ -655,78 +655,78 @@ dungeon_broadsword:
     COMMON:
       - enchant: "SHARPNESS"
         min_level: 1
-        max_level: 2
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 1
-        max_level: 1
+        max_level: 100
       - enchant: "KNOCKBACK"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     UNCOMMON:
       - enchant: "SHARPNESS"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "KNOCKBACK"
         min_level: 1
-        max_level: 2
+        max_level: 100
 
     RARE:
       - enchant: "SHARPNESS"
         min_level: 3
-        max_level: 4
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "KNOCKBACK"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "LOOTING"
         min_level: 1
-        max_level: 2
+        max_level: 100
 
     EPIC:
       - enchant: "SHARPNESS"
         min_level: 4
-        max_level: 5
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "KNOCKBACK"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "LOOTING"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "SWEEPING_EDGE"
         min_level: 1
-        max_level: 2
+        max_level: 100
 
     LEGENDARY:
       - enchant: "SHARPNESS"
         min_level: 5
-        max_level: 8
+        max_level: 100
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "KNOCKBACK"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "LOOTING"
         min_level: 3
-        max_level: 3
+        max_level: 100
       - enchant: "SWEEPING_EDGE"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "FIRE_ASPECT"
         min_level: 2
-        max_level: 2
+        max_level: 100
       - enchant: "MENDING"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
 # ========================================
 #  Armes de Donjon - Bouclier (Shield)
@@ -756,51 +756,51 @@ dungeon_shield:
     COMMON:
       - enchant: "UNBREAKING"
         min_level: 1
-        max_level: 2
+        max_level: 100
 
     UNCOMMON:
       - enchant: "UNBREAKING"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "PROTECTION"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
     RARE:
       - enchant: "UNBREAKING"
         min_level: 3
-        max_level: 4
+        max_level: 100
       - enchant: "PROTECTION"
         min_level: 1
-        max_level: 2
+        max_level: 100
 
     EPIC:
       - enchant: "UNBREAKING"
         min_level: 4
-        max_level: 5
+        max_level: 100
       - enchant: "PROTECTION"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "BLAST_PROTECTION"
         min_level: 1
-        max_level: 2
+        max_level: 100
 
     LEGENDARY:
       - enchant: "UNBREAKING"
         min_level: 5
-        max_level: 6
+        max_level: 100
       - enchant: "PROTECTION"
         min_level: 3
-        max_level: 4
+        max_level: 100
       - enchant: "BLAST_PROTECTION"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "PROJECTILE_PROTECTION"
         min_level: 2
-        max_level: 3
+        max_level: 100
       - enchant: "MENDING"
         min_level: 1
-        max_level: 1
+        max_level: 100
 
 # ========================================
 #  Messages

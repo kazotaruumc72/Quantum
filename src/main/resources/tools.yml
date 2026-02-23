@@ -14,7 +14,7 @@
 #  Configuration des Pioches (Pickaxe)
 # ========================================
 pickaxe:
-  max_level: 10
+  max_level: 100
   
   # Nexo IDs pour chaque niveau
   nexo_ids:
@@ -57,7 +57,7 @@ pickaxe:
 #  Configuration des Haches (Axe)
 # ========================================
 axe:
-  max_level: 10
+  max_level: 100
   
   # Nexo IDs pour chaque niveau
   nexo_ids:
@@ -101,7 +101,7 @@ axe:
 #  Configuration des Houes (Hoe)
 # ========================================
 hoe:
-  max_level: 10
+  max_level: 100
   
   # Nexo IDs pour chaque niveau
   nexo_ids:

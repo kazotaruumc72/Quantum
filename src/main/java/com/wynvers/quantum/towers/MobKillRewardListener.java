@@ -2,6 +2,7 @@ package com.wynvers.quantum.towers;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.armor.DungeonArmor;
+import com.wynvers.quantum.dungeonutis.DungeonUtils;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -56,6 +57,18 @@ public class MobKillRewardListener implements Listener {
             applyArmorExp(killer, dungeonArmor, reward, "chestplate", killer.getInventory().getChestplate());
             applyArmorExp(killer, dungeonArmor, reward, "leggings",   killer.getInventory().getLeggings());
             applyArmorExp(killer, dungeonArmor, reward, "boots",      killer.getInventory().getBoots());
+        }
+
+        // 3) XP arme/outil de donjon (item en main)
+        DungeonUtils dungeonUtils = plugin.getDungeonUtils();
+        if (dungeonUtils != null) {
+            ItemStack mainHand = killer.getInventory().getItemInMainHand();
+            if (mainHand != null && dungeonUtils.isDungeonUtil(mainHand)) {
+                int weaponExp = reward.getWeaponExp();
+                for (int i = 0; i < weaponExp; i++) {
+                    dungeonUtils.addKillExperience(mainHand);
+                }
+            }
         }
     }
 

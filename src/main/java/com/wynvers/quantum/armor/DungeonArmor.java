@@ -194,17 +194,22 @@ public class DungeonArmor {
         int currentLevel = data.getOrDefault(levelKey, PersistentDataType.INTEGER, 0);
         int newExp = currentExp + 1;
 
-        data.set(armorExpKey, PersistentDataType.INTEGER, newExp);
+        // Check if we leveled up with the exponential curve
+        int expForNextLevel = getExpForLevel(currentLevel + 1);
 
-        // Recalculer le niveau basé sur l'XP accumulée
-        int newLevel = calculateLevel(newExp);
-
-        if (newLevel != currentLevel) {
+        if (newExp >= expForNextLevel) {
+            // Level up! Reset XP to 0 and increment level
+            int newLevel = currentLevel + 1;
             data.set(levelKey, PersistentDataType.INTEGER, newLevel);
+            data.set(armorExpKey, PersistentDataType.INTEGER, 0);
+            armor.setItemMeta(meta);
+            updateArmorLore(armor, newLevel);
+        } else {
+            // No level up yet, just add the XP
+            data.set(armorExpKey, PersistentDataType.INTEGER, newExp);
+            armor.setItemMeta(meta);
+            updateArmorLore(armor, currentLevel);
         }
-
-        armor.setItemMeta(meta);
-        updateArmorLore(armor, newLevel);
     }
     
     public int getArmorLevel(ItemStack armor) {
@@ -228,18 +233,20 @@ public class DungeonArmor {
     }
 
     /**
-     * Calcule le niveau basé sur l'XP accumulée
-     * Formule: 100 XP par niveau (niveau 0 = 0-99 XP, niveau 1 = 100-199 XP, etc.)
+     * Calcule l'XP requis pour atteindre un niveau donné (courbe exponentielle)
+     * Formule: 25 * level * level + 25 * level
+     * Niveau 1: 50 XP, Niveau 2: 150 XP, Niveau 3: 300 XP, Niveau 5: 750 XP, etc.
      */
-    private int calculateLevel(int exp) {
-        return exp / 100;
+    private int getExpForLevel(int level) {
+        if (level <= 0) return 0;
+        return 25 * level * level + 25 * level;
     }
 
     /**
-     * Calcule l'XP requis pour atteindre le prochain niveau
+     * Calcule l'XP requis pour atteindre le prochain niveau depuis le niveau actuel
      */
     private int getExpForNextLevel(int currentLevel) {
-        return (currentLevel + 1) * 100;
+        return getExpForLevel(currentLevel + 1);
     }
     
     public int getMaxRuneSlots(ItemStack armor) {

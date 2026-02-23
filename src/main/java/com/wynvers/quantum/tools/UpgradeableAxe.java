@@ -73,34 +73,35 @@ public class UpgradeableAxe extends UpgradeableTool {
     @Override
     public boolean upgrade(ItemStack tool, int currentLevel) {
         if (currentLevel >= 10) return false;
-        
+
         int nextLevel = currentLevel + 1;
-        
+
         String newNexoId = "quantum_axe_level" + nextLevel;
         var builder = NexoItems.itemFromId(newNexoId);
         if (builder == null) {
             plugin.getQuantumLogger().error("Nexo item not found: " + newNexoId + " - Please check that the item exists in your Nexo pack");
             return false;
         }
-        
+
         ItemStack newTool = builder.build();
         if (newTool == null) {
             plugin.getQuantumLogger().error("Failed to build Nexo item: " + newNexoId + " - ItemBuilder returned null");
             return false;
         }
-        
-        ItemMeta oldMeta = tool.getItemMeta();
+
+        // Get the new meta from Nexo item (includes lore and enchantments)
         ItemMeta newMeta = newTool.getItemMeta();
-        
-        if (oldMeta != null && newMeta != null) {
+
+        if (newMeta != null) {
+            // Add our custom persistent data to the Nexo item's meta
             newMeta.getPersistentDataContainer().set(typeKey, PersistentDataType.STRING, ToolType.AXE.name());
             newMeta.getPersistentDataContainer().set(levelKey, PersistentDataType.INTEGER, nextLevel);
-            newTool.setItemMeta(newMeta);
+
+            // Apply the meta with both Nexo data (lore/enchants) and our custom data
+            tool.setType(newTool.getType());
+            tool.setItemMeta(newMeta);
         }
-        
-        tool.setType(newTool.getType());
-        tool.setItemMeta(newTool.getItemMeta());
-        
+
         return true;
     }
 }

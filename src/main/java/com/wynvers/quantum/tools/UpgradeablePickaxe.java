@@ -67,9 +67,9 @@ public class UpgradeablePickaxe extends UpgradeableTool {
     @Override
     public boolean upgrade(ItemStack tool, int currentLevel) {
         if (currentLevel >= 10) return false; // Niveau max
-        
+
         int nextLevel = currentLevel + 1;
-        
+
         // Mettre à jour le Nexo ID
         String newNexoId = "quantum_pickaxe_level" + nextLevel;
         var builder = NexoItems.itemFromId(newNexoId);
@@ -77,27 +77,26 @@ public class UpgradeablePickaxe extends UpgradeableTool {
             plugin.getQuantumLogger().error("Nexo item not found: " + newNexoId + " - Please check that the item exists in your Nexo pack");
             return false;
         }
-        
+
         ItemStack newTool = builder.build();
         if (newTool == null) {
             plugin.getQuantumLogger().error("Failed to build Nexo item: " + newNexoId + " - ItemBuilder returned null");
             return false;
         }
-        
-        // Copier les données persistantes
-        ItemMeta oldMeta = tool.getItemMeta();
+
+        // Get the new meta from Nexo item (includes lore and enchantments)
         ItemMeta newMeta = newTool.getItemMeta();
-        
-        if (oldMeta != null && newMeta != null) {
+
+        if (newMeta != null) {
+            // Add our custom persistent data to the Nexo item's meta
             newMeta.getPersistentDataContainer().set(typeKey, PersistentDataType.STRING, ToolType.PICKAXE.name());
             newMeta.getPersistentDataContainer().set(levelKey, PersistentDataType.INTEGER, nextLevel);
-            newTool.setItemMeta(newMeta);
+
+            // Apply the meta with both Nexo data (lore/enchants) and our custom data
+            tool.setType(newTool.getType());
+            tool.setItemMeta(newMeta);
         }
-        
-        // Remplacer l'outil dans l'inventaire
-        tool.setType(newTool.getType());
-        tool.setItemMeta(newTool.getItemMeta());
-        
+
         return true;
     }
 }

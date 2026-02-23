@@ -379,11 +379,8 @@ public class QuantumCommand implements CommandExecutor {
         if (sender.hasPermission("quantum.admin")) {
             sender.sendMessage("§e/quantum eco <create|delete|balance|give|take|set> §7- Gestion économie");
         }
-        if (sender.hasPermission("quantum.structure.wand") || sender.hasPermission("quantum.admin")) {
-            sender.sendMessage("§e/quantum structure <wand|create> §7- Gestion des structures");
-        }
         if (sender.hasPermission("quantum.tower.door.wand") || sender.hasPermission("quantum.admin")) {
-            sender.sendMessage("§e/quantum wand <door|structure> §7- Baguettes de sélection");
+            sender.sendMessage("§e/quantum wand door §7- Baguette de sélection");
         }
         if (sender.hasPermission("quantum.admin.orders")) {
             sender.sendMessage("§e/quantum orders button <create|delete>categorie <nom>");

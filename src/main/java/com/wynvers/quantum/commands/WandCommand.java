@@ -21,7 +21,7 @@ public class WandCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage("§cUsage: /quantum wand <door|structure>");
+            sender.sendMessage("§cUsage: /quantum wand door");
             return true;
         }
 
@@ -30,12 +30,9 @@ public class WandCommand implements CommandExecutor {
         switch (wandType) {
             case "door":
                 return handleDoorWand(sender);
-            case "structure":
-                sender.sendMessage("§7Utilisez: /quantum structure wand");
-                return true;
             default:
                 sender.sendMessage("§cType de baguette inconnu: " + wandType);
-                sender.sendMessage("§7Types disponibles: door, structure");
+                sender.sendMessage("§7Types disponibles: door");
                 return true;
         }
     }

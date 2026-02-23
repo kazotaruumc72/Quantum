@@ -14,7 +14,6 @@ public class QuantumCommand implements CommandExecutor {
     private final StatsCommand statsCommand;
     private final StorageStatsCommand storageStatsCommand;
     private final QuantumTowerCommand towerCommand;
-    private final StructureCommand structureCommand;
     private final EconomyCommand economyCommand;
     private final WandCommand wandCommand;
 
@@ -29,7 +28,6 @@ public class QuantumCommand implements CommandExecutor {
             plugin.getDoorManager(),
             plugin.getNPCManager()
         );
-        this.structureCommand = new StructureCommand(plugin, plugin.getStructureSelectionManager());
         this.economyCommand = new EconomyCommand(plugin);
         this.wandCommand = new WandCommand(plugin);
     }
@@ -59,13 +57,6 @@ public class QuantumCommand implements CommandExecutor {
         // Commandes Storage Stats
         if (subCommand.equals("storagestats") || subCommand.equals("sstats")) {
             return storageStatsCommand.onCommand(sender, command, label, args);
-        }
-        
-        // Structure commands - delegate to StructureCommand
-        if (subCommand.equals("structure")) {
-            String[] newArgs = new String[args.length - 1];
-            System.arraycopy(args, 1, newArgs, 0, args.length - 1);
-            return structureCommand.onCommand(sender, command, label, newArgs);
         }
 
         // Wand commands - delegate to WandCommand
@@ -302,22 +293,6 @@ public class QuantumCommand implements CommandExecutor {
                             }
                             break;
 
-                        case "tools":
-                        case "tools.yml":
-                            if (plugin.getToolManager() != null) {
-                                plugin.getToolManager().reload();
-                                sender.sendMessage("§a§l✓ §atools.yml rechargé!");
-                            }
-                            break;
-
-                        case "structures":
-                        case "structures.yml":
-                            if (plugin.getStructureManager() != null) {
-                                plugin.getStructureManager().reload();
-                                sender.sendMessage("§a§l✓ §astructures.yml rechargé!");
-                            }
-                            break;
-
                         case "weapons":
                         case "dungeons_utils":
                         case "dungeons_utils.yml":
@@ -386,8 +361,6 @@ public class QuantumCommand implements CommandExecutor {
         if (plugin.getTowerScoreboardHandler() != null) plugin.getTowerScoreboardHandler().reload();
         if (plugin.getFurnitureManager() != null) plugin.getFurnitureManager().reload();
         if (plugin.getCustomCropManager() != null) plugin.getCustomCropManager().reload();
-        if (plugin.getToolManager() != null) plugin.getToolManager().reload();
-        if (plugin.getStructureManager() != null) plugin.getStructureManager().reload();
         if (plugin.getDungeonUtils() != null) plugin.getDungeonUtils().reload();
         if (plugin.getTowerInventoryManager() != null) plugin.getTowerInventoryManager().reload();
         if (plugin.getJobManager() != null) plugin.getJobManager().reload();

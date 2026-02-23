@@ -192,10 +192,9 @@ public class QuantumTabCompleter implements TabCompleter {
                 "crops",
                 "custom_crops",
                 "custom_crops.yml",
-                "tools",
-                "tools.yml",
-                "structures",
-                "structures.yml"
+                "weapons",
+                "dungeons_utils",
+                "dungeons_utils.yml"
             );
             
             String input = args[1].toLowerCase();

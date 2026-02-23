@@ -12,11 +12,6 @@ import com.wynvers.quantum.furniture.FurnitureManager;
 import com.wynvers.quantum.furniture.FurnitureListener;
 import com.wynvers.quantum.crops.CustomCropManager;
 import com.wynvers.quantum.crops.CustomCropListener;
-import com.wynvers.quantum.tools.ToolManager;
-import com.wynvers.quantum.tools.ToolListener;
-import com.wynvers.quantum.tools.StructureManager;
-import com.wynvers.quantum.tools.StructureSelectionManager;
-import com.wynvers.quantum.tools.StructureSelectionListener;
 import com.wynvers.quantum.jobs.JobManager;
 import com.wynvers.quantum.jobs.JobListener;
 import com.wynvers.quantum.jobs.JobActionListener;
@@ -55,7 +50,6 @@ import com.wynvers.quantum.commands.RechercherCommand;
 import com.wynvers.quantum.commands.RuneCommand;
 import com.wynvers.quantum.commands.StorageCommand;
 import com.wynvers.quantum.commands.TabEditCommand;
-import com.wynvers.quantum.commands.ToolCommand;
 import com.wynvers.quantum.commands.TowerCommand;
 import com.wynvers.quantum.commands.WeaponCommand;
 import com.wynvers.quantum.commands.WeaponTabCompleter;
@@ -138,13 +132,10 @@ public final class Quantum extends JavaPlugin {
     
     // Mob Bestiary (mobs.yml)
     private MobConfig mobConfig;
-    
-    // NEW: Furniture, Crops, Tools, and Weapon systems
+
+    // NEW: Furniture, Crops, and Weapon systems
     private FurnitureManager furnitureManager;
     private CustomCropManager customCropManager;
-    private ToolManager toolManager;
-    private StructureManager structureManager;
-    private StructureSelectionManager structureSelectionManager;
     private com.wynvers.quantum.dungeonutis.DungeonUtils dungeonUtils;
 
     // Jobs System
@@ -346,13 +337,12 @@ public final class Quantum extends JavaPlugin {
         extractResource("orders_template.yml");
         extractResource("messages.yml");
         extractResource("messages_gui.yml");
-        
-        // NEW: Furniture, Crops, Tools, and Weapon configs
+
+        // NEW: Furniture, Crops, and Weapon configs
         extractResource("furniture.yml");
         extractResource("mobilier.yml");
         extractResource("custom_crops.yml");
-        extractResource("tools.yml");
-        extractResource("structures.yml");
+        extractResource("dungeons_utils.yml");
         extractResource("jobs.yml");
 
         extractResource("scoreboard.yml");
@@ -522,30 +512,21 @@ public final class Quantum extends JavaPlugin {
         this.menuManager = new MenuManager(this);
         logger.success("✓ Menu Manager (" + menuManager.getMenuCount() + " menus loaded)");
     }
-    
+
     // ───────────────────── NEW Systems Initialization ─────────────────────
-    
+
     private void initializeNewSystems() {
-        logger.info("Initializing new systems (Furniture, Crops, Tools, Weapon)...");
-        
+        logger.info("Initializing new systems (Furniture, Crops, Dungeon Utils)...");
+
         // Furniture System
         this.furnitureManager = new FurnitureManager(this);
         getServer().getPluginManager().registerEvents(new FurnitureListener(this, furnitureManager), this);
         logger.success("✓ Furniture System initialized!");
-        
+
         // Custom Crops System
         this.customCropManager = new CustomCropManager(this);
         getServer().getPluginManager().registerEvents(new CustomCropListener(this, customCropManager), this);
         logger.success("✓ Custom Crops System initialized!");
-        
-        // Tools System
-        this.toolManager = new ToolManager(this);
-        this.structureManager = new StructureManager(this);
-        this.structureSelectionManager = new StructureSelectionManager();
-        getServer().getPluginManager().registerEvents(new ToolListener(this, toolManager), this);
-        getServer().getPluginManager().registerEvents(new StructureSelectionListener(this, structureSelectionManager), this);
-        logger.success("✓ Tools System initialized! (Pickaxe, Axe, Hoe)");
-        logger.success("✓ Structure Selection System initialized!");
 
         // Dungeon Utils System (Tools & Weapons with rarity for jobs)
         this.dungeonUtils = new com.wynvers.quantum.dungeonutis.DungeonUtils(this);
@@ -687,13 +668,6 @@ public final class Quantum extends JavaPlugin {
 
         getCommand("qexp").setExecutor(new QexpCommand(this, playerLevelManager));
         getCommand("qexp").setTabCompleter(new QexpTabCompleter());
-        
-        // NEW: Tool and Weapon Commands
-        if (toolManager != null) {
-            getCommand("tool").setExecutor(new ToolCommand(this));
-            getCommand("tool").setTabCompleter(new ToolTabCompleter());
-            logger.success("✓ Tool Command + TabCompleter");
-        }
 
         if (dungeonUtils != null) {
             getCommand("weapon").setExecutor(new WeaponCommand(this));
@@ -1051,15 +1025,7 @@ public final class Quantum extends JavaPlugin {
     public CustomCropManager getCustomCropManager() {
         return customCropManager;
     }
-    
-    public ToolManager getToolManager() {
-        return toolManager;
-    }
-    
-    public StructureManager getStructureManager() {
-        return structureManager;
-    }
-    
+
     public JobManager getJobManager() {
         return jobManager;
     }
@@ -1094,10 +1060,6 @@ public final class Quantum extends JavaPlugin {
     
     public com.wynvers.quantum.chat.ChatManager getChatManager() {
         return chatManager;
-    }
-
-    public StructureSelectionManager getStructureSelectionManager() {
-        return structureSelectionManager;
     }
 
     public com.wynvers.quantum.dungeonutis.DungeonUtils getDungeonUtils() {

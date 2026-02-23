@@ -89,11 +89,6 @@ commands:
     description: Manage player EXP
     usage: /qexp <player> <give|take|set|reset> [amount]
     permission: quantum.exp.admin
-  
-  tool:
-    description: Manage upgradeable tools (pickaxe, axe, hoe)
-    usage: /tool <upgrade|info|give> [args]
-    aliases: [tools, outil, outils]
 
   weapon:
     description: Manage dungeon weapons (sword, bow, katana, broadsword, shield)
@@ -197,11 +192,9 @@ permissions:
       quantum.armor.*: true
       quantum.rune.*: true
       quantum.exp.admin: true
-      quantum.tool.*: true
       quantum.weapon.*: true
       quantum.dutil.*: true
       quantum.job.*: true
-      quantum.structure.*: true
       quantum.spawn.*: true
       quantum.chat.*: true
       quantum.tab.*: true
@@ -339,27 +332,6 @@ permissions:
   quantum.exp.admin:
     description: Allows using /qexp to manage player EXP
     default: op
-  
-  # Tool system (Pickaxe, Axe, Hoe)
-  quantum.tool.*:
-    description: All tool permissions
-    default: op
-    children:
-      quantum.tool.use: true
-      quantum.tool.upgrade: true
-      quantum.tool.give: true
-
-  quantum.tool.use:
-    description: Use upgradeable tools
-    default: true
-
-  quantum.tool.upgrade:
-    description: Upgrade tools
-    default: true
-
-  quantum.tool.give:
-    description: Give tools to players
-    default: op
 
   # Weapon system (Sword, Bow, Katana, Broadsword, Shield)
   quantum.weapon.*:
@@ -401,22 +373,7 @@ permissions:
   
   quantum.job.admin:
     description: Admin job commands
-  # Structure system
-  quantum.structure.*:
-    description: All structure permissions
-    default: op
-    children:
-      quantum.structure.wand: true
-      quantum.structure.create: true
-  
-  quantum.structure.wand:
-    description: Get and use structure selection wand
-    default: op
-  
-  quantum.structure.create:
-    description: Create structures from selection
-    default: op
-  
+
   # Gamemode shortcuts
   quantum.gamemode.*:
     description: All gamemode permissions

@@ -6,8 +6,9 @@
 # - NPC avec Model Engine
 # - Régions WorldGuard par étage
 # - Récompenses par étage (Nexo/MythicMobs/commandes)
+# - Seuls les mobs MythicMobs comptent pour la progression
 #
-# ⚠️ Le système de mobs sera géré par MythicMobs ultérieurement.
+# ⚠️ Le système de mobs est géré par MythicMobs uniquement.
 
 towers:
   tower_water:
@@ -23,10 +24,9 @@ towers:
         worldguard_region: "donjon_eau_1"
         
         # Mobs à tuer pour ouvrir la porte de cet étage
-        # Format: 'mm:MythicMobsId:quantite' ou 'entity_type:quantite'
+        # Format: 'mm:MythicMobsId:quantite'
         mob_kills_required:
-          - 'mm:WaterSoldier:8'
-          - 'drowned:2'
+          - 'mm:WaterSoldier:10'
         
         # Point de spawn (utilisé par /quantum tower etage et NPC)
         spawn:
@@ -216,7 +216,7 @@ towers:
 # MOB_KILLS_REQUIRED:
 # Format liste: une entrée par type de mob requis
 # - 'mm:MythicMobsId:quantite'  -> mob MythicMobs (ex: 'mm:SkeletonKing:5')
-# - 'entity_type:quantite'       -> mob vanilla Minecraft (ex: 'zombie:3', 'CREEPER:2')
+# Seuls les mobs MythicMobs comptent pour la progression dans la tour.
 # La porte s'ouvre uniquement quand TOUS les prérequis sont satisfaits.
 
 # PLACEHOLDERS DISPONIBLES:

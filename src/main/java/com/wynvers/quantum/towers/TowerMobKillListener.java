@@ -1,29 +1,26 @@
 package com.wynvers.quantum.towers;
 
 import com.wynvers.quantum.Quantum;
-import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDeathEvent;
 
 import java.util.List;
 
 /**
- * Listens for mob death events (MythicMobs and vanilla) inside tower floor regions.
+ * Listens for MythicMobs death events inside tower floor regions.
  *
  * <p>Config format in towers.yml:
  * <pre>
  * mob_kills_required:
  *   - 'mm:SkeletonKing:5'   # MythicMobs mob
- *   - 'zombie:3'             # vanilla Minecraft mob
  * </pre>
  *
+ * <p>Only MythicMobs count for tower progression. Vanilla Minecraft mobs are ignored.
  * <p>When all requirements for the current floor are met the door opens (blocks
  * disappear for 1m30s via {@link TowerDoorManager}).
  */
@@ -52,27 +49,6 @@ public class TowerMobKillListener implements Listener {
         String mobKey = "mm:" + mythicId;
 
         handleKill(player, mobKey, event.getEntity().getLocation());
-    }
-
-    // ------------------------------------------------------------------ //
-    // Vanilla Minecraft kills
-    // ------------------------------------------------------------------ //
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onEntityDeath(EntityDeathEvent event) {
-        LivingEntity entity = event.getEntity();
-        Player killer = entity.getKiller();
-        if (killer == null) return;
-
-        // Skip MythicMobs mobs to avoid double-counting
-        try {
-            if (MythicBukkit.inst().getMobManager().isActiveMob(entity.getUniqueId())) return;
-        } catch (NoClassDefFoundError | NullPointerException ignored) {
-            // MythicBukkit not available at runtime – treat as vanilla
-        }
-
-        String mobKey = "mc:" + entity.getType().name();
-        handleKill(killer, mobKey, entity.getLocation());
     }
 
     // ------------------------------------------------------------------ //

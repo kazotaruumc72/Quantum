@@ -50,6 +50,7 @@ public class ZoneManager implements Listener {
     private final TowerScoreboardHandler scoreboardHandler;
     private final InternalRegionManager regionManager;
     private final TowerInventoryManager towerInventoryManager;
+    private final com.wynvers.quantum.towers.TowerDoorManager doorManager;
 
     private final Map<UUID, String> currentRegion = new HashMap<>();
     private static final int REGION_CACHE_SIZE = 100;
@@ -70,6 +71,7 @@ public class ZoneManager implements Listener {
         this.scoreboardHandler = plugin.getTowerScoreboardHandler();
         this.regionManager = plugin.getInternalRegionManager();
         this.towerInventoryManager = plugin.getTowerInventoryManager();
+        this.doorManager = plugin.getDoorManager();
         this.worldGuardWorking = Bukkit.getPluginManager().getPlugin("WorldGuard") != null;
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
@@ -316,15 +318,24 @@ public class ZoneManager implements Listener {
         TowerConfig tower = towerManager.getTower(towerId);
         if (tower == null) return true;
 
-        int level = levelManager.getLevel(player.getUniqueId());
-        int min = tower.getMinLevel();
-        int max = tower.getMaxLevel();
+        // Vérifier si le joueur a la permission temporaire de porte pour cet étage
+        // Cela permet au joueur qui a ouvert la porte d'accéder à l'étage suivant
+        if (doorManager != null && doorManager.hasTemporaryAccess(player.getUniqueId(), towerId, floor)) {
+            plugin.getQuantumLogger().debug("Player " + player.getName() + " has temporary door access to " +
+                    towerId + " floor " + floor);
+            // Continuer avec l'entrée normale (sans bloquer)
+        } else {
+            // Pas de permission temporaire, vérifier les niveaux normaux
+            int level = levelManager.getLevel(player.getUniqueId());
+            int min = tower.getMinLevel();
+            int max = tower.getMaxLevel();
 
-        if (level < min || level > max) {
-            player.sendMessage("\u00a7cTu dois etre niveau \u00a7f" + min +
-                    " \u00a7ca \u00a7f" + max +
-                    " \u00a7cpour entrer dans \u00a7f" + tower.getName() + "\u00a7c.");
-            return false;
+            if (level < min || level > max) {
+                player.sendMessage("\u00a7cTu dois etre niveau \u00a7f" + min +
+                        " \u00a7ca \u00a7f" + max +
+                        " \u00a7cpour entrer dans \u00a7f" + tower.getName() + "\u00a7c.");
+                return false;
+            }
         }
 
         // Fire enter event – allow external plugins to cancel

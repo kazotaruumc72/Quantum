@@ -1,6 +1,10 @@
 package com.wynvers.quantum.towers;
 
 import com.wynvers.quantum.Quantum;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.node.Node;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -11,6 +15,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.*;
 
 /**
@@ -22,22 +27,49 @@ public class TowerDoorManager {
     private final Quantum plugin;
     private final File doorsFile;
     private FileConfiguration doorsConfig;
-    
+
     // Selection en cours pour chaque joueur
     private final Map<UUID, Location> pos1Selection = new HashMap<>();
     private final Map<UUID, Location> pos2Selection = new HashMap<>();
-    
+
     // Configuration des portes sauvegardées
     private final Map<String, DoorConfig> doorConfigs = new HashMap<>();
-    
+
     // Portes actuellement ouvertes (dépop)
     private final Map<String, Set<BlockSnapshot>> openedDoors = new HashMap<>();
     private final Map<String, BukkitTask> doorCloseTasks = new HashMap<>();
+
+    // Permissions temporaires pour les joueurs qui ont ouvert les portes
+    private final Map<String, UUID> doorOpeners = new HashMap<>(); // doorId -> playerId
+
+    // LuckPerms integration
+    private LuckPerms luckPerms;
+    private boolean luckPermsAvailable;
     
     public TowerDoorManager(Quantum plugin) {
         this.plugin = plugin;
         this.doorsFile = new File(plugin.getDataFolder(), "doors.yml");
+        initLuckPerms();
         loadDoors();
+    }
+
+    /**
+     * Initialise LuckPerms si disponible
+     */
+    private void initLuckPerms() {
+        if (Bukkit.getPluginManager().getPlugin("LuckPerms") != null) {
+            try {
+                this.luckPerms = LuckPermsProvider.get();
+                this.luckPermsAvailable = true;
+                plugin.getQuantumLogger().success("✓ LuckPerms integration enabled for door permissions");
+            } catch (Exception e) {
+                plugin.getQuantumLogger().warning("⚠ LuckPerms found but failed to initialize for doors");
+                this.luckPermsAvailable = false;
+            }
+        } else {
+            plugin.getQuantumLogger().warning("⚠ LuckPerms not found - door permissions disabled");
+            this.luckPermsAvailable = false;
+        }
     }
     
     /**
@@ -154,54 +186,70 @@ public class TowerDoorManager {
     public void openDoor(String towerId, int floor, Player player) {
         String doorId = towerId + "_" + floor;
         DoorConfig config = doorConfigs.get(doorId);
-        
+
         if (config == null) {
             plugin.getQuantumLogger().debug("No door config for " + doorId);
             return;
         }
-        
+
         // Annuler la fermeture précédente si elle existe
         BukkitTask existingTask = doorCloseTasks.remove(doorId);
         if (existingTask != null) {
             existingTask.cancel();
         }
-        
+
+        // Révoquer l'ancienne permission si la porte était déjà ouverte
+        UUID previousOpener = doorOpeners.get(doorId);
+        if (previousOpener != null && luckPermsAvailable) {
+            // Révoquer pour l'étage suivant (floor+1)
+            revokeDoorPermission(previousOpener, towerId, floor + 1);
+        }
+
         // Sauvegarder et retirer les blocks
         Set<BlockSnapshot> snapshots = new HashSet<>();
         World world = config.getPos1().getWorld();
-        
+
         for (int x = config.getMinX(); x <= config.getMaxX(); x++) {
             for (int y = config.getMinY(); y <= config.getMaxY(); y++) {
                 for (int z = config.getMinZ(); z <= config.getMaxZ(); z++) {
                     Block block = world.getBlockAt(x, y, z);
-                    
+
                     // Ignorer l'air
                     if (block.getType() == Material.AIR) continue;
-                    
+
                     BlockSnapshot snapshot = new BlockSnapshot(block);
                     snapshots.add(snapshot);
-                    
+
                     // Retirer le block (remplacer par air)
                     block.setType(Material.AIR, false);
                 }
             }
         }
-        
+
         openedDoors.put(doorId, snapshots);
-        
+
+        // Enregistrer le joueur qui a ouvert la porte
+        if (player != null) {
+            doorOpeners.put(doorId, player.getUniqueId());
+
+            // Accorder la permission temporaire pour accéder à l'étage suivant
+            // Le joueur a complété l'étage actuel (floor) et peut maintenant accéder à l'étage suivant (floor+1)
+            grantDoorPermission(player, towerId, floor + 1);
+        }
+
         // Effets
         if (player != null) {
             player.sendMessage("§a§l✓ §aLa porte s'ouvre!");
             player.playSound(player.getLocation(), Sound.BLOCK_IRON_DOOR_OPEN, 1.0f, 0.8f);
         }
-        
+
         // Programmer la fermeture dans 1m30s (90 secondes)
         BukkitTask closeTask = Bukkit.getScheduler().runTaskLater(plugin, () -> {
             closeDoor(doorId, true);
         }, 90 * 20L); // 1m30s
-        
+
         doorCloseTasks.put(doorId, closeTask);
-        
+
         plugin.getQuantumLogger().info("Door opened: " + doorId + " (" + snapshots.size() + " blocks)");
     }
     
@@ -211,18 +259,36 @@ public class TowerDoorManager {
     private void closeDoor(String doorId, boolean timeout) {
         Set<BlockSnapshot> snapshots = openedDoors.remove(doorId);
         if (snapshots == null) return;
-        
+
         // Remettre tous les blocks
         for (BlockSnapshot snapshot : snapshots) {
             snapshot.restore();
         }
-        
+
+        // Révoquer la permission du joueur qui avait ouvert la porte
+        UUID opener = doorOpeners.remove(doorId);
+        if (opener != null && luckPermsAvailable) {
+            // Extraire towerId et floor depuis doorId
+            String[] parts = doorId.split("_");
+            if (parts.length >= 2) {
+                try {
+                    int lastUnderscore = doorId.lastIndexOf('_');
+                    String towerId = doorId.substring(0, lastUnderscore);
+                    int floor = Integer.parseInt(doorId.substring(lastUnderscore + 1));
+                    // Révoquer la permission pour l'étage suivant (floor+1)
+                    revokeDoorPermission(opener, towerId, floor + 1);
+                } catch (Exception e) {
+                    plugin.getQuantumLogger().warning("Failed to parse doorId for permission revocation: " + doorId);
+                }
+            }
+        }
+
         // Annuler la tâche de fermeture
         BukkitTask task = doorCloseTasks.remove(doorId);
         if (task != null) {
             task.cancel();
         }
-        
+
         if (timeout) {
             plugin.getQuantumLogger().info("Door closed (timeout): " + doorId);
         } else {
@@ -274,7 +340,97 @@ public class TowerDoorManager {
     public Set<String> getAllDoorIds() {
         return new HashSet<>(doorConfigs.keySet());
     }
-    
+
+    /**
+     * Accorde la permission temporaire au joueur pour accéder à l'étage suivant
+     * Permission format: quantum.tower.door.<towerId>.<floor>
+     * Durée: 90 secondes (1m30s)
+     */
+    private void grantDoorPermission(Player player, String towerId, int floor) {
+        if (!luckPermsAvailable) {
+            plugin.getQuantumLogger().debug("Cannot grant door permission - LuckPerms not available");
+            return;
+        }
+
+        String permission = "quantum.tower.door." + towerId + "." + floor;
+
+        try {
+            User user = luckPerms.getUserManager().getUser(player.getUniqueId());
+            if (user == null) {
+                plugin.getQuantumLogger().warning("Cannot grant permission - user not found: " + player.getName());
+                return;
+            }
+
+            // Créer un nœud de permission temporaire de 90 secondes
+            Node node = Node.builder(permission)
+                    .expiry(Duration.ofSeconds(90))
+                    .build();
+
+            // Ajouter la permission
+            user.data().add(node);
+            luckPerms.getUserManager().saveUser(user);
+
+            plugin.getQuantumLogger().info("Granted temporary door permission to " + player.getName() +
+                    ": " + permission + " (90s)");
+            player.sendMessage("§e⏱ §7Vous avez §e90 secondes §7pour passer dans la salle suivante!");
+        } catch (Exception e) {
+            plugin.getQuantumLogger().error("Failed to grant door permission: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Révoque la permission d'accès à la porte pour un joueur
+     */
+    private void revokeDoorPermission(UUID playerId, String towerId, int floor) {
+        if (!luckPermsAvailable) {
+            return;
+        }
+
+        String permission = "quantum.tower.door." + towerId + "." + floor;
+
+        try {
+            User user = luckPerms.getUserManager().getUser(playerId);
+            if (user == null) {
+                plugin.getQuantumLogger().debug("Cannot revoke permission - user not loaded: " + playerId);
+                return;
+            }
+
+            // Supprimer toutes les instances de cette permission
+            user.data().clear(node -> node.getKey().equals(permission));
+            luckPerms.getUserManager().saveUser(user);
+
+            plugin.getQuantumLogger().info("Revoked door permission for player: " + permission);
+        } catch (Exception e) {
+            plugin.getQuantumLogger().error("Failed to revoke door permission: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Vérifie si un joueur a la permission temporaire d'accéder à un étage spécifique
+     * Cette méthode est utilisée par ZoneManager pour contrôler l'accès
+     */
+    public boolean hasTemporaryAccess(UUID playerId, String towerId, int floor) {
+        if (!luckPermsAvailable) {
+            // Si LuckPerms n'est pas disponible, autoriser l'accès (comportement par défaut)
+            return true;
+        }
+
+        String permission = "quantum.tower.door." + towerId + "." + floor;
+
+        try {
+            User user = luckPerms.getUserManager().getUser(playerId);
+            if (user == null) {
+                return false;
+            }
+
+            // Vérifier si l'utilisateur a la permission (temporaire ou permanente)
+            return user.getCachedData().getPermissionData().checkPermission(permission).asBoolean();
+        } catch (Exception e) {
+            plugin.getQuantumLogger().error("Failed to check door permission: " + e.getMessage());
+            return false;
+        }
+    }
+
     // ==================== CLASSES INTERNES ====================
     
     public static class DoorConfig {

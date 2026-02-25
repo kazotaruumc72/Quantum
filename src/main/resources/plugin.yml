@@ -19,7 +19,6 @@ softdepend:
   - PlaceholderAPI
   - WorldGuard
   - MythicMobs
-  - BetterHealthBar
 
 commands:
   quantum:

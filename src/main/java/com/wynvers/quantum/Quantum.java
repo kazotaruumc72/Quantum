@@ -12,6 +12,8 @@ import com.wynvers.quantum.furniture.FurnitureManager;
 import com.wynvers.quantum.furniture.FurnitureListener;
 import com.wynvers.quantum.crops.CustomCropManager;
 import com.wynvers.quantum.crops.CustomCropListener;
+import com.wynvers.quantum.healthbar.HealthBarManager;
+import com.wynvers.quantum.healthbar.HealthBarListener;
 import com.wynvers.quantum.jobs.JobManager;
 import com.wynvers.quantum.jobs.JobListener;
 import com.wynvers.quantum.jobs.OrestackJobListener;
@@ -161,6 +163,9 @@ public final class Quantum extends JavaPlugin {
     // Chat System
     private com.wynvers.quantum.chat.ChatManager chatManager;
 
+    // HealthBar System
+    private HealthBarManager healthBarManager;
+
     // Utils
     private ActionExecutor actionExecutor;
 
@@ -266,6 +271,13 @@ public final class Quantum extends JavaPlugin {
         // PlaceholderAPI Integration
         this.placeholderAPIManager = new PlaceholderAPIManager(this);
 
+        // HealthBar System (BetterHealthBar integration)
+        this.healthBarManager = new HealthBarManager(this);
+        if (healthBarManager.isAvailable()) {
+            getServer().getPluginManager().registerEvents(new HealthBarListener(this, healthBarManager), this);
+            logger.success("✓ HealthBar System initialized (model-based)!");
+        }
+
         // Listeners globaux (hors tours / niveaux)
         registerListeners();
 
@@ -353,8 +365,11 @@ public final class Quantum extends JavaPlugin {
 
         // Configuration des tours (TowerManager)
         extractResource("towers.yml");
-        
+
         extractResource("tab_config.yml");
+
+        // HealthBar configuration
+        extractResource("healthbar.yml");
 
         logger.success("✓ Default resources extracted");
     }
@@ -818,6 +833,11 @@ public final class Quantum extends JavaPlugin {
             placeholderAPIManager.disable();
         }
 
+        if (healthBarManager != null) {
+            healthBarManager.cleanup();
+            logger.success("✓ HealthBar system cleaned up");
+        }
+
         if (storageManager != null) {
             storageManager.saveAll();
         }
@@ -856,6 +876,9 @@ public final class Quantum extends JavaPlugin {
         // TAB config reload
         loadTabConfig();
         if (tabManager != null) tabManager.reload();
+
+        // HealthBar reload
+        if (healthBarManager != null) healthBarManager.reload();
 
         RuneType.init(this);
         logger.success("✓ Dungeon armor & rune configs reloaded");
@@ -1076,5 +1099,9 @@ public final class Quantum extends JavaPlugin {
 
     public MobConfig getMobConfig() {
         return mobConfig;
+    }
+
+    public HealthBarManager getHealthBarManager() {
+        return healthBarManager;
     }
 }

@@ -1,0 +1,133 @@
+# ╔═══════════════════════════════════════════════════════════════════╗
+# ║             Quantum - BetterHealthBar Integration                ║
+# ║   Custom health bar addon using models instead of glyphs         ║
+# ╚═══════════════════════════════════════════════════════════════════╝
+
+# Enable/disable the health bar system
+enabled: true
+
+# Display settings
+display:
+  # Distance at which health bars are visible (in blocks)
+  view_distance: 32
+
+  # Update interval for health bars (in ticks, 20 ticks = 1 second)
+  update_interval: 5
+
+  # Show health bars above player heads
+  show_on_players: true
+
+  # Show health bars above mobs
+  show_on_mobs: true
+
+# Model configuration
+# Instead of using glyphs, we use Model Engine models for the health bar
+model:
+  # Enable model-based health bars
+  enabled: true
+
+  # Model ID from Model Engine (e.g., "health_bar_model")
+  model_id: "healthbar_model"
+
+  # Scale of the model
+  scale: 1.0
+
+  # Offset from entity head (Y axis)
+  y_offset: 0.5
+
+  # Animation speed (if model supports animations)
+  animation_speed: 1.0
+
+# Health bar appearance
+appearance:
+  # Show entity name above health bar
+  show_name: true
+
+  # Name format (supports PlaceholderAPI)
+  name_format: "&f%entity_name%"
+
+  # Show health value as text
+  show_health_text: true
+
+  # Health text format (supports placeholders: {current}, {max}, {percentage})
+  health_format: "&c{current}&7/&a{max} &7({percentage}%)"
+
+  # Color gradient based on health percentage
+  color_gradient:
+    enabled: true
+    # Color at 100% health (RGB format)
+    full_health: [0, 255, 0]      # Green
+    # Color at 50% health
+    medium_health: [255, 165, 0]   # Orange
+    # Color at 0% health
+    low_health: [255, 0, 0]        # Red
+
+# Entity-specific settings
+entities:
+  # Player health bars
+  players:
+    enabled: true
+    show_self: false
+    show_others: true
+    name_format: "&b%player_name% &7[%player_level%]"
+
+  # Mob health bars
+  mobs:
+    enabled: true
+    # Show health bars for vanilla mobs
+    vanilla:
+      enabled: true
+      zombies: true
+      skeletons: true
+      creepers: true
+      spiders: true
+      endermen: true
+      bosses: true
+
+    # Show health bars for MythicMobs (if available)
+    mythic_mobs:
+      enabled: true
+      # Custom name format for MythicMobs
+      name_format: "&6%mob_name%"
+
+# Boss health bars (special formatting)
+bosses:
+  enabled: true
+  # Use different model for bosses
+  use_custom_model: true
+  model_id: "boss_healthbar_model"
+  scale: 1.5
+  y_offset: 1.0
+  # Show boss health bar to all players in range
+  show_to_all: true
+
+# Integration with other Quantum systems
+integration:
+  # Show tower mob health bars differently
+  tower_mobs:
+    enabled: true
+    name_format: "&c[Tower] &6%mob_name%"
+    # Show floor level in health bar
+    show_floor_level: true
+
+  # Show dungeon armor stats on player health bars
+  show_armor_stats: false
+
+  # PlaceholderAPI integration
+  placeholderapi:
+    enabled: true
+    # Custom placeholders for health bars
+    placeholders:
+      - "%quantum_player_level%"
+      - "%quantum_job%"
+
+# Performance settings
+performance:
+  # Max health bars rendered per tick
+  max_renders_per_tick: 50
+
+  # Cache health bar models
+  cache_models: true
+
+  # Update only visible health bars
+  update_only_visible: true

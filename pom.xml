@@ -60,12 +60,6 @@
             <id>jitpack-orestack</id>
             <url>https://jitpack.io</url>
         </repository>
-
-        <!-- BetterHealthBar -->
-        <repository>
-            <id>jitpack-betterhealthbar</id>
-            <url>https://jitpack.io</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -170,14 +164,6 @@
                     <artifactId>VoxelSpigot</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-
-        <!-- BetterHealthBar3 API - https://github.com/toxicity188/BetterHealthBar3 -->
-        <dependency>
-            <groupId>com.github.toxicity188</groupId>
-            <artifactId>BetterHealthBar3</artifactId>
-            <version>1.9.7</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

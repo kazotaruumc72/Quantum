@@ -90,7 +90,7 @@ public class FloorClearTimeManager {
         }
 
         // Persist asynchronously
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> saveRecord(uuid, towerId, floor, timeMs));
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> saveRecord(uuid, name, towerId, floor, timeMs));
     }
 
     /**
@@ -136,7 +136,7 @@ public class FloorClearTimeManager {
             Connection conn = plugin.getDatabaseManager().getConnection();
             if (conn == null) return;
 
-            String sql = "SELECT uuid, tower_id, floor, clear_time_ms FROM quantum_floor_clear_times ORDER BY clear_time_ms ASC";
+            String sql = "SELECT uuid, tower_id, floor, clear_time_ms, player_name FROM quantum_floor_clear_times ORDER BY clear_time_ms ASC";
             try (PreparedStatement ps = conn.prepareStatement(sql);
                  ResultSet rs = ps.executeQuery()) {
 
@@ -145,9 +145,8 @@ public class FloorClearTimeManager {
                     String towerId = rs.getString("tower_id");
                     int floor = rs.getInt("floor");
                     long timeMs = rs.getLong("clear_time_ms");
-
-                    String playerName = org.bukkit.Bukkit.getOfflinePlayer(uuid).getName();
-                    if (playerName == null) playerName = "Unknown";
+                    String playerName = rs.getString("player_name");
+                    if (playerName == null || playerName.isEmpty()) playerName = "Unknown";
 
                     String key = cacheKey(towerId, floor);
                     leaderboardCache.computeIfAbsent(key, k -> new ArrayList<>())
@@ -169,21 +168,23 @@ public class FloorClearTimeManager {
         }
     }
 
-    private void saveRecord(UUID uuid, String towerId, int floor, long timeMs) {
+    private void saveRecord(UUID uuid, String playerName, String towerId, int floor, long timeMs) {
         try {
             Connection conn = plugin.getDatabaseManager().getConnection();
             if (conn == null) return;
 
             // INSERT or UPDATE only if new time is better
-            String sql = "INSERT INTO quantum_floor_clear_times (uuid, tower_id, floor, clear_time_ms) "
-                    + "VALUES (?, ?, ?, ?) "
-                    + "ON DUPLICATE KEY UPDATE clear_time_ms = LEAST(clear_time_ms, VALUES(clear_time_ms))";
+            String sql = "INSERT INTO quantum_floor_clear_times (uuid, tower_id, floor, clear_time_ms, player_name) "
+                    + "VALUES (?, ?, ?, ?, ?) "
+                    + "ON DUPLICATE KEY UPDATE clear_time_ms = LEAST(clear_time_ms, VALUES(clear_time_ms)), "
+                    + "player_name = IF(VALUES(clear_time_ms) < clear_time_ms, VALUES(player_name), player_name)";
 
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, uuid.toString());
                 ps.setString(2, towerId);
                 ps.setInt(3, floor);
                 ps.setLong(4, timeMs);
+                ps.setString(5, playerName);
                 ps.executeUpdate();
             }
         } catch (SQLException e) {

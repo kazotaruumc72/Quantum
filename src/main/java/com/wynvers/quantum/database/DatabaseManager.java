@@ -103,8 +103,8 @@ public class DatabaseManager {
                     "tower_id VARCHAR(64) NOT NULL," +
                     "floor INT NOT NULL," +
                     "clear_time_ms BIGINT NOT NULL," +
-                    "completed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP " +
-                    "ON UPDATE CURRENT_TIMESTAMP," +
+                    "player_name VARCHAR(64) NOT NULL DEFAULT ''," +
+                    "completed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," +
                     "PRIMARY KEY (uuid, tower_id, floor)" +
                     ")");
             

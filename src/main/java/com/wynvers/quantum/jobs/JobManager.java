@@ -86,6 +86,8 @@ public class JobManager {
             // Load per-mob reward maps for vanilla and MythicMobs mobs
             Map<String, double[]> mobRewards = loadItemRewardMap(jobSection, "mob_rewards");
             Map<String, double[]> mmobsRewards = loadItemRewardMap(jobSection, "valid_mmobs_mob");
+            // Load per-mob reward maps for vanilla mobs
+            Map<String, double[]> mobRewards = loadItemRewardMap(jobSection, "mob_rewards");
 
             // Charger les actions autorisées
             Map<String, Boolean> allowedActions = new HashMap<>();
@@ -99,6 +101,7 @@ public class JobManager {
             Job job = new Job(jobId, displayName, description, icon, maxLevel,
                 validOrestackStructures, validNexoBlocks, validNexoFurniture,
                 mobRewards, mmobsRewards, allowedActions);
+                mobRewards, allowedActions);
             
             // Charger les récompenses de niveau
             ConfigurationSection rewardsSection = jobSection.getConfigurationSection("level_rewards");
@@ -621,193 +624,6 @@ public class JobManager {
         }
     }
     
-    /**
-     * Traite l'interaction avec un block/furniture Nexo
-     */
-    public void handleNexoInteraction(Player player, String nexoId, boolean isFurniture) {
-        JobData jobData = playerJobs.get(player.getUniqueId());
-        if (jobData == null) {
-            return;
-        }
-        
-        Job job = jobs.get(jobData.getJobId());
-        if (job == null) return;
-        
-        // Vérifier si le block/furniture est valide pour ce métier
-        boolean isValid = isFurniture ? job.isValidNexoFurniture(nexoId) : job.isValidNexoBlock(nexoId);
-        if (!isValid) {
-            return;
-        }
-        
-        // Utiliser les récompenses par item si définies, sinon utiliser les récompenses globales
-        double[] itemRewards = isFurniture ? job.getNexoFurnitureRewards(nexoId) : job.getNexoBlockRewards(nexoId);
-        String sectionKey = isFurniture ? "nexo_furniture" : "nexo_block";
-        ConfigurationSection actionRewards = config.getConfigurationSection("action_rewards." + sectionKey);
-        double[] resolved = resolveRewards(itemRewards, actionRewards);
-        if (resolved == null) return;
-
-        int baseExp = (int) resolved[0];
-        double baseMoney = resolved[1];
-        
-        // Vérifier si le joueur est dans un donjon
-        boolean inDungeon = isPlayerInDungeon(player);
-
-        // Appliquer les multiplicateurs (includes dungeon utils bonus)
-        double expMultiplier = getExpMultiplier(player, inDungeon);
-        double moneyMultiplier = getMoneyMultiplier(player, inDungeon);
-        
-        int finalExp = (int) (baseExp * expMultiplier);
-        double finalMoney = baseMoney * moneyMultiplier;
-        
-        // Donner XP et argent
-        if (finalExp > 0) {
-            addExp(player.getUniqueId(), finalExp);
-        }
-        
-        Economy economy = plugin.getVaultManager().getEconomy();
-        if (economy != null && finalMoney > 0) {
-            economy.depositPlayer(player, finalMoney);
-        }
-        
-        // Message
-        if (finalExp > 0 || finalMoney > 0) {
-            String message = config.getString("messages.nexo_interaction", 
-                "&7+{exp} XP {job_name} &7| +{money}$")
-                .replace("{exp}", String.valueOf(finalExp))
-                .replace("{job_name}", job.getDisplayName())
-                .replace("{money}", String.format("%.1f", finalMoney))
-                .replace("{nexo_id}", nexoId);
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
-        }
-    }
-    
-    /**
-     * Traite l'interaction avec un mob Quantum/MythicMobs
-     * @param player Le joueur
-     * @param actionType Le type d'action (hit_quantum, kill_quantum)
-     * @param mobType Le type de mob MythicMobs
-     */
-    public void handleQuantumAction(Player player, String actionType, String mobType) {
-        JobData jobData = playerJobs.get(player.getUniqueId());
-        if (jobData == null) {
-            return;
-        }
-        
-        Job job = jobs.get(jobData.getJobId());
-        if (job == null) return;
-        
-        // Vérifier si l'action est autorisée pour ce métier
-        if (!job.isActionAllowed(actionType)) {
-            return;
-        }
-        
-        // Récupérer les récompenses par mob si définies, sinon utiliser les récompenses globales
-        double[] mobReward = job.getQuantumMobReward(mobType);
-        ConfigurationSection actionRewards = config.getConfigurationSection("action_rewards." + actionType);
-        double[] resolved = resolveRewards(mobReward, actionRewards);
-        if (resolved == null) return;
-
-        int baseExp = (int) resolved[0];
-        double baseMoney = resolved[1];
-        
-        // Vérifier si le joueur est dans un donjon
-        boolean inDungeon = isPlayerInDungeon(player);
-
-        // Appliquer les multiplicateurs (includes dungeon utils bonus)
-        double expMultiplier = getExpMultiplier(player, inDungeon);
-        double moneyMultiplier = getMoneyMultiplier(player, inDungeon);
-        
-        int finalExp = (int) (baseExp * expMultiplier);
-        double finalMoney = baseMoney * moneyMultiplier;
-        
-        // Donner XP et argent
-        if (finalExp > 0) {
-            addExp(player.getUniqueId(), finalExp);
-        }
-        
-        Economy economy = plugin.getVaultManager().getEconomy();
-        if (economy != null && finalMoney > 0) {
-            economy.depositPlayer(player, finalMoney);
-        }
-        
-        // Message
-        if (finalExp > 0 || finalMoney > 0) {
-            String message = config.getString("messages.quantum_action", 
-                "&7+{exp} XP {job_name} &7| +{money}$")
-                .replace("{exp}", String.valueOf(finalExp))
-                .replace("{job_name}", job.getDisplayName())
-                .replace("{money}", String.format("%.1f", finalMoney))
-                .replace("{mob_type}", mobType)
-                .replace("{action}", actionType);
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
-        }
-    }
-
-    /**
-     * Traite l'interaction avec une structure Orestack
-     * @param player Le joueur qui interagit avec la structure
-     * @param structureId L'ID de la structure Orestack
-     */
-    public void handleOrestackStructure(Player player, String structureId) {
-        JobData jobData = playerJobs.get(player.getUniqueId());
-        if (jobData == null) {
-            return;
-        }
-
-        Job job = jobs.get(jobData.getJobId());
-        if (job == null) return;
-
-        // Vérifier si la structure Orestack est valide pour ce métier
-        if (!job.isValidOrestackStructure(structureId)) {
-            return;
-        }
-
-        // Vérifier si c'est un générateur (seuls les générateurs donnent de l'XP)
-        if (!structureId.toLowerCase().contains("generator")) {
-            return;
-        }
-
-        // Récupérer les récompenses par structure si définies, sinon utiliser les récompenses globales
-        double[] itemRewards = job.getOrestackRewards(structureId);
-        ConfigurationSection actionRewards = config.getConfigurationSection("action_rewards.orestack_structure");
-        double[] resolved = resolveRewards(itemRewards, actionRewards);
-        if (resolved == null) return;
-
-        int baseExp = (int) resolved[0];
-        double baseMoney = resolved[1];
-
-        // Vérifier si le joueur est dans un donjon
-        boolean inDungeon = isPlayerInDungeon(player);
-
-        // Appliquer les multiplicateurs (includes dungeon utils bonus)
-        double expMultiplier = getExpMultiplier(player, inDungeon);
-        double moneyMultiplier = getMoneyMultiplier(player, inDungeon);
-
-        int finalExp = (int) (baseExp * expMultiplier);
-        double finalMoney = baseMoney * moneyMultiplier;
-
-        // Donner XP et argent
-        if (finalExp > 0) {
-            addExp(player.getUniqueId(), finalExp);
-        }
-
-        Economy economy = plugin.getVaultManager().getEconomy();
-        if (economy != null && finalMoney > 0) {
-            economy.depositPlayer(player, finalMoney);
-        }
-
-        // Message
-        if (finalExp > 0 || finalMoney > 0) {
-            String message = config.getString("messages.orestack_interaction",
-                "&7+{exp} XP {job_name} &7| +{money}$")
-                .replace("{exp}", String.valueOf(finalExp))
-                .replace("{job_name}", job.getDisplayName())
-                .replace("{money}", String.format("%.1f", finalMoney))
-                .replace("{structure_id}", structureId);
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
-        }
-    }
-
     /**
      * Vérifie si un joueur est dans un donjon
      */

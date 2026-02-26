@@ -5,7 +5,6 @@
 # Système de métiers complet avec progression
 # - Courbe d'XP identique au système de niveau du donjon
 # - Récompenses automatiques en serpent
-# - Support Nexo et MythicMobs
 
 # Configuration des jobs
 jobs:
@@ -19,47 +18,15 @@ jobs:
     icon: "minecraft:IRON_AXE"
     max_level: 100
     
-    # Structures Orestack valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
-    valid_orestack_structures:
-      oak_generator:
-        exp: 5
-        money: 2
-      birch_generator:
-        exp: 6
-        money: 2.5
-      jungle_tree_generator:
-        exp: 8
-        money: 3.5
-
-    # Blocks Nexo valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
-    valid_nexo_blocks:
-      magic_log_block:
-        exp: 10
-        money: 5
-      ancient_wood:
-        exp: 15
-        money: 8
-    
-    # Furniture Nexo valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
-    valid_nexo_furniture:
-      workbench_table:
-        exp: 8
-        money: 3
-      lumber_station:
-        exp: 12
-        money: 6
-    
     # Actions autorisées pour ce job
     allowed_actions:
       break: true     # Casser des blocs (vanilla)
       place: false    # Placer des blocs
       hit: false      # Frapper des entités (vanilla)
-      hit_quantum: false  # Frapper des mobs Quantum/MythicMobs
       fish: false     # Pêcher
       drink: false    # Boire des potions
       eat: false      # Manger
       kill: false     # Tuer des mobs (vanilla)
-      kill_quantum: false  # Tuer des mobs Quantum/MythicMobs
     
     # Récompenses par niveau (placement automatique en serpent)
     level_rewards:
@@ -115,47 +82,15 @@ jobs:
     icon: "minecraft:IRON_PICKAXE"
     max_level: 100
     
-    # Structures Orestack valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
-    valid_orestack_structures:
-      iron_ore_generator:
-        exp: 8
-        money: 4
-      gold_ore_generator:
-        exp: 12
-        money: 7
-      diamond_ore_generator:
-        exp: 20
-        money: 15
-
-    # Blocks Nexo valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
-    valid_nexo_blocks:
-      ore_vein:
-        exp: 10
-        money: 5
-      crystal_deposit:
-        exp: 18
-        money: 10
-    
-    # Furniture Nexo valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
-    valid_nexo_furniture:
-      forge_anvil:
-        exp: 7
-        money: 3
-      mining_station:
-        exp: 12
-        money: 6
-    
     # Actions autorisées pour ce job
     allowed_actions:
       break: true     # Casser des blocs (minerais vanilla)
       place: false    # Placer des blocs
       hit: true       # Frapper des entités (vanilla)
-      hit_quantum: false  # Frapper des mobs Quantum/MythicMobs
       fish: false     # Pêcher
       drink: false    # Boire des potions
       eat: false      # Manger
       kill: false     # Tuer des mobs (vanilla)
-      kill_quantum: false  # Tuer des mobs Quantum/MythicMobs
     
     level_rewards:
       5:
@@ -187,10 +122,6 @@ jobs:
       - "&7Spécialisé dans les mobs mythiques."
     icon: "minecraft:DIAMOND_SWORD"
     max_level: 100
-    
-    valid_orestack_structures: {}
-    valid_nexo_blocks: {}
-    valid_nexo_furniture: {}
 
     # Récompenses par mob vanilla (chaque entrée précise l'exp et l'argent gagnés)
     mob_rewards:
@@ -255,12 +186,10 @@ jobs:
       break: false    # Casser des blocs
       place: false    # Placer des blocs
       hit: true       # Frapper des entités (vanilla)
-      hit_quantum: true   # Frapper des mobs Quantum/MythicMobs
       fish: false     # Pêcher
       drink: false    # Boire des potions
       eat: false      # Manger
       kill: true      # Tuer des mobs (vanilla)
-      kill_quantum: true  # Tuer des mobs Quantum/MythicMobs
     
     level_rewards:
       5:
@@ -316,29 +245,6 @@ action_rewards:
   kill:       # Tuer un mob vanilla
     exp: 8
     money: 3
-  
-  # Actions pour mobs Quantum/MythicMobs
-  hit_quantum:      # Frapper un mob Quantum/MythicMobs
-    exp: 5
-    money: 1.5
-  
-  kill_quantum:     # Tuer un mob Quantum/MythicMobs
-    exp: 15
-    money: 8
-
-  # Récompenses pour interactions Nexo (valeurs par défaut si non précisé au niveau de l'item)
-  nexo_block:      # Interaction avec un block Nexo
-    exp: 5
-    money: 2
-  
-  nexo_furniture:  # Interaction avec furniture Nexo
-    exp: 7
-    money: 3
-
-  # Récompenses pour interactions avec structures Orestack (valeurs par défaut si non précisé au niveau de la structure)
-  orestack_structure:  # Interaction avec une structure Orestack
-    exp: 8
-    money: 4
 
 # Types de boosters
 boosters:
@@ -376,9 +282,6 @@ messages:
   job_max_level: "&6✦ Vous avez atteint le niveau maximum de {job_name}!"
   job_left: "&cVous avez quitté le métier: {job_name}"
   action_performed: "&7+{exp} XP {job_name} &7| +{money}$"
-  nexo_interaction: "&7+{exp} XP {job_name} &7| +{money}$ &7({nexo_id})"
-  quantum_action: "&7+{exp} XP {job_name} &7| +{money}$ &d({mob_type})"
-  orestack_interaction: "&7+{exp} XP {job_name} &7| +{money}$ &9(Orestack: {structure_id})"
 
   # Messages pour le système de preview (NOUVEAU)
   preview_hint: "&8[&7Clic droit pour aperçu&8]"

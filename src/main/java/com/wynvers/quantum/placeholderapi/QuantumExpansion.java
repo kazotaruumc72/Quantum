@@ -251,7 +251,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
                     totalRemaining += Math.max(0, req.getAmount() - killed);
                 }
                 if (totalRequired <= 0) return "0";
-                int pct = (int) ((totalRemaining * 100.0) / totalRequired);
+                int pct = (int) (((totalRequired - totalRemaining) * 100.0) / totalRequired);
                 return String.valueOf(pct);
             }
 

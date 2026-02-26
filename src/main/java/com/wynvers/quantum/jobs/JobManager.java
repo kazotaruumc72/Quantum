@@ -77,7 +77,6 @@ public class JobManager {
             List<String> description = jobSection.getStringList("description");
             String icon = jobSection.getString("icon", "minecraft:STONE");
             int maxLevel = jobSection.getInt("max_level", 100);
-            List<String> validStructures = jobSection.getStringList("valid_structures");
             List<String> validOrestackStructures = jobSection.getStringList("valid_orestack_structures");
             List<String> validNexoBlocks = jobSection.getStringList("valid_nexo_blocks");
             List<String> validNexoFurniture = jobSection.getStringList("valid_nexo_furniture");
@@ -92,7 +91,7 @@ public class JobManager {
             }
 
             Job job = new Job(jobId, displayName, description, icon, maxLevel,
-                validStructures, validOrestackStructures, validNexoBlocks, validNexoFurniture, allowedActions);
+                validOrestackStructures, validNexoBlocks, validNexoFurniture, allowedActions);
             
             // Charger les récompenses de niveau
             ConfigurationSection rewardsSection = jobSection.getConfigurationSection("level_rewards");
@@ -515,49 +514,6 @@ public class JobManager {
     }
     
     /**
-     * Traite l'action onTap sur une structure
-     */
-    public void handleStructureTap(Player player, String structureId, String structureState) {
-        JobData jobData = playerJobs.get(player.getUniqueId());
-        if (jobData == null) {
-            return;
-        }
-        
-        Job job = jobs.get(jobData.getJobId());
-        if (job == null) return;
-        
-        // Vérifier si la structure est valide pour ce métier
-        if (!job.isValidStructure(structureId)) {
-            return;
-        }
-        
-        // Récupérer les récompenses de l'action
-        ConfigurationSection actionRewards = config.getConfigurationSection("action_rewards.structure_tap." + structureState.toLowerCase());
-        if (actionRewards == null) return;
-        
-        int baseExp = actionRewards.getInt("exp", 0);
-        double baseMoney = actionRewards.getDouble("money", 0.0);
-        
-        // Vérifier si le joueur est dans un donjon
-        boolean inDungeon = isPlayerInDungeon(player);
-
-        // Appliquer les multiplicateurs (includes dungeon utils bonus)
-        double expMultiplier = getExpMultiplier(player, inDungeon);
-        double moneyMultiplier = getMoneyMultiplier(player, inDungeon);
-        
-        int finalExp = (int) (baseExp * expMultiplier);
-        double finalMoney = baseMoney * moneyMultiplier;
-        
-        // Donner XP et argent
-        addExp(player.getUniqueId(), finalExp);
-        
-        Economy economy = plugin.getVaultManager().getEconomy();
-        if (economy != null && finalMoney > 0) {
-            economy.depositPlayer(player, finalMoney);
-        }
-    }
-    
-    /**
      * Traite une action générique pour un job
      * @param player Le joueur qui effectue l'action
      * @param actionType Type d'action (break, place, hit, fish, drink, eat, kill)
@@ -965,14 +921,5 @@ public class JobManager {
      */
     public ActionPreview getActionPreview() {
         return actionPreview;
-    }
-    
-    /**
-     * Affiche une preview de l'action de tap sur une structure
-     */
-    public void showStructureTapPreview(Player player, String structureId, String structureState) {
-        if (actionPreview != null) {
-            actionPreview.showStructureTapPreview(player, structureId, structureState);
-        }
     }
 }

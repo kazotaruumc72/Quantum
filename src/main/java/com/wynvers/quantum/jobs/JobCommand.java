@@ -218,10 +218,6 @@ public class JobCommand implements CommandExecutor {
         
         player.sendMessage("");
         player.sendMessage(ChatColor.GRAY + "Niveau maximum: " + ChatColor.WHITE + job.getMaxLevel());
-        player.sendMessage(ChatColor.GRAY + "Structures valides:");
-        for (String structure : job.getValidStructures()) {
-            player.sendMessage(ChatColor.DARK_GRAY + "  - " + ChatColor.WHITE + structure);
-        }
     }
     
     private void showRewards(Player player) {

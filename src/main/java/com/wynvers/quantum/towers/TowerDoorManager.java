@@ -252,6 +252,24 @@ public class TowerDoorManager {
             grantDoorPermission(player, towerId, floor + 1);
         }
 
+        // Update per-player block views: authorized player sees AIR, others see BARRIER
+        // Only update players who are within visible range of the door
+        final UUID openerUUID = player != null ? player.getUniqueId() : null;
+        Location doorCenter = new Location(world,
+                (config.getMinX() + config.getMaxX()) / 2.0,
+                (config.getMinY() + config.getMaxY()) / 2.0,
+                (config.getMinZ() + config.getMaxZ()) / 2.0);
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            if (onlinePlayer.getWorld().equals(world)
+                    && onlinePlayer.getLocation().distanceSquared(doorCenter) <= 64 * 64) {
+                if (openerUUID != null && onlinePlayer.getUniqueId().equals(openerUUID)) {
+                    showAirView(onlinePlayer, towerId, floor);
+                } else {
+                    showBarrierView(onlinePlayer, towerId, floor);
+                }
+            }
+        }
+
         // Effets
         if (player != null) {
             player.sendTitle("§a§lPorte ouverte!", "§7Vous avez §e90 secondes §7pour passer.", 10, 60, 20);
@@ -492,6 +510,52 @@ public class TowerDoorManager {
         } catch (Exception e) {
             plugin.getQuantumLogger().error("Failed to check door permission: " + e.getMessage());
             return false;
+        }
+    }
+
+    // ==================== BLOCK VIEW HELPERS ====================
+
+    /**
+     * Sends fake BARRIER block visuals to a player for all blocks in the door area.
+     * The actual world blocks are not changed.
+     * Used to visually block unauthorized players from entering.
+     */
+    public void showBarrierView(Player player, String towerId, int floor) {
+        String doorId = towerId + "_" + floor;
+        DoorConfig config = doorConfigs.get(doorId);
+        if (config == null) {
+            plugin.getQuantumLogger().debug("showBarrierView: no door config for " + doorId);
+            return;
+        }
+        World world = config.getPos1().getWorld();
+        for (int x = config.getMinX(); x <= config.getMaxX(); x++) {
+            for (int y = config.getMinY(); y <= config.getMaxY(); y++) {
+                for (int z = config.getMinZ(); z <= config.getMaxZ(); z++) {
+                    player.sendBlockChange(new Location(world, x, y, z), Material.BARRIER.createBlockData());
+                }
+            }
+        }
+    }
+
+    /**
+     * Sends fake AIR block visuals to a player for all blocks in the door area.
+     * The actual world blocks are not changed.
+     * Used to show authorized players that the passage is open.
+     */
+    public void showAirView(Player player, String towerId, int floor) {
+        String doorId = towerId + "_" + floor;
+        DoorConfig config = doorConfigs.get(doorId);
+        if (config == null) {
+            plugin.getQuantumLogger().debug("showAirView: no door config for " + doorId);
+            return;
+        }
+        World world = config.getPos1().getWorld();
+        for (int x = config.getMinX(); x <= config.getMaxX(); x++) {
+            for (int y = config.getMinY(); y <= config.getMaxY(); y++) {
+                for (int z = config.getMinZ(); z <= config.getMaxZ(); z++) {
+                    player.sendBlockChange(new Location(world, x, y, z), Material.AIR.createBlockData());
+                }
+            }
         }
     }
 

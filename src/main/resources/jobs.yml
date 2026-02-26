@@ -51,6 +51,18 @@ jobs:
         exp: 10
         money: 5
 
+    # Structures Orestack valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
+    valid_orestack_structures:
+      wood_pile:
+        exp: 12
+        money: 6
+      tree_stump:
+        exp: 8
+        money: 4
+      fallen_log:
+        exp: 10
+        money: 5
+
     # Récompenses par niveau (placement automatique en serpent)
     level_rewards:
       # Niveau 5
@@ -108,6 +120,18 @@ jobs:
     # Blocs Nexo valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
     valid_nexo_blocks:
       compressed_stone:
+        exp: 8
+        money: 4
+
+    # Furnitures Nexo valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
+    valid_nexo_furniture:
+      mining_cart:
+        exp: 12
+        money: 6
+      ore_crate:
+        exp: 10
+        money: 5
+      crystal_lamp:
         exp: 8
         money: 4
 

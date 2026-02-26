@@ -15,20 +15,30 @@ public class Job {
     private final List<String> description;
     private final String icon;
     private final int maxLevel;
+    private final Map<String, double[]> validOrestackStructures;
+    private final Map<String, double[]> validNexoBlocks;
+    private final Map<String, double[]> validNexoFurniture;
     // Maps mob type -> [exp, money] for vanilla mobs (-1 means use global default)
     private final Map<String, double[]> mobRewards;
+    private final Map<String, double[]> mmobsRewards;
     private final Map<String, Boolean> allowedActions;  // Action type -> enabled
     private final Map<Integer, List<JobReward>> levelRewards;
 
     public Job(String id, String displayName, List<String> description, String icon,
-               int maxLevel, Map<String, double[]> mobRewards,
+               int maxLevel, Map<String, double[]> validOrestackStructures,
+               Map<String, double[]> validNexoBlocks, Map<String, double[]> validNexoFurniture,
+               Map<String, double[]> mobRewards, Map<String, double[]> mmobsRewards,
                Map<String, Boolean> allowedActions) {
         this.id = id;
         this.displayName = displayName;
         this.description = description;
         this.icon = icon;
         this.maxLevel = maxLevel;
+        this.validOrestackStructures = validOrestackStructures != null ? validOrestackStructures : new HashMap<>();
+        this.validNexoBlocks = validNexoBlocks != null ? validNexoBlocks : new HashMap<>();
+        this.validNexoFurniture = validNexoFurniture != null ? validNexoFurniture : new HashMap<>();
         this.mobRewards = mobRewards != null ? mobRewards : new HashMap<>();
+        this.mmobsRewards = mmobsRewards != null ? mmobsRewards : new HashMap<>();
         this.allowedActions = allowedActions != null ? allowedActions : new HashMap<>();
         this.levelRewards = new HashMap<>();
     }
@@ -53,11 +63,27 @@ public class Job {
         return maxLevel;
     }
 
+    public Map<String, double[]> getValidOrestackStructures() {
+        return validOrestackStructures;
+    }
+
+    public Map<String, double[]> getValidNexoBlocks() {
+        return validNexoBlocks;
+    }
+
+    public Map<String, double[]> getValidNexoFurniture() {
+        return validNexoFurniture;
+    }
+
     /**
      * Returns per-mob rewards for vanilla mobs. Array: [exp, money] (-1 = use global default).
      */
     public Map<String, double[]> getMobRewards() {
         return mobRewards;
+    }
+
+    public Map<String, double[]> getMmobsRewards() {
+        return mmobsRewards;
     }
     
     public Map<String, Boolean> getAllowedActions() {

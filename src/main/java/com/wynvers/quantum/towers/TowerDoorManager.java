@@ -188,7 +188,10 @@ public class TowerDoorManager {
         DoorConfig config = doorConfigs.get(doorId);
 
         if (config == null) {
-            plugin.getQuantumLogger().debug("No door config for " + doorId);
+            plugin.getQuantumLogger().warning("No door config for " + doorId + " - use /tower door create to set it up");
+            if (player != null) {
+                player.sendMessage("§c§l[Tour] §cTous les monstres sont tués mais la porte n'est pas configurée. Contactez un administrateur.");
+            }
             return;
         }
 
@@ -239,6 +242,7 @@ public class TowerDoorManager {
 
         // Effets
         if (player != null) {
+            player.sendTitle("§a§lPorte ouverte!", "§7Vous avez §e90 secondes §7pour passer.", 10, 60, 20);
             player.sendMessage("§a§l✓ §aLa porte s'ouvre!");
             player.playSound(player.getLocation(), Sound.BLOCK_IRON_DOOR_OPEN, 1.0f, 0.8f);
         }

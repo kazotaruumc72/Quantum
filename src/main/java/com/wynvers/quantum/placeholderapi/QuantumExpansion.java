@@ -331,6 +331,27 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return String.format("%.1f", percentage);
         }
 
+        // ===========================
+        // TOWER TOP POSITION
+        // ===========================
+        if (p.matches("tower_top_pos_\\d+")) {
+            if (plugin.getTowerManager() == null) return "N/A";
+            int position;
+            try {
+                position = Integer.parseInt(p.substring("tower_top_pos_".length()));
+            } catch (NumberFormatException e) {
+                return "N/A";
+            }
+            java.util.List<java.util.Map.Entry<java.util.UUID, Integer>> topPlayers =
+                    plugin.getTowerManager().getTopPlayers(position);
+            if (topPlayers.size() >= position) {
+                java.util.UUID topUuid = topPlayers.get(position - 1).getKey();
+                org.bukkit.OfflinePlayer topPlayer = Bukkit.getOfflinePlayer(topUuid);
+                return topPlayer.getName() != null ? topPlayer.getName() : "Unknown";
+            }
+            return "N/A";
+        }
+
         // ==============
         // STORAGE
         // ==============

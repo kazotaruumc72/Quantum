@@ -492,7 +492,7 @@ public class PlaceholderManager {
             return Integer.toString(pct);
         }
 
-        // Mob list for the current floor's door requirement
+        // Mob list for the current floor's door requirement (shows remaining count)
         if (params.equals("tower_mob_list")) {
             if (currentTowerId == null || currentTowerId.isEmpty()) return "";
             int floor = progress.getCurrentFloor();
@@ -507,10 +507,33 @@ public class PlaceholderManager {
                 String mobName = req.getSource() == com.wynvers.quantum.towers.FloorMobRequirement.MobSource.MYTHICMOBS
                         ? req.getMythicId()
                         : req.getEntityType().name();
-                sb.append(mobName).append(" x").append(req.getAmount());
+                int killed = progress.getFloorMobKills(currentTowerId, floor, req.getKey());
+                int remaining = Math.max(0, req.getAmount() - killed);
+                sb.append(mobName).append(" x").append(remaining);
                 if (i < reqs.size() - 1) sb.append(", ");
             }
             return sb.toString();
+        }
+
+        // Remaining mob kills as a percentage (without % symbol)
+        if (params.equals("tower_mob_remaining_percentage")) {
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
+            int floor = progress.getCurrentFloor();
+            if (floor <= 0) return "0";
+            com.wynvers.quantum.towers.TowerConfig tower = towerManager.getTower(currentTowerId);
+            if (tower == null) return "0";
+            java.util.List<com.wynvers.quantum.towers.FloorMobRequirement> reqs = tower.getFloorMobRequirements(floor);
+            if (reqs.isEmpty()) return "0";
+            int totalRequired = 0;
+            int totalRemaining = 0;
+            for (com.wynvers.quantum.towers.FloorMobRequirement req : reqs) {
+                totalRequired += req.getAmount();
+                int killed = progress.getFloorMobKills(currentTowerId, floor, req.getKey());
+                totalRemaining += Math.max(0, req.getAmount() - killed);
+            }
+            if (totalRequired <= 0) return "0";
+            int pct = (int) ((totalRemaining * 100.0) / totalRequired);
+            return Integer.toString(pct);
         }
 
         // Next semi-boss floor (excludes final boss)

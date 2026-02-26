@@ -225,10 +225,34 @@ public class QuantumExpansion extends PlaceholderExpansion {
                     String mobName = req.getSource() == com.wynvers.quantum.towers.FloorMobRequirement.MobSource.MYTHICMOBS
                             ? req.getMythicId()
                             : req.getEntityType().name();
-                    sb.append(mobName).append(" x").append(req.getAmount());
+                    int killed = progress.getFloorMobKills(towerId, floor, req.getKey());
+                    int remaining = Math.max(0, req.getAmount() - killed);
+                    sb.append(mobName).append(" x").append(remaining);
                     if (i < reqs.size() - 1) sb.append(", ");
                 }
                 return sb.toString();
+            }
+
+            if (p.equals("tower_mob_remaining_percentage")) {
+                if (plugin.getTowerManager() == null) return "0";
+                var progress = plugin.getTowerManager().getProgress(player.getUniqueId());
+                String towerId = progress.getCurrentTower();
+                int floor = progress.getCurrentFloor();
+                if (towerId == null || floor <= 0) return "0";
+                var tower = plugin.getTowerManager().getTower(towerId);
+                if (tower == null) return "0";
+                var reqs = tower.getFloorMobRequirements(floor);
+                if (reqs.isEmpty()) return "0";
+                int totalRequired = 0;
+                int totalRemaining = 0;
+                for (var req : reqs) {
+                    totalRequired += req.getAmount();
+                    int killed = progress.getFloorMobKills(towerId, floor, req.getKey());
+                    totalRemaining += Math.max(0, req.getAmount() - killed);
+                }
+                if (totalRequired <= 0) return "0";
+                int pct = (int) ((totalRemaining * 100.0) / totalRequired);
+                return String.valueOf(pct);
             }
 
             if (p.equals("tower_next_semi_boss")) {

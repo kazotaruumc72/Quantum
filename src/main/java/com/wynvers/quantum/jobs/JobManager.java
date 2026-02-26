@@ -77,10 +77,16 @@ public class JobManager {
             List<String> description = jobSection.getStringList("description");
             String icon = jobSection.getString("icon", "minecraft:STONE");
             int maxLevel = jobSection.getInt("max_level", 100);
-            List<String> validOrestackStructures = jobSection.getStringList("valid_orestack_structures");
-            List<String> validNexoBlocks = jobSection.getStringList("valid_nexo_blocks");
-            List<String> validNexoFurniture = jobSection.getStringList("valid_nexo_furniture");
-            
+
+            // Load per-item reward maps for Orestack structures, Nexo blocks and Nexo furniture
+            Map<String, double[]> validOrestackStructures = loadItemRewardMap(jobSection, "valid_orestack_structures");
+            Map<String, double[]> validNexoBlocks = loadItemRewardMap(jobSection, "valid_nexo_blocks");
+            Map<String, double[]> validNexoFurniture = loadItemRewardMap(jobSection, "valid_nexo_furniture");
+
+            // Load per-mob reward maps for vanilla and quantum mobs
+            Map<String, double[]> mobRewards = loadItemRewardMap(jobSection, "mob_rewards");
+            Map<String, double[]> quantumMobRewards = loadItemRewardMap(jobSection, "quantum_mob_rewards");
+
             // Charger les actions autorisées
             Map<String, Boolean> allowedActions = new HashMap<>();
             ConfigurationSection actionsSection = jobSection.getConfigurationSection("allowed_actions");
@@ -91,7 +97,8 @@ public class JobManager {
             }
 
             Job job = new Job(jobId, displayName, description, icon, maxLevel,
-                validOrestackStructures, validNexoBlocks, validNexoFurniture, allowedActions);
+                validOrestackStructures, validNexoBlocks, validNexoFurniture,
+                mobRewards, quantumMobRewards, allowedActions);
             
             // Charger les récompenses de niveau
             ConfigurationSection rewardsSection = jobSection.getConfigurationSection("level_rewards");
@@ -116,7 +123,42 @@ public class JobManager {
             jobs.put(jobId, job);
         }
     }
-    
+
+    /**
+     * Loads a map of item/mob IDs to their per-item [exp, money] rewards from a config section.
+     * Each key maps to a sub-section with optional "exp" and "money" fields (-1 = use global default).
+     */
+    private Map<String, double[]> loadItemRewardMap(ConfigurationSection parent, String sectionKey) {
+        Map<String, double[]> result = new HashMap<>();
+        ConfigurationSection section = parent.getConfigurationSection(sectionKey);
+        if (section == null) return result;
+        for (String itemId : section.getKeys(false)) {
+            ConfigurationSection itemSection = section.getConfigurationSection(itemId);
+            double exp = (itemSection != null) ? itemSection.getDouble("exp", -1) : -1;
+            double money = (itemSection != null) ? itemSection.getDouble("money", -1) : -1;
+            result.put(itemId, new double[]{exp, money});
+        }
+        return result;
+    }
+
+    /**
+     * Resolves the base [exp, money] rewards using per-item overrides with global fallback.
+     * Per-item values of -1 mean "use global default". Returns null if no rewards are available.
+     * Array index 0 = exp (int cast), index 1 = money.
+     */
+    private double[] resolveRewards(double[] itemReward, ConfigurationSection globalRewards) {
+        if (globalRewards == null && (itemReward == null || (itemReward[0] < 0 && itemReward[1] < 0))) {
+            return null;
+        }
+        double exp = (itemReward != null && itemReward[0] >= 0)
+            ? itemReward[0]
+            : (globalRewards != null ? globalRewards.getDouble("exp", 0) : 0);
+        double money = (itemReward != null && itemReward[1] >= 0)
+            ? itemReward[1]
+            : (globalRewards != null ? globalRewards.getDouble("money", 0.0) : 0.0);
+        return new double[]{exp, money};
+    }
+
     private void createTables() {
         try (Connection conn = databaseManager.getConnection()) {
             // Table pour les données de métier des joueurs
@@ -533,12 +575,19 @@ public class JobManager {
             return; // Action non autorisée pour ce job, on ignore silencieusement
         }
         
-        // Récupérer les récompenses de l'action
+        // For mob-related actions, check for per-mob reward overrides
+        double[] mobReward = null;
+        if ((actionType.equals("kill") || actionType.equals("hit")) && itemId != null) {
+            mobReward = job.getMobReward(itemId);
+        }
+
+        // Récupérer les récompenses de l'action (fallback global)
         ConfigurationSection actionRewards = config.getConfigurationSection("action_rewards." + actionType);
-        if (actionRewards == null) return;
-        
-        int baseExp = actionRewards.getInt("exp", 0);
-        double baseMoney = actionRewards.getDouble("money", 0.0);
+        double[] resolved = resolveRewards(mobReward, actionRewards);
+        if (resolved == null) return;
+
+        int baseExp = (int) resolved[0];
+        double baseMoney = resolved[1];
         
         // Vérifier si le joueur est dans un donjon
         boolean inDungeon = isPlayerInDungeon(player);
@@ -590,13 +639,15 @@ public class JobManager {
             return;
         }
         
-        // Utiliser les récompenses de nexo_interaction
+        // Utiliser les récompenses par item si définies, sinon utiliser les récompenses globales
+        double[] itemRewards = isFurniture ? job.getNexoFurnitureRewards(nexoId) : job.getNexoBlockRewards(nexoId);
         String sectionKey = isFurniture ? "nexo_furniture" : "nexo_block";
         ConfigurationSection actionRewards = config.getConfigurationSection("action_rewards." + sectionKey);
-        if (actionRewards == null) return;
-        
-        int baseExp = actionRewards.getInt("exp", 0);
-        double baseMoney = actionRewards.getDouble("money", 0.0);
+        double[] resolved = resolveRewards(itemRewards, actionRewards);
+        if (resolved == null) return;
+
+        int baseExp = (int) resolved[0];
+        double baseMoney = resolved[1];
         
         // Vérifier si le joueur est dans un donjon
         boolean inDungeon = isPlayerInDungeon(player);
@@ -650,12 +701,14 @@ public class JobManager {
             return;
         }
         
-        // Récupérer les récompenses de l'action Quantum
+        // Récupérer les récompenses par mob si définies, sinon utiliser les récompenses globales
+        double[] mobReward = job.getQuantumMobReward(mobType);
         ConfigurationSection actionRewards = config.getConfigurationSection("action_rewards." + actionType);
-        if (actionRewards == null) return;
-        
-        int baseExp = actionRewards.getInt("exp", 0);
-        double baseMoney = actionRewards.getDouble("money", 0.0);
+        double[] resolved = resolveRewards(mobReward, actionRewards);
+        if (resolved == null) return;
+
+        int baseExp = (int) resolved[0];
+        double baseMoney = resolved[1];
         
         // Vérifier si le joueur est dans un donjon
         boolean inDungeon = isPlayerInDungeon(player);
@@ -714,12 +767,14 @@ public class JobManager {
             return;
         }
 
-        // Récupérer les récompenses pour les structures Orestack
+        // Récupérer les récompenses par structure si définies, sinon utiliser les récompenses globales
+        double[] itemRewards = job.getOrestackRewards(structureId);
         ConfigurationSection actionRewards = config.getConfigurationSection("action_rewards.orestack_structure");
-        if (actionRewards == null) return;
+        double[] resolved = resolveRewards(itemRewards, actionRewards);
+        if (resolved == null) return;
 
-        int baseExp = actionRewards.getInt("exp", 0);
-        double baseMoney = actionRewards.getDouble("money", 0.0);
+        int baseExp = (int) resolved[0];
+        double baseMoney = resolved[1];
 
         // Vérifier si le joueur est dans un donjon
         boolean inDungeon = isPlayerInDungeon(player);

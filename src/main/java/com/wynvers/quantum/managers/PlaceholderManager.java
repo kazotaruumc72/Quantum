@@ -492,6 +492,49 @@ public class PlaceholderManager {
             return Integer.toString(pct);
         }
 
+        // Mob list for the current floor's door requirement
+        if (params.equals("tower_mob_list")) {
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "";
+            int floor = progress.getCurrentFloor();
+            if (floor <= 0) return "";
+            com.wynvers.quantum.towers.TowerConfig tower = towerManager.getTower(currentTowerId);
+            if (tower == null) return "";
+            java.util.List<com.wynvers.quantum.towers.FloorMobRequirement> reqs = tower.getFloorMobRequirements(floor);
+            if (reqs.isEmpty()) return "";
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < reqs.size(); i++) {
+                com.wynvers.quantum.towers.FloorMobRequirement req = reqs.get(i);
+                String mobName = req.getSource() == com.wynvers.quantum.towers.FloorMobRequirement.MobSource.MYTHICMOBS
+                        ? req.getMythicId()
+                        : req.getEntityType().name();
+                sb.append(mobName).append(" x").append(req.getAmount());
+                if (i < reqs.size() - 1) sb.append(", ");
+            }
+            return sb.toString();
+        }
+
+        // Next semi-boss floor (excludes final boss)
+        if (params.equals("tower_next_semi_boss")) {
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
+            com.wynvers.quantum.towers.TowerConfig tower = towerManager.getTower(currentTowerId);
+            if (tower == null) return "0";
+            int currentFloor = progress.getCurrentFloor();
+            int nextSemiBoss = tower.getNextSemiBossFloor(currentFloor);
+            return nextSemiBoss == -1 ? "0" : Integer.toString(nextSemiBoss);
+        }
+
+        // Percentage of floors traversed in the current tower (no % symbol)
+        if (params.equals("tower_floors_percentage")) {
+            if (currentTowerId == null || currentTowerId.isEmpty()) return "0";
+            com.wynvers.quantum.towers.TowerConfig tower = towerManager.getTower(currentTowerId);
+            if (tower == null) return "0";
+            int total = tower.getTotalFloors();
+            if (total <= 0) return "0";
+            int completed = progress.getFloorProgress(currentTowerId);
+            int pct = (int) Math.min(100, (completed * 100.0) / total);
+            return Integer.toString(pct);
+        }
+
         // Additional tower placeholders
         if (params.equals("tower_next_boss") || params.equals("tower_status")) {
             return handleCurrentTowerPlaceholder(player, params, currentTowerId, progress, towerManager);

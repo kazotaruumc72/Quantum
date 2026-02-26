@@ -394,6 +394,7 @@ public class TowerManager {
      * @return List of entries (UUID -> total floors completed), sorted descending
      */
     public List<Map.Entry<UUID, Integer>> getTopPlayers(int limit) {
+        if (limit <= 0) return new ArrayList<>();
         List<Map.Entry<UUID, Integer>> entries = new ArrayList<>();
         for (Map.Entry<UUID, TowerProgress> entry : playerProgress.entrySet()) {
             entries.add(Map.entry(entry.getKey(), entry.getValue().getTotalFloorsCompleted()));

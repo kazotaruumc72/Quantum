@@ -126,7 +126,7 @@ public class TowerConfig {
      */
     public int getNextSemiBossFloor(int currentFloor) {
         for (int bossFloor : bossFloors) {
-            if (bossFloor > currentFloor) {
+            if (bossFloor > currentFloor && bossFloor != finalBossFloor) {
                 return bossFloor;
             }
         }

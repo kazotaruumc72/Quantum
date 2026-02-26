@@ -5,6 +5,8 @@ import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.model.user.User;
 import net.luckperms.api.node.Node;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
@@ -41,6 +43,9 @@ public class TowerDoorManager {
 
     // Permissions temporaires pour les joueurs qui ont ouvert les portes
     private final Map<String, UUID> doorOpeners = new HashMap<>(); // doorId -> playerId
+
+    // Tâches de compte à rebours dans l'action bar (par joueur)
+    private final Map<UUID, BukkitTask> playerCountdownTasks = new HashMap<>();
 
     // LuckPerms integration
     private LuckPerms luckPerms;
@@ -207,6 +212,13 @@ public class TowerDoorManager {
             // Révoquer pour l'étage suivant (floor+1)
             revokeDoorPermission(previousOpener, towerId, floor + 1);
         }
+        // Annuler le compte à rebours de l'ancien joueur si présent
+        if (previousOpener != null) {
+            BukkitTask previousCountdown = playerCountdownTasks.remove(previousOpener);
+            if (previousCountdown != null) {
+                previousCountdown.cancel();
+            }
+        }
 
         // Sauvegarder et retirer les blocks
         Set<BlockSnapshot> snapshots = new HashSet<>();
@@ -254,6 +266,36 @@ public class TowerDoorManager {
 
         doorCloseTasks.put(doorId, closeTask);
 
+        // Démarrer le compte à rebours dans l'action bar pour le joueur
+        if (player != null) {
+            final UUID playerId = player.getUniqueId();
+            final int[] secondsLeft = {90};
+
+            // Annuler tout compte à rebours précédent pour ce joueur
+            BukkitTask existingCountdown = playerCountdownTasks.remove(playerId);
+            if (existingCountdown != null) {
+                existingCountdown.cancel();
+            }
+
+            BukkitTask countdownTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+                if (secondsLeft[0] <= 0) return;
+                Player p = Bukkit.getPlayer(playerId);
+                if (p != null && p.isOnline()) {
+                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                            new TextComponent("§e⏱ §7Temps restant pour passer: §e" + formatCountdown(secondsLeft[0])));
+                }
+                secondsLeft[0]--;
+                if (secondsLeft[0] <= 0) {
+                    BukkitTask t = playerCountdownTasks.remove(playerId);
+                    if (t != null) {
+                        t.cancel();
+                    }
+                }
+            }, 0L, 20L);
+
+            playerCountdownTasks.put(playerId, countdownTask);
+        }
+
         plugin.getQuantumLogger().info("Door opened: " + doorId + " (" + snapshots.size() + " blocks)");
     }
     
@@ -284,6 +326,18 @@ public class TowerDoorManager {
                 } catch (Exception e) {
                     plugin.getQuantumLogger().warning("Failed to parse doorId for permission revocation: " + doorId);
                 }
+            }
+        }
+
+        // Annuler le compte à rebours de l'action bar et effacer le message
+        if (opener != null) {
+            BukkitTask countdownTask = playerCountdownTasks.remove(opener);
+            if (countdownTask != null) {
+                countdownTask.cancel();
+            }
+            Player openerPlayer = Bukkit.getPlayer(opener);
+            if (openerPlayer != null && openerPlayer.isOnline()) {
+                openerPlayer.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(""));
             }
         }
 
@@ -436,6 +490,19 @@ public class TowerDoorManager {
     }
 
     // ==================== CLASSES INTERNES ====================
+
+    /**
+     * Formate un nombre de secondes en affichage lisible (ex: 1m30s ou 45s)
+     */
+    private String formatCountdown(int seconds) {
+        int mins = seconds / 60;
+        int secs = seconds % 60;
+        if (mins > 0) {
+            return mins + "m" + String.format("%02d", secs) + "s";
+        } else {
+            return secs + "s";
+        }
+    }
     
     public static class DoorConfig {
         private final String id;

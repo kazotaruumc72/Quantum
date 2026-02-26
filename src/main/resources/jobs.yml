@@ -51,8 +51,8 @@ jobs:
         exp: 10
         money: 5
 
-    # Structures Orestack valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
-    valid_orestack_structures:
+    # Générateurs on hit valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
+    valid_on_hit_generators:
       wood_pile:
         exp: 12
         money: 6
@@ -135,8 +135,8 @@ jobs:
         exp: 8
         money: 4
 
-    # Structures Orestack valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
-    valid_orestack_structures:
+    # Générateurs on hit valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
+    valid_on_hit_generators:
       iron_vein:
         exp: 10
         money: 5

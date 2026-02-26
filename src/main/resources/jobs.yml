@@ -17,17 +17,40 @@ jobs:
       - "&7de l'argent et de l'expérience."
     icon: "minecraft:IRON_AXE"
     max_level: 100
-    
-    # Actions autorisées pour ce job
-    allowed_actions:
-      break: true     # Casser des blocs (vanilla)
-      place: false    # Placer des blocs
-      hit: false      # Frapper des entités (vanilla)
-      fish: false     # Pêcher
-      drink: false    # Boire des potions
-      eat: false      # Manger
-      kill: false     # Tuer des mobs (vanilla)
-    
+
+    # Blocs Nexo valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
+    valid_nexo_blocks:
+      afzelia_log:
+        exp: 10
+        money: 5
+      afzelia_bark:
+        exp: 7
+        money: 3
+      oak_bark:
+        exp: 5
+        money: 2
+      birch_bark:
+        exp: 5
+        money: 2
+      spruce_bark:
+        exp: 5
+        money: 2
+      afzelia_planks:
+        exp: 3
+        money: 1
+
+    # Furnitures Nexo valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
+    valid_nexo_furniture:
+      fruit_tree:
+        exp: 15
+        money: 8
+      fruit_tree_bare:
+        exp: 8
+        money: 4
+      fruit_tree_small:
+        exp: 10
+        money: 5
+
     # Récompenses par niveau (placement automatique en serpent)
     level_rewards:
       # Niveau 5
@@ -81,17 +104,31 @@ jobs:
       - "&7progresser dans votre métier."
     icon: "minecraft:IRON_PICKAXE"
     max_level: 100
-    
-    # Actions autorisées pour ce job
-    allowed_actions:
-      break: true     # Casser des blocs (minerais vanilla)
-      place: false    # Placer des blocs
-      hit: true       # Frapper des entités (vanilla)
-      fish: false     # Pêcher
-      drink: false    # Boire des potions
-      eat: false      # Manger
-      kill: false     # Tuer des mobs (vanilla)
-    
+
+    # Blocs Nexo valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
+    valid_nexo_blocks:
+      compressed_stone:
+        exp: 8
+        money: 4
+
+    # Structures Orestack valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
+    valid_orestack_structures:
+      iron_vein:
+        exp: 10
+        money: 5
+      gold_vein:
+        exp: 15
+        money: 8
+      diamond_vein:
+        exp: 25
+        money: 15
+      emerald_vein:
+        exp: 20
+        money: 12
+      coal_vein:
+        exp: 5
+        money: 2
+
     level_rewards:
       5:
         - type: "money"
@@ -122,24 +159,6 @@ jobs:
       - "&7Spécialisé dans les mobs mythiques."
     icon: "minecraft:DIAMOND_SWORD"
     max_level: 100
-
-    # Récompenses par mob vanilla (chaque entrée précise l'exp et l'argent gagnés)
-    mob_rewards:
-      ZOMBIE:
-        exp: 5
-        money: 2
-      SKELETON:
-        exp: 6
-        money: 2.5
-      CREEPER:
-        exp: 8
-        money: 4
-      SPIDER:
-        exp: 4
-        money: 1.5
-      ENDERMAN:
-        exp: 12
-        money: 6
 
     # Mobs MythicMobs valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
     valid_mmobs_mob:
@@ -180,16 +199,6 @@ jobs:
       LegendaryDragon:
         exp: 120
         money: 90
-    
-    # Actions autorisées pour ce job
-    allowed_actions:
-      break: false    # Casser des blocs
-      place: false    # Placer des blocs
-      hit: true       # Frapper des entités (vanilla)
-      fish: false     # Pêcher
-      drink: false    # Boire des potions
-      eat: false      # Manger
-      kill: true      # Tuer des mobs (vanilla)
     
     level_rewards:
       5:

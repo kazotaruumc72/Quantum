@@ -91,6 +91,7 @@ public class Job {
     }
     
     public boolean isActionAllowed(String actionType) {
+        if (allowedActions.isEmpty()) return true;
         return allowedActions.getOrDefault(actionType, false);
     }
     

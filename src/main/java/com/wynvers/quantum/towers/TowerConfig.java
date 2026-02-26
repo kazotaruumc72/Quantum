@@ -21,6 +21,7 @@ public class TowerConfig {
     private final int maxLevel;
 
     private String worldGuardRegion;
+    private String displayCondition;
     
     // Map floor number -> region name
     private final Map<Integer, String> floorRegions;
@@ -90,6 +91,14 @@ public class TowerConfig {
 
     public String getWorldGuardRegion() {
         return worldGuardRegion;  // ou le nom du champ que tu utilises
+    }
+
+    public String getDisplayCondition() {
+        return displayCondition;
+    }
+
+    public void setDisplayCondition(String displayCondition) {
+        this.displayCondition = displayCondition;
     }
     
     /**

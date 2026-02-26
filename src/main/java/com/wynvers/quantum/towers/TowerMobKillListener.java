@@ -86,11 +86,24 @@ public class TowerMobKillListener implements Listener {
         }
         if (!relevant) return;
 
+        // Start the floor timer on the first relevant kill
+        if (progress.getFloorElapsedTime(towerId, floor) < 0) {
+            progress.startFloorTimer(towerId, floor);
+        }
+
         // Increment this mob's counter
         progress.incrementFloorMobKills(towerId, floor, mobKey);
 
         // Check whether ALL requirements are now satisfied
         if (areAllRequirementsMet(progress, towerId, floor, requirements)) {
+            // Record clear time for the leaderboard
+            long elapsed = progress.getFloorElapsedTime(towerId, floor);
+            if (elapsed > 0 && plugin.getFloorClearTimeManager() != null) {
+                plugin.getFloorClearTimeManager().recordClearTime(
+                        player.getUniqueId(), player.getName(), towerId, floor, elapsed);
+            }
+            progress.clearFloorTimer(towerId, floor);
+
             plugin.getQuantumLogger().info(
                     "[Tower] " + player.getName() + " met all kill requirements on "
                     + towerId + " floor " + floor + " - opening door");

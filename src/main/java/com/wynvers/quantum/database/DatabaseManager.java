@@ -97,6 +97,17 @@ public class DatabaseManager {
                     "PRIMARY KEY (uuid, tower_id)" +
                     ")");
             
+            // Floor clear times leaderboard (best time per player per tower floor)
+            st.executeUpdate("CREATE TABLE IF NOT EXISTS quantum_floor_clear_times (" +
+                    "uuid CHAR(36) NOT NULL," +
+                    "tower_id VARCHAR(64) NOT NULL," +
+                    "floor INT NOT NULL," +
+                    "clear_time_ms BIGINT NOT NULL," +
+                    "player_name VARCHAR(64) NOT NULL DEFAULT ''," +
+                    "completed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," +
+                    "PRIMARY KEY (uuid, tower_id, floor)" +
+                    ")");
+            
             // Player storage table
             st.executeUpdate("CREATE TABLE IF NOT EXISTS player_storage (" +
                     "player_uuid VARCHAR(36) NOT NULL, " +

@@ -118,6 +118,7 @@ public final class Quantum extends JavaPlugin {
     private TowerDoorManager doorManager;
     private TowerNPCManager npcManager;
     private TowerInventoryManager towerInventoryManager; // Per-world tower inventories
+    private FloorClearTimeManager floorClearTimeManager; // Floor clear time leaderboards
     private StorageUpgradeManager storageUpgradeManager;
 
 
@@ -226,6 +227,10 @@ public final class Quantum extends JavaPlugin {
         }
         
         logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
+
+        // Floor clear time leaderboard (top 30 fastest clears per room)
+        this.floorClearTimeManager = new FloorClearTimeManager(this);
+        logger.success("✓ Floor clear time leaderboard initialized!");
 
         // Mob Bestiary (mobs.yml) - XP rewards for kills
         this.mobConfig = new MobConfig(this);
@@ -875,6 +880,10 @@ public final class Quantum extends JavaPlugin {
 
     public TowerInventoryManager getTowerInventoryManager() {
         return towerInventoryManager;
+    }
+
+    public FloorClearTimeManager getFloorClearTimeManager() {
+        return floorClearTimeManager;
     }
 
     // NEW: Getters pour les managers des tours

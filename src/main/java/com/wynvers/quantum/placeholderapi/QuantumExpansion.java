@@ -208,6 +208,66 @@ public class QuantumExpansion extends PlaceholderExpansion {
                 int pct = (int) Math.min(100, (kills * 100.0) / required);
                 return String.valueOf(pct);
             }
+
+            if (p.equals("tower_mob_list")) {
+                if (plugin.getTowerManager() == null) return "";
+                var progress = plugin.getTowerManager().getProgress(player.getUniqueId());
+                String towerId = progress.getCurrentTower();
+                int floor = progress.getCurrentFloor();
+                if (towerId == null || floor <= 0) return "";
+                var tower = plugin.getTowerManager().getTower(towerId);
+                if (tower == null) return "";
+                var reqs = tower.getFloorMobRequirements(floor);
+                if (reqs.isEmpty()) return "";
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < reqs.size(); i++) {
+                    var req = reqs.get(i);
+                    String mobName = req.getSource() == com.wynvers.quantum.towers.FloorMobRequirement.MobSource.MYTHICMOBS
+                            ? req.getMythicId()
+                            : req.getEntityType().name();
+                    sb.append(mobName).append(" x").append(req.getAmount());
+                    if (i < reqs.size() - 1) sb.append(", ");
+                }
+                return sb.toString();
+            }
+
+            if (p.equals("tower_next_semi_boss")) {
+                if (plugin.getTowerManager() == null) return "0";
+                var progress = plugin.getTowerManager().getProgress(player.getUniqueId());
+                String towerId = progress.getCurrentTower();
+                if (towerId == null) return "0";
+                var tower = plugin.getTowerManager().getTower(towerId);
+                if (tower == null) return "0";
+                int currentFloor = progress.getCurrentFloor();
+                int nextSemiBoss = tower.getNextSemiBossFloor(currentFloor);
+                return nextSemiBoss == -1 ? "0" : String.valueOf(nextSemiBoss);
+            }
+
+            if (p.equals("tower_next_boss")) {
+                if (plugin.getTowerManager() == null) return "0";
+                var progress = plugin.getTowerManager().getProgress(player.getUniqueId());
+                String towerId = progress.getCurrentTower();
+                if (towerId == null) return "0";
+                var tower = plugin.getTowerManager().getTower(towerId);
+                if (tower == null) return "0";
+                int currentFloor = progress.getCurrentFloor();
+                int nextBoss = tower.getNextBossFloor(currentFloor);
+                return nextBoss == -1 ? "0" : String.valueOf(nextBoss);
+            }
+
+            if (p.equals("tower_floors_percentage")) {
+                if (plugin.getTowerManager() == null) return "0";
+                var progress = plugin.getTowerManager().getProgress(player.getUniqueId());
+                String towerId = progress.getCurrentTower();
+                if (towerId == null) return "0";
+                var tower = plugin.getTowerManager().getTower(towerId);
+                if (tower == null) return "0";
+                int total = tower.getTotalFloors();
+                if (total <= 0) return "0";
+                int completed = progress.getFloorProgress(towerId);
+                int pct = (int) Math.min(100, (completed * 100.0) / total);
+                return String.valueOf(pct);
+            }
         }
 
         // ===========================

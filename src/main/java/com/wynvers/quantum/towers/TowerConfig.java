@@ -120,6 +120,20 @@ public class TowerConfig {
     }
 
     /**
+     * Get next semi-boss floor after current floor (excludes the final boss)
+     * @param currentFloor Current floor number
+     * @return Next semi-boss floor or -1 if none
+     */
+    public int getNextSemiBossFloor(int currentFloor) {
+        for (int bossFloor : bossFloors) {
+            if (bossFloor > currentFloor) {
+                return bossFloor;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * Set the mob-kill requirements list to open the door for a specific floor.
      */
     public void setFloorMobRequirements(int floor, List<FloorMobRequirement> requirements) {

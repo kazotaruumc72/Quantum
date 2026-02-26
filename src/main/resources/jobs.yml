@@ -248,37 +248,6 @@ jobs:
         - type: "money"
           value: "10000"
 
-# Configuration des récompenses par action (valeurs par défaut si non précisé au niveau de l'item/mob)
-action_rewards:
-  # Récompenses pour les actions
-  break:      # Casser un bloc
-    exp: 3
-    money: 1
-  
-  place:      # Placer un bloc
-    exp: 1
-    money: 0.5
-  
-  hit:        # Frapper une entité
-    exp: 2
-    money: 0.5
-  
-  fish:       # Pêcher
-    exp: 5
-    money: 2
-  
-  drink:      # Boire une potion
-    exp: 1
-    money: 0
-  
-  eat:        # Manger
-    exp: 1
-    money: 0
-  
-  kill:       # Tuer un mob vanilla
-    exp: 8
-    money: 3
-
 # Types de boosters
 boosters:
   exp_booster:

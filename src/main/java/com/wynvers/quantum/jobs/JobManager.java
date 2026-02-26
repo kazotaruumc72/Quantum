@@ -581,9 +581,7 @@ public class JobManager {
             mobReward = job.getMobReward(itemId);
         }
 
-        // Récupérer les récompenses de l'action (fallback global)
-        ConfigurationSection actionRewards = config.getConfigurationSection("action_rewards." + actionType);
-        double[] resolved = resolveRewards(mobReward, actionRewards);
+        double[] resolved = resolveRewards(mobReward, null);
         if (resolved == null) return;
 
         int baseExp = (int) resolved[0];

@@ -603,6 +603,23 @@ public class PlaceholderManager {
             return totalFloors + "/" + maxFloors;
         }
         
+        // Tower top position placeholder: tower_top_pos_<N>
+        if (params.matches("tower_top_pos_\\d+")) {
+            int position;
+            try {
+                position = Integer.parseInt(params.substring("tower_top_pos_".length()));
+            } catch (NumberFormatException e) {
+                return "N/A";
+            }
+            java.util.List<Map.Entry<java.util.UUID, Integer>> topPlayers = towerManager.getTopPlayers(position);
+            if (topPlayers.size() >= position) {
+                java.util.UUID topUuid = topPlayers.get(position - 1).getKey();
+                org.bukkit.OfflinePlayer offlinePlayer = org.bukkit.Bukkit.getOfflinePlayer(topUuid);
+                return offlinePlayer.getName() != null ? offlinePlayer.getName() : "Unknown";
+            }
+            return "N/A";
+        }
+        
         return "0";
     }
     

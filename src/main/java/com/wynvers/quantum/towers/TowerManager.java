@@ -389,6 +389,24 @@ public class TowerManager {
     }
     
     /**
+     * Get top players sorted by total floors completed across all towers
+     * @param limit Maximum number of players to return
+     * @return List of entries (UUID -> total floors completed), sorted descending
+     */
+    public List<Map.Entry<UUID, Integer>> getTopPlayers(int limit) {
+        if (limit <= 0) return new ArrayList<>();
+        List<Map.Entry<UUID, Integer>> entries = new ArrayList<>();
+        for (Map.Entry<UUID, TowerProgress> entry : playerProgress.entrySet()) {
+            entries.add(Map.entry(entry.getKey(), entry.getValue().getTotalFloorsCompleted()));
+        }
+        entries.sort((a, b) -> Integer.compare(b.getValue(), a.getValue()));
+        if (entries.size() > limit) {
+            entries = entries.subList(0, limit);
+        }
+        return entries;
+    }
+
+    /**
      * Get number of loaded towers
      * @return Tower count
      */

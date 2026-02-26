@@ -78,6 +78,12 @@ public class TowerManager {
                     minLevel, maxLevel
             );
             
+            // Load display-condition (for TAB plugin integration)
+            String displayCondition = towerSection.getString("display-condition");
+            if (displayCondition != null && !displayCondition.isEmpty()) {
+                tower.setDisplayCondition(displayCondition);
+            }
+            
             // Load floor regions
             for (String floorKey : floorsSection.getKeys(false)) {
                 try {

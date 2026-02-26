@@ -101,7 +101,6 @@ public class JobManager {
             Job job = new Job(jobId, displayName, description, icon, maxLevel,
                 validOrestackStructures, validNexoBlocks, validNexoFurniture,
                 mobRewards, mmobsRewards, allowedActions);
-                mobRewards, allowedActions);
             
             // Charger les récompenses de niveau
             ConfigurationSection rewardsSection = jobSection.getConfigurationSection("level_rewards");

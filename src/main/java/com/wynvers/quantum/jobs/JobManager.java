@@ -83,9 +83,9 @@ public class JobManager {
             Map<String, double[]> validNexoBlocks = loadItemRewardMap(jobSection, "valid_nexo_blocks");
             Map<String, double[]> validNexoFurniture = loadItemRewardMap(jobSection, "valid_nexo_furniture");
 
-            // Load per-mob reward maps for vanilla and quantum mobs
+            // Load per-mob reward maps for vanilla and MythicMobs mobs
             Map<String, double[]> mobRewards = loadItemRewardMap(jobSection, "mob_rewards");
-            Map<String, double[]> quantumMobRewards = loadItemRewardMap(jobSection, "quantum_mob_rewards");
+            Map<String, double[]> mmobsRewards = loadItemRewardMap(jobSection, "valid_mmobs_mob");
 
             // Charger les actions autorisées
             Map<String, Boolean> allowedActions = new HashMap<>();
@@ -98,7 +98,7 @@ public class JobManager {
 
             Job job = new Job(jobId, displayName, description, icon, maxLevel,
                 validOrestackStructures, validNexoBlocks, validNexoFurniture,
-                mobRewards, quantumMobRewards, allowedActions);
+                mobRewards, mmobsRewards, allowedActions);
             
             // Charger les récompenses de niveau
             ConfigurationSection rewardsSection = jobSection.getConfigurationSection("level_rewards");

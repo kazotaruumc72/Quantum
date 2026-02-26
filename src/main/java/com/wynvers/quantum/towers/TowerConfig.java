@@ -17,7 +17,6 @@ public class TowerConfig {
     private final int totalFloors;
     private final List<Integer> bossFloors;
     private final int finalBossFloor;
-    private final List<String> scoreboardLines;
     private final int minLevel;
     private final int maxLevel;
 
@@ -35,7 +34,6 @@ public class TowerConfig {
         this.totalFloors = totalFloors;
         this.bossFloors = bossFloors;
         this.finalBossFloor = finalBossFloor;
-        this.scoreboardLines = new java.util.ArrayList<>();
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;
         this.floorRegions = new HashMap<>();
@@ -112,15 +110,6 @@ public class TowerConfig {
         return -1;
     }
 
-    public List<String> getScoreboardLines() {
-        return scoreboardLines;
-    }
-    
-    public void setScoreboardLines(List<String> lines) {
-        this.scoreboardLines.clear();
-        this.scoreboardLines.addAll(lines);
-    }
-    
     /**
      * Set the mob-kill requirements list to open the door for a specific floor.
      */

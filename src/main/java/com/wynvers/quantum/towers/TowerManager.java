@@ -1,8 +1,6 @@
 package com.wynvers.quantum.towers;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.managers.ScoreboardManager;
-import com.wynvers.quantum.managers.ScoreboardConfig;
 import com.wynvers.quantum.towers.events.TowerCompleteEvent;
 import com.wynvers.quantum.towers.events.TowerFloorCompleteEvent;
 import org.bukkit.Bukkit;
@@ -10,7 +8,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
@@ -339,18 +336,6 @@ public class TowerManager {
         progress.setCurrentFloor(floor);
         
         plugin.getQuantumLogger().info("Player " + player.getName() + " entered " + towerId + " floor " + floor);
-
-        // Désactiver le scoreboard normal et activer le scoreboard de tour
-        ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
-        if (scoreboardManager != null) {
-            scoreboardManager.disableScoreboard(player);
-        }
-        
-        // Activer le scoreboard de tour avec mise à jour en temps réel
-        TowerScoreboardHandler towerScoreboardHandler = plugin.getTowerScoreboardHandler();
-        if (towerScoreboardHandler != null) {
-            towerScoreboardHandler.enableTowerScoreboard(player, towerId);
-        }
     }
     
     /**
@@ -361,68 +346,6 @@ public class TowerManager {
         TowerProgress progress = getProgress(player.getUniqueId());
         progress.setCurrentTower(null);
         progress.setCurrentFloor(0);
-    
-        // Désactiver le scoreboard de tour
-        TowerScoreboardHandler towerScoreboardHandler = plugin.getTowerScoreboardHandler();
-        if (towerScoreboardHandler != null) {
-            towerScoreboardHandler.disableTowerScoreboard(player);
-        }
-    
-        // Reactiver et recreer le scoreboard classique quand le joueur quitte la tour
-        ScoreboardManager scoreboardManager = plugin.getScoreboardManager();
-        ScoreboardConfig scoreboardConfig = plugin.getScoreboardConfig();
-    
-        if (scoreboardManager != null && scoreboardConfig != null) {
-            // Reactiver le flag
-            scoreboardManager.enableScoreboard(player);
-    
-            // Si le scoreboard global est active et le joueur l'a active
-            if (scoreboardConfig.isEnabled() && scoreboardManager.isScoreboardEnabled(player)) {
-                // Recreer le scoreboard classique a partir de scoreboard.yml
-                String title = scoreboardConfig.getTitle();
-                List<String> lines = scoreboardConfig.getLines();
-                scoreboardManager.setScoreboard(player, title, lines);
-    
-                long updateInterval = scoreboardConfig.getUpdateInterval();
-    
-                // Relancer la mise a jour auto comme dans ScoreboardListener
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        if (!player.isOnline()) {
-                            cancel();
-                            return;
-                        }
-    
-                        if (!scoreboardConfig.isEnabled()) {
-                            cancel();
-                            return;
-                        }
-    
-                        if (!scoreboardManager.isScoreboardEnabled(player)) {
-                            cancel();
-                            return;
-                        }
-    
-                        if (!scoreboardManager.hasScoreboard(player)) {
-                            cancel();
-                            return;
-                        }
-    
-                        List<String> rawLines = scoreboardConfig.getLines();
-                        List<String> processedLines = new ArrayList<>();
-    
-                        for (String line : rawLines) {
-                            // Use internal placeholder parser
-                            line = plugin.getPlaceholderManager().parse(player, line);
-                            processedLines.add(line);
-                        }
-    
-                        scoreboardManager.updateAllLines(player, processedLines);
-                    }
-                }.runTaskTimer(plugin, updateInterval, updateInterval);
-            }
-        }
     }
     
     /**

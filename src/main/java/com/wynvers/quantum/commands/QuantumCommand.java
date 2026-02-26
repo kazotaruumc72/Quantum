@@ -258,24 +258,6 @@ public class QuantumCommand implements CommandExecutor {
                             }
                             break;
 
-                        case "scoreboard":
-                        case "scoreboard.yml":
-                            if (plugin.getScoreboardConfig() != null) {
-                                plugin.getScoreboardConfig().reload();
-                                // Vider le cache de couleurs pour forcer le re-parsing
-                                com.wynvers.quantum.utils.ScoreboardUtils.clearCache();
-                                sender.sendMessage("§a§l✓ §ascoreboard.yml rechargé!");
-                            }
-                            break;
-
-                        case "towerscoreboard":
-                        case "tower_scoreboard":
-                            if (plugin.getTowerScoreboardHandler() != null) {
-                                plugin.getTowerScoreboardHandler().reload();
-                                sender.sendMessage("§a§l✓ §aTower scoreboard rechargé!");
-                            }
-                            break;
-
                         case "furniture":
                         case "furniture.yml":
                             if (plugin.getFurnitureManager() != null) {
@@ -357,16 +339,11 @@ public class QuantumCommand implements CommandExecutor {
         if (plugin.getStatisticsManager() != null) plugin.getStatisticsManager().loadStatistics();
         if (plugin.getStorageManager() != null) plugin.getStorageManager().reload();
         if (plugin.getAnimationManager() != null) plugin.getAnimationManager().reload();
-        if (plugin.getScoreboardConfig() != null) plugin.getScoreboardConfig().reload();
-        if (plugin.getTowerScoreboardHandler() != null) plugin.getTowerScoreboardHandler().reload();
         if (plugin.getFurnitureManager() != null) plugin.getFurnitureManager().reload();
         if (plugin.getCustomCropManager() != null) plugin.getCustomCropManager().reload();
         if (plugin.getDungeonUtils() != null) plugin.getDungeonUtils().reload();
         if (plugin.getTowerInventoryManager() != null) plugin.getTowerInventoryManager().reload();
         if (plugin.getJobManager() != null) plugin.getJobManager().reload();
-
-        // Vider le cache de couleurs après tous les rechargements
-        com.wynvers.quantum.utils.ScoreboardUtils.clearCache();
 
         sender.sendMessage("§a§l✓ §aTout a été rechargé avec succès!");
     }

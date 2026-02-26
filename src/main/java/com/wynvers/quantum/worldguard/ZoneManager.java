@@ -11,7 +11,6 @@ import com.wynvers.quantum.regions.InternalRegionManager;
 import com.wynvers.quantum.towers.TowerConfig;
 import com.wynvers.quantum.towers.TowerInventoryManager;
 import com.wynvers.quantum.towers.TowerManager;
-import com.wynvers.quantum.towers.TowerScoreboardHandler;
 import com.wynvers.quantum.towers.events.TowerEnterEvent;
 import com.wynvers.quantum.towers.events.TowerLeaveEvent;
 import org.bukkit.Bukkit;
@@ -40,14 +39,12 @@ import java.util.UUID;
  * - Detecte quand un joueur entre / sort d'un etage de tour (region)
  * - Verifie les niveaux min/max de la tour (PlayerLevelManager)
  * - Met a jour TowerManager (currentTower/currentFloor)
- * - Active / desactive le TowerScoreboardHandler
  */
 public class ZoneManager implements Listener {
 
     private final Quantum plugin;
     private final TowerManager towerManager;
     private final PlayerLevelManager levelManager;
-    private final TowerScoreboardHandler scoreboardHandler;
     private final InternalRegionManager regionManager;
     private final TowerInventoryManager towerInventoryManager;
     private final com.wynvers.quantum.towers.TowerDoorManager doorManager;
@@ -68,7 +65,6 @@ public class ZoneManager implements Listener {
         this.plugin = plugin;
         this.towerManager = plugin.getTowerManager();
         this.levelManager = plugin.getPlayerLevelManager();
-        this.scoreboardHandler = plugin.getTowerScoreboardHandler();
         this.regionManager = plugin.getInternalRegionManager();
         this.towerInventoryManager = plugin.getTowerInventoryManager();
         this.doorManager = plugin.getDoorManager();
@@ -343,14 +339,11 @@ public class ZoneManager implements Listener {
         plugin.getServer().getPluginManager().callEvent(enterEvent);
         if (enterEvent.isCancelled()) return false;
 
-        // OK : enregistrer la position + scoreboard
+        // OK : enregistrer la position
         towerManager.updateCurrentLocation(player, towerId, floor);
         // Swap to tower inventory
         if (towerInventoryManager != null && !towerInventoryManager.isInTower(player.getUniqueId())) {
             towerInventoryManager.onEnterTower(player, towerId);
-        }
-        if (!scoreboardHandler.hasTowerScoreboard(player)) {
-            scoreboardHandler.enableTowerScoreboard(player, towerId);
         }
         player.sendMessage("\u00a7aTu entres dans \u00a7f" + tower.getName() +
                 " \u00a77(Etage \u00a7f" + floor + "\u00a77)");
@@ -378,16 +371,13 @@ public class ZoneManager implements Listener {
         if (towerInventoryManager != null && !towerInventoryManager.isInTower(player.getUniqueId())) {
             towerInventoryManager.onEnterTower(player, towerId);
         }
-        if (!scoreboardHandler.hasTowerScoreboard(player)) {
-            scoreboardHandler.enableTowerScoreboard(player, towerId);
-        }
         player.sendMessage("\u00a7e[Bypass] \u00a7aTu entres dans \u00a7f" + tower.getName() +
                 " \u00a77(Etage \u00a7f" + floor + "\u00a77)");
         return true;
     }
 
     /**
-     * Gere la sortie de tour (clear location + scoreboard)
+     * Gere la sortie de tour (clear location)
      */
     private void handleLeaveTower(Player player) {
         // Restore main inventory and unequip dungeon armor
@@ -399,9 +389,6 @@ public class ZoneManager implements Listener {
             towerInventoryManager.onLeaveTower(player, towerId);
         }
         towerManager.clearCurrentLocation(player);
-        if (scoreboardHandler.hasTowerScoreboard(player)) {
-            scoreboardHandler.disableTowerScoreboard(player);
-        }
         player.sendMessage("\u00a77Tu quittes la tour.");
 
         // Fire leave event after cleanup so listeners see clean state

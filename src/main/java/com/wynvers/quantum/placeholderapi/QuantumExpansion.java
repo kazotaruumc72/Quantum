@@ -116,13 +116,13 @@ public class QuantumExpansion extends PlaceholderExpansion {
         }
 
         if (p.equals("exp_progress")) {
-            if (plugin.getPlayerLevelManager() == null) return "0%";
+            if (plugin.getPlayerLevelManager() == null) return "0";
             int level = plugin.getPlayerLevelManager().getLevel(offlinePlayer.getUniqueId());
             int currentExp = plugin.getPlayerLevelManager().getExp(offlinePlayer.getUniqueId());
             int requiredExp = plugin.getPlayerLevelManager().getExpForLevel(level + 1);
-            if (requiredExp <= 0) return "100%";
+            if (requiredExp <= 0) return "100";
             int progress = (int) ((currentExp / (double) requiredExp) * 100);
-            return progress + "%";
+            return String.valueOf(progress);
         }
 
         if (p.equals("max_level")) {

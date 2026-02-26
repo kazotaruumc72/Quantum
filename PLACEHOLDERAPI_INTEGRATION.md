@@ -54,7 +54,7 @@ Use Quantum placeholders in any plugin that supports PlaceholderAPI:
 | `%quantum_level%` | Player's Quantum level | `42` |
 | `%quantum_exp%` | Player's current experience | `1500` |
 | `%quantum_exp_required%` | Experience required for next level | `2000` |
-| `%quantum_exp_progress%` | Experience progress as percentage | `75%` |
+| `%quantum_exp_progress%` | Experience progress (0-100) | `75` |
 
 ### Job System Placeholders
 

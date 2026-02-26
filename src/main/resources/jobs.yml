@@ -141,6 +141,46 @@ jobs:
         exp: 12
         money: 6
 
+    # Mobs MythicMobs valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
+    valid_mmobs_mob:
+      # --- Communs ---
+      QuantumZombie:
+        exp: 20
+        money: 10
+      QuantumSkeleton:
+        exp: 22
+        money: 12
+      WaterSoldier:
+        exp: 28
+        money: 16
+      # --- Peu communs ---
+      WaterGuard:
+        exp: 35
+        money: 22
+      EliteWarrior:
+        exp: 45
+        money: 28
+      CrystalGolem:
+        exp: 50
+        money: 32
+      # --- Rares ---
+      ShadowAssassin:
+        exp: 60
+        money: 40
+      StormElemental:
+        exp: 65
+        money: 45
+      # --- Boss ---
+      BossZombie:
+        exp: 80
+        money: 55
+      SkeletonKing:
+        exp: 90
+        money: 65
+      LegendaryDragon:
+        exp: 120
+        money: 90
+    
     # Actions autorisées pour ce job
     allowed_actions:
       break: false    # Casser des blocs

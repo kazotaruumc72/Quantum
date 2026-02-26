@@ -78,6 +78,14 @@ public class JobManager {
             String icon = jobSection.getString("icon", "minecraft:STONE");
             int maxLevel = jobSection.getInt("max_level", 100);
 
+            // Load per-item reward maps for Orestack structures, Nexo blocks and Nexo furniture
+            Map<String, double[]> validOrestackStructures = loadItemRewardMap(jobSection, "valid_orestack_structures");
+            Map<String, double[]> validNexoBlocks = loadItemRewardMap(jobSection, "valid_nexo_blocks");
+            Map<String, double[]> validNexoFurniture = loadItemRewardMap(jobSection, "valid_nexo_furniture");
+
+            // Load per-mob reward maps for vanilla and MythicMobs mobs
+            Map<String, double[]> mobRewards = loadItemRewardMap(jobSection, "mob_rewards");
+            Map<String, double[]> mmobsRewards = loadItemRewardMap(jobSection, "valid_mmobs_mob");
             // Load per-mob reward maps for vanilla mobs
             Map<String, double[]> mobRewards = loadItemRewardMap(jobSection, "mob_rewards");
 
@@ -91,6 +99,8 @@ public class JobManager {
             }
 
             Job job = new Job(jobId, displayName, description, icon, maxLevel,
+                validOrestackStructures, validNexoBlocks, validNexoFurniture,
+                mobRewards, mmobsRewards, allowedActions);
                 mobRewards, allowedActions);
             
             // Charger les récompenses de niveau

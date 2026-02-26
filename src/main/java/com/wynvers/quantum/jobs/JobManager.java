@@ -86,8 +86,6 @@ public class JobManager {
             // Load per-mob reward maps for vanilla and MythicMobs mobs
             Map<String, double[]> mobRewards = loadItemRewardMap(jobSection, "mob_rewards");
             Map<String, double[]> mmobsRewards = loadItemRewardMap(jobSection, "valid_mmobs_mob");
-            // Load per-mob reward maps for vanilla mobs
-            Map<String, double[]> mobRewards = loadItemRewardMap(jobSection, "mob_rewards");
 
             // Charger les actions autorisées
             Map<String, Boolean> allowedActions = new HashMap<>();

@@ -352,6 +352,53 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return "N/A";
         }
 
+        // ===========================
+        // FLOOR CLEAR TIME LEADERBOARD (podium)
+        // %quantum_floor_top_<towerId>_<floor>_name_<pos>%  -> player name
+        // %quantum_floor_top_<towerId>_<floor>_time_<pos>%  -> formatted time
+        // ===========================
+        if (p.startsWith("floor_top_")) {
+            if (plugin.getFloorClearTimeManager() == null) return "N/A";
+            // Expected format: floor_top_<towerId>_<floor>_name_<pos> or floor_top_<towerId>_<floor>_time_<pos>
+            // We parse from the end: last segment is position, second-to-last is "name" or "time",
+            // third-to-last is floor number, and everything before that is the tower ID.
+            String remainder = p.substring("floor_top_".length()); // e.g. "tower1_3_name_1"
+            String[] parts = remainder.split("_");
+            // Minimum parts: towerId(1) + floor(1) + type(1) + pos(1) = 4
+            if (parts.length < 4) return "N/A";
+
+            try {
+                int pos = Integer.parseInt(parts[parts.length - 1]);
+                String type = parts[parts.length - 2]; // "name" or "time"
+                int floor = Integer.parseInt(parts[parts.length - 3]);
+                // Tower ID = everything before the last 3 segments (supports tower IDs with underscores)
+                StringBuilder towerIdBuilder = new StringBuilder();
+                for (int i = 0; i < parts.length - 3; i++) {
+                    if (i > 0) towerIdBuilder.append("_");
+                    towerIdBuilder.append(parts[i]);
+                }
+                String towerId = towerIdBuilder.toString();
+
+                if (pos <= 0 || pos > 30) return "N/A";
+
+                java.util.List<com.wynvers.quantum.towers.FloorClearTimeManager.LeaderboardEntry> top =
+                        plugin.getFloorClearTimeManager().getTopPlayers(towerId, floor, pos);
+
+                if (top.size() < pos) return "N/A";
+
+                com.wynvers.quantum.towers.FloorClearTimeManager.LeaderboardEntry entry = top.get(pos - 1);
+
+                if ("name".equals(type)) {
+                    return entry.playerName() != null ? entry.playerName() : "Unknown";
+                } else if ("time".equals(type)) {
+                    return com.wynvers.quantum.towers.FloorClearTimeManager.formatTime(entry.clearTimeMs());
+                }
+            } catch (NumberFormatException ignored) {
+                // Invalid format
+            }
+            return "N/A";
+        }
+
         // ==============
         // STORAGE
         // ==============

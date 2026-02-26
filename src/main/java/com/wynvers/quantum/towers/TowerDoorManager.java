@@ -415,8 +415,9 @@ public class TowerDoorManager {
      */
     public boolean hasTemporaryAccess(UUID playerId, String towerId, int floor) {
         if (!luckPermsAvailable) {
-            // Si LuckPerms n'est pas disponible, autoriser l'accès (comportement par défaut)
-            return true;
+            // Fallback sans LuckPerms : vérifier si ce joueur a ouvert la porte de l'étage précédent
+            String doorId = towerId + "_" + (floor - 1);
+            return playerId.equals(doorOpeners.get(doorId));
         }
 
         String permission = "quantum.tower.door." + towerId + "." + floor;

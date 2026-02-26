@@ -314,12 +314,19 @@ public class ZoneManager implements Listener {
         TowerConfig tower = towerManager.getTower(towerId);
         if (tower == null) return true;
 
+        // Vérifier si l'étage précédent exige des kills de monstres (salle de combat)
+        boolean requiresKillClearance = floor > 1 && tower.hasFloorMobRequirements(floor - 1);
+
         // Vérifier si le joueur a la permission temporaire de porte pour cet étage
         // Cela permet au joueur qui a ouvert la porte d'accéder à l'étage suivant
         if (doorManager != null && doorManager.hasTemporaryAccess(player.getUniqueId(), towerId, floor)) {
             plugin.getQuantumLogger().debug("Player " + player.getName() + " has temporary door access to " +
                     towerId + " floor " + floor);
             // Continuer avec l'entrée normale (sans bloquer)
+        } else if (requiresKillClearance) {
+            // Seul le joueur ayant tué tous les monstres peut accéder à la salle suivante
+            player.sendMessage("\u00a7cTu dois éliminer tous les monstres de la salle précédente pour passer à la salle suivante!");
+            return false;
         } else {
             // Pas de permission temporaire, vérifier les niveaux normaux
             int level = levelManager.getLevel(player.getUniqueId());

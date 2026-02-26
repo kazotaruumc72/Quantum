@@ -19,21 +19,35 @@ jobs:
     icon: "minecraft:IRON_AXE"
     max_level: 100
     
-    # Structures Orestack valides pour ce job
+    # Structures Orestack valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
     valid_orestack_structures:
-      - "oak_generator"
-      - "birch_generator"
-      - "jungle_tree_generator"
+      oak_generator:
+        exp: 5
+        money: 2
+      birch_generator:
+        exp: 6
+        money: 2.5
+      jungle_tree_generator:
+        exp: 8
+        money: 3.5
 
-    # Blocks Nexo valides pour ce job
+    # Blocks Nexo valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
     valid_nexo_blocks:
-      - "magic_log_block"
-      - "ancient_wood"
+      magic_log_block:
+        exp: 10
+        money: 5
+      ancient_wood:
+        exp: 15
+        money: 8
     
-    # Furniture Nexo valides pour ce job
+    # Furniture Nexo valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
     valid_nexo_furniture:
-      - "workbench_table"
-      - "lumber_station"
+      workbench_table:
+        exp: 8
+        money: 3
+      lumber_station:
+        exp: 12
+        money: 6
     
     # Actions autorisées pour ce job
     allowed_actions:
@@ -101,21 +115,35 @@ jobs:
     icon: "minecraft:IRON_PICKAXE"
     max_level: 100
     
-    # Structures Orestack valides pour ce job
+    # Structures Orestack valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
     valid_orestack_structures:
-      - "iron_ore_generator"
-      - "gold_ore_generator"
-      - "diamond_ore_generator"
+      iron_ore_generator:
+        exp: 8
+        money: 4
+      gold_ore_generator:
+        exp: 12
+        money: 7
+      diamond_ore_generator:
+        exp: 20
+        money: 15
 
-    # Blocks Nexo valides pour ce job
+    # Blocks Nexo valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
     valid_nexo_blocks:
-      - "ore_vein"
-      - "crystal_deposit"
+      ore_vein:
+        exp: 10
+        money: 5
+      crystal_deposit:
+        exp: 18
+        money: 10
     
-    # Furniture Nexo valides pour ce job
+    # Furniture Nexo valides pour ce job (chaque entrée précise l'exp et l'argent gagnés)
     valid_nexo_furniture:
-      - "forge_anvil"
-      - "mining_station"
+      forge_anvil:
+        exp: 7
+        money: 3
+      mining_station:
+        exp: 12
+        money: 6
     
     # Actions autorisées pour ce job
     allowed_actions:
@@ -160,9 +188,42 @@ jobs:
     icon: "minecraft:DIAMOND_SWORD"
     max_level: 100
     
-    valid_orestack_structures: []
-    valid_nexo_blocks: []
-    valid_nexo_furniture: []
+    valid_orestack_structures: {}
+    valid_nexo_blocks: {}
+    valid_nexo_furniture: {}
+
+    # Récompenses par mob vanilla (chaque entrée précise l'exp et l'argent gagnés)
+    mob_rewards:
+      ZOMBIE:
+        exp: 5
+        money: 2
+      SKELETON:
+        exp: 6
+        money: 2.5
+      CREEPER:
+        exp: 8
+        money: 4
+      SPIDER:
+        exp: 4
+        money: 1.5
+      ENDERMAN:
+        exp: 12
+        money: 6
+
+    # Récompenses par mob Quantum/MythicMobs (chaque entrée précise l'exp et l'argent gagnés)
+    quantum_mob_rewards:
+      QuantumZombie:
+        exp: 20
+        money: 10
+      QuantumSkeleton:
+        exp: 22
+        money: 12
+      BossZombie:
+        exp: 50
+        money: 30
+      LegendaryDragon:
+        exp: 100
+        money: 75
     
     # Actions autorisées pour ce job
     allowed_actions:
@@ -200,7 +261,7 @@ jobs:
         - type: "money"
           value: "10000"
 
-# Configuration des récompenses par action
+# Configuration des récompenses par action (valeurs par défaut si non précisé au niveau de l'item/mob)
 action_rewards:
   # Récompenses pour les actions
   break:      # Casser un bloc
@@ -231,7 +292,7 @@ action_rewards:
     exp: 8
     money: 3
   
-  # NEW: Actions pour mobs Quantum/MythicMobs
+  # Actions pour mobs Quantum/MythicMobs
   hit_quantum:      # Frapper un mob Quantum/MythicMobs
     exp: 5
     money: 1.5
@@ -240,7 +301,7 @@ action_rewards:
     exp: 15
     money: 8
 
-  # Récompenses pour interactions Nexo
+  # Récompenses pour interactions Nexo (valeurs par défaut si non précisé au niveau de l'item)
   nexo_block:      # Interaction avec un block Nexo
     exp: 5
     money: 2
@@ -249,7 +310,7 @@ action_rewards:
     exp: 7
     money: 3
 
-  # Récompenses pour interactions avec structures Orestack
+  # Récompenses pour interactions avec structures Orestack (valeurs par défaut si non précisé au niveau de la structure)
   orestack_structure:  # Interaction avec une structure Orestack
     exp: 8
     money: 4
@@ -298,3 +359,4 @@ messages:
   preview_hint: "&8[&7Clic droit pour aperçu&8]"
   preview_no_job: "&c⚠ Aucun métier sélectionné"
   preview_no_rewards: "&7Aucune récompense"
+

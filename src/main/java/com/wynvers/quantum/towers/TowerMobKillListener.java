@@ -89,12 +89,6 @@ public class TowerMobKillListener implements Listener {
         // Increment this mob's counter
         progress.incrementFloorMobKills(towerId, floor, mobKey);
 
-        // Immediately refresh the scoreboard to show the updated kill count
-        TowerScoreboardHandler scoreboardHandler = plugin.getTowerScoreboardHandler();
-        if (scoreboardHandler != null) {
-            scoreboardHandler.forceUpdate(player);
-        }
-
         // Check whether ALL requirements are now satisfied
         if (areAllRequirementsMet(progress, towerId, floor, requirements)) {
             plugin.getQuantumLogger().info(

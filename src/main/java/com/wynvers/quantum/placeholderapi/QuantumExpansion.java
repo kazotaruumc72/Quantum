@@ -89,7 +89,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
         }
 
         // ==========================
-        // NIVEAU / EXP (scoreboard)
+        // NIVEAU / EXP
         // ==========================
         // Aliases :
         // %quantum_level%            -> level
@@ -211,7 +211,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
         }
 
         // ===========================
-        // TOWERS GLOBAL (scoreboard)
+        // TOWERS GLOBAL
         // ===========================
         if (p.equals("towers_completed") || p.equals("towers_total") || p.equals("towers_percentage")) {
             if (plugin.getTowerManager() == null) return "0";
@@ -256,7 +256,7 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return storage != null ? String.valueOf(storage.getTotalItemCount()) : "0";
         }
 
-        // utilisé pour la 2ᵉ valeur du scoreboard
+        // utilisé pour la 2ᵉ valeur du storage
         if (p.equals("storage_capacity")) {
             if (plugin.getStorageManager() == null || plugin.getStorageUpgradeManager() == null) return "0";
             if (player == null) return "0"; // nécessite un joueur en ligne

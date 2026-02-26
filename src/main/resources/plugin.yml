@@ -15,7 +15,6 @@ depend:
 softdepend:
   - Vault
   - LuckPerms
-  - TAB
   - PlaceholderAPI
   - WorldGuard
   - MythicMobs
@@ -42,11 +41,6 @@ commands:
     aliases: [quantumstorage, qs]
     permission: quantum.admin
     permission-message: "§cYou don't have permission to manage storage. Only admins can use /qstorage commands."
-  
-  qscoreboard:
-    description: Toggle scoreboard visibility
-    usage: /qscoreboard [on|off|status] [player]
-    aliases: [qsb]
   
   rechercher:
     description: Open orders categories menu
@@ -170,12 +164,6 @@ commands:
     usage: /chat [reload]
     permission: quantum.chat.admin
   
-  tabedit:
-    description: Edit TAB header and footer for permission groups
-    usage: /tabedit <header|footer|reload|list> [group] [args]
-    aliases: [tabconfig, tconfig]
-    permission: quantum.tab.edit
-
 permissions:
   quantum.*:
     description: All Quantum permissions
@@ -197,7 +185,6 @@ permissions:
       quantum.job.*: true
       quantum.spawn.*: true
       quantum.chat.*: true
-      quantum.tab.*: true
   
   quantum.admin:
     description: Admin permissions (required for storage management and GUI interaction)
@@ -468,19 +455,6 @@ permissions:
   quantum.apartment.upgrade:
     description: Upgrade apartments
   
-  # TAB system
-  quantum.tab.*:
-    description: All TAB permissions
-    default: op
-    children:
-      quantum.tab.edit: true
-      quantum.tab.reload: true
-      quantum.tab.elite: false
-      quantum.tab.mvp+: false
-      quantum.tab.mvp: false
-      quantum.tab.vip+: false
-      quantum.tab.vip: false
-  
   # Chat system
   quantum.chat.*:
     description: All chat permissions
@@ -517,33 +491,6 @@ permissions:
   quantum.chat.reload:
     description: Reload chat configuration
     default: op
-  quantum.tab.edit:
-    description: Edit TAB headers and footers
-    default: op
-  
-  quantum.tab.reload:
-    description: Reload TAB configuration
-    default: op
-  
-  quantum.tab.elite:
-    description: Elite TAB header and footer
-    default: false
-  
-  quantum.tab.mvp+:
-    description: MVP+ TAB header and footer
-    default: false
-  
-  quantum.tab.mvp:
-    description: MVP TAB header and footer
-    default: false
-  
-  quantum.tab.vip+:
-    description: VIP+ TAB header and footer
-    default: false
-  
-  quantum.tab.vip:
-    description: VIP TAB header and footer
-    default: false
 
   # Join/Leave message permissions (LuckPerms)
   quantum.join.elite:

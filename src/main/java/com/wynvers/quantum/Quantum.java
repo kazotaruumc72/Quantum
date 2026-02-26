@@ -22,14 +22,13 @@ import com.wynvers.quantum.jobs.JobAdminTabCompleter;
 import com.wynvers.quantum.home.HomeManager;
 import com.wynvers.quantum.database.DatabaseManager;
 import com.wynvers.quantum.apartment.ApartmentManager;
-import com.wynvers.quantum.tab.TABManager;
 import com.wynvers.quantum.placeholderapi.PlaceholderAPIManager;
 import com.wynvers.quantum.worldguard.ZoneManager;
 import com.wynvers.quantum.levels.PlayerLevelListener;
 import com.wynvers.quantum.levels.PlayerLevelManager;
 import com.wynvers.quantum.listeners.DoorSelectionListener;
 import com.wynvers.quantum.listeners.MenuListener;
-import com.wynvers.quantum.listeners.ScoreboardListener;
+
 import com.wynvers.quantum.listeners.StorageListener;
 import com.wynvers.quantum.commands.ApartmentCommand;
 import com.wynvers.quantum.commands.ArmorCommand;
@@ -39,7 +38,7 @@ import com.wynvers.quantum.commands.GamemodeCommand;
 import com.wynvers.quantum.commands.HomeCommand;
 import com.wynvers.quantum.commands.MenuCommand;
 import com.wynvers.quantum.commands.OffreCommand;
-import com.wynvers.quantum.commands.QScoreboardCommand;
+
 import com.wynvers.quantum.commands.QexpCommand;
 import com.wynvers.quantum.commands.QexpTabCompleter;
 import com.wynvers.quantum.commands.QuantumCommand;
@@ -49,7 +48,7 @@ import com.wynvers.quantum.commands.RechercheCommand;
 import com.wynvers.quantum.commands.RechercherCommand;
 import com.wynvers.quantum.commands.RuneCommand;
 import com.wynvers.quantum.commands.StorageCommand;
-import com.wynvers.quantum.commands.TabEditCommand;
+
 import com.wynvers.quantum.commands.TowerCommand;
 import com.wynvers.quantum.commands.WeaponCommand;
 import com.wynvers.quantum.commands.WeaponTabCompleter;
@@ -88,9 +87,6 @@ public final class Quantum extends JavaPlugin {
 
     private static Quantum instance;
     private Logger logger;
-    private ScoreboardManager scoreboardManager;
-    private ScoreboardConfig scoreboardConfig;
-    private ScoreboardListener scoreboardListener;
 
     // Managers
     private DatabaseManager databaseManager;
@@ -119,7 +115,6 @@ public final class Quantum extends JavaPlugin {
     private com.wynvers.quantum.regions.InternalRegionManager internalRegionManager; // Internal region system
     private SpawnSelectionManager spawnSelectionManager; // Zone selection tool (netherite axe)
     private TowerManager towerManager;     // Tower progression system
-    private TowerScoreboardHandler scoreboardHandler; // Tower scoreboard
     private TowerDoorManager doorManager;
     private TowerNPCManager npcManager;
     private TowerInventoryManager towerInventoryManager; // Per-world tower inventories
@@ -146,10 +141,6 @@ public final class Quantum extends JavaPlugin {
     
     // Spawn System
     private com.wynvers.quantum.spawn.SpawnManager spawnManager;
-    
-    // TAB Integration
-    private TABManager tabManager;
-    private YamlConfiguration tabConfig;
     
     // PlaceholderAPI Integration
     private PlaceholderAPIManager placeholderAPIManager;
@@ -190,11 +181,6 @@ public final class Quantum extends JavaPlugin {
         this.guiMessageManager = new GuiMessageManager(this);
         this.messagesManager = new MessagesManager(this);
 
-        // Scoreboard global
-        this.scoreboardConfig = new ScoreboardConfig(this);
-        this.scoreboardManager = new ScoreboardManager(this);
-        logger.success("✓ Scoreboard Config & Manager initialized!");
-
         // Dungeon Armor & Runes
         this.dungeonArmor = new DungeonArmor(this);
         RuneType.init(this);
@@ -224,7 +210,6 @@ public final class Quantum extends JavaPlugin {
         loadInternalRegions();
 
         // Tower zone management (internal regions)
-        this.scoreboardHandler = new TowerScoreboardHandler(this);
         this.towerInventoryManager = new TowerInventoryManager(this);
         this.zoneManager = new ZoneManager(this); // s'enregistre lui-même en listener
         
@@ -241,7 +226,6 @@ public final class Quantum extends JavaPlugin {
         }
         
         logger.success("✓ Tower system loaded! (" + towerManager.getTowerCount() + " tours)");
-        logger.success("✓ Integrated tower scoreboard ready!");
 
         // Mob Bestiary (mobs.yml) - XP rewards for kills
         this.mobConfig = new MobConfig(this);
@@ -257,10 +241,6 @@ public final class Quantum extends JavaPlugin {
         
         // NEW: Furniture, Crops, Tools, and Weapon systems
         initializeNewSystems();
-        
-        // TAB Integration
-        loadTabConfig();
-        this.tabManager = new TABManager(this);
         
         // PlaceholderAPI Integration
         this.placeholderAPIManager = new PlaceholderAPIManager(this);
@@ -345,7 +325,6 @@ public final class Quantum extends JavaPlugin {
         extractResource("dungeons_utils.yml");
         extractResource("jobs.yml");
 
-        extractResource("scoreboard.yml");
         extractResource("dungeon.yml");
         extractResource("dungeon_armor.yml");
         extractResource("mobs.yml");
@@ -353,8 +332,6 @@ public final class Quantum extends JavaPlugin {
         // Configuration des tours (TowerManager)
         extractResource("towers.yml");
 
-        extractResource("tab_config.yml");
-        
         logger.success("✓ Default resources extracted");
     }
 
@@ -390,21 +367,6 @@ public final class Quantum extends JavaPlugin {
         }
     }
 
-    /**
-     * Load tab_config.yml configuration.
-     * Must be called after extractDefaultResources() to ensure the file exists.
-     */
-    private void loadTabConfig() {
-        File configFile = new File(getDataFolder(), "tab_config.yml");
-        if (!configFile.exists()) {
-            logger.warning("tab_config.yml not found - TAB config not loaded");
-            this.tabConfig = new YamlConfiguration();
-            return;
-        }
-        this.tabConfig = YamlConfiguration.loadConfiguration(configFile);
-        logger.success("✓ tab_config.yml loaded");
-    }
-
     // ───────────────────── Listeners globaux ─────────────────────
 
     private void registerListeners() {
@@ -416,12 +378,6 @@ public final class Quantum extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new StorageListener(this), this);
         logger.success("✓ Storage Listener");
 
-        if (scoreboardManager != null) {
-            scoreboardListener = new ScoreboardListener(this);
-            Bukkit.getPluginManager().registerEvents(scoreboardListener, this);
-            logger.success("✓ Scoreboard Listener (auto-enable on join)");
-        }
-
         // ZoneListener supprimé : le nouveau ZoneManager gère lui-même ses events
 
         Bukkit.getPluginManager().registerEvents(new ArmorListener(this), this);
@@ -429,12 +385,6 @@ public final class Quantum extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new RuneApplyListener(runeItem, dungeonArmor), this);
         logger.success("✓ Rune Apply Listener (drag & drop runes)");
-
-        // TAB Listener
-        if (tabManager != null && tabManager.isEnabled()) {
-            Bukkit.getPluginManager().registerEvents(new com.wynvers.quantum.tab.TABListener(this), this);
-            logger.success("✓ TAB Listener (header/footer updates)");
-        }
     }
 
     // ───────────────────── Managers ─────────────────────
@@ -634,10 +584,6 @@ public final class Quantum extends JavaPlugin {
         getCommand("qstorage").setExecutor(new QuantumStorageCommand(this));
         getCommand("qstorage").setTabCompleter(new QuantumStorageTabCompleter(this));
 
-        getCommand("qscoreboard").setExecutor(new QScoreboardCommand(this));
-        getCommand("qscoreboard").setTabCompleter(new QScoreboardTabCompleter(this));
-        logger.success("✓ Scoreboard Command + TabCompleter");
-
         getCommand("rechercher").setExecutor(new RechercherCommand(this));
         getCommand("rechercher").setTabCompleter(new RechercherTabCompleter());
         
@@ -739,25 +685,6 @@ public final class Quantum extends JavaPlugin {
             logger.success("✓ Catalogue Command (furniture catalogue)");
         }
         
-        // TAB Edit Command
-        if (tabManager != null && tabManager.isEnabled()) {
-            TabEditCommand tabEditCommand = new TabEditCommand(this);
-            getCommand("tabedit").setExecutor(tabEditCommand);
-            getCommand("tabedit").setTabCompleter(tabEditCommand);
-            
-            // Register tab completer for aliases
-            if (getCommand("tabconfig") != null) {
-                getCommand("tabconfig").setExecutor(tabEditCommand);
-                getCommand("tabconfig").setTabCompleter(tabEditCommand);
-            }
-            if (getCommand("tconfig") != null) {
-                getCommand("tconfig").setExecutor(tabEditCommand);
-                getCommand("tconfig").setTabCompleter(tabEditCommand);
-            }
-            
-            logger.success("✓ TAB Edit Command + TabCompleter (including aliases)");
-        }
-        
         // Chat Command
         if (chatManager != null) {
             getCommand("chat").setExecutor(new ChatCommand(this, chatManager, messageManager));
@@ -776,21 +703,6 @@ public final class Quantum extends JavaPlugin {
 
         if (animationManager != null) animationManager.stopAll();
         if (sellManager != null) sellManager.clearAllSessions();
-
-        if (scoreboardListener != null) {
-            scoreboardListener.shutdown();
-            logger.success("✓ Scoreboard listener stopped");
-        }
-        
-        if (scoreboardHandler != null) {
-            scoreboardHandler.shutdown();
-            logger.success("✓ Tower scoreboards cleared");
-        }
-        
-        if (tabManager != null && tabManager.isEnabled()) {
-            tabManager.shutdown();
-            logger.success("✓ TAB manager stopped");
-        }
 
         if (escrowManager != null) {
             escrowManager.saveEscrow();
@@ -835,8 +747,6 @@ public final class Quantum extends JavaPlugin {
         if (messageManager != null) messageManager.reload();
         if (guiMessageManager != null) guiMessageManager.reload();
 
-        if (scoreboardConfig != null) scoreboardConfig.reload();
-
         if (escrowManager != null) escrowManager.reload();
         if (priceManager != null) priceManager.reload();
         if (orderManager != null) orderManager.loadItems();
@@ -845,10 +755,6 @@ public final class Quantum extends JavaPlugin {
 
         // zoneManager.reloadConfig() supprimé (nouveau ZoneManager n'a plus cette méthode)
         if (towerManager != null) towerManager.reload();
-
-        // TAB config reload
-        loadTabConfig();
-        if (tabManager != null) tabManager.reload();
 
         RuneType.init(this);
         logger.success("✓ Dungeon armor & rune configs reloaded");
@@ -971,23 +877,6 @@ public final class Quantum extends JavaPlugin {
         return towerInventoryManager;
     }
 
-    public ScoreboardManager getScoreboardManager() {
-        return scoreboardManager;
-    }
-
-    public ScoreboardConfig getScoreboardConfig() {
-        return scoreboardConfig;
-    }
-
-    public TowerScoreboardHandler getTowerScoreboardHandler() {
-        return scoreboardHandler;
-    }
-
-    // alias si tu veux garder l'ancien nom
-    public TowerScoreboardHandler getScoreboardHandler() {
-        return scoreboardHandler;
-    }
-    
     // NEW: Getters pour les managers des tours
     public TowerDoorManager getDoorManager() {
         return doorManager;
@@ -1037,18 +926,6 @@ public final class Quantum extends JavaPlugin {
     
     public com.wynvers.quantum.spawn.SpawnManager getSpawnManager() {
         return spawnManager;
-    }
-    
-    public TABManager getTabManager() {
-        return tabManager;
-    }
-    
-    /**
-     * Get the loaded tab_config.yml configuration.
-     * @return the TAB configuration, never null (empty config if file was missing)
-     */
-    public YamlConfiguration getTabConfig() {
-        return tabConfig;
     }
     
     public PlaceholderAPIManager getPlaceholderAPIManager() {

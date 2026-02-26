@@ -317,13 +317,17 @@ public class ZoneManager implements Listener {
         // Vérifier si l'étage précédent exige des kills de monstres (salle de combat)
         boolean requiresKillClearance = floor > 1 && tower.hasFloorMobRequirements(floor - 1);
 
+        // Vérifier si la porte de l'étage précédent est physiquement ouverte (blocs supprimés)
+        // Cela couvre le cas où la porte est ouverte mais les mob_kills_required ne sont pas configurés
+        boolean doorIsOpen = floor > 1 && doorManager != null && doorManager.isDoorOpen(towerId, floor - 1);
+
         // Vérifier si le joueur a la permission temporaire de porte pour cet étage
         // Cela permet au joueur qui a ouvert la porte d'accéder à l'étage suivant
         if (doorManager != null && doorManager.hasTemporaryAccess(player.getUniqueId(), towerId, floor)) {
             plugin.getQuantumLogger().debug("Player " + player.getName() + " has temporary door access to " +
                     towerId + " floor " + floor);
             // Continuer avec l'entrée normale (sans bloquer)
-        } else if (requiresKillClearance) {
+        } else if (requiresKillClearance || doorIsOpen) {
             // Seul le joueur ayant tué tous les monstres peut accéder à la salle suivante
             player.sendMessage("\u00a7cTu dois éliminer tous les monstres de la salle précédente pour passer à la salle suivante!");
             return false;

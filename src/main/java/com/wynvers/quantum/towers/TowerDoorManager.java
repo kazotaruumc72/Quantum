@@ -468,10 +468,15 @@ public class TowerDoorManager {
      * Cette méthode est utilisée par ZoneManager pour contrôler l'accès
      */
     public boolean hasTemporaryAccess(UUID playerId, String towerId, int floor) {
+        // Always check the in-memory doorOpeners map first – it is synchronous and
+        // immediately reflects whether this player opened the door for the previous floor.
+        String doorId = towerId + "_" + (floor - 1);
+        if (playerId.equals(doorOpeners.get(doorId))) {
+            return true;
+        }
+
         if (!luckPermsAvailable) {
-            // Fallback sans LuckPerms : vérifier si ce joueur a ouvert la porte de l'étage précédent
-            String doorId = towerId + "_" + (floor - 1);
-            return playerId.equals(doorOpeners.get(doorId));
+            return false;
         }
 
         String permission = "quantum.tower.door." + towerId + "." + floor;

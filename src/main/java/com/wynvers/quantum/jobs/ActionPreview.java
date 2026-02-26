@@ -4,7 +4,6 @@ import com.wynvers.quantum.Quantum;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 /**
@@ -19,83 +18,6 @@ public class ActionPreview {
     public ActionPreview(Quantum plugin, JobManager jobManager) {
         this.plugin = plugin;
         this.jobManager = jobManager;
-    }
-    
-    /**
-     * Affiche une preview de ce que le joueur va gagner en tapant une structure
-     * @param player Le joueur
-     * @param structureId L'ID de la structure
-     * @param structureState L'état actuel de la structure (WHOLE, GOOD, DAMAGED, STUMP)
-     */
-    public void showStructureTapPreview(Player player, String structureId, String structureState) {
-        JobData jobData = jobManager.getPlayerJob(player.getUniqueId());
-        
-        if (jobData == null) {
-            return;
-        }
-        
-        Job job = jobManager.getJob(jobData.getJobId());
-        if (job == null) return;
-        
-        // Vérifier si la structure est valide pour ce métier
-        if (!job.isValidStructure(structureId)) {
-            return;
-        }
-        
-        // Récupérer les récompenses de base
-        ConfigurationSection actionRewards = jobManager.getConfig()
-            .getConfigurationSection("action_rewards.structure_tap." + structureState.toLowerCase());
-        
-        if (actionRewards == null) {
-            sendActionBar(player, ChatColor.GRAY + "Aucune récompense");
-            return;
-        }
-        
-        int baseExp = actionRewards.getInt("exp", 0);
-        double baseMoney = actionRewards.getDouble("money", 0.0);
-        
-        // Vérifier si le joueur est dans un donjon
-        boolean inDungeon = isPlayerInDungeon(player);
-        
-        // Calculer les multiplicateurs
-        double expMultiplier = jobManager.getExpMultiplier(player.getUniqueId(), inDungeon);
-        double moneyMultiplier = jobManager.getMoneyMultiplier(player.getUniqueId(), inDungeon);
-        
-        int finalExp = (int) (baseExp * expMultiplier);
-        double finalMoney = baseMoney * moneyMultiplier;
-        
-        // Construire le message de preview
-        StringBuilder preview = new StringBuilder();
-        
-        // Icône de l'état de la structure
-        String stateIcon = getStructureStateIcon(structureState);
-        preview.append(ChatColor.DARK_GRAY).append(stateIcon).append(" ");
-        
-        // Nom du métier avec couleur
-        preview.append(ChatColor.translateAlternateColorCodes('&', job.getDisplayName()))
-               .append(ChatColor.DARK_GRAY).append(" » ");
-        
-        // XP
-        preview.append(ChatColor.AQUA).append("+").append(finalExp).append(" XP");
-        
-        // Indicateur de booster XP
-        if (expMultiplier > 1.0) {
-            preview.append(ChatColor.GOLD).append(" ✦");
-        }
-        
-        // Argent
-        if (finalMoney > 0) {
-            preview.append(ChatColor.DARK_GRAY).append(" │ ");
-            preview.append(ChatColor.GREEN).append("+").append(String.format("%.1f", finalMoney)).append("$");
-            
-            // Indicateur de booster d'argent
-            if (moneyMultiplier > 1.0) {
-                preview.append(ChatColor.GOLD).append(" ✦");
-            }
-        }
-        
-        // Afficher dans l'action bar
-        sendActionBar(player, preview.toString());
     }
     
     /**
@@ -175,24 +97,6 @@ public class ActionPreview {
         // Footer
         player.sendMessage(ChatColor.DARK_GRAY + "Utilisez " + ChatColor.WHITE + "/job rewards" + 
                           ChatColor.DARK_GRAY + " pour voir plus de récompenses.");
-    }
-    
-    /**
-     * Retourne une icône représentant l'état de la structure
-     */
-    private String getStructureStateIcon(String state) {
-        switch (state.toUpperCase()) {
-            case "WHOLE":
-                return "█";
-            case "GOOD":
-                return "▓";
-            case "DAMAGED":
-                return "▒";
-            case "STUMP":
-                return "░";
-            default:
-                return "■";
-        }
     }
     
     /**

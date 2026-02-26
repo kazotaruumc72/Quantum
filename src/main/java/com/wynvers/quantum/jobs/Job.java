@@ -15,7 +15,6 @@ public class Job {
     private final List<String> description;
     private final String icon;
     private final int maxLevel;
-    private final List<String> validStructures;
     private final List<String> validOrestackStructures;
     private final List<String> validNexoBlocks;
     private final List<String> validNexoFurniture;
@@ -23,7 +22,7 @@ public class Job {
     private final Map<Integer, List<JobReward>> levelRewards;
 
     public Job(String id, String displayName, List<String> description, String icon,
-               int maxLevel, List<String> validStructures, List<String> validOrestackStructures,
+               int maxLevel, List<String> validOrestackStructures,
                List<String> validNexoBlocks, List<String> validNexoFurniture,
                Map<String, Boolean> allowedActions) {
         this.id = id;
@@ -31,7 +30,6 @@ public class Job {
         this.description = description;
         this.icon = icon;
         this.maxLevel = maxLevel;
-        this.validStructures = validStructures;
         this.validOrestackStructures = validOrestackStructures != null ? validOrestackStructures : new ArrayList<>();
         this.validNexoBlocks = validNexoBlocks != null ? validNexoBlocks : new ArrayList<>();
         this.validNexoFurniture = validNexoFurniture != null ? validNexoFurniture : new ArrayList<>();
@@ -59,10 +57,6 @@ public class Job {
         return maxLevel;
     }
     
-    public List<String> getValidStructures() {
-        return validStructures;
-    }
-
     public List<String> getValidOrestackStructures() {
         return validOrestackStructures;
     }
@@ -95,10 +89,6 @@ public class Job {
         return levelRewards;
     }
     
-    public boolean isValidStructure(String structureId) {
-        return validStructures.contains(structureId);
-    }
-
     public boolean isValidOrestackStructure(String structureId) {
         return validOrestackStructures.contains(structureId);
     }

@@ -5,7 +5,6 @@
 # Système de métiers complet avec progression
 # - Courbe d'XP identique au système de niveau du donjon
 # - Récompenses automatiques en serpent
-# - Actions onTap sur structures
 # - Support Nexo et MythicMobs
 
 # Configuration des jobs
@@ -20,12 +19,6 @@ jobs:
     icon: "minecraft:IRON_AXE"
     max_level: 100
     
-    # Structures valides pour ce job (depuis structures.yml)
-    valid_structures:
-      - "oak_tree_large"
-      - "spruce_tree_snow"
-      - "magic_tree"
-
     # Structures Orestack valides pour ce job
     valid_orestack_structures:
       - "oak_generator"
@@ -108,11 +101,6 @@ jobs:
     icon: "minecraft:IRON_PICKAXE"
     max_level: 100
     
-    valid_structures:
-      - "stone_deposit"
-      - "iron_deposit"
-      - "gold_deposit"
-
     # Structures Orestack valides pour ce job
     valid_orestack_structures:
       - "iron_ore_generator"
@@ -172,7 +160,6 @@ jobs:
     icon: "minecraft:DIAMOND_SWORD"
     max_level: 100
     
-    valid_structures: []
     valid_orestack_structures: []
     valid_nexo_blocks: []
     valid_nexo_furniture: []
@@ -215,21 +202,6 @@ jobs:
 
 # Configuration des récompenses par action
 action_rewards:
-  # Récompense pour avoir tapé une structure (par état de dégradation)
-  structure_tap:
-    whole:  # Structure entière
-      exp: 10
-      money: 5
-    good:   # Bon état
-      exp: 7
-      money: 3
-    damaged:  # Abîmée
-      exp: 5
-      money: 2
-    stump:  # Souche
-      exp: 2
-      money: 1
-  
   # Récompenses pour les actions
   break:      # Casser un bloc
     exp: 3
@@ -312,8 +284,6 @@ messages:
   job_level_up: "&6✦ Niveau supérieur! &7Vous êtes maintenant {job_name} &fniveau {level}&7!"
   job_reward_received: "&a✓ Récompense débloquée: {reward}"
   no_job_selected: "&cVous n'avez pas de métier sélectionné!"
-  structure_tapped: "&7+{exp} XP {job_name} &7| +{money}$"
-  invalid_structure: "&cCette structure ne correspond pas à votre métier!"
   booster_activated: "&a✓ Booster activé: {booster_name} &7(x{multiplier})"
   booster_expired: "&c✗ Votre booster {booster_name} a expiré!"
   already_has_job: "&cVous avez déjà un métier actif!"
@@ -327,5 +297,4 @@ messages:
   # Messages pour le système de preview (NOUVEAU)
   preview_hint: "&8[&7Clic droit pour aperçu&8]"
   preview_no_job: "&c⚠ Aucun métier sélectionné"
-  preview_invalid_structure: "&c⚠ Structure invalide pour votre métier"
   preview_no_rewards: "&7Aucune récompense"

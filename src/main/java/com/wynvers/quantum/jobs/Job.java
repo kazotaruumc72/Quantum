@@ -15,7 +15,7 @@ public class Job {
     private final List<String> description;
     private final String icon;
     private final int maxLevel;
-    private final Map<String, double[]> validOrestackStructures;
+    private final Map<String, double[]> validOnHitGenerators;
     private final Map<String, double[]> validNexoBlocks;
     private final Map<String, double[]> validNexoFurniture;
     // Maps mob type -> [exp, money] for vanilla mobs (-1 means use global default)
@@ -25,7 +25,7 @@ public class Job {
     private final Map<Integer, List<JobReward>> levelRewards;
 
     public Job(String id, String displayName, List<String> description, String icon,
-               int maxLevel, Map<String, double[]> validOrestackStructures,
+               int maxLevel, Map<String, double[]> validOnHitGenerators,
                Map<String, double[]> validNexoBlocks, Map<String, double[]> validNexoFurniture,
                Map<String, double[]> mobRewards, Map<String, double[]> mmobsRewards,
                Map<String, Boolean> allowedActions) {
@@ -34,7 +34,7 @@ public class Job {
         this.description = description;
         this.icon = icon;
         this.maxLevel = maxLevel;
-        this.validOrestackStructures = validOrestackStructures != null ? validOrestackStructures : new HashMap<>();
+        this.validOnHitGenerators = validOnHitGenerators != null ? validOnHitGenerators : new HashMap<>();
         this.validNexoBlocks = validNexoBlocks != null ? validNexoBlocks : new HashMap<>();
         this.validNexoFurniture = validNexoFurniture != null ? validNexoFurniture : new HashMap<>();
         this.mobRewards = mobRewards != null ? mobRewards : new HashMap<>();
@@ -63,8 +63,8 @@ public class Job {
         return maxLevel;
     }
 
-    public Map<String, double[]> getValidOrestackStructures() {
-        return validOrestackStructures;
+    public Map<String, double[]> getValidOnHitGenerators() {
+        return validOnHitGenerators;
     }
 
     public Map<String, double[]> getValidNexoBlocks() {

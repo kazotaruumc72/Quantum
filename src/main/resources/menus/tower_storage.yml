@@ -144,13 +144,13 @@ items:
     lore:
       - '&7Multiplie le prix de vente de vos items'
       - ' '
-      - '&fNiveau actuel: &e%storage_multiplier_level%'
-      - '&fMultiplicateur: &6x%storage_multiplier%'
+      - '&fNiveau actuel: &e%tower_storage_multiplier_level%'
+      - '&fMultiplicateur: &6x%tower_storage_multiplier%'
       - ' '
       - '&7Chaque upgrade ajoute &e+x0.5'
       - ' '
       - '&e► Cliquez pour améliorer'
-    button_type: QUANTUM_STORAGE_UPGRADE_MULTIPLIER
+    button_type: QUANTUM_TOWER_STORAGE_UPGRADE_MULTIPLIER
     static: true
 
   # ──────────────────────────────────────
@@ -163,13 +163,13 @@ items:
     lore:
       - '&7Augmente la taille maximale des stacks'
       - ' '
-      - '&fNiveau actuel: &e%storage_stack_level%'
-      - '&fStack max: &b%storage_stack_max% items'
+      - '&fNiveau actuel: &e%tower_storage_stack_level%'
+      - '&fStack max: &b%tower_storage_stack_max% items'
       - ' '
       - '&7Chaque upgrade ajoute &e+200 items'
       - ' '
       - '&e► Cliquez pour améliorer'
-    button_type: QUANTUM_STORAGE_UPGRADE_STACK
+    button_type: QUANTUM_TOWER_STORAGE_UPGRADE_STACK
     static: true
 
   # ──────────────────────────────────────
@@ -183,13 +183,13 @@ items:
       - '&7Augmente le nombre de pages de storage'
       - '&7Maximum: &e5 pages'
       - ' '
-      - '&fNiveau actuel: &e%storage_page_level%'
-      - '&fPages: &d%storage_pages% / 5'
+      - '&fNiveau actuel: &e%tower_storage_page_level%'
+      - '&fPages: &d%tower_storage_pages% / 5'
       - ' '
       - '&7Chaque upgrade ajoute &e+1 page'
       - ' '
       - '&e► Cliquez pour améliorer'
-    button_type: QUANTUM_STORAGE_UPGRADE_PAGE
+    button_type: QUANTUM_TOWER_STORAGE_UPGRADE_PAGE
     static: true
 
   # ──────────────────────────────────────

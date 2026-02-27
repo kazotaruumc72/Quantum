@@ -116,6 +116,15 @@ public class DatabaseManager {
                     "amount INT NOT NULL, " +
                     "PRIMARY KEY (player_uuid, material, nexo_id)" +
                     ")");
+
+            // Tower storage table (separate from player_storage)
+            st.executeUpdate("CREATE TABLE IF NOT EXISTS tower_storage (" +
+                    "player_uuid VARCHAR(36) NOT NULL, " +
+                    "material VARCHAR(255) NOT NULL DEFAULT '', " +
+                    "nexo_id VARCHAR(255) NOT NULL DEFAULT '', " +
+                    "amount INT NOT NULL, " +
+                    "PRIMARY KEY (player_uuid, material, nexo_id)" +
+                    ")");
             
             // Statistics table (trades par catégorie)
             st.executeUpdate("CREATE TABLE IF NOT EXISTS statistics (" +

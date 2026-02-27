@@ -3,6 +3,7 @@ package com.wynvers.quantum.managers;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.storage.StorageMode;
 import com.wynvers.quantum.storage.PlayerStorage;
+import com.wynvers.quantum.towers.storage.TowerStorageMode;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -192,6 +193,16 @@ public class PlaceholderManager {
         
         if (params.equals("mode_simple")) {
             return StorageMode.getSimpleModeDisplay(player);
+        }
+
+        // === TOWER STORAGE MODE ===
+        if (params.equals("tower_mode") || params.equals("tower_mode_simple")) {
+            return TowerStorageMode.getSimpleModeDisplay(player);
+        }
+
+        if (params.equals("tower_mode_display")) {
+            String modeDisplay = TowerStorageMode.getModeDisplay(player);
+            return ChatColor.translateAlternateColorCodes('&', modeDisplay);
         }
         
         // === STORAGE STATS ===

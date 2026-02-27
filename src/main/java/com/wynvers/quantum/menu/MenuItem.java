@@ -3,6 +3,7 @@ package com.wynvers.quantum.menu;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.sell.SellSession;
 import com.wynvers.quantum.storage.StorageMode;
+import com.wynvers.quantum.towers.storage.TowerStorageMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
@@ -196,6 +197,10 @@ public class MenuItem {
     public boolean isQuantumStorage() {
         return "quantum_storage".equalsIgnoreCase(type);
     }
+
+    public boolean isQuantumTowerStorage() {
+        return "quantum_tower_storage".equalsIgnoreCase(type);
+    }
     
     // === SETTERS ===
     
@@ -355,6 +360,33 @@ public class MenuItem {
                 }, 2L);
             }
             
+            return;
+        }
+
+        // === QUANTUM_TOWER_CHANGE_MODE ===
+        if (buttonType == ButtonType.QUANTUM_TOWER_CHANGE_MODE) {
+            if (targetMode != null) {
+                try {
+                    TowerStorageMode.Mode mode = TowerStorageMode.Mode.valueOf(targetMode.toUpperCase());
+                    TowerStorageMode.setMode(player, mode);
+                    player.sendMessage("§aMode Tower Storage changé en: §e" + mode.getDisplayName());
+                } catch (IllegalArgumentException e) {
+                    TowerStorageMode.toggleMode(player);
+                    player.sendMessage("§aMode Tower Storage changé en: §e" + TowerStorageMode.getModeDisplay(player));
+                }
+            } else {
+                TowerStorageMode.toggleMode(player);
+                player.sendMessage("§aMode Tower Storage changé en: §e" + TowerStorageMode.getModeDisplay(player));
+            }
+
+            Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
+            if (activeMenu != null) {
+                player.closeInventory();
+                org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    activeMenu.open(player, plugin);
+                }, 2L);
+            }
+
             return;
         }
         

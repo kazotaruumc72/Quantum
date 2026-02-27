@@ -58,6 +58,8 @@ public class TowerCommand implements CommandExecutor {
                 return handleComplete(sender, args);
             case "reload":
                 return handleReload(sender);
+            case "storage":
+                return handleStorage(sender);
             default:
                 sendHelp(sender);
                 return true;
@@ -344,6 +346,30 @@ public class TowerCommand implements CommandExecutor {
     }
 
     /**
+     * Open tower storage menu
+     */
+    private boolean handleStorage(CommandSender sender) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("§cCette commande ne peut être exécutée que par un joueur!");
+            return true;
+        }
+
+        if (!player.hasPermission("quantum.tower.storage")) {
+            plugin.getMessageManager().sendMessage(player, "system.no-permission");
+            return true;
+        }
+
+        com.wynvers.quantum.menu.Menu towerStorageMenu = plugin.getMenuManager().getMenu("tower_storage");
+        if (towerStorageMenu != null) {
+            towerStorageMenu.open(player, plugin);
+        } else {
+            plugin.getMessageManager().sendMessage(player, "error.menu.failed-to-open");
+        }
+
+        return true;
+    }
+
+    /**
      * Send help message
      */
     private void sendHelp(CommandSender sender) {
@@ -352,6 +378,7 @@ public class TowerCommand implements CommandExecutor {
         sender.sendMessage("");
         sender.sendMessage("§e/tower progress §7- Voir votre progression");
         sender.sendMessage("§e/tower progress <joueur> §7- Voir la progression d'un joueur");
+        sender.sendMessage("§e/tower storage §7- Ouvrir le tower storage");
 
         if (sender.hasPermission("quantum.tower.reset")) {
             sender.sendMessage("§e/tower reset <joueur> §7- Réinitialiser la progression");

@@ -1,0 +1,262 @@
+# ========================================
+# QUANTUM TOWER STORAGE MENU
+# ========================================
+# Menu de gestion du stockage virtuel Tower Storage
+# Supporte les modes: STORAGE (stockage), SELL (vente), RECHERCHE (offres d'achat)
+# Syntaxe compatible DeluxeMenus avec actions Quantum
+
+menu_title: '&fTower Storage &8| &eMode: %tower_mode_simple%'
+size: 54
+
+items:
+
+  # ──────────────────────────────────────
+  # BORDURES DÉCORATIVES
+  # ──────────────────────────────────────
+  border:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: ' '
+    custom_model_data: 1
+    slots: [1, 2, 3, 5, 6, 7]
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: MODE STOCKAGE (Coin haut gauche)
+  # ──────────────────────────────────────
+  mode_storage:
+    slots: [0]
+    material: LIME_WOOL
+    custom_model_data: 100
+    display_name: '&a&l⚡ Mode: Storage'
+    lore:
+      - '&7Activez le mode stockage'
+      - '&7Mode actuel: &e%tower_mode_simple%'
+      - ' '
+      - '&a&l✓ En mode Storage:'
+      - '&7  • Déposez vos items'
+      - '&7  • Retirez vos items'
+      - '&7  • Stockage sécurisé illimité'
+      - ' '
+      - '&e► Cliquez pour activer'
+    button_type: QUANTUM_TOWER_CHANGE_MODE
+    mode: STORAGE
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: MODE RECHERCHE (Milieu haut)
+  # ──────────────────────────────────────
+  mode_recherche:
+    slots: [4]
+    material: DIAMOND
+    custom_model_data: 101
+    display_name: '&b&l⚡ Mode: Recherche'
+    lore:
+      - '&7Activez le mode recherche d''items'
+      - '&7Mode actuel: &e%tower_mode_simple%'
+      - ' '
+      - '&b&l✓ En mode Recherche:'
+      - '&7  • Créez des offres d''achat'
+      - '&7  • Choisissez quantité et prix'
+      - '&7  • Les joueurs vous vendent'
+      - ' '
+      - '&c⚠ Requis: Minimum 1 item en stock'
+      - ' '
+      - '&e► Cliquez pour activer'
+    button_type: QUANTUM_TOWER_CHANGE_MODE
+    mode: RECHERCHE
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: MODE VENTE (Coin haut droit)
+  # ──────────────────────────────────────
+  mode_sell:
+    slots: [8]
+    material: GOLD_BLOCK
+    custom_model_data: 102
+    display_name: '&6&l⚡ Mode: Vente'
+    lore:
+      - '&7Activez le mode vente'
+      - '&7Mode actuel: &e%tower_mode_simple%'
+      - ' '
+      - '&6&l✓ En mode Vente:'
+      - '&7  • Vendez vos items stockés'
+      - '&7  • Prix automatiques'
+      - '&7  • Argent instantané'
+      - ' '
+      - '&e► Cliquez pour activer'
+    button_type: QUANTUM_TOWER_CHANGE_MODE
+    mode: SELL
+    static: true
+
+  # ──────────────────────────────────────
+  # SLOTS DE STOCKAGE DYNAMIQUES
+  # ──────────────────────────────────────
+  storage_slots:
+    slots: [9, 10, 11, 12, 13, 14, 15, 16, 17,
+            18, 19, 20, 21, 22, 23, 24, 25, 26,
+            27, 28, 29, 30, 31, 32, 33, 34, 35,
+            36, 37, 38, 39, 40, 41, 42, 43, 44]
+    type: quantum_tower_storage
+    custom_model_data: 200
+    lore_append:
+      - ' '
+      - '&8─────────────────────'
+      - '&fQuantité: &a%quantity%'
+      - '&fPrix unitaire: &6%price%'
+      - '&fPrix total: &e%total_price%'
+      - '&8─────────────────────'
+      - ' '
+      - '&7▸ Clic gauche: &eCréer offre (mode Recherche)'
+      - '&7▸ Clic droit: &eVendre (mode Vente)'
+
+
+  # ──────────────────────────────────────
+  # BOUTON: PAGE PRÉCÉDENTE
+  # ──────────────────────────────────────
+  previous_page:
+    slots: [45]
+    material: ARROW
+    custom_model_data: 400
+    display_name: '&e◄ Page Précédente'
+    lore:
+      - '&7Aller à la page précédente'
+      - ' '
+      - '&e► Cliquez pour revenir'
+    button_type: QUANTUM_TOWER_STORAGE_PREV_PAGE
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: RECHERCHER
+  # ──────────────────────────────────────
+  search:
+    slots: [46]
+    material: SPYGLASS
+    custom_model_data: 402
+    display_name: '&b&l🔍 Rechercher'
+    lore:
+      - '&7Recherchez un item spécifique'
+      - '&7dans votre tower storage'
+      - ' '
+      - '&e► Cliquez pour rechercher'
+    button_type: QUANTUM_TOWER_STORAGE_SEARCH
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: FILTRER PAR TYPE
+  # ──────────────────────────────────────
+  filter_type:
+    slots: [47]
+    material: HOPPER
+    custom_model_data: 403
+    display_name: '&d&l⚡ Filtrer par Type'
+    lore:
+      - '&7Filtrez les items par leur type'
+      - ' '
+      - '&fOptions:'
+      - '&7  • &aTous les items'
+      - '&7  • &bItems Nexo uniquement'
+      - '&7  • &6Items Minecraft uniquement'
+      - ' '
+      - '&e► Cliquez pour changer le filtre'
+    button_type: QUANTUM_TOWER_STORAGE_FILTER_TYPE
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: TRI
+  # ──────────────────────────────────────
+  sort:
+    slots: [48]
+    material: COMPARATOR
+    custom_model_data: 404
+    display_name: '&a&l⇅ Trier'
+    lore:
+      - '&7Changez le mode de tri'
+      - ' '
+      - '&fOptions:'
+      - '&7  • &aAlphabétique (A → Z)'
+      - '&7  • &bQuantité (élevé → bas)'
+      - '&7  • &6Prix (élevé → bas)'
+      - '&7  • &eRécent (récent → ancien)'
+      - ' '
+      - '&e► Cliquez pour changer le tri'
+    button_type: QUANTUM_TOWER_STORAGE_SORT
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: RÉINITIALISER FILTRES
+  # ──────────────────────────────────────
+  reset_filters:
+    slots: [49]
+    material: BUCKET
+    custom_model_data: 405
+    display_name: '&c&l✖ Réinitialiser'
+    lore:
+      - '&7Réinitialisez tous les filtres'
+      - '&7et la recherche'
+      - ' '
+      - '&e► Cliquez pour réinitialiser'
+    button_type: QUANTUM_TOWER_STORAGE_RESET_FILTERS
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: FERMER
+  # ──────────────────────────────────────
+  close:
+    slots: [50]
+    material: BARRIER
+    custom_model_data: 399
+    display_name: '&c&l✖ Fermer'
+    lore:
+      - '&7Fermez ce menu'
+      - ' '
+      - '&e► Cliquez pour fermer'
+    left_click_actions:
+      - '[close]'
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: HISTORIQUE
+  # ──────────────────────────────────────
+  history:
+    slots: [51]
+    material: WRITABLE_BOOK
+    custom_model_data: 406
+    display_name: '&e&l📝 Historique'
+    lore:
+      - '&7Consultez l''historique complet'
+      - '&7de vos transactions'
+      - ' '
+      - '&e► Cliquez pour ouvrir l''historique'
+    button_type: QUANTUM_VIEW_HISTORY
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: STATISTIQUES
+  # ──────────────────────────────────────
+  statistics:
+    slots: [52]
+    material: KNOWLEDGE_BOOK
+    custom_model_data: 407
+    display_name: '&b&l📊 Statistiques'
+    lore:
+      - '&7Analysez vos performances'
+      - '&7de trading'
+      - ' '
+      - '&e► Cliquez pour voir les stats détaillées'
+    button_type: QUANTUM_VIEW_STATS
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: PAGE SUIVANTE
+  # ──────────────────────────────────────
+  next_page:
+    slots: [53]
+    material: ARROW
+    custom_model_data: 401
+    display_name: '&ePage Suivante ►'
+    lore:
+      - '&7Aller à la page suivante'
+      - ' '
+      - '&e► Cliquez pour continuer'
+    button_type: QUANTUM_TOWER_STORAGE_NEXT_PAGE
+    static: true

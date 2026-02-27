@@ -464,6 +464,37 @@ public class TowerDoorManager {
     }
 
     /**
+     * Sends fake AIR block updates to the player for the door zone on the given floor,
+     * making the passage appear open to that player only.
+     */
+    public void showAirView(Player player, String towerId, int floor) {
+        sendFakeBlocks(player, towerId, floor, Material.AIR);
+    }
+
+    /**
+     * Sends fake BARRIER block updates to the player for the door zone on the given floor,
+     * making the passage appear blocked to that player only.
+     */
+    public void showBarrierView(Player player, String towerId, int floor) {
+        sendFakeBlocks(player, towerId, floor, Material.BARRIER);
+    }
+
+    private void sendFakeBlocks(Player player, String towerId, int floor, Material material) {
+        String doorId = towerId + "_" + floor;
+        DoorConfig config = doorConfigs.get(doorId);
+        if (config == null) return;
+        World world = config.getPos1().getWorld();
+        org.bukkit.block.data.BlockData blockData = material.createBlockData();
+        for (int x = config.getMinX(); x <= config.getMaxX(); x++) {
+            for (int y = config.getMinY(); y <= config.getMaxY(); y++) {
+                for (int z = config.getMinZ(); z <= config.getMaxZ(); z++) {
+                    player.sendBlockChange(new Location(world, x, y, z), blockData);
+                }
+            }
+        }
+    }
+
+    /**
      * Vérifie si un joueur a la permission temporaire d'accéder à un étage spécifique
      * Cette méthode est utilisée par ZoneManager pour contrôler l'accès
      */

@@ -17,12 +17,15 @@ import java.util.stream.Collectors;
 public class ApartmentTabCompleter implements TabCompleter {
 
     private static final List<String> SUBCOMMANDS = Arrays.asList(
-            "create", "upgrade", "invite", "remove", "lock", "unlock", "tp", "teleport", "contrat", "catalogue"
+            "create", "upgrade", "invite", "remove", "lock", "unlock", "tp", "teleport", "contrat", "catalogue",
+            "door", "porte"
     );
 
     private static final List<String> SIZES = Arrays.asList("petit", "moyen", "grand");
 
     private static final List<String> CONTRACT_SUBS = Arrays.asList("adddeadline");
+
+    private static final List<String> DOOR_SUBS = Arrays.asList("wand", "set", "delete", "open");
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
@@ -47,6 +50,9 @@ public class ApartmentTabCompleter implements TabCompleter {
                 }
                 case "create" -> completions.add("<nom>");
                 case "contrat" -> completions = CONTRACT_SUBS.stream()
+                        .filter(s -> s.startsWith(input))
+                        .collect(Collectors.toList());
+                case "door", "porte" -> completions = DOOR_SUBS.stream()
                         .filter(s -> s.startsWith(input))
                         .collect(Collectors.toList());
             }

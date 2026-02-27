@@ -2,6 +2,7 @@ package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.apartment.Apartment;
+import com.wynvers.quantum.apartment.ApartmentDoorManager;
 import com.wynvers.quantum.apartment.ApartmentManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -26,10 +27,12 @@ public class ApartmentCommand implements CommandExecutor {
 
     private final Quantum plugin;
     private final ApartmentManager apartmentManager;
+    private final ApartmentDoorManager doorManager;
 
-    public ApartmentCommand(Quantum plugin, ApartmentManager apartmentManager) {
+    public ApartmentCommand(Quantum plugin, ApartmentManager apartmentManager, ApartmentDoorManager doorManager) {
         this.plugin = plugin;
         this.apartmentManager = apartmentManager;
+        this.doorManager = doorManager;
     }
 
     @Override
@@ -56,6 +59,7 @@ public class ApartmentCommand implements CommandExecutor {
             case "tp", "teleport" -> handleTeleport(player);
             case "contrat" -> handleContract(player, args);
             case "catalogue" -> handleCatalogue(player);
+            case "door", "porte" -> handleDoor(player, args);
             default -> player.sendMessage("§cCommande inconnue. Utilisez §f/apartment §cpour l'aide.");
         }
 
@@ -260,6 +264,84 @@ public class ApartmentCommand implements CommandExecutor {
             plugin.getMenuManager().openMenu(player, "personnal_catalogue");
         } else {
             player.sendMessage("§cLe système de menus n'est pas disponible.");
+        }
+    }
+
+    // ──────── DOOR ────────
+
+    private void handleDoor(Player player, String[] args) {
+        if (!player.hasPermission("quantum.apartment.door.admin")) {
+            player.sendMessage("§cVous n'avez pas la permission de gérer les portes d'appartement.");
+            return;
+        }
+
+        if (args.length < 2) {
+            player.sendMessage("§cUtilisation:");
+            player.sendMessage("§f/apartment door wand §7- Obtenir la hache de sélection");
+            player.sendMessage("§f/apartment door set <id> §7- Enregistrer la porte");
+            player.sendMessage("§f/apartment door delete <id> §7- Supprimer la porte");
+            player.sendMessage("§f/apartment door open <id> §7- Ouvrir la porte manuellement");
+            return;
+        }
+
+        String sub = args[1].toLowerCase();
+
+        switch (sub) {
+            case "wand" -> {
+                player.getInventory().addItem(ApartmentDoorManager.createWand());
+                player.sendMessage("§b§l[AptDoor] §7Hache de sélection ajoutée à votre inventaire.");
+            }
+            case "set" -> {
+                if (args.length < 3) {
+                    player.sendMessage("§cUtilisation: §f/apartment door set <id>");
+                    return;
+                }
+                int aptId = parseApartmentId(player, args[2]);
+                if (aptId < 0) return;
+                doorManager.createDoor(player, aptId);
+            }
+            case "delete" -> {
+                if (args.length < 3) {
+                    player.sendMessage("§cUtilisation: §f/apartment door delete <id>");
+                    return;
+                }
+                int aptId = parseApartmentId(player, args[2]);
+                if (aptId < 0) return;
+                if (doorManager.deleteDoor(aptId)) {
+                    player.sendMessage("§a§l[AptDoor] §aPorte supprimée pour l'appartement §f" + aptId + "§a.");
+                } else {
+                    player.sendMessage("§cAucune porte configurée pour l'appartement §f" + aptId + "§c.");
+                }
+            }
+            case "open" -> {
+                if (args.length < 3) {
+                    player.sendMessage("§cUtilisation: §f/apartment door open <id>");
+                    return;
+                }
+                int aptId = parseApartmentId(player, args[2]);
+                if (aptId < 0) return;
+                if (doorManager.getDoorConfig(aptId) == null) {
+                    player.sendMessage("§cAucune porte configurée pour l'appartement §f" + aptId + "§c.");
+                    return;
+                }
+                doorManager.openDoor(aptId, player);
+                player.sendMessage("§a§l[AptDoor] §aPorte ouverte pour l'appartement §f" + aptId + "§a.");
+            }
+            default -> player.sendMessage("§cSous-commande inconnue. Utilisez §f/apartment door §cpour l'aide.");
+        }
+    }
+
+    /**
+     * Parses an apartment id from a string and sends an error message on failure.
+     *
+     * @return the parsed id, or -1 on failure
+     */
+    private int parseApartmentId(Player player, String str) {
+        try {
+            return Integer.parseInt(str);
+        } catch (NumberFormatException e) {
+            player.sendMessage("§cL'identifiant d'appartement doit être un nombre entier.");
+            return -1;
         }
     }
 }

@@ -149,6 +149,7 @@ public final class Quantum extends JavaPlugin {
     
     // Apartment System (preparation phase)
     private ApartmentManager apartmentManager;
+    private com.wynvers.quantum.apartment.ApartmentDoorManager apartmentDoorManager;
     
     // Chat System
     private com.wynvers.quantum.chat.ChatManager chatManager;
@@ -465,6 +466,13 @@ public final class Quantum extends JavaPlugin {
         
         this.apartmentManager = new ApartmentManager(this, databaseManager);
         logger.success("✓ Apartment Manager (preparation phase)");
+
+        this.apartmentDoorManager = new com.wynvers.quantum.apartment.ApartmentDoorManager(this, apartmentManager);
+        getServer().getPluginManager().registerEvents(
+                new com.wynvers.quantum.listeners.ApartmentDoorListener(apartmentDoorManager, apartmentManager),
+                this
+        );
+        logger.success("✓ Apartment Door Manager + Listener");
         
         // Chat System
         this.chatManager = new ChatManager(this, messageManager, placeholderManager);
@@ -679,7 +687,7 @@ public final class Quantum extends JavaPlugin {
         
         // Apartment Command
         if (apartmentManager != null) {
-            getCommand("apartment").setExecutor(new ApartmentCommand(this, apartmentManager));
+            getCommand("apartment").setExecutor(new ApartmentCommand(this, apartmentManager, apartmentDoorManager));
             getCommand("apartment").setTabCompleter(new com.wynvers.quantum.tabcompleters.ApartmentTabCompleter());
             logger.success("✓ Apartment Command + TabCompleter");
         }
@@ -954,6 +962,10 @@ public final class Quantum extends JavaPlugin {
     
     public ApartmentManager getApartmentManager() {
         return apartmentManager;
+    }
+
+    public com.wynvers.quantum.apartment.ApartmentDoorManager getApartmentDoorManager() {
+        return apartmentDoorManager;
     }
     
     public com.wynvers.quantum.chat.ChatManager getChatManager() {

@@ -290,6 +290,21 @@ public class ApartmentManager {
         }
     }
 
+    public boolean isVisitor(int apartmentId, UUID visitorUuid) {
+        String sql = "SELECT 1 FROM quantum_apartment_visitors WHERE apartment_id = ? AND visitor_uuid = ?";
+        try (Connection conn = databaseManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, apartmentId);
+            ps.setString(2, visitorUuid.toString());
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Failed to check visitor: " + e.getMessage());
+            return false;
+        }
+    }
+
     public boolean removeVisitor(int apartmentId, UUID visitorUuid) {
         String sql = "DELETE FROM quantum_apartment_visitors WHERE apartment_id = ? AND visitor_uuid = ?";
         try (Connection conn = databaseManager.getConnection();

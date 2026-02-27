@@ -443,17 +443,22 @@ permissions:
       quantum.apartment.use: true
       quantum.apartment.create: true
       quantum.apartment.upgrade: true
-  
+      quantum.apartment.door.admin: true
+
   quantum.apartment.use:
     description: Use apartment system
     default: true
-  
+
   quantum.apartment.create:
     description: Create apartments
     default: true
-  
+
   quantum.apartment.upgrade:
     description: Upgrade apartments
+
+  quantum.apartment.door.admin:
+    description: Manage apartment front doors (set/delete/open)
+    default: op
   
   # Chat system
   quantum.chat.*:

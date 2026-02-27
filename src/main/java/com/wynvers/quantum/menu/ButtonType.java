@@ -57,5 +57,12 @@ public enum ButtonType {
     QUANTUM_TOWER_STORAGE_SEARCH,       // Rechercher un item dans le tower storage
     QUANTUM_TOWER_STORAGE_FILTER_TYPE,  // Filtrer par type dans le tower storage
     QUANTUM_TOWER_STORAGE_SORT,         // Changer le mode de tri du tower storage
-    QUANTUM_TOWER_STORAGE_RESET_FILTERS // Réinitialiser les filtres du tower storage
+    QUANTUM_TOWER_STORAGE_RESET_FILTERS, // Réinitialiser les filtres du tower storage
+
+    // === STORAGE UPGRADE BUTTONS ===
+    QUANTUM_STORAGE_UPGRADE_MULTIPLIER, // Upgrade multiplicateur de vente
+    QUANTUM_STORAGE_UPGRADE_STACK,      // Upgrade taille des stacks
+    QUANTUM_STORAGE_UPGRADE_PAGE,       // Upgrade nombre de pages
+    QUANTUM_STORAGE_SELL_ALL,           // Vendre tout le contenu du storage
+    QUANTUM_TOWER_STORAGE_SELL_ALL      // Vendre tout le contenu du tower storage
 }

@@ -56,6 +56,11 @@ public class QuantumTabCompleter implements TabCompleter {
             if (sender.hasPermission("quantum.admin.orders")) {
                 subcommands.add("orders");
             }
+
+            // Ajouter storages si admin
+            if (sender.hasPermission("quantum.admin")) {
+                subcommands.add("storages");
+            }
             
             // Filtrer les suggestions basées sur ce que l'utilisateur a tapé
             String input = args[0].toLowerCase();
@@ -282,6 +287,19 @@ public class QuantumTabCompleter implements TabCompleter {
             }
             if (hasCurrencyArg && plugin.getVaultManager() != null) {
                 completions.addAll(plugin.getVaultManager().getCurrencyIds());
+            }
+        }
+        // Tab completion pour /quantum storages
+        else if (args.length == 2 && args[0].equalsIgnoreCase("storages")) {
+            completions.add("upgrade");
+        }
+        else if (args.length == 3 && args[0].equalsIgnoreCase("storages") && args[1].equalsIgnoreCase("upgrade")) {
+            completions.addAll(Arrays.asList("multiplicateur", "stack", "page"));
+        }
+        else if (args.length == 4 && args[0].equalsIgnoreCase("storages") && args[1].equalsIgnoreCase("upgrade")) {
+            // Joueur cible
+            for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
+                completions.add(p.getName());
             }
         }
         

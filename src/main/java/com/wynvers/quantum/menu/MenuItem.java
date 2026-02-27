@@ -434,6 +434,47 @@ public class MenuItem {
             
             return;
         }
+
+        // === QUANTUM_STORAGE_UPGRADE_MULTIPLIER ===
+        if (buttonType == ButtonType.QUANTUM_STORAGE_UPGRADE_MULTIPLIER) {
+            plugin.getStorageUpgradeManager().upgradeMultiplier(player, plugin);
+            refreshActiveMenu(player, plugin);
+            return;
+        }
+
+        // === QUANTUM_STORAGE_UPGRADE_STACK ===
+        if (buttonType == ButtonType.QUANTUM_STORAGE_UPGRADE_STACK) {
+            plugin.getStorageUpgradeManager().upgradeStack(player, plugin);
+            refreshActiveMenu(player, plugin);
+            return;
+        }
+
+        // === QUANTUM_STORAGE_UPGRADE_PAGE ===
+        if (buttonType == ButtonType.QUANTUM_STORAGE_UPGRADE_PAGE) {
+            plugin.getStorageUpgradeManager().upgradePage(player, plugin);
+            refreshActiveMenu(player, plugin);
+            return;
+        }
+
+        // === QUANTUM_STORAGE_SELL_ALL ===
+        if (buttonType == ButtonType.QUANTUM_STORAGE_SELL_ALL) {
+            if (!player.hasPermission("quantum.storage.sellall")) {
+                player.sendMessage("§c§l✗ §cVous n'avez pas la permission de vendre tout votre storage.");
+                return;
+            }
+            handleSellAll(player, plugin, false);
+            return;
+        }
+
+        // === QUANTUM_TOWER_STORAGE_SELL_ALL ===
+        if (buttonType == ButtonType.QUANTUM_TOWER_STORAGE_SELL_ALL) {
+            if (!player.hasPermission("quantum.storage.sellall")) {
+                player.sendMessage("§c§l✗ §cVous n'avez pas la permission de vendre tout votre tower storage.");
+                return;
+            }
+            handleSellAll(player, plugin, true);
+            return;
+        }
         
         // === ORDER BUTTONS - Déléguer à OrderButtonHandler ===
         if (isOrderButton()) {
@@ -488,6 +529,89 @@ public class MenuItem {
                buttonType == ButtonType.QUANTUM_SET_PRICE_MAX ||
                buttonType == ButtonType.QUANTUM_FINALIZE_ORDER ||
                buttonType == ButtonType.QUANTUM_CANCEL_ORDER;
+    }
+
+    private void refreshActiveMenu(Player player, Quantum plugin) {
+        Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
+        if (activeMenu != null) {
+            org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> activeMenu.open(player, plugin), 2L);
+        }
+    }
+
+    /**
+     * Vendre tout le contenu du storage (regular ou tower)
+     */
+    private void handleSellAll(Player player, Quantum plugin, boolean towerStorage) {
+        if (!plugin.getVaultManager().isEnabled()) {
+            player.sendMessage("§c§l✗ §cL'économie n'est pas disponible. Vente annulée.");
+            return;
+        }
+
+        double totalEarned = 0.0;
+        int totalItems = 0;
+
+        if (towerStorage) {
+            com.wynvers.quantum.towers.storage.PlayerTowerStorage storage =
+                    plugin.getTowerStorageManager().getStorage(player);
+
+            Map<org.bukkit.Material, Integer> vanillaCopy = new HashMap<>(storage.getVanillaItems());
+            Map<String, Integer> nexoCopy = new HashMap<>(storage.getNexoItems());
+
+            for (Map.Entry<org.bukkit.Material, Integer> entry : vanillaCopy.entrySet()) {
+                double price = plugin.getPriceManager().getPrice(entry.getKey().name().toUpperCase());
+                if (price > 0) {
+                    totalEarned += price * entry.getValue();
+                    totalItems += entry.getValue();
+                    storage.removeItem(entry.getKey(), entry.getValue());
+                }
+            }
+            for (Map.Entry<String, Integer> entry : nexoCopy.entrySet()) {
+                double price = plugin.getPriceManager().getPrice(entry.getKey());
+                if (price > 0) {
+                    totalEarned += price * entry.getValue();
+                    totalItems += entry.getValue();
+                    storage.removeNexoItem(entry.getKey(), entry.getValue());
+                }
+            }
+            storage.save(plugin);
+        } else {
+            com.wynvers.quantum.storage.PlayerStorage storage =
+                    plugin.getStorageManager().getStorage(player);
+
+            Map<org.bukkit.Material, Integer> vanillaCopy = new HashMap<>(storage.getVanillaItems());
+            Map<String, Integer> nexoCopy = new HashMap<>(storage.getNexoItems());
+
+            for (Map.Entry<org.bukkit.Material, Integer> entry : vanillaCopy.entrySet()) {
+                double price = plugin.getPriceManager().getPrice(entry.getKey().name().toUpperCase());
+                if (price > 0) {
+                    totalEarned += price * entry.getValue();
+                    totalItems += entry.getValue();
+                    storage.removeItem(entry.getKey(), entry.getValue());
+                }
+            }
+            for (Map.Entry<String, Integer> entry : nexoCopy.entrySet()) {
+                double price = plugin.getPriceManager().getPrice(entry.getKey());
+                if (price > 0) {
+                    totalEarned += price * entry.getValue();
+                    totalItems += entry.getValue();
+                    storage.removeNexoItem(entry.getKey(), entry.getValue());
+                }
+            }
+            storage.save(plugin);
+        }
+
+        if (totalItems == 0) {
+            player.sendMessage("§c§l✗ §cAucun item vendable dans votre storage.");
+            return;
+        }
+
+        plugin.getVaultManager().deposit(player, totalEarned);
+
+        player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
+        player.sendMessage("§a§l✓ §aVente totale: §e" + totalItems + " §aitems vendus pour §6"
+                + String.format("%.2f", totalEarned) + "$");
+
+        refreshActiveMenu(player, plugin);
     }
     
     /**

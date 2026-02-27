@@ -76,6 +76,11 @@ public class QuantumCommand implements CommandExecutor {
             return economyCommand.execute(sender, args);
         }
 
+        // Storage upgrades commands
+        if (subCommand.equals("storages")) {
+            return handleStorages(sender, args);
+        }
+
         switch (subCommand) {
             case "setspawn": {
                 if (!(sender instanceof Player)) {
@@ -346,6 +351,62 @@ public class QuantumCommand implements CommandExecutor {
         if (plugin.getJobManager() != null) plugin.getJobManager().reload();
 
         sender.sendMessage("§a§l✓ §aTout a été rechargé avec succès!");
+    }
+
+    private boolean handleStorages(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("quantum.admin")) {
+            sender.sendMessage("§cVous n'avez pas la permission d'utiliser cette commande.");
+            return true;
+        }
+
+        // /quantum storages upgrade <type> <player>
+        if (args.length >= 3 && args[1].equalsIgnoreCase("upgrade")) {
+            String upgradeType = args[2].toLowerCase();
+            Player target = null;
+
+            if (args.length >= 4) {
+                target = org.bukkit.Bukkit.getPlayer(args[3]);
+                if (target == null) {
+                    sender.sendMessage("§cJoueur introuvable: " + args[3]);
+                    return true;
+                }
+            } else if (sender instanceof Player) {
+                target = (Player) sender;
+            } else {
+                sender.sendMessage("§cUsage: /quantum storages upgrade <multiplicateur|stack|page> <joueur>");
+                return true;
+            }
+
+            switch (upgradeType) {
+                case "multiplicateur":
+                    plugin.getStorageUpgradeManager().upgradeMultiplier(target, plugin);
+                    if (!target.equals(sender)) {
+                        sender.sendMessage("§aMultiplicateur de " + target.getName() + " amélioré!");
+                    }
+                    break;
+                case "stack":
+                    plugin.getStorageUpgradeManager().upgradeStack(target, plugin);
+                    if (!target.equals(sender)) {
+                        sender.sendMessage("§aStack de " + target.getName() + " amélioré!");
+                    }
+                    break;
+                case "page":
+                    plugin.getStorageUpgradeManager().upgradePage(target, plugin);
+                    if (!target.equals(sender)) {
+                        sender.sendMessage("§aPages de " + target.getName() + " améliorées!");
+                    }
+                    break;
+                default:
+                    sender.sendMessage("§cType d'upgrade inconnu. Valeurs possibles: multiplicateur, stack, page");
+            }
+            return true;
+        }
+
+        sender.sendMessage("§6§lCOMMANDES STORAGES");
+        sender.sendMessage("§e/quantum storages upgrade multiplicateur [joueur] §7- Améliore le multiplicateur de vente (+x0.5)");
+        sender.sendMessage("§e/quantum storages upgrade stack [joueur] §7- Améliore le stack max (+200 items)");
+        sender.sendMessage("§e/quantum storages upgrade page [joueur] §7- Améliore le nombre de pages (+1, max 5)");
+        return true;
     }
 
     private void sendHelp(CommandSender sender) {

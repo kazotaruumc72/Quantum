@@ -1,11 +1,14 @@
 package com.wynvers.quantum.commands;
 
+import com.nexomc.nexo.api.NexoItems;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.towers.TowerConfig;
 import com.wynvers.quantum.towers.TowerManager;
 import com.wynvers.quantum.towers.TowerProgress;
+import com.wynvers.quantum.towers.storage.PlayerTowerStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -59,7 +62,7 @@ public class TowerCommand implements CommandExecutor {
             case "reload":
                 return handleReload(sender);
             case "storage":
-                return handleStorage(sender);
+                return handleStorage(sender, args);
             default:
                 sendHelp(sender);
                 return true;
@@ -346,9 +349,15 @@ public class TowerCommand implements CommandExecutor {
     }
 
     /**
-     * Open tower storage menu
+     * Handle tower storage commands
      */
-    private boolean handleStorage(CommandSender sender) {
+    private boolean handleStorage(CommandSender sender, String[] args) {
+        // /tower storage add <item> <amount> [player]
+        if (args.length >= 2 && args[1].equalsIgnoreCase("add")) {
+            return handleStorageAdd(sender, args);
+        }
+
+        // /tower storage  →  open menu
         if (!(sender instanceof Player player)) {
             sender.sendMessage("§cCette commande ne peut être exécutée que par un joueur!");
             return true;
@@ -370,6 +379,99 @@ public class TowerCommand implements CommandExecutor {
     }
 
     /**
+     * /tower storage add <nexo:id|minecraft:id> <amount> [player]
+     * Admin command to add items directly to a player's tower storage.
+     */
+    private boolean handleStorageAdd(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("quantum.tower.storage.add")) {
+            sender.sendMessage("§cVous n'avez pas la permission d'ajouter des items au tower storage.");
+            return true;
+        }
+
+        // args: [storage, add, <item>, <amount>, [player]]
+        if (args.length < 4) {
+            sender.sendMessage("§cUsage: /tower storage add <nexo:id|minecraft:id> <amount> [joueur]");
+            return true;
+        }
+
+        String itemArg = args[2];
+        int amount;
+        try {
+            amount = Integer.parseInt(args[3]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage("§cMontant invalide: " + args[3]);
+            return true;
+        }
+
+        if (amount <= 0) {
+            sender.sendMessage("§cLe montant doit être supérieur à 0.");
+            return true;
+        }
+
+        // Determine target player
+        Player target;
+        if (args.length >= 5) {
+            target = Bukkit.getPlayer(args[4]);
+            if (target == null) {
+                sender.sendMessage("§cJoueur introuvable: " + args[4]);
+                return true;
+            }
+        } else {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("§cVous devez spécifier un joueur depuis la console.");
+                return true;
+            }
+            target = (Player) sender;
+        }
+
+        PlayerTowerStorage storage = plugin.getTowerStorageManager().getStorage(target);
+
+        if (itemArg.startsWith("nexo:")) {
+            String nexoId = itemArg.substring(5);
+            if (!NexoItems.exists(nexoId)) {
+                sender.sendMessage("§cItem Nexo introuvable: §7" + nexoId);
+                return true;
+            }
+            storage.addNexoItem(nexoId, amount);
+            plugin.getTowerStorageManager().save(target.getUniqueId());
+            sender.sendMessage("§a§l✓ §aAjouté §e" + amount + "x §fnexo:" + nexoId + " §au tower storage de §f" + target.getName() + "§a.");
+            return true;
+        }
+
+        if (itemArg.startsWith("minecraft:")) {
+            String materialName = itemArg.substring(10).toUpperCase();
+            try {
+                Material material = Material.valueOf(materialName);
+                storage.addItem(material, amount);
+                plugin.getTowerStorageManager().save(target.getUniqueId());
+                sender.sendMessage("§a§l✓ §aAjouté §e" + amount + "x §fminecraft:" + material.name().toLowerCase() + " §au tower storage de §f" + target.getName() + "§a.");
+            } catch (IllegalArgumentException e) {
+                sender.sendMessage("§cItem Minecraft introuvable: §7" + materialName);
+            }
+            return true;
+        }
+
+        // No prefix — try Nexo first, then vanilla
+        if (NexoItems.exists(itemArg)) {
+            storage.addNexoItem(itemArg, amount);
+            plugin.getTowerStorageManager().save(target.getUniqueId());
+            sender.sendMessage("§a§l✓ §aAjouté §e" + amount + "x §fnexo:" + itemArg + " §au tower storage de §f" + target.getName() + "§a.");
+            return true;
+        }
+
+        try {
+            Material material = Material.valueOf(itemArg.toUpperCase());
+            storage.addItem(material, amount);
+            plugin.getTowerStorageManager().save(target.getUniqueId());
+            sender.sendMessage("§a§l✓ §aAjouté §e" + amount + "x §fminecraft:" + material.name().toLowerCase() + " §au tower storage de §f" + target.getName() + "§a.");
+        } catch (IllegalArgumentException e) {
+            sender.sendMessage("§cItem introuvable: §7" + itemArg);
+        }
+
+        return true;
+    }
+
+    /**
      * Send help message
      */
     private void sendHelp(CommandSender sender) {
@@ -379,6 +481,10 @@ public class TowerCommand implements CommandExecutor {
         sender.sendMessage("§e/tower progress §7- Voir votre progression");
         sender.sendMessage("§e/tower progress <joueur> §7- Voir la progression d'un joueur");
         sender.sendMessage("§e/tower storage §7- Ouvrir le tower storage");
+
+        if (sender.hasPermission("quantum.tower.storage.add")) {
+            sender.sendMessage("§e/tower storage add <item> <montant> [joueur] §7- Ajouter des items au tower storage");
+        }
 
         if (sender.hasPermission("quantum.tower.reset")) {
             sender.sendMessage("§e/tower reset <joueur> §7- Réinitialiser la progression");

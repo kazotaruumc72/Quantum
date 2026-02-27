@@ -1,14 +1,17 @@
 package com.wynvers.quantum.tabcompleters;
 
+import com.nexomc.nexo.api.NexoItems;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.towers.TowerConfig;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -148,6 +151,43 @@ public class TowerTabCompleter implements TabCompleter {
                     }
                     return filterCompletions(floors, args[3]);
                 }
+            }
+        }
+
+        // /tower storage add ...
+        if (args[0].equalsIgnoreCase("storage")) {
+            if (args.length == 2) {
+                if (sender.hasPermission("quantum.tower.storage.add")) {
+                    return filterCompletions(List.of("add"), args[1]);
+                }
+                return completions;
+            }
+            if (args.length == 3 && args[1].equalsIgnoreCase("add")) {
+                List<String> items = new ArrayList<>(Arrays.asList(
+                    "nexo:", "minecraft:",
+                    "minecraft:diamond", "minecraft:emerald", "minecraft:gold_ingot",
+                    "minecraft:iron_ingot", "minecraft:coal", "minecraft:redstone"
+                ));
+                // Nexo items
+                try {
+                    for (Object itemObj : NexoItems.items()) {
+                        if (itemObj instanceof com.nexomc.nexo.items.ItemBuilder) {
+                            var stack = ((com.nexomc.nexo.items.ItemBuilder) itemObj).build();
+                            String id = NexoItems.idFromItem(stack);
+                            if (id != null) items.add("nexo:" + id);
+                        }
+                    }
+                } catch (Exception ignored) {}
+                return filterCompletions(items, args[2]);
+            }
+            if (args.length == 4 && args[1].equalsIgnoreCase("add")) {
+                return filterCompletions(Arrays.asList("1", "16", "32", "64", "128", "256"), args[3]);
+            }
+            if (args.length == 5 && args[1].equalsIgnoreCase("add")) {
+                return filterCompletions(
+                    Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()),
+                    args[4]
+                );
             }
         }
 

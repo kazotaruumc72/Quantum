@@ -5,9 +5,11 @@ import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.projectiles.ProjectileSource;
 
 import java.util.List;
 
@@ -42,13 +44,31 @@ public class TowerMobKillListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onMythicMobDeath(MythicMobDeathEvent event) {
-        Entity killer = event.getKiller();
-        if (!(killer instanceof Player player)) return;
+        Player player = resolvePlayer(event.getKiller());
+        if (player == null) return;
 
         String mythicId = event.getMobType().getInternalName();
         String mobKey = "mm:" + mythicId;
 
         handleKill(player, mobKey, event.getEntity().getLocation());
+    }
+
+    /**
+     * Resolves the player responsible for a kill.
+     * Handles both direct kills (killer is a Player) and indirect kills
+     * via projectiles (bow, trident, etc.) where the killer entity is a
+     * Projectile whose shooter is the player.
+     *
+     * @param killer the entity returned by the death event (may be null)
+     * @return the responsible Player, or null if no player was involved
+     */
+    private Player resolvePlayer(Entity killer) {
+        if (killer instanceof Player player) return player;
+        if (killer instanceof Projectile projectile) {
+            ProjectileSource shooter = projectile.getShooter();
+            if (shooter instanceof Player player) return player;
+        }
+        return null;
     }
 
     // ------------------------------------------------------------------ //

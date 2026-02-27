@@ -456,6 +456,27 @@ public class MenuItem {
             return;
         }
 
+        // === QUANTUM_TOWER_STORAGE_UPGRADE_MULTIPLIER ===
+        if (buttonType == ButtonType.QUANTUM_TOWER_STORAGE_UPGRADE_MULTIPLIER) {
+            plugin.getTowerStorageUpgradeManager().upgradeMultiplier(player, plugin);
+            refreshActiveMenu(player, plugin);
+            return;
+        }
+
+        // === QUANTUM_TOWER_STORAGE_UPGRADE_STACK ===
+        if (buttonType == ButtonType.QUANTUM_TOWER_STORAGE_UPGRADE_STACK) {
+            plugin.getTowerStorageUpgradeManager().upgradeStack(player, plugin);
+            refreshActiveMenu(player, plugin);
+            return;
+        }
+
+        // === QUANTUM_TOWER_STORAGE_UPGRADE_PAGE ===
+        if (buttonType == ButtonType.QUANTUM_TOWER_STORAGE_UPGRADE_PAGE) {
+            plugin.getTowerStorageUpgradeManager().upgradePage(player, plugin);
+            refreshActiveMenu(player, plugin);
+            return;
+        }
+
         // === QUANTUM_STORAGE_SELL_ALL ===
         if (buttonType == ButtonType.QUANTUM_STORAGE_SELL_ALL) {
             if (!player.hasPermission("quantum.storage.sellall")) {

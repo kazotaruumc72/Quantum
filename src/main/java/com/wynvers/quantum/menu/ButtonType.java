@@ -64,5 +64,10 @@ public enum ButtonType {
     QUANTUM_STORAGE_UPGRADE_STACK,      // Upgrade taille des stacks
     QUANTUM_STORAGE_UPGRADE_PAGE,       // Upgrade nombre de pages
     QUANTUM_STORAGE_SELL_ALL,           // Vendre tout le contenu du storage
-    QUANTUM_TOWER_STORAGE_SELL_ALL      // Vendre tout le contenu du tower storage
+    QUANTUM_TOWER_STORAGE_SELL_ALL,     // Vendre tout le contenu du tower storage
+
+    // === TOWER STORAGE UPGRADE BUTTONS ===
+    QUANTUM_TOWER_STORAGE_UPGRADE_MULTIPLIER, // Upgrade multiplicateur de vente (tower storage)
+    QUANTUM_TOWER_STORAGE_UPGRADE_STACK,      // Upgrade taille des stacks (tower storage)
+    QUANTUM_TOWER_STORAGE_UPGRADE_PAGE        // Upgrade nombre de pages (tower storage)
 }

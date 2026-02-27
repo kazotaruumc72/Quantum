@@ -47,6 +47,18 @@ public class StorageUpgradeManager {
     private final Map<UUID, StorageState> states = new HashMap<>();
     private final java.util.Set<UUID> loaded = new java.util.HashSet<>();
     private volatile com.wynvers.quantum.Quantum plugin;
+    private final String tableName;
+
+    public StorageUpgradeManager() {
+        this.tableName = "storage_upgrades";
+    }
+
+    public StorageUpgradeManager(String tableName) {
+        if (!tableName.matches("[a-zA-Z0-9_]+")) {
+            throw new IllegalArgumentException("Invalid table name: " + tableName);
+        }
+        this.tableName = tableName;
+    }
 
     public void setPlugin(com.wynvers.quantum.Quantum plugin) {
         this.plugin = plugin;
@@ -196,7 +208,7 @@ public class StorageUpgradeManager {
 
     public void load(UUID uuid, Quantum plugin) {
         try (Connection conn = plugin.getDatabaseManager().getConnection()) {
-            String query = "SELECT multiplier_level, stack_level, page_level FROM storage_upgrades WHERE player_uuid = ?";
+            String query = "SELECT multiplier_level, stack_level, page_level FROM " + tableName + " WHERE player_uuid = ?";
             try (PreparedStatement stmt = conn.prepareStatement(query)) {
                 stmt.setString(1, uuid.toString());
                 ResultSet rs = stmt.executeQuery();
@@ -216,7 +228,7 @@ public class StorageUpgradeManager {
         StorageState state = states.get(uuid);
         if (state == null) return;
         try (Connection conn = plugin.getDatabaseManager().getConnection()) {
-            String upsert = "INSERT INTO storage_upgrades (player_uuid, multiplier_level, stack_level, page_level) "
+            String upsert = "INSERT INTO " + tableName + " (player_uuid, multiplier_level, stack_level, page_level) "
                     + "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE "
                     + "multiplier_level = VALUES(multiplier_level), "
                     + "stack_level = VALUES(stack_level), "

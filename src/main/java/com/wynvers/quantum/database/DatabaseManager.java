@@ -178,6 +178,14 @@ public class DatabaseManager {
                     "page_level INT NOT NULL DEFAULT 0" +
                     ")");
 
+            // Tower storage upgrades table (separate from quantum storage upgrades)
+            st.executeUpdate("CREATE TABLE IF NOT EXISTS tower_storage_upgrades (" +
+                    "player_uuid VARCHAR(36) NOT NULL PRIMARY KEY, " +
+                    "multiplier_level INT NOT NULL DEFAULT 0, " +
+                    "stack_level INT NOT NULL DEFAULT 0, " +
+                    "page_level INT NOT NULL DEFAULT 0" +
+                    ")");
+
             plugin.getQuantumLogger().success("✓ Database tables verified");
         } catch (SQLException e) {
             plugin.getQuantumLogger().error("Failed to create MySQL tables: " + e.getMessage());

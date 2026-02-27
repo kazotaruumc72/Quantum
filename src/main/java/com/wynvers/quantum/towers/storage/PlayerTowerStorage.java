@@ -34,8 +34,8 @@ public class PlayerTowerStorage {
     public boolean addItem(Quantum plugin, Player player, Material material, int amount) {
         int currentAmount = getAmount(material);
         int newAmount = currentAmount + amount;
-        int limit = plugin.getStorageUpgradeManager().getMaxStacks(
-            plugin.getStorageUpgradeManager().getState(player)
+        int limit = plugin.getTowerStorageUpgradeManager().getMaxStacks(
+            plugin.getTowerStorageUpgradeManager().getState(player)
         );
 
         if (newAmount > limit) {
@@ -85,8 +85,8 @@ public class PlayerTowerStorage {
     public boolean addNexoItem(Quantum plugin, Player player, String nexoId, int amount) {
         int currentAmount = getNexoAmount(nexoId);
         int newAmount = currentAmount + amount;
-        int limit = plugin.getStorageUpgradeManager().getMaxStacks(
-            plugin.getStorageUpgradeManager().getState(player)
+        int limit = plugin.getTowerStorageUpgradeManager().getMaxStacks(
+            plugin.getTowerStorageUpgradeManager().getState(player)
         );
 
         if (newAmount > limit) {

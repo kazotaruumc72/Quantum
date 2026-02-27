@@ -119,6 +119,7 @@ public final class Quantum extends JavaPlugin {
     private FloorClearTimeManager floorClearTimeManager; // Floor clear time leaderboards
     private FloorRewardMenuManager floorRewardMenuManager; // Floor reward selection menu
     private StorageUpgradeManager storageUpgradeManager;
+    private StorageUpgradeManager towerStorageUpgradeManager;
     private com.wynvers.quantum.managers.TowerStorageManager towerStorageManager;
 
 
@@ -278,6 +279,9 @@ public final class Quantum extends JavaPlugin {
                 this
         );
 
+        towerStorageUpgradeManager = new StorageUpgradeManager("tower_storage_upgrades");
+        towerStorageUpgradeManager.setPlugin(this);
+
         towerStorageManager = new com.wynvers.quantum.managers.TowerStorageManager(this);
         logger.success("✓ Tower Storage Manager initialized!");
         getServer().getPluginManager().registerEvents(
@@ -285,7 +289,7 @@ public final class Quantum extends JavaPlugin {
                 this
         );
         getServer().getPluginManager().registerEvents(
-                new com.wynvers.quantum.menu.TowerStorageSettingsMenuListener(this, storageUpgradeManager),
+                new com.wynvers.quantum.menu.TowerStorageSettingsMenuListener(this, towerStorageUpgradeManager),
                 this
         );
         logger.success("✓ Tower Storage listeners registered!");
@@ -796,6 +800,10 @@ public final class Quantum extends JavaPlugin {
 
     public StorageUpgradeManager getStorageUpgradeManager() {
         return storageUpgradeManager;
+    }
+
+    public StorageUpgradeManager getTowerStorageUpgradeManager() {
+        return towerStorageUpgradeManager;
     }
 
     public com.wynvers.quantum.managers.TowerStorageManager getTowerStorageManager() {

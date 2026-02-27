@@ -245,7 +245,7 @@ public class FloorRewardMenuManager implements Listener {
 
         if (session.remainingChoices <= 0) {
             // Auto-close after a short delay so the player sees the green slots
-            Bukkit.getScheduler().runTaskLater(plugin, player::closeInventory, 10L);
+            Bukkit.getScheduler().runTaskLater(plugin, (Runnable) player::closeInventory, 10L);
         }
     }
 

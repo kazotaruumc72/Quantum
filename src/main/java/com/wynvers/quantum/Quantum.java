@@ -893,6 +893,10 @@ public final class Quantum extends JavaPlugin {
         return floorClearTimeManager;
     }
 
+    public FloorRewardMenuManager getFloorRewardMenuManager() {
+        return floorRewardMenuManager;
+    }
+
     // NEW: Getters pour les managers des tours
     public TowerDoorManager getDoorManager() {
         return doorManager;

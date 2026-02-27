@@ -284,14 +284,6 @@ public class PlaceholderManager {
             return String.valueOf(player.getLocation().getBlockZ());
         }
         
-        // === APARTMENT ===
-        // %quantum_apartment_zone%
-        if (params.equals("apartment_zone")) {
-            if (plugin.getApartmentManager() == null) return "Aucun";
-            var apt = plugin.getApartmentManager().getPlayerApartment(player.getUniqueId());
-            return apt != null && !apt.getZoneName().isEmpty() ? apt.getZoneName() : "Aucun";
-        }
-        
         // Default: return null to preserve the original placeholder syntax (e.g., %unknown_placeholder%)
         return null;
     }

@@ -21,7 +21,6 @@ import com.wynvers.quantum.jobs.JobTabCompleter;
 import com.wynvers.quantum.jobs.JobAdminTabCompleter;
 import com.wynvers.quantum.home.HomeManager;
 import com.wynvers.quantum.database.DatabaseManager;
-import com.wynvers.quantum.apartment.ApartmentManager;
 import com.wynvers.quantum.placeholderapi.PlaceholderAPIManager;
 import com.wynvers.quantum.worldguard.ZoneManager;
 import com.wynvers.quantum.levels.PlayerLevelListener;
@@ -30,7 +29,6 @@ import com.wynvers.quantum.listeners.DoorSelectionListener;
 import com.wynvers.quantum.listeners.MenuListener;
 
 import com.wynvers.quantum.listeners.StorageListener;
-import com.wynvers.quantum.commands.ApartmentCommand;
 import com.wynvers.quantum.commands.ArmorCommand;
 import com.wynvers.quantum.commands.ArmorTabCompleter;
 import com.wynvers.quantum.commands.ChatCommand;
@@ -147,9 +145,6 @@ public final class Quantum extends JavaPlugin {
     // PlaceholderAPI Integration
     private PlaceholderAPIManager placeholderAPIManager;
     
-    // Apartment System (preparation phase)
-    private ApartmentManager apartmentManager;
-    private com.wynvers.quantum.apartment.ApartmentDoorManager apartmentDoorManager;
     
     // Chat System
     private com.wynvers.quantum.chat.ChatManager chatManager;
@@ -314,16 +309,6 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/rune_equipment.yml");
 
         extractResource("menus/quantum_admin.yml");
-        extractResource("menus/deadline_adder.yml");
-        extractResource("menus/personnal_catalogue.yml");
-        extractResource("menus/furniture_catalogue.yml");
-        extractResource("menus/furniture_tapis.yml");
-        extractResource("menus/furniture_chaises.yml");
-        extractResource("menus/furniture_tables.yml");
-        extractResource("menus/furniture_lumiere.yml");
-        extractResource("menus/furniture_deco.yml");
-        extractResource("menus/furniture_rangement.yml");
-        extractResource("menus/furniture_autre.yml");
 
         // Templates / messages
         extractResource("orders_template.yml");
@@ -464,15 +449,6 @@ public final class Quantum extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new com.wynvers.quantum.spawn.FirstJoinListener(spawnManager), this);
         logger.success("✓ Spawn Manager");
         
-        this.apartmentManager = new ApartmentManager(this, databaseManager);
-        logger.success("✓ Apartment Manager (preparation phase)");
-
-        this.apartmentDoorManager = new com.wynvers.quantum.apartment.ApartmentDoorManager(this, apartmentManager);
-        getServer().getPluginManager().registerEvents(
-                new com.wynvers.quantum.listeners.ApartmentDoorListener(apartmentDoorManager, apartmentManager),
-                this
-        );
-        logger.success("✓ Apartment Door Manager + Listener");
         
         // Chat System
         this.chatManager = new ChatManager(this, messageManager, placeholderManager);
@@ -685,25 +661,6 @@ public final class Quantum extends JavaPlugin {
             logger.success("✓ Spawn Command + TabCompleter");
         }
         
-        // Apartment Command
-        if (apartmentManager != null) {
-            getCommand("apartment").setExecutor(new ApartmentCommand(this, apartmentManager, apartmentDoorManager));
-            getCommand("apartment").setTabCompleter(new com.wynvers.quantum.tabcompleters.ApartmentTabCompleter());
-            logger.success("✓ Apartment Command + TabCompleter");
-        }
-
-        // Catalogue Command (furniture catalogue)
-        if (apartmentManager != null && menuManager != null) {
-            getCommand("catalogue").setExecutor((sender, cmd, label, args) -> {
-                if (sender instanceof org.bukkit.entity.Player player) {
-                    menuManager.openMenu(player, "furniture_catalogue");
-                } else {
-                    sender.sendMessage("§cCette commande ne peut être utilisée que par un joueur.");
-                }
-                return true;
-            });
-            logger.success("✓ Catalogue Command (furniture catalogue)");
-        }
         
         // Chat Command
         if (chatManager != null) {
@@ -960,13 +917,6 @@ public final class Quantum extends JavaPlugin {
         return placeholderAPIManager;
     }
     
-    public ApartmentManager getApartmentManager() {
-        return apartmentManager;
-    }
-
-    public com.wynvers.quantum.apartment.ApartmentDoorManager getApartmentDoorManager() {
-        return apartmentDoorManager;
-    }
     
     public com.wynvers.quantum.chat.ChatManager getChatManager() {
         return chatManager;

@@ -209,39 +209,6 @@ levels:
   # Niveau maximum que peut atteindre un joueur
   max-level: 1000
 
-# ───────────────────────────────────────────────────────────────
-# APARTMENTS
-# ───────────────────────────────────────────────────────────────
-#
-# Système d'appartements avec contrats et mobilier
-#
-# Tailles d'appartements et prix par jour:
-#   Petit  (SMALL)  - Multiplicateur: x1.0
-#   Moyen  (MEDIUM) - Multiplicateur: x1.5
-#   Grand  (LARGE)  - Multiplicateur: x2.0
-#
-# Le prix de base est calculé automatiquement:
-#   Prix = (base_par_jour * nombre_jours * multiplicateur_taille)
-#
-# Placeholders disponibles:
-#   %quantum_apartment_zone%      - Zone de l'appartement
-#   %quantum_apartment_name%      - Nom de l'appartement
-#   %quantum_apartment_size%      - Taille de l'appartement
-#   %quantum_apartment_deadline%  - Date d'expiration du contrat
-#   %quantum_apartment_furniture_count% - Nombre de meubles
-#
-apartments:
-  # Durée initiale du contrat (en jours)
-  initial-contract-days: 30
-  
-  # Prix de base par jour (modifié par la taille)
-  base-price-per-day:
-    SMALL: 71.43    # ~500$/7j
-    MEDIUM: 107.14  # ~750$/7j
-    LARGE: 142.86   # ~1000$/7j
-  
-  # Intervalle de vérification des contrats expirés (en ticks)
-  contract-check-interval: 6000  # 5 minutes
 
 # ───────────────────────────────────────────────────────────────
 # JOIN / LEAVE / FIRST JOIN MESSAGES

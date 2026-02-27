@@ -531,38 +531,6 @@ public class QuantumExpansion extends PlaceholderExpansion {
             }
         }
 
-        // =====================
-        // APARTMENT
-        // =====================
-        if (p.equals("apartment_zone")) {
-            if (plugin.getApartmentManager() == null) return "Aucun";
-            var apt = plugin.getApartmentManager().getPlayerApartment(offlinePlayer.getUniqueId());
-            return apt != null && !apt.getZoneName().isEmpty() ? apt.getZoneName() : "Aucun";
-        }
-
-        if (p.equals("apartment_name")) {
-            if (plugin.getApartmentManager() == null) return "Aucun";
-            var apt = plugin.getApartmentManager().getPlayerApartment(offlinePlayer.getUniqueId());
-            return apt != null ? apt.getApartmentName() : "Aucun";
-        }
-
-        if (p.equals("apartment_size")) {
-            if (plugin.getApartmentManager() == null) return "Aucun";
-            var apt = plugin.getApartmentManager().getPlayerApartment(offlinePlayer.getUniqueId());
-            return apt != null ? apt.getSize().getDisplayName() : "Aucun";
-        }
-
-        if (p.equals("apartment_deadline")) {
-            if (plugin.getApartmentManager() == null) return "Aucun";
-            var apt = plugin.getApartmentManager().getPlayerApartment(offlinePlayer.getUniqueId());
-            return apt != null ? plugin.getApartmentManager().getFormattedDeadline(apt) : "Aucun contrat";
-        }
-
-        if (p.equals("apartment_furniture_count")) {
-            if (plugin.getApartmentManager() == null) return "0";
-            var apt = plugin.getApartmentManager().getPlayerApartment(offlinePlayer.getUniqueId());
-            return apt != null ? String.valueOf(apt.getFurniture().size()) : "0";
-        }
 
         // =====================
         // COORDINATES

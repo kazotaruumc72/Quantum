@@ -48,5 +48,14 @@ public enum ButtonType {
     QUANTUM_STATS_PERIOD_TODAY,     // Stats: aujourd'hui
     QUANTUM_STATS_PERIOD_WEEK,      // Stats: cette semaine
     QUANTUM_STATS_PERIOD_MONTH,     // Stats: ce mois
-    QUANTUM_STATS_PERIOD_ALL        // Stats: global
+    QUANTUM_STATS_PERIOD_ALL,       // Stats: global
+
+    // === TOWER STORAGE BUTTONS ===
+    QUANTUM_TOWER_CHANGE_MODE,          // Bouton pour changer le mode du tower storage
+    QUANTUM_TOWER_STORAGE_NEXT_PAGE,    // Page suivante dans le tower storage
+    QUANTUM_TOWER_STORAGE_PREV_PAGE,    // Page précédente dans le tower storage
+    QUANTUM_TOWER_STORAGE_SEARCH,       // Rechercher un item dans le tower storage
+    QUANTUM_TOWER_STORAGE_FILTER_TYPE,  // Filtrer par type dans le tower storage
+    QUANTUM_TOWER_STORAGE_SORT,         // Changer le mode de tri du tower storage
+    QUANTUM_TOWER_STORAGE_RESET_FILTERS // Réinitialiser les filtres du tower storage
 }

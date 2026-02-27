@@ -121,6 +121,7 @@ public final class Quantum extends JavaPlugin {
     private FloorClearTimeManager floorClearTimeManager; // Floor clear time leaderboards
     private FloorRewardMenuManager floorRewardMenuManager; // Floor reward selection menu
     private StorageUpgradeManager storageUpgradeManager;
+    private com.wynvers.quantum.managers.TowerStorageManager towerStorageManager;
 
 
     private DungeonArmor dungeonArmor;     // Dungeon armor system
@@ -280,6 +281,18 @@ public final class Quantum extends JavaPlugin {
                 new StorageSettingsMenuListener(this, storageUpgradeManager),
                 this
         );
+
+        towerStorageManager = new com.wynvers.quantum.managers.TowerStorageManager(this);
+        logger.success("✓ Tower Storage Manager initialized!");
+        getServer().getPluginManager().registerEvents(
+                new com.wynvers.quantum.listeners.TowerStorageListener(this),
+                this
+        );
+        getServer().getPluginManager().registerEvents(
+                new com.wynvers.quantum.menu.TowerStorageSettingsMenuListener(this, storageUpgradeManager),
+                this
+        );
+        logger.success("✓ Tower Storage listeners registered!");
     }
 
     // ───────────────────── Ressources ─────────────────────
@@ -294,6 +307,8 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/example_advanced.yml");
         extractResource("menus/storage.yml");
         extractResource("menus/storage_settings.yml");
+        extractResource("menus/tower_storage.yml");
+        extractResource("menus/tower_storage_settings.yml");
         extractResource("menus/sell.yml");
 
         extractResource("menus/order_quantity.yml");
@@ -747,6 +762,10 @@ public final class Quantum extends JavaPlugin {
             storageManager.saveAll();
         }
 
+        if (towerStorageManager != null) {
+            towerStorageManager.saveAll();
+        }
+
         if (databaseManager != null) {
             databaseManager.close();
         }
@@ -760,6 +779,7 @@ public final class Quantum extends JavaPlugin {
         reloadConfig();
 
         if (storageManager != null) storageManager.reload();
+        if (towerStorageManager != null) towerStorageManager.reload();
         if (menuManager != null) menuManager.reload();
         if (animationManager != null) animationManager.reload();
 
@@ -818,6 +838,10 @@ public final class Quantum extends JavaPlugin {
 
     public StorageUpgradeManager getStorageUpgradeManager() {
         return storageUpgradeManager;
+    }
+
+    public com.wynvers.quantum.managers.TowerStorageManager getTowerStorageManager() {
+        return towerStorageManager;
     }
 
     @Deprecated

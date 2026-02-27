@@ -159,6 +159,14 @@ public class MenuManager {
                         item.setTargetMode(section.getString("mode"));
                     }
                 }
+
+                if (buttonType == ButtonType.QUANTUM_TOWER_CHANGE_MODE) {
+                    if (section.contains("target_mode")) {
+                        item.setTargetMode(section.getString("target_mode"));
+                    } else if (section.contains("mode")) {
+                        item.setTargetMode(section.getString("mode"));
+                    }
+                }
                 
                 if (buttonType == ButtonType.QUANTUM_CHANGE_AMOUNT) {
                     if (section.contains("amount")) {

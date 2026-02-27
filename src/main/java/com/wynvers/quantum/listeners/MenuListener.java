@@ -36,6 +36,7 @@ public class MenuListener implements Listener {
 
     private final Quantum plugin;
     private final StorageMenuHandler storageHandler;
+    private final com.wynvers.quantum.menu.TowerStorageMenuHandler towerStorageHandler;
     private final OrderButtonHandler orderButtonHandler;
     private final NamespacedKey buttonTypeKey;
     private final NamespacedKey orderIdKey;
@@ -44,6 +45,7 @@ public class MenuListener implements Listener {
     public MenuListener(Quantum plugin) {
         this.plugin = plugin;
         this.storageHandler = new StorageMenuHandler(plugin);
+        this.towerStorageHandler = new com.wynvers.quantum.menu.TowerStorageMenuHandler(plugin);
         this.orderButtonHandler = new OrderButtonHandler(plugin);
         this.buttonTypeKey = new NamespacedKey(plugin, "button_type");
         this.orderIdKey = new NamespacedKey(plugin, "quantum_order_id");
@@ -106,6 +108,12 @@ public class MenuListener implements Listener {
         // === STORAGE MENU HANDLER ===
         if (menu.getId().equals("storage")) {
             handleStorageMenu(event, player, menu, clickedInv, topInv);
+            return;
+        }
+
+        // === TOWER STORAGE MENU HANDLER ===
+        if (menu.getId().equals("tower_storage")) {
+            handleTowerStorageMenu(event, player, menu, clickedInv, topInv);
             return;
         }
         
@@ -204,6 +212,60 @@ public class MenuListener implements Listener {
                     }
                 } else {
                     player.sendMessage("§cYou don't have permission to deposit items. Use /qstorage transfer or contact an admin.");
+                }
+            }
+        }
+    }
+
+    /**
+     * Handle tower storage menu clicks with special interactive behavior
+     */
+    private void handleTowerStorageMenu(InventoryClickEvent event, Player player, Menu menu, Inventory clickedInv, Inventory topInv) {
+        boolean isAdmin = player.hasPermission("quantum.admin");
+
+        if (clickedInv != null && clickedInv.equals(topInv)) {
+            int slot = event.getSlot();
+            MenuItem menuItem = menu.getItemAt(slot);
+            ItemStack clickedItem = topInv.getItem(slot);
+
+            if (menuItem != null && isSpecialButton(menuItem)) {
+                if (!menuItem.meetsRequirements(player, plugin)) {
+                    if (menuItem.getDenyMessage() != null && !menuItem.getDenyMessage().isEmpty()) {
+                        player.sendMessage(menuItem.getDenyMessage());
+                    }
+                    return;
+                }
+
+                menuItem.executeActions(player, plugin, event.getClick());
+                return;
+            }
+
+            if (clickedItem != null && hasButtonTypePDC(clickedItem)) {
+                return;
+            }
+
+            if (clickedItem != null && isDecorativeItem(clickedItem)) {
+                return;
+            }
+
+            if (clickedItem == null || clickedItem.getType() == Material.AIR) {
+                return;
+            }
+
+            if (slot < 9 || slot > 44) {
+                return;
+            }
+
+            towerStorageHandler.handleClick(player, slot, event.getClick(), event.getCursor());
+        }
+        else if (clickedInv != null && clickedInv.equals(player.getInventory())) {
+            if (event.getClick().isShiftClick()) {
+                if (isAdmin) {
+                    if (event.getCurrentItem() != null) {
+                        towerStorageHandler.handleClick(player, -1, event.getClick(), event.getCurrentItem());
+                    }
+                } else {
+                    player.sendMessage("§cYou don't have permission to deposit items.");
                 }
             }
         }

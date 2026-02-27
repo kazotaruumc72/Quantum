@@ -42,6 +42,9 @@ public class Menu {
     // Storage renderer pour slots quantum_storage
     private StorageRenderer storageRenderer;
     
+    // Tower Storage renderer pour slots quantum_tower_storage
+    private TowerStorageRenderer towerStorageRenderer;
+    
     // MiniMessage parser pour les titres modernes
     private static final MiniMessage miniMessage = MiniMessage.miniMessage();
  
@@ -53,6 +56,7 @@ public class Menu {
         this.titleFrames = new ArrayList<>();
         this.titleSpeed = 10;
         this.storageRenderer = new StorageRenderer(plugin);
+        this.towerStorageRenderer = new TowerStorageRenderer(plugin);
     }
  
     // === GETTERS ===
@@ -439,6 +443,11 @@ public class Menu {
             if (item.isQuantumStorage()) {
                 continue;
             }
+
+            // Si c'est un slot quantum_tower_storage, le TowerStorageRenderer s'en occupera
+            if (item.isQuantumTowerStorage()) {
+                continue;
+            }
             
             // === NOUVEAU: Gestion des QUANTUM_ORDERS_ITEM ===
             // Si c'est un quantum_orders_item, afficher les ordres de la catégorie
@@ -632,6 +641,7 @@ public class Menu {
         // Ensuite, remplir les slots quantum_storage avec les items du joueur
         if (player != null) {
             renderStorageSlots(player, inventory);
+            renderTowerStorageSlots(player, inventory);
         }
     }
     
@@ -657,7 +667,6 @@ public class Menu {
      * Render storage slots for a player
      */
     private void renderStorageSlots(Player player, Inventory inventory) {
-        // Trouver le premier item avec lore_append pour obtenir la config
         StorageRenderer.LoreAppendConfig loreConfig = null;
         
         for (MenuItem item : items.values()) {
@@ -667,7 +676,22 @@ public class Menu {
             }
         }
         
-        // Utiliser le StorageRenderer pour remplir les slots
         storageRenderer.renderStorageSlots(player, inventory, this, loreConfig);
+    }
+
+    /**
+     * Render tower storage slots for a player
+     */
+    private void renderTowerStorageSlots(Player player, Inventory inventory) {
+        TowerStorageRenderer.LoreAppendConfig loreConfig = null;
+
+        for (MenuItem item : items.values()) {
+            if (item.isQuantumTowerStorage() && item.getLoreAppend() != null && !item.getLoreAppend().isEmpty()) {
+                loreConfig = new TowerStorageRenderer.LoreAppendConfig(item.getLoreAppend());
+                break;
+            }
+        }
+
+        towerStorageRenderer.renderStorageSlots(player, inventory, this, loreConfig);
     }
 }

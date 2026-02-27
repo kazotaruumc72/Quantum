@@ -258,6 +258,7 @@ permissions:
       quantum.tower.teleport: true
       quantum.tower.complete: true
       quantum.tower.reload: true
+      quantum.tower.storage: true
   
   quantum.tower.progress:
     description: View own tower progress
@@ -282,6 +283,10 @@ permissions:
   quantum.tower.reload:
     description: Reload tower configurations
     default: op
+
+  quantum.tower.storage:
+    description: Access tower storage
+    default: true
   
   # Dungeon armor system permissions
   quantum.armor.*:

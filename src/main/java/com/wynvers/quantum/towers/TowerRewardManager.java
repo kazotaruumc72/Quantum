@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -185,5 +186,80 @@ public class TowerRewardManager {
     /** @return true if a random roll falls within the given percentage [0, 100]; values > 100 always succeed */
     private boolean rollChance(double chance) {
         return chance >= 100.0 || random.nextDouble() * 100.0 < chance;
+    }
+
+    // ==================== REWARD ENTRIES ====================
+
+    /**
+     * Build a list of selectable {@link FloorRewardEntry} objects (Nexo + MythicMobs items)
+     * for the given tower floor from {@code towers.yml}.
+     *
+     * <p>Command rewards are intentionally excluded here – they are handled separately by
+     * {@link #executeCommandRewardsOnly(Player, String, int)}.
+     */
+    public List<FloorRewardEntry> buildRewardEntries(String towerId, int floor) {
+        List<FloorRewardEntry> entries = new ArrayList<>();
+
+        File towersFile = new File(plugin.getDataFolder(), "towers.yml");
+        if (!towersFile.exists()) return entries;
+
+        FileConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
+        String rewardPath = "towers." + towerId + ".floors." + floor + ".rewards";
+        ConfigurationSection rewardsSection = config.getConfigurationSection(rewardPath);
+        if (rewardsSection == null) return entries;
+
+        // Nexo items
+        List<?> nexoList = rewardsSection.getList("nexo");
+        if (nexoList != null) {
+            for (Object obj : nexoList) {
+                if (obj instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> map = (Map<String, Object>) obj;
+                    String id = String.valueOf(map.getOrDefault("id", ""));
+                    int amount = ((Number) map.getOrDefault("amount", 1)).intValue();
+                    double chance = ((Number) map.getOrDefault("chance", 100.0)).doubleValue();
+                    String message = map.containsKey("message") ? String.valueOf(map.get("message")) : null;
+                    if (!id.isEmpty()) {
+                        entries.add(new FloorRewardEntry(FloorRewardEntry.Type.NEXO, id, amount, chance, message));
+                    }
+                }
+            }
+        }
+
+        // MythicMobs items
+        List<?> mythicList = rewardsSection.getList("mythic");
+        if (mythicList != null) {
+            for (Object obj : mythicList) {
+                if (obj instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> map = (Map<String, Object>) obj;
+                    String id = String.valueOf(map.getOrDefault("id", ""));
+                    int amount = ((Number) map.getOrDefault("amount", 1)).intValue();
+                    double chance = ((Number) map.getOrDefault("chance", 100.0)).doubleValue();
+                    String message = map.containsKey("message") ? String.valueOf(map.get("message")) : null;
+                    if (!id.isEmpty()) {
+                        entries.add(new FloorRewardEntry(FloorRewardEntry.Type.MYTHIC, id, amount, chance, message));
+                    }
+                }
+            }
+        }
+
+        return entries;
+    }
+
+    /**
+     * Execute only the command rewards for a floor (used when the reward menu closes).
+     * Command rewards are never shown in the selection GUI; they are always auto-executed.
+     */
+    public void executeCommandRewardsOnly(Player player, String towerId, int floor) {
+        File towersFile = new File(plugin.getDataFolder(), "towers.yml");
+        if (!towersFile.exists()) return;
+
+        FileConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
+        String rewardPath = "towers." + towerId + ".floors." + floor + ".rewards";
+        ConfigurationSection rewardsSection = config.getConfigurationSection(rewardPath);
+        if (rewardsSection == null) return;
+
+        executeCommandRewards(player, rewardsSection);
     }
 }

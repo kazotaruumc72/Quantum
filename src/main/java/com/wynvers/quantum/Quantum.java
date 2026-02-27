@@ -119,6 +119,7 @@ public final class Quantum extends JavaPlugin {
     private TowerNPCManager npcManager;
     private TowerInventoryManager towerInventoryManager; // Per-world tower inventories
     private FloorClearTimeManager floorClearTimeManager; // Floor clear time leaderboards
+    private FloorRewardMenuManager floorRewardMenuManager; // Floor reward selection menu
     private StorageUpgradeManager storageUpgradeManager;
 
 
@@ -232,6 +233,11 @@ public final class Quantum extends JavaPlugin {
         this.floorClearTimeManager = new FloorClearTimeManager(this);
         logger.success("✓ Floor clear time leaderboard initialized!");
 
+        // Floor reward selection menu
+        this.floorRewardMenuManager = new FloorRewardMenuManager(this);
+        Bukkit.getPluginManager().registerEvents(floorRewardMenuManager, this);
+        logger.success("✓ Floor reward menu manager initialized!");
+
         // Mob Bestiary (mobs.yml) - XP rewards for kills
         this.mobConfig = new MobConfig(this);
         try {
@@ -336,6 +342,7 @@ public final class Quantum extends JavaPlugin {
 
         // Configuration des tours (TowerManager)
         extractResource("towers.yml");
+        extractResource("menus/floor_rewards.yml");
 
         logger.success("✓ Default resources extracted");
     }

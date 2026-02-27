@@ -1,0 +1,57 @@
+# =======================================
+# QUANTUM - Menu de Sélection des Récompenses d'Étage
+# =======================================
+# Ce fichier contrôle l'apparence du menu qui s'ouvre
+# lorsqu'un joueur remplit le quota de monstres d'un étage.
+#
+# PLACEHOLDERS dans les textes:
+#   {choices}   - nombre total de choix autorisés (= "choices" ci-dessous)
+#   {remaining} - nombre de choix restants
+
+# Titre du menu (codes couleur avec & supportés)
+title: "&6\u2756 R\u00e9compenses &e- Choisissez &6{choices} r\u00e9compenses"
+
+# Taille de l'inventaire (multiple de 9, entre 9 et 54)
+size: 54
+
+# Nombre de récompenses que le joueur peut choisir
+choices: 3
+
+# Slots de l'inventaire où les options de récompense seront placées
+# (les N premiers slots sont utilisés pour N récompenses disponibles)
+reward_slots:
+  - 11
+  - 13
+  - 15
+  - 20
+  - 22
+  - 24
+  - 29
+  - 31
+  - 33
+
+# Item de fond (remplit tous les autres slots)
+background:
+  material: BLACK_STAINED_GLASS_PANE
+  display_name: " "
+
+# Item d'information (affiche le nombre de choix restants)
+info:
+  slot: 4
+  material: NETHER_STAR
+  display_name: "&6\u2756 R\u00e9compenses d'\u00c9tage"
+  lore:
+    - ""
+    - "&7Cliquez sur un item pour le s\u00e9lectionner"
+    - "&7Choix restants: &e{remaining} &7/ &e{choices}"
+    - ""
+    - "&aVert &7= r\u00e9compense r\u00e9clam\u00e9e"
+
+# Bouton de fermeture
+close_button:
+  slot: 49
+  material: BARRIER
+  display_name: "&cFermer"
+  lore:
+    - "&7Ferme le menu."
+    - "&7Les r\u00e9compenses non s\u00e9lectionn\u00e9es sont perdues."

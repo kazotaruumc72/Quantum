@@ -60,6 +60,12 @@ public class MenuListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player)) return;
         
         Player player = (Player) event.getWhoClicked();
+
+        // Never interfere with the floor reward-selection menu
+        if (plugin.getFloorRewardMenuManager() != null
+                && plugin.getFloorRewardMenuManager().isRewardMenu(event.getView().getTopInventory())) {
+            return;
+        }
         
         Menu menu = plugin.getMenuManager().getActiveMenu(player);
         
@@ -660,6 +666,12 @@ public class MenuListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player)) return;
         
         Player player = (Player) event.getWhoClicked();
+
+        // Never interfere with the floor reward-selection menu
+        if (plugin.getFloorRewardMenuManager() != null
+                && plugin.getFloorRewardMenuManager().isRewardMenu(event.getView().getTopInventory())) {
+            return;
+        }
         
         Menu menu = plugin.getMenuManager().getActiveMenu(player);
         

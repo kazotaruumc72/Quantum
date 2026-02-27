@@ -109,6 +109,9 @@ public class TowerMobKillListener implements Listener {
                     + towerId + " floor " + floor + " - opening door");
             progress.resetFloorMobKills(towerId, floor);
             doorManager.openDoor(towerId, floor, player);
+
+            // Open the reward-selection menu for the killer
+            plugin.getFloorRewardMenuManager().openForPlayer(player, towerId, floor);
         }
     }
 

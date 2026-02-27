@@ -162,6 +162,7 @@ permissions:
       quantum.storage.use: true
       quantum.storage.transfer: true
       quantum.storage.remove: true
+      quantum.storage.sellall: true
       quantum.menu.open: true
       quantum.menu.admin: true
       quantum.orders.*: true
@@ -276,6 +277,10 @@ permissions:
   quantum.tower.storage:
     description: Access tower storage
     default: true
+
+  quantum.storage.sellall:
+    description: Sell all items from storage/tower storage at once
+    default: false
   
   # Dungeon armor system permissions
   quantum.armor.*:

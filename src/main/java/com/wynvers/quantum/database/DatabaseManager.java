@@ -170,6 +170,14 @@ public class DatabaseManager {
                 // Column already exists or table was already created with the new schema
             }
             
+            // Storage upgrades table (multiplierLevel, stackLevel, pageLevel per player)
+            st.executeUpdate("CREATE TABLE IF NOT EXISTS storage_upgrades (" +
+                    "player_uuid VARCHAR(36) NOT NULL PRIMARY KEY, " +
+                    "multiplier_level INT NOT NULL DEFAULT 0, " +
+                    "stack_level INT NOT NULL DEFAULT 0, " +
+                    "page_level INT NOT NULL DEFAULT 0" +
+                    ")");
+
             plugin.getQuantumLogger().success("✓ Database tables verified");
         } catch (SQLException e) {
             plugin.getQuantumLogger().error("Failed to create MySQL tables: " + e.getMessage());

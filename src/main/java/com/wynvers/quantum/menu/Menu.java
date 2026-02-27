@@ -567,6 +567,36 @@ public class Menu {
                 }
             }
  
+            // Gestion dynamique des boutons sell_all (teinture verte/rouge selon permission)
+            if (player != null && (item.getButtonType() == ButtonType.QUANTUM_STORAGE_SELL_ALL
+                    || item.getButtonType() == ButtonType.QUANTUM_TOWER_STORAGE_SELL_ALL)) {
+                boolean hasPerm = player.hasPermission("quantum.storage.sellall");
+                Material dyeMaterial = hasPerm ? Material.GREEN_DYE : Material.RED_DYE;
+                ItemStack sellAllItem = new ItemStack(dyeMaterial);
+                ItemMeta sellMeta = sellAllItem.getItemMeta();
+                if (sellMeta != null) {
+                    String name = item.getDisplayName() != null
+                            ? ChatColor.translateAlternateColorCodes('&', item.getDisplayName())
+                            : (hasPerm ? "§a§lVendre tout" : "§c§lVendre tout");
+                    sellMeta.setDisplayName(parsePlaceholder(player, name, customPlaceholders));
+                    if (item.getLore() != null && !item.getLore().isEmpty()) {
+                        List<String> parsedLore = parsePlaceholders(player, item.getLore(), customPlaceholders);
+                        if (!hasPerm) {
+                            parsedLore = new ArrayList<>(parsedLore);
+                            parsedLore.add("§c§l✗ §cVous n'avez pas la permission.");
+                        }
+                        sellMeta.setLore(parsedLore);
+                    }
+                    sellAllItem.setItemMeta(sellMeta);
+                }
+                for (int slot : item.getSlots()) {
+                    if (slot >= 0 && slot < size) {
+                        inventory.setItem(slot, sellAllItem.clone());
+                    }
+                }
+                continue;
+            }
+
             // Créer l'ItemStack depuis le MenuItem
             ItemStack itemStack = item.toItemStack(plugin, player, customPlaceholders);
             if (itemStack == null) continue;

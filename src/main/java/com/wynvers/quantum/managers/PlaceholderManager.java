@@ -215,6 +215,26 @@ public class PlaceholderManager {
         if (params.equals("storage_total")) {
             return Integer.toString(storage.getTotalItemCount());
         }
+
+        // === STORAGE UPGRADE PLACEHOLDERS ===
+        if (params.equals("storage_multiplier_level")) {
+            return String.valueOf(plugin.getStorageUpgradeManager().getState(player).multiplierLevel);
+        }
+        if (params.equals("storage_multiplier")) {
+            return String.format("%.1f", plugin.getStorageUpgradeManager().getSellMultiplier(player));
+        }
+        if (params.equals("storage_stack_level")) {
+            return String.valueOf(plugin.getStorageUpgradeManager().getState(player).stackLevel);
+        }
+        if (params.equals("storage_stack_max")) {
+            return String.valueOf(plugin.getStorageUpgradeManager().getUpgradeStackMax(player));
+        }
+        if (params.equals("storage_page_level")) {
+            return String.valueOf(plugin.getStorageUpgradeManager().getState(player).pageLevel);
+        }
+        if (params.equals("storage_pages")) {
+            return String.valueOf(plugin.getStorageUpgradeManager().getPages(player));
+        }
         
         // === STORAGE AMOUNT PLACEHOLDERS ===
         // %quantum_amt_nexo-custom_sword% or %amt_nexo-custom_sword%

@@ -256,20 +256,28 @@ public class ZoneManager implements Listener {
             com.sk89q.worldguard.protection.ApplicableRegionSet regions =
                     wgManager.getApplicableRegions(pos);
 
-            // Iterate regions and return the first one that belongs to a tower floor
+            // Prefer floor-specific regions over main tower regions so that the region check
+            // in TowerMobKillListener correctly matches the configured floor region.
+            String fallback = null;
             for (ProtectedRegion region : regions) {
                 String id = region.getId();
                 if (towerManager.getTowerByRegion(id) != null) {
-                    return id;
+                    if (towerManager.getFloorByRegion(id) > 0) {
+                        // This is a floor-specific region – return it immediately
+                        return id;
+                    }
+                    if (fallback == null) {
+                        fallback = id; // main tower region as fallback
+                    }
                 }
             }
+            return fallback;
         } catch (Exception e) {
             // WorldGuard threw an unexpected error – switch to internal system and log once
             worldGuardWorking = false;
             plugin.getQuantumLogger().warning("[ZoneManager] WorldGuard lookup failed, switching to internal regions: " + e.getMessage());
             return regionManager.getRegionAt(loc);
         }
-        return null;
     }
 
     /**

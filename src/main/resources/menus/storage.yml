@@ -131,137 +131,101 @@ items:
     static: true
 
   # ──────────────────────────────────────
-  # BOUTON: RECHERCHER
+  # BOUTON: DÉCORATIF
   # ──────────────────────────────────────
-  search:
+  deco_46:
     slots: [46]
-    material: SPYGLASS
-    custom_model_data: 402
-    display_name: '&b&l🔍 Rechercher'
-    lore:
-      - '&7Recherchez un item spécifique'
-      - '&7dans votre storage'
-      - ' '
-      - '&7Recherche actuelle: &e%quantum_storage_search_query%'
-      - ' '
-      - '&e► Cliquez pour rechercher'
-    button_type: QUANTUM_STORAGE_SEARCH
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: ' '
     static: true
 
   # ──────────────────────────────────────
-  # BOUTON: FILTRER PAR TYPE
+  # BOUTON: MULTIPLICATEUR DE VENTE (slot 47)
   # ──────────────────────────────────────
-  filter_type:
+  upgrade_multiplier:
     slots: [47]
-    material: HOPPER
-    custom_model_data: 403
-    display_name: '&d&l⚡ Filtrer par Type'
+    material: GOLD_INGOT
+    display_name: '&6&l⚡ Multiplicateur de vente'
     lore:
-      - '&7Filtrez les items par leur type'
+      - '&7Multiplie le prix de vente de vos items'
       - ' '
-      - '&7Type actuel: &e%quantum_storage_filter_type%'
+      - '&fNiveau actuel: &e%storage_multiplier_level%'
+      - '&fMultiplicateur: &6x%storage_multiplier%'
       - ' '
-      - '&fOptions:'
-      - '&7  • &aTous les items'
-      - '&7  • &bItems Nexo uniquement'
-      - '&7  • &6Items Minecraft uniquement'
+      - '&7Chaque upgrade ajoute &e+x0.5'
       - ' '
-      - '&e► Cliquez pour changer le filtre'
-    button_type: QUANTUM_STORAGE_FILTER_TYPE
+      - '&e► Cliquez pour améliorer'
+    button_type: QUANTUM_STORAGE_UPGRADE_MULTIPLIER
     static: true
 
   # ──────────────────────────────────────
-  # BOUTON: TRI
+  # BOUTON: STACK x200 (slot 48)
   # ──────────────────────────────────────
-  sort:
+  upgrade_stack:
     slots: [48]
-    material: COMPARATOR
-    custom_model_data: 404
-    display_name: '&a&l⇅ Trier'
+    material: DIAMOND_BLOCK
+    display_name: '&b&l⚡ Stack x200'
     lore:
-      - '&7Changez le mode de tri'
+      - '&7Augmente la taille maximale des stacks'
       - ' '
-      - '&7Tri actuel: &e%quantum_storage_sort_mode%'
+      - '&fNiveau actuel: &e%storage_stack_level%'
+      - '&fStack max: &b%storage_stack_max% items'
       - ' '
-      - '&fOptions:'
-      - '&7  • &aAlphabétique (A → Z)'
-      - '&7  • &bQuantité (élevé → bas)'
-      - '&7  • &6Prix (élevé → bas)'
-      - '&7  • &eRécent (récent → ancien)'
+      - '&7Chaque upgrade ajoute &e+200 items'
       - ' '
-      - '&e► Cliquez pour changer le tri'
-    button_type: QUANTUM_STORAGE_SORT
+      - '&e► Cliquez pour améliorer'
+    button_type: QUANTUM_STORAGE_UPGRADE_STACK
     static: true
 
   # ──────────────────────────────────────
-  # BOUTON: RÉINITIALISER FILTRES
+  # BOUTON: PAGES (slot 49)
   # ──────────────────────────────────────
-  reset_filters:
+  upgrade_page:
     slots: [49]
-    material: BUCKET
-    custom_model_data: 405
-    display_name: '&c&l✖ Réinitialiser'
+    material: BOOK
+    display_name: '&d&l⚡ Pages de storage'
     lore:
-      - '&7Réinitialisez tous les filtres'
-      - '&7et la recherche'
+      - '&7Augmente le nombre de pages de storage'
+      - '&7Maximum: &e5 pages'
       - ' '
-      - '&e► Cliquez pour réinitialiser'
-    button_type: QUANTUM_STORAGE_RESET_FILTERS
+      - '&fNiveau actuel: &e%storage_page_level%'
+      - '&fPages: &d%storage_pages% / 5'
+      - ' '
+      - '&7Chaque upgrade ajoute &e+1 page'
+      - ' '
+      - '&e► Cliquez pour améliorer'
+    button_type: QUANTUM_STORAGE_UPGRADE_PAGE
     static: true
 
   # ──────────────────────────────────────
-  # BOUTON: FERMER
+  # BOUTON: VENDRE TOUT (slot 50)
   # ──────────────────────────────────────
-  close:
+  sell_all:
     slots: [50]
-    material: BARRIER
-    custom_model_data: 399
-    display_name: '&c&l✖ Fermer'
+    material: RED_DYE
+    display_name: '&c&l⚡ Vendre tout'
     lore:
-      - '&7Fermez ce menu'
+      - '&7Vendre tous les items de votre storage'
       - ' '
-      - '&e► Cliquez pour fermer'
-    left_click_actions:
-      - '[close]'
+      - '&7Requis: &epermission quantum.storage.sellall'
+      - ' '
+      - '&e► Cliquez pour vendre tout'
+    button_type: QUANTUM_STORAGE_SELL_ALL
     static: true
 
   # ──────────────────────────────────────
-  # BOUTON: HISTORIQUE
+  # BOUTONS DÉCORATIFS
   # ──────────────────────────────────────
-  history:
+  deco_51:
     slots: [51]
-    material: WRITABLE_BOOK
-    custom_model_data: 406
-    display_name: '&e&l📝 Historique'
-    lore:
-      - '&7Consultez l''historique complet'
-      - '&7de vos transactions'
-      - ' '
-      - '&7Total transactions: &e%quantum_history_total%'
-      - '&7Dernière activité: &e%quantum_history_last%'
-      - ' '
-      - '&e► Cliquez pour ouvrir l''historique'
-    button_type: QUANTUM_VIEW_HISTORY
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: ' '
     static: true
 
-  # ──────────────────────────────────────
-  # BOUTON: STATISTIQUES
-  # ──────────────────────────────────────
-  statistics:
+  deco_52:
     slots: [52]
-    material: KNOWLEDGE_BOOK
-    custom_model_data: 407
-    display_name: '&b&l📊 Statistiques'
-    lore:
-      - '&7Analysez vos performances'
-      - '&7de trading'
-      - ' '
-      - '&7Total achats: &a%quantum_stats_total_buys%'
-      - '&7Total ventes: &6%quantum_stats_total_sells%'
-      - '&7Profit net: &e%quantum_stats_net_profit%'
-      - ' '
-      - '&e► Cliquez pour voir les stats détaillées'
-    button_type: QUANTUM_VIEW_STATS
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: ' '
     static: true
 
   # ──────────────────────────────────────

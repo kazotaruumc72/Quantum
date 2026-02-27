@@ -36,6 +36,7 @@ public class TowerTabCompleter implements TabCompleter {
         // /tower <subcommand>
         if (args.length == 1) {
             completions.add("progress");
+            completions.add("storage");
             
             if (sender.hasPermission("quantum.tower.reset")) {
                 completions.add("reset");

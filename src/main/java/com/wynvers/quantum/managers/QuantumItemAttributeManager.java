@@ -217,8 +217,8 @@ public class QuantumItemAttributeManager {
         if (slot == null || slot.isEmpty()) return EquipmentSlotGroup.ANY;
         switch (slot.toUpperCase()) {
             case "HAND":
-            case "MAIN_HAND": return EquipmentSlotGroup.MAIN_HAND;
-            case "OFF_HAND":  return EquipmentSlotGroup.OFF_HAND;
+            case "MAIN_HAND": return EquipmentSlotGroup.MAINHAND;
+            case "OFF_HAND":  return EquipmentSlotGroup.OFFHAND;
             case "FEET":      return EquipmentSlotGroup.FEET;
             case "LEGS":      return EquipmentSlotGroup.LEGS;
             case "CHEST":     return EquipmentSlotGroup.CHEST;

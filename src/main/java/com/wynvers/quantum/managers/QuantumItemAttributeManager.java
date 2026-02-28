@@ -3,6 +3,7 @@ package com.wynvers.quantum.managers;
 import com.wynvers.quantum.Quantum;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.datacomponent.item.ItemAttributeModifiers;
+import io.papermc.paper.datacomponent.item.attribute.AttributeModifierDisplay;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
@@ -120,14 +121,13 @@ public class QuantumItemAttributeManager {
                 item.getData(DataComponentTypes.ATTRIBUTE_MODIFIERS);
 
         ItemAttributeModifiers.Builder builder =
-                ItemAttributeModifiers.itemAttributeModifiers();
+                ItemAttributeModifiers.itemAttributes();
 
         if (existing != null) {
             // Copy every existing entry so neither base nor Nexo attributes are lost
             for (ItemAttributeModifiers.Entry entry : existing.modifiers()) {
-                builder.addModifier(entry.attribute(), entry.modifier(), entry.slot());
+                builder.addModifier(entry.attribute(), entry.modifier(), entry.getGroup(), entry.display());
             }
-            builder.showInTooltip(existing.showInTooltip());
         }
 
         builder.addModifier(attribute, modifier, eqSlot);
@@ -163,15 +163,14 @@ public class QuantumItemAttributeManager {
         }
 
         ItemAttributeModifiers.Builder builder =
-                ItemAttributeModifiers.itemAttributeModifiers();
-        builder.showInTooltip(existing.showInTooltip());
+                ItemAttributeModifiers.itemAttributes();
 
         boolean changed = false;
         for (ItemAttributeModifiers.Entry entry : existing.modifiers()) {
             if (isQuantumModifier(entry.modifier())) {
                 changed = true; // Quantum modifier — exclude from rebuilt attribute list
             } else {
-                builder.addModifier(entry.attribute(), entry.modifier(), entry.slot());
+                builder.addModifier(entry.attribute(), entry.modifier(), entry.getGroup(), entry.display());
             }
         }
 

@@ -2,6 +2,7 @@ package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.menu.Menu;
+import com.wynvers.quantum.storage.StorageUpgradeManager;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -459,41 +460,52 @@ public class QuantumCommand implements CommandExecutor {
             return true;
         }
 
-        // /quantum storages upgrade <type> <player>
-        if (args.length >= 3 && args[1].equalsIgnoreCase("upgrade")) {
-            String upgradeType = args[2].toLowerCase();
+        // /quantum storages upgrade <classic|tower> <multiplicateur|stack|page> [joueur]
+        if (args.length >= 4 && args[1].equalsIgnoreCase("upgrade")) {
+            String storageType = args[2].toLowerCase();
+            String upgradeType = args[3].toLowerCase();
             Player target = null;
 
-            if (args.length >= 4) {
-                target = org.bukkit.Bukkit.getPlayer(args[3]);
+            if (args.length >= 5) {
+                target = org.bukkit.Bukkit.getPlayer(args[4]);
                 if (target == null) {
-                    sender.sendMessage("§cJoueur introuvable: " + args[3]);
+                    sender.sendMessage("§cJoueur introuvable: " + args[4]);
                     return true;
                 }
             } else if (sender instanceof Player) {
                 target = (Player) sender;
             } else {
-                sender.sendMessage("§cUsage: /quantum storages upgrade <multiplicateur|stack|page> <joueur>");
+                sender.sendMessage("§cUsage: /quantum storages upgrade <classic|tower> <multiplicateur|stack|page> <joueur>");
+                return true;
+            }
+
+            StorageUpgradeManager manager;
+            if (storageType.equals("tower")) {
+                manager = plugin.getTowerStorageUpgradeManager();
+            } else if (storageType.equals("classic") || storageType.equals("classique")) {
+                manager = plugin.getStorageUpgradeManager();
+            } else {
+                sender.sendMessage("§cType de storage invalide. Valeurs possibles: §eclassic§c (ou §eclassique§c), §etower");
                 return true;
             }
 
             switch (upgradeType) {
                 case "multiplicateur":
-                    plugin.getStorageUpgradeManager().upgradeMultiplier(target, plugin);
+                    manager.upgradeMultiplier(target, plugin);
                     if (!target.equals(sender)) {
-                        sender.sendMessage("§aMultiplicateur de " + target.getName() + " amélioré!");
+                        sender.sendMessage("§aMultiplicateur §7(" + storageType + ")§a de " + target.getName() + " amélioré!");
                     }
                     break;
                 case "stack":
-                    plugin.getStorageUpgradeManager().upgradeStack(target, plugin);
+                    manager.upgradeStack(target, plugin);
                     if (!target.equals(sender)) {
-                        sender.sendMessage("§aStack de " + target.getName() + " amélioré!");
+                        sender.sendMessage("§aStack §7(" + storageType + ")§a de " + target.getName() + " amélioré!");
                     }
                     break;
                 case "page":
-                    plugin.getStorageUpgradeManager().upgradePage(target, plugin);
+                    manager.upgradePage(target, plugin);
                     if (!target.equals(sender)) {
-                        sender.sendMessage("§aPages de " + target.getName() + " améliorées!");
+                        sender.sendMessage("§aPages §7(" + storageType + ")§a de " + target.getName() + " améliorées!");
                     }
                     break;
                 default:
@@ -503,9 +515,9 @@ public class QuantumCommand implements CommandExecutor {
         }
 
         sender.sendMessage("§6§lCOMMANDES STORAGES");
-        sender.sendMessage("§e/quantum storages upgrade multiplicateur [joueur] §7- Améliore le multiplicateur de vente (+x0.5)");
-        sender.sendMessage("§e/quantum storages upgrade stack [joueur] §7- Améliore le stack max (+200 items)");
-        sender.sendMessage("§e/quantum storages upgrade page [joueur] §7- Améliore le nombre de pages (+1, max 5)");
+        sender.sendMessage("§e/quantum storages upgrade <classic|tower> multiplicateur [joueur] §7- Améliore le multiplicateur de vente (+x0.5)");
+        sender.sendMessage("§e/quantum storages upgrade <classic|tower> stack [joueur] §7- Améliore le stack max (+200 items)");
+        sender.sendMessage("§e/quantum storages upgrade <classic|tower> page [joueur] §7- Améliore le nombre de pages (+1, max 5)");
         return true;
     }
 
@@ -518,6 +530,7 @@ public class QuantumCommand implements CommandExecutor {
         sender.sendMessage("§e/quantum storagestats §7- Stats du storage");
         if (sender.hasPermission("quantum.admin")) {
             sender.sendMessage("§e/quantum eco <create|delete|balance|give|take|set> §7- Gestion économie");
+            sender.sendMessage("§e/quantum storages upgrade <classic|tower> <multiplicateur|stack|page> [joueur] §7- Upgrades de storage");
         }
         if (sender.hasPermission("quantum.tower.door.wand") || sender.hasPermission("quantum.admin")) {
             sender.sendMessage("§e/quantum wand door §7- Baguette de sélection");

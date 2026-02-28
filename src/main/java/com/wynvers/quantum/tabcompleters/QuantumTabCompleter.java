@@ -308,9 +308,12 @@ public class QuantumTabCompleter implements TabCompleter {
             completions.add("upgrade");
         }
         else if (args.length == 3 && args[0].equalsIgnoreCase("storages") && args[1].equalsIgnoreCase("upgrade")) {
-            completions.addAll(Arrays.asList("multiplicateur", "stack", "page"));
+            completions.addAll(Arrays.asList("classic", "classique", "tower"));
         }
         else if (args.length == 4 && args[0].equalsIgnoreCase("storages") && args[1].equalsIgnoreCase("upgrade")) {
+            completions.addAll(Arrays.asList("multiplicateur", "stack", "page"));
+        }
+        else if (args.length == 5 && args[0].equalsIgnoreCase("storages") && args[1].equalsIgnoreCase("upgrade")) {
             // Joueur cible
             for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
                 completions.add(p.getName());

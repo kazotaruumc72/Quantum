@@ -38,9 +38,9 @@ public class MenuManager {
             plugin.saveResource("menus/example.yml", false);
         }
         
-        File[] files = menusFolder.listFiles((dir, name) -> name.endsWith(".yml"));
+        List<File> files = getAllYmlFiles(menusFolder);
         
-        if (files == null || files.length == 0) {
+        if (files.isEmpty()) {
             plugin.getQuantumLogger().warning("No menu files found in menus/ folder");
             return;
         }
@@ -69,6 +69,20 @@ public class MenuManager {
         plugin.getQuantumLogger().success("Total: " + loaded + " menus loaded");
     }
     
+    private List<File> getAllYmlFiles(File dir) {
+        List<File> result = new ArrayList<>();
+        File[] entries = dir.listFiles();
+        if (entries == null) return result;
+        for (File entry : entries) {
+            if (entry.isDirectory()) {
+                result.addAll(getAllYmlFiles(entry));
+            } else if (entry.getName().endsWith(".yml")) {
+                result.add(entry);
+            }
+        }
+        return result;
+    }
+
     private Menu loadMenu(File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         

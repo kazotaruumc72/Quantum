@@ -361,33 +361,84 @@ public class QuantumCommand implements CommandExecutor {
     }
 
     private boolean handleStorage(CommandSender sender, Command command, String[] args) {
-        // If subcommands are present (e.g. transfer, remove), delegate to the storage admin command
-        if (args.length > 1) {
-            String[] newArgs = new String[args.length - 1];
-            System.arraycopy(args, 1, newArgs, 0, args.length - 1);
-            return storageAdminCommand.onCommand(sender, command, "quantum", newArgs);
-        }
-
-        // No subcommand – open storage GUI for the player
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cCette commande ne peut être exécutée que par un joueur!");
+        // Must specify type: tower or classic
+        if (args.length == 1) {
+            sender.sendMessage("§cUsage: /quantum storage <tower|classic>");
+            sender.sendMessage("§7  tower: add|remove   §7|  §7classic: transfer|remove");
             return true;
         }
 
-        if (!player.hasPermission("quantum.storage.use")) {
-            plugin.getMessageManager().sendMessage(player, "system.no-permission");
-            return true;
-        }
+        String storageType = args[1].toLowerCase();
 
-        // Open storage menu from storage.yml
-        com.wynvers.quantum.menu.Menu storageMenu = plugin.getMenuManager().getMenu("storage");
-        if (storageMenu != null) {
-            storageMenu.open(player, plugin);
+        if (storageType.equals("tower")) {
+            return handleTowerStorage(sender, command, args);
+        } else if (storageType.equals("classic") || storageType.equals("classique")) {
+            return handleClassicStorage(sender, command, args);
         } else {
-            plugin.getMessageManager().sendMessage(player, "error.menu.failed-to-open");
+            sender.sendMessage("§cType de storage invalide. Valeurs possibles: §etower§c, §eclassic");
+            return true;
+        }
+    }
+
+    private boolean handleTowerStorage(CommandSender sender, Command command, String[] args) {
+        // /quantum storage tower                              → open tower storage GUI
+        // /quantum storage tower add <item> <amount> [player] → add to tower storage
+        // /quantum storage tower remove <item> <amount> [player] → remove from tower storage
+
+        if (args.length == 2) {
+            // Open tower storage GUI
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage("§cCette commande ne peut être exécutée que par un joueur!");
+                return true;
+            }
+            if (!player.hasPermission("quantum.tower.storage")) {
+                plugin.getMessageManager().sendMessage(player, "system.no-permission");
+                return true;
+            }
+            com.wynvers.quantum.menu.Menu towerStorageMenu = plugin.getMenuManager().getMenu("tower_storage");
+            if (towerStorageMenu != null) {
+                towerStorageMenu.open(player, plugin);
+            } else {
+                plugin.getMessageManager().sendMessage(player, "error.menu.failed-to-open");
+            }
+            return true;
         }
 
-        return true;
+        // Delegate tower storage admin ops to TowerCommand via ["storage", <subcommand>, ...]
+        String[] towerArgs = new String[args.length - 1];
+        towerArgs[0] = "storage";
+        System.arraycopy(args, 2, towerArgs, 1, args.length - 2);
+        return new TowerCommand(plugin).onCommand(sender, command, "quantum", towerArgs);
+    }
+
+    private boolean handleClassicStorage(CommandSender sender, Command command, String[] args) {
+        // /quantum storage classic                           → open classic storage GUI
+        // /quantum storage classic transfer <item> [amount]  → transfer to classic storage
+        // /quantum storage classic remove <item> [amount]    → remove from classic storage
+
+        if (args.length == 2) {
+            // Open classic storage GUI
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage("§cCette commande ne peut être exécutée que par un joueur!");
+                return true;
+            }
+            if (!player.hasPermission("quantum.storage.use")) {
+                plugin.getMessageManager().sendMessage(player, "system.no-permission");
+                return true;
+            }
+            com.wynvers.quantum.menu.Menu storageMenu = plugin.getMenuManager().getMenu("storage");
+            if (storageMenu != null) {
+                storageMenu.open(player, plugin);
+            } else {
+                plugin.getMessageManager().sendMessage(player, "error.menu.failed-to-open");
+            }
+            return true;
+        }
+
+        // Delegate classic storage admin ops to QuantumStorageCommand via [<subcommand>, ...]
+        String[] classicArgs = new String[args.length - 2];
+        System.arraycopy(args, 2, classicArgs, 0, args.length - 2);
+        return storageAdminCommand.onCommand(sender, command, "quantum", classicArgs);
     }
 
     private boolean handleStorages(CommandSender sender, String[] args) {
@@ -449,7 +500,7 @@ public class QuantumCommand implements CommandExecutor {
     private void sendHelp(CommandSender sender) {
         sender.sendMessage("§6§lCOMMANDES QUANTUM");
         sender.sendMessage("§e/quantum reload [all|runes|config|towers|price|messages|...]");
-        sender.sendMessage("§e/quantum storage §7- Ouvrir le storage virtuel");
+        sender.sendMessage("§e/quantum storage <tower|classic> §7- Ouvrir le storage virtuel");
         sender.sendMessage("§e/quantum stats [category] §7- Afficher les statistiques");
         sender.sendMessage("§e/quantum storagestats §7- Stats du storage");
         if (sender.hasPermission("quantum.admin")) {

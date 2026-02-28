@@ -22,7 +22,7 @@ softdepend:
 commands:
   quantum:
     description: Main Quantum command
-    usage: /quantum <reload|storage|help>
+    usage: /quantum <reload|storage <tower|classic>|help>
     aliases: [q]
   
   storage:

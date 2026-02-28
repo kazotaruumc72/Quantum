@@ -90,7 +90,12 @@ public class TowerMobKillListener implements Listener {
         if (floorRegion != null && entityLoc != null) {
             com.wynvers.quantum.worldguard.ZoneManager zoneMan = plugin.getZoneManager();
             String entityRegion = zoneMan != null ? zoneMan.getRegionAt(entityLoc) : null;
-            if (!floorRegion.equalsIgnoreCase(entityRegion)) return;
+            if (entityRegion != null && !floorRegion.equalsIgnoreCase(entityRegion)) return;
+            if (entityRegion == null) {
+                plugin.getQuantumLogger().debug(
+                        "[Tower] Could not determine region for entity death at " + entityLoc
+                        + " - counting kill anyway (expected floor region: " + floorRegion + ")");
+            }
         }
 
         List<FloorMobRequirement> requirements = tower.getFloorMobRequirements(floor);

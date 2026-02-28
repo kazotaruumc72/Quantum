@@ -36,6 +36,7 @@ public class QuantumTabCompleter implements TabCompleter {
                 "reload",
                 "stats",
                 "statistics",
+                "storage",
                 "storagestats",
                 "sstats",
                 "help",

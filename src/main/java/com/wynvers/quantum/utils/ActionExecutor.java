@@ -140,9 +140,34 @@ public class ActionExecutor {
             case QUANTUM_CANCEL_ORDER:
                 handleOrderCancel(player);
                 break;
+
+            case ADD_HEALTH:
+                handleAddHealth(player, value);
+                break;
         }
     }
     
+    // ========== ACTIONS DE VIE ==========
+
+    /**
+     * Ajoute de la vie au joueur (en demi-coeurs).
+     * Chaque appel ajoute {@code amount} demi-coeurs à la santé actuelle,
+     * sans dépasser la santé maximale du joueur.
+     */
+    private void handleAddHealth(Player player, String value) {
+        double amount = 2.0; // valeur par défaut : 1 coeur = 2 demi-coeurs
+        try {
+            if (value != null && !value.trim().isEmpty()) {
+                amount = Double.parseDouble(value.trim());
+            }
+        } catch (NumberFormatException e) {
+            plugin.getQuantumLogger().warning("[Quantum] Valeur invalide pour add_health: " + value);
+        }
+
+        double newHealth = Math.min(player.getHealth() + amount, player.getMaxHealth());
+        player.setHealth(newHealth);
+    }
+
     // ========== ACTIONS D'OFFRES ==========
     
     /**

@@ -107,6 +107,21 @@ items:
         - '[message] &a❤ Vie et faim restaurées !'
         - '[sound] ENTITY_PLAYER_LEVELUP'
 
+  'plus_de_vie':
+    slot: 33
+    material: RED_DYE
+    amount: 1
+    display_name: '&c&l❤ Plus de Vie'
+    lore:
+      - '&7Ajoute 2 coeurs à votre vie actuelle'
+      - ''
+      - '&eCliquez pour ajouter de la vie'
+    left_click:
+      actions:
+        - '[add_health] 4'
+        - '[message] &c❤ +2 coeurs ajoutés !'
+        - '[sound] ENTITY_PLAYER_LEVELUP'
+
   'fly_toggle':
     slot: 29
     material: ELYTRA

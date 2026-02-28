@@ -28,6 +28,7 @@ import java.util.Map;
  * /tower tp <tower> <floor> - Teleport to floor (admin)
  * /tower complete <player> <tower> <floor> - Mark floor as complete (admin)
  * /tower reload             - Reload tower configs (admin)
+ * /tower set spawn <tower> <floor> - Set spawn location (admin)
  */
 public class TowerCommand implements CommandExecutor {
 
@@ -63,6 +64,8 @@ public class TowerCommand implements CommandExecutor {
                 return handleReload(sender);
             case "storage":
                 return handleStorage(sender, args);
+            case "set":
+                return handleSet(sender, args);
             default:
                 sendHelp(sender);
                 return true;
@@ -349,6 +352,95 @@ public class TowerCommand implements CommandExecutor {
     }
 
     /**
+     * Handle set commands (spawn, etc.)
+     */
+    private boolean handleSet(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("quantum.tower.set")) {
+            sender.sendMessage("§cVous n'avez pas la permission.");
+            return true;
+        }
+
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("§cCette commande est réservée aux joueurs.");
+            return true;
+        }
+
+        if (args.length < 2) {
+            sender.sendMessage("§cUsage: /tower set spawn <tower> <floor>");
+            return true;
+        }
+
+        String subCommand = args[1].toLowerCase();
+
+        if (subCommand.equals("spawn")) {
+            return handleSetSpawn(sender, args);
+        }
+
+        sender.sendMessage("§cSous-commande inconnue: " + args[1]);
+        return true;
+    }
+
+    /**
+     * Set spawn location for a tower floor
+     * /tower set spawn <tower> <floor>
+     */
+    private boolean handleSetSpawn(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            sender.sendMessage("§cUsage: /tower set spawn <tower> <floor>");
+            return true;
+        }
+
+        Player player = (Player) sender;
+        String towerId = args[2];
+
+        TowerConfig tower = towerManager.getTower(towerId);
+        if (tower == null) {
+            sender.sendMessage("§cTour introuvable: " + towerId);
+            sender.sendMessage("§7Tours disponibles: " + String.join(", ", towerManager.getAllTowers().keySet()));
+            return true;
+        }
+
+        int floor;
+        try {
+            floor = Integer.parseInt(args[3]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage("§cNuméro d'étage invalide: " + args[3]);
+            return true;
+        }
+
+        if (floor < 1 || floor > tower.getTotalFloors()) {
+            sender.sendMessage("§cÉtage invalide. Min: 1, Max: " + tower.getTotalFloors());
+            return true;
+        }
+
+        Location loc = player.getLocation();
+
+        // Save to towers.yml
+        File towersFile = new File(plugin.getDataFolder(), "towers.yml");
+        FileConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
+
+        String basePath = "towers." + towerId + ".floors." + floor + ".spawn";
+        config.set(basePath + ".world", loc.getWorld().getName());
+        config.set(basePath + ".x", loc.getX());
+        config.set(basePath + ".y", loc.getY());
+        config.set(basePath + ".z", loc.getZ());
+        config.set(basePath + ".yaw", loc.getYaw());
+        config.set(basePath + ".pitch", loc.getPitch());
+
+        try {
+            config.save(towersFile);
+            sender.sendMessage("§a§l✓ §aPoint de spawn défini pour: §f" + tower.getName() + " §7Étage " + floor);
+            sender.sendMessage("§7Position: §f" + String.format("%.1f, %.1f, %.1f", loc.getX(), loc.getY(), loc.getZ()));
+            towerManager.reload();
+        } catch (Exception e) {
+            sender.sendMessage("§cErreur lors de la sauvegarde: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return true;
+    }
+
+    /**
      * Handle tower storage commands
      */
     private boolean handleStorage(CommandSender sender, String[] args) {
@@ -493,6 +585,10 @@ public class TowerCommand implements CommandExecutor {
 
         if (sender.hasPermission("quantum.tower.teleport")) {
             sender.sendMessage("§e/tower tp <tower> <floor> §7- Téléportation à un étage");
+        }
+
+        if (sender.hasPermission("quantum.tower.set")) {
+            sender.sendMessage("§e/tower set spawn <tower> <floor> §7- Définir le point de spawn");
         }
 
         if (sender.hasPermission("quantum.tower.complete")) {

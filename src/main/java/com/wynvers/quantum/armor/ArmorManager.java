@@ -77,8 +77,8 @@ public class ArmorManager {
             double speedBonus = RuneType.SPEED.getSpeedBonus(level);
             
             // Appliquer une vitesse en fonction du bonus
-            // Minecraft: valeur entre 0 et 1, défaut 0.1
-            float newSpeed = Math.min(1.0f, (float) ((speedBonus - 1.0) * 0.1f + 0.1f));
+            // Minecraft: valeur entre 0 et 1, défaut 0.2
+            float newSpeed = Math.min(1.0f, (float) (0.2f + (speedBonus - 1.0f) * 0.05f));
             player.setWalkSpeed(newSpeed);
         }
     }

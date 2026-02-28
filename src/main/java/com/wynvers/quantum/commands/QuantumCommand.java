@@ -76,6 +76,11 @@ public class QuantumCommand implements CommandExecutor {
             return economyCommand.execute(sender, args);
         }
 
+        // Storage command - delegate to storage menu
+        if (subCommand.equals("storage")) {
+            return handleStorage(sender, args);
+        }
+
         // Storage upgrades commands
         if (subCommand.equals("storages")) {
             return handleStorages(sender, args);
@@ -353,6 +358,28 @@ public class QuantumCommand implements CommandExecutor {
         sender.sendMessage("§a§l✓ §aTout a été rechargé avec succès!");
     }
 
+    private boolean handleStorage(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("§cCette commande ne peut être exécutée que par un joueur!");
+            return true;
+        }
+
+        if (!player.hasPermission("quantum.storage")) {
+            plugin.getMessageManager().sendMessage(player, "system.no-permission");
+            return true;
+        }
+
+        // Open storage menu from storage.yml
+        com.wynvers.quantum.menu.Menu storageMenu = plugin.getMenuManager().getMenu("storage");
+        if (storageMenu != null) {
+            storageMenu.open(player, plugin);
+        } else {
+            plugin.getMessageManager().sendMessage(player, "error.menu.failed-to-open");
+        }
+
+        return true;
+    }
+
     private boolean handleStorages(CommandSender sender, String[] args) {
         if (!sender.hasPermission("quantum.admin")) {
             sender.sendMessage("§cVous n'avez pas la permission d'utiliser cette commande.");
@@ -412,6 +439,7 @@ public class QuantumCommand implements CommandExecutor {
     private void sendHelp(CommandSender sender) {
         sender.sendMessage("§6§lCOMMANDES QUANTUM");
         sender.sendMessage("§e/quantum reload [all|runes|config|towers|price|messages|...]");
+        sender.sendMessage("§e/quantum storage §7- Ouvrir le storage virtuel");
         sender.sendMessage("§e/quantum stats [category] §7- Afficher les statistiques");
         sender.sendMessage("§e/quantum storagestats §7- Stats du storage");
         if (sender.hasPermission("quantum.admin")) {

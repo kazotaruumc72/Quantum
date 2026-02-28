@@ -16,6 +16,7 @@ public class QuantumCommand implements CommandExecutor {
     private final QuantumTowerCommand towerCommand;
     private final EconomyCommand economyCommand;
     private final WandCommand wandCommand;
+    private final QuantumStorageCommand storageAdminCommand;
 
     public QuantumCommand(Quantum plugin) {
         this.plugin = plugin;
@@ -30,6 +31,7 @@ public class QuantumCommand implements CommandExecutor {
         );
         this.economyCommand = new EconomyCommand(plugin);
         this.wandCommand = new WandCommand(plugin);
+        this.storageAdminCommand = new QuantumStorageCommand(plugin);
     }
 
     @Override
@@ -78,7 +80,7 @@ public class QuantumCommand implements CommandExecutor {
 
         // Storage command - delegate to storage menu
         if (subCommand.equals("storage")) {
-            return handleStorage(sender, args);
+            return handleStorage(sender, command, args);
         }
 
         // Storage upgrades commands
@@ -358,13 +360,21 @@ public class QuantumCommand implements CommandExecutor {
         sender.sendMessage("§a§l✓ §aTout a été rechargé avec succès!");
     }
 
-    private boolean handleStorage(CommandSender sender, String[] args) {
+    private boolean handleStorage(CommandSender sender, Command command, String[] args) {
+        // If subcommands are present (e.g. transfer, remove), delegate to the storage admin command
+        if (args.length > 1) {
+            String[] newArgs = new String[args.length - 1];
+            System.arraycopy(args, 1, newArgs, 0, args.length - 1);
+            return storageAdminCommand.onCommand(sender, command, "quantum", newArgs);
+        }
+
+        // No subcommand – open storage GUI for the player
         if (!(sender instanceof Player player)) {
             sender.sendMessage("§cCette commande ne peut être exécutée que par un joueur!");
             return true;
         }
 
-        if (!player.hasPermission("quantum.storage")) {
+        if (!player.hasPermission("quantum.storage.use")) {
             plugin.getMessageManager().sendMessage(player, "system.no-permission");
             return true;
         }

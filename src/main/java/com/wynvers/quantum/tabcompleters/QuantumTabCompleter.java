@@ -1,6 +1,7 @@
 package com.wynvers.quantum.tabcompleters;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.commands.QuantumStorageTabCompleter;
 import com.wynvers.quantum.towers.TowerConfig;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -21,9 +22,11 @@ import java.util.Map;
  */
 public class QuantumTabCompleter implements TabCompleter {
     private final Quantum plugin;
+    private final QuantumStorageTabCompleter storageTabCompleter;
 
     public QuantumTabCompleter(Quantum plugin) {
         this.plugin = plugin;
+        this.storageTabCompleter = new QuantumStorageTabCompleter(plugin);
     }
 
     @Override
@@ -109,6 +112,16 @@ public class QuantumTabCompleter implements TabCompleter {
         else if (args[0].equalsIgnoreCase("wand")) {
             if (args.length == 2) {
                 completions.add("door");
+            }
+        }
+        // Tab completion pour /quantum storage
+        else if (args[0].equalsIgnoreCase("storage")) {
+            // Shift args: remove "storage" prefix and delegate to QuantumStorageTabCompleter
+            String[] shiftedArgs = new String[args.length - 1];
+            System.arraycopy(args, 1, shiftedArgs, 0, args.length - 1);
+            List<String> storageCompletions = storageTabCompleter.onTabComplete(sender, command, alias, shiftedArgs);
+            if (storageCompletions != null) {
+                completions.addAll(storageCompletions);
             }
         }
         // Tab completion pour /quantum npc
@@ -295,9 +308,12 @@ public class QuantumTabCompleter implements TabCompleter {
             completions.add("upgrade");
         }
         else if (args.length == 3 && args[0].equalsIgnoreCase("storages") && args[1].equalsIgnoreCase("upgrade")) {
-            completions.addAll(Arrays.asList("multiplicateur", "stack", "page"));
+            completions.addAll(Arrays.asList("classic", "classique", "tower"));
         }
         else if (args.length == 4 && args[0].equalsIgnoreCase("storages") && args[1].equalsIgnoreCase("upgrade")) {
+            completions.addAll(Arrays.asList("multiplicateur", "stack", "page"));
+        }
+        else if (args.length == 5 && args[0].equalsIgnoreCase("storages") && args[1].equalsIgnoreCase("upgrade")) {
             // Joueur cible
             for (org.bukkit.entity.Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
                 completions.add(p.getName());

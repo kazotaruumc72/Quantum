@@ -497,6 +497,31 @@ public class MenuItem {
             return;
         }
         
+        // === QUANTUM_ITEM_ATTRIBUTES_MODIFIER ===
+        if (buttonType == ButtonType.QUANTUM_ITEM_ATTRIBUTES_MODIFIER) {
+            @SuppressWarnings("unchecked")
+            java.util.List<java.util.Map<String, Object>> attrList =
+                    (java.util.List<java.util.Map<String, Object>>) parameters.get("attributes");
+            if (attrList != null && !attrList.isEmpty()) {
+                plugin.getQuantumItemAttributeManager().applyModifiers(player, attrList);
+            } else {
+                player.sendMessage("§c§l✗ §cAucun attribut configuré pour ce bouton.");
+            }
+            refreshActiveMenu(player, plugin);
+            return;
+        }
+
+        // === QUANTUM_ITEM_ATTRIBUTES_RESET ===
+        if (buttonType == ButtonType.QUANTUM_ITEM_ATTRIBUTES_RESET) {
+            if (!player.hasPermission("quantum.admin")) {
+                player.sendMessage("§c§l✗ §cVous n'avez pas la permission de réinitialiser les attributs.");
+                return;
+            }
+            plugin.getQuantumItemAttributeManager().resetModifiers(player);
+            refreshActiveMenu(player, plugin);
+            return;
+        }
+
         // === ORDER BUTTONS - Déléguer à OrderButtonHandler ===
         if (isOrderButton()) {
             plugin.getOrderButtonHandler().handle(player, this);

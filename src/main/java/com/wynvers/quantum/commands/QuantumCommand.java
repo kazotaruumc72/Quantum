@@ -1,6 +1,8 @@
 package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.menu.Menu;
+import com.wynvers.quantum.storage.StorageUpgradeManager;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,6 +18,7 @@ public class QuantumCommand implements CommandExecutor {
     private final QuantumTowerCommand towerCommand;
     private final EconomyCommand economyCommand;
     private final WandCommand wandCommand;
+    private final QuantumStorageCommand storageAdminCommand;
 
     public QuantumCommand(Quantum plugin) {
         this.plugin = plugin;
@@ -30,6 +33,7 @@ public class QuantumCommand implements CommandExecutor {
         );
         this.economyCommand = new EconomyCommand(plugin);
         this.wandCommand = new WandCommand(plugin);
+        this.storageAdminCommand = new QuantumStorageCommand(plugin);
     }
 
     @Override
@@ -78,7 +82,7 @@ public class QuantumCommand implements CommandExecutor {
 
         // Storage command - delegate to storage menu
         if (subCommand.equals("storage")) {
-            return handleStorage(sender, args);
+            return handleStorage(sender, command, args);
         }
 
         // Storage upgrades commands
@@ -358,26 +362,96 @@ public class QuantumCommand implements CommandExecutor {
         sender.sendMessage("§a§l✓ §aTout a été rechargé avec succès!");
     }
 
-    private boolean handleStorage(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player player)) {
-            sender.sendMessage("§cCette commande ne peut être exécutée que par un joueur!");
+    private boolean handleStorage(CommandSender sender, Command command, String[] args) {
+        // No type specified – open the storage selector menu (players) or show usage (console)
+        if (args.length == 1) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage("§cUsage: /quantum storage <tower|classic>");
+                sender.sendMessage("§7  tower: add|remove   §7|  §7classic: transfer|remove");
+                return true;
+            }
+            Menu selectorMenu = plugin.getMenuManager().getMenu("storage_selector");
+            if (selectorMenu != null) {
+                selectorMenu.open(player, plugin);
+            } else {
+                // Fallback if menu file is missing: show usage
+                player.sendMessage("§cUsage: /quantum storage <tower|classic>");
+                player.sendMessage("§7  tower: add|remove   §7|  §7classic: transfer|remove");
+            }
             return true;
         }
 
-        if (!player.hasPermission("quantum.storage")) {
-            plugin.getMessageManager().sendMessage(player, "system.no-permission");
-            return true;
-        }
+        String storageType = args[1].toLowerCase();
 
-        // Open storage menu from storage.yml
-        com.wynvers.quantum.menu.Menu storageMenu = plugin.getMenuManager().getMenu("storage");
-        if (storageMenu != null) {
-            storageMenu.open(player, plugin);
+        if (storageType.equals("tower")) {
+            return handleTowerStorage(sender, command, args);
+        } else if (storageType.equals("classic") || storageType.equals("classique")) {
+            return handleClassicStorage(sender, command, args);
         } else {
-            plugin.getMessageManager().sendMessage(player, "error.menu.failed-to-open");
+            sender.sendMessage("§cType de storage invalide. Valeurs possibles: §etower§c, §eclassic");
+            return true;
+        }
+    }
+
+    private boolean handleTowerStorage(CommandSender sender, Command command, String[] args) {
+        // /quantum storage tower                              → open tower storage GUI
+        // /quantum storage tower add <item> <amount> [player] → add to tower storage
+        // /quantum storage tower remove <item> <amount> [player] → remove from tower storage
+
+        if (args.length == 2) {
+            // Open tower storage GUI
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage("§cCette commande ne peut être exécutée que par un joueur!");
+                return true;
+            }
+            if (!player.hasPermission("quantum.tower.storage")) {
+                plugin.getMessageManager().sendMessage(player, "system.no-permission");
+                return true;
+            }
+            Menu towerStorageMenu = plugin.getMenuManager().getMenu("tower_storage");
+            if (towerStorageMenu != null) {
+                towerStorageMenu.open(player, plugin);
+            } else {
+                plugin.getMessageManager().sendMessage(player, "error.menu.failed-to-open");
+            }
+            return true;
         }
 
-        return true;
+        // Delegate tower storage admin ops to TowerCommand via ["storage", <subcommand>, ...]
+        String[] towerArgs = new String[args.length - 1];
+        towerArgs[0] = "storage";
+        System.arraycopy(args, 2, towerArgs, 1, args.length - 2);
+        return new TowerCommand(plugin).onCommand(sender, command, "quantum", towerArgs);
+    }
+
+    private boolean handleClassicStorage(CommandSender sender, Command command, String[] args) {
+        // /quantum storage classic                           → open classic storage GUI
+        // /quantum storage classic transfer <item> [amount]  → transfer to classic storage
+        // /quantum storage classic remove <item> [amount]    → remove from classic storage
+
+        if (args.length == 2) {
+            // Open classic storage GUI
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage("§cCette commande ne peut être exécutée que par un joueur!");
+                return true;
+            }
+            if (!player.hasPermission("quantum.storage.use")) {
+                plugin.getMessageManager().sendMessage(player, "system.no-permission");
+                return true;
+            }
+            Menu storageMenu = plugin.getMenuManager().getMenu("storage");
+            if (storageMenu != null) {
+                storageMenu.open(player, plugin);
+            } else {
+                plugin.getMessageManager().sendMessage(player, "error.menu.failed-to-open");
+            }
+            return true;
+        }
+
+        // Delegate classic storage admin ops to QuantumStorageCommand via [<subcommand>, ...]
+        String[] classicArgs = new String[args.length - 2];
+        System.arraycopy(args, 2, classicArgs, 0, args.length - 2);
+        return storageAdminCommand.onCommand(sender, command, "quantum", classicArgs);
     }
 
     private boolean handleStorages(CommandSender sender, String[] args) {
@@ -386,41 +460,52 @@ public class QuantumCommand implements CommandExecutor {
             return true;
         }
 
-        // /quantum storages upgrade <type> <player>
-        if (args.length >= 3 && args[1].equalsIgnoreCase("upgrade")) {
-            String upgradeType = args[2].toLowerCase();
+        // /quantum storages upgrade <classic|tower> <multiplicateur|stack|page> [joueur]
+        if (args.length >= 4 && args[1].equalsIgnoreCase("upgrade")) {
+            String storageType = args[2].toLowerCase();
+            String upgradeType = args[3].toLowerCase();
             Player target = null;
 
-            if (args.length >= 4) {
-                target = org.bukkit.Bukkit.getPlayer(args[3]);
+            if (args.length >= 5) {
+                target = org.bukkit.Bukkit.getPlayer(args[4]);
                 if (target == null) {
-                    sender.sendMessage("§cJoueur introuvable: " + args[3]);
+                    sender.sendMessage("§cJoueur introuvable: " + args[4]);
                     return true;
                 }
             } else if (sender instanceof Player) {
                 target = (Player) sender;
             } else {
-                sender.sendMessage("§cUsage: /quantum storages upgrade <multiplicateur|stack|page> <joueur>");
+                sender.sendMessage("§cUsage: /quantum storages upgrade <classic|tower> <multiplicateur|stack|page> <joueur>");
+                return true;
+            }
+
+            StorageUpgradeManager manager;
+            if (storageType.equals("tower")) {
+                manager = plugin.getTowerStorageUpgradeManager();
+            } else if (storageType.equals("classic") || storageType.equals("classique")) {
+                manager = plugin.getStorageUpgradeManager();
+            } else {
+                sender.sendMessage("§cType de storage invalide. Valeurs possibles: §eclassic§c (ou §eclassique§c), §etower");
                 return true;
             }
 
             switch (upgradeType) {
                 case "multiplicateur":
-                    plugin.getStorageUpgradeManager().upgradeMultiplier(target, plugin);
+                    manager.upgradeMultiplier(target, plugin);
                     if (!target.equals(sender)) {
-                        sender.sendMessage("§aMultiplicateur de " + target.getName() + " amélioré!");
+                        sender.sendMessage("§aMultiplicateur §7(" + storageType + ")§a de " + target.getName() + " amélioré!");
                     }
                     break;
                 case "stack":
-                    plugin.getStorageUpgradeManager().upgradeStack(target, plugin);
+                    manager.upgradeStack(target, plugin);
                     if (!target.equals(sender)) {
-                        sender.sendMessage("§aStack de " + target.getName() + " amélioré!");
+                        sender.sendMessage("§aStack §7(" + storageType + ")§a de " + target.getName() + " amélioré!");
                     }
                     break;
                 case "page":
-                    plugin.getStorageUpgradeManager().upgradePage(target, plugin);
+                    manager.upgradePage(target, plugin);
                     if (!target.equals(sender)) {
-                        sender.sendMessage("§aPages de " + target.getName() + " améliorées!");
+                        sender.sendMessage("§aPages §7(" + storageType + ")§a de " + target.getName() + " améliorées!");
                     }
                     break;
                 default:
@@ -430,20 +515,22 @@ public class QuantumCommand implements CommandExecutor {
         }
 
         sender.sendMessage("§6§lCOMMANDES STORAGES");
-        sender.sendMessage("§e/quantum storages upgrade multiplicateur [joueur] §7- Améliore le multiplicateur de vente (+x0.5)");
-        sender.sendMessage("§e/quantum storages upgrade stack [joueur] §7- Améliore le stack max (+200 items)");
-        sender.sendMessage("§e/quantum storages upgrade page [joueur] §7- Améliore le nombre de pages (+1, max 5)");
+        sender.sendMessage("§e/quantum storages upgrade <classic|tower> multiplicateur [joueur] §7- Améliore le multiplicateur de vente (+x0.5)");
+        sender.sendMessage("§e/quantum storages upgrade <classic|tower> stack [joueur] §7- Améliore le stack max (+200 items)");
+        sender.sendMessage("§e/quantum storages upgrade <classic|tower> page [joueur] §7- Améliore le nombre de pages (+1, max 5)");
         return true;
     }
 
     private void sendHelp(CommandSender sender) {
         sender.sendMessage("§6§lCOMMANDES QUANTUM");
         sender.sendMessage("§e/quantum reload [all|runes|config|towers|price|messages|...]");
-        sender.sendMessage("§e/quantum storage §7- Ouvrir le storage virtuel");
+        sender.sendMessage("§e/quantum storage §7- Sélectionner un storage (tower/classic)");
+        sender.sendMessage("§e/quantum storage <tower|classic> §7- Ouvrir directement un storage");
         sender.sendMessage("§e/quantum stats [category] §7- Afficher les statistiques");
         sender.sendMessage("§e/quantum storagestats §7- Stats du storage");
         if (sender.hasPermission("quantum.admin")) {
             sender.sendMessage("§e/quantum eco <create|delete|balance|give|take|set> §7- Gestion économie");
+            sender.sendMessage("§e/quantum storages upgrade <classic|tower> <multiplicateur|stack|page> [joueur] §7- Upgrades de storage");
         }
         if (sender.hasPermission("quantum.tower.door.wand") || sender.hasPermission("quantum.admin")) {
             sender.sendMessage("§e/quantum wand door §7- Baguette de sélection");

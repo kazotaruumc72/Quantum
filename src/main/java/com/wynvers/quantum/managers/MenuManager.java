@@ -173,6 +173,24 @@ public class MenuManager {
                         item.setChangeAmount(section.getInt("amount"));
                     }
                 }
+
+                // === QUANTUM_ITEM_ATTRIBUTES_MODIFIER parameters ===
+                if (buttonType == ButtonType.QUANTUM_ITEM_ATTRIBUTES_MODIFIER) {
+                    if (section.contains("attributes")) {
+                        java.util.List<?> rawList = section.getList("attributes");
+                        if (rawList != null) {
+                            java.util.List<Map<String, Object>> attrList = new java.util.ArrayList<>();
+                            for (Object entry : rawList) {
+                                if (entry instanceof Map) {
+                                    @SuppressWarnings("unchecked")
+                                    Map<String, Object> entryMap = new HashMap<>((Map<String, Object>) entry);
+                                    attrList.add(entryMap);
+                                }
+                            }
+                            item.setParameter("attributes", attrList);
+                        }
+                    }
+                }
                 
                 if (section.contains("parameters")) {
                     ConfigurationSection paramsSection = section.getConfigurationSection("parameters");

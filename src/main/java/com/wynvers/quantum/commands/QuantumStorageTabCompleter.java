@@ -27,19 +27,96 @@ public class QuantumStorageTabCompleter implements TabCompleter {
         List<String> completions = new ArrayList<>();
 
         if (args.length == 1) {
-            // First argument: subcommands
-            completions.addAll(Arrays.asList("transfer", "remove"));
+            // First argument: storage type
+            completions.addAll(Arrays.asList("tower", "classic", "classique"));
             return filterCompletions(completions, args[0]);
         }
 
-        String subCommand = args[0].toLowerCase();
+        String storageType = args[0].toLowerCase();
 
-        if (subCommand.equals("transfer")) {
-            return handleTransferTabComplete(sender, args);
+        if (storageType.equals("tower")) {
+            return handleTowerTypeTabComplete(sender, args);
+        }
+
+        if (storageType.equals("classic") || storageType.equals("classique")) {
+            return handleClassicTypeTabComplete(sender, args);
+        }
+
+        return completions;
+    }
+
+    private List<String> handleTowerTypeTabComplete(CommandSender sender, String[] args) {
+        List<String> completions = new ArrayList<>();
+
+        if (args.length == 2) {
+            // Second argument: tower storage subcommands
+            completions.addAll(Arrays.asList("add", "remove"));
+            return filterCompletions(completions, args[1]);
+        }
+
+        String subCommand = args[1].toLowerCase();
+
+        if (subCommand.equals("add")) {
+            return handleItemTabComplete(sender, args, 2);
         }
 
         if (subCommand.equals("remove")) {
-            return handleRemoveTabComplete(sender, args);
+            return handleItemTabComplete(sender, args, 2);
+        }
+
+        return completions;
+    }
+
+    private List<String> handleClassicTypeTabComplete(CommandSender sender, String[] args) {
+        List<String> completions = new ArrayList<>();
+
+        if (args.length == 2) {
+            // Second argument: classic storage subcommands
+            completions.addAll(Arrays.asList("transfer", "remove"));
+            return filterCompletions(completions, args[1]);
+        }
+
+        String subCommand = args[1].toLowerCase();
+
+        // Shift args: drop type prefix so existing handlers receive [subCommand, ...]
+        String[] shiftedArgs = new String[args.length - 1];
+        System.arraycopy(args, 1, shiftedArgs, 0, args.length - 1);
+
+        if (subCommand.equals("transfer")) {
+            return handleTransferTabComplete(sender, shiftedArgs);
+        }
+
+        if (subCommand.equals("remove")) {
+            return handleRemoveTabComplete(sender, shiftedArgs);
+        }
+
+        return completions;
+    }
+
+    /**
+     * Generic item tab-completion starting at argIndex (0-based within provided args).
+     * argIndex=2 means args[2] is the item argument.
+     */
+    private List<String> handleItemTabComplete(CommandSender sender, String[] args, int itemArgIndex) {
+        List<String> completions = new ArrayList<>();
+
+        int relativeIndex = args.length - 1; // index of current arg being typed
+
+        if (relativeIndex == itemArgIndex) {
+            completions.add("nexo:");
+            completions.add("minecraft:");
+            completions.addAll(getNexoItemsWithPrefix());
+            completions.addAll(getVanillaMaterialsWithPrefix());
+            return filterCompletions(completions, args[relativeIndex]);
+        }
+
+        if (relativeIndex == itemArgIndex + 1) {
+            completions.addAll(Arrays.asList("1", "16", "32", "64"));
+            return filterCompletions(completions, args[relativeIndex]);
+        }
+
+        if (relativeIndex == itemArgIndex + 2) {
+            return getOnlinePlayerNames();
         }
 
         return completions;

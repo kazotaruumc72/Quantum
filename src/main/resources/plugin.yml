@@ -249,6 +249,7 @@ permissions:
       quantum.tower.complete: true
       quantum.tower.reload: true
       quantum.tower.storage: true
+      quantum.tower.storage.add: true
   
   quantum.tower.progress:
     description: View own tower progress
@@ -277,6 +278,10 @@ permissions:
   quantum.tower.storage:
     description: Access tower storage
     default: true
+
+  quantum.tower.storage.add:
+    description: Add items to a player's tower storage (admin)
+    default: op
 
   quantum.storage.sellall:
     description: Sell all items from storage/tower storage at once

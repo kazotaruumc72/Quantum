@@ -2,7 +2,7 @@ package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.menu.Menu;
-import com.wynvers.quantum.storage.StorageUpgradeManager;
+import com.wynvers.quantum.storage.upgrades.StorageUpgradeManager;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

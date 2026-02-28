@@ -104,7 +104,7 @@ public class Requirement {
             if (user == null) return false;
             return user.getPrimaryGroup().equalsIgnoreCase(value)
                     || user.getCachedData().getPermissionData()
-                           .checkPermission("group." + value.toLowerCase()).result().asBoolean();
+                           .checkPermission("group." + value.toLowerCase()).asBoolean();
         } catch (Exception e) {
             return false;
         }
@@ -116,7 +116,7 @@ public class Requirement {
             User user = LuckPermsProvider.get().getUserManager().getUser(player.getUniqueId());
             if (user == null) return false;
             return user.getCachedData().getPermissionData()
-                       .checkPermission(value).result().asBoolean();
+                       .checkPermission(value).asBoolean();
         } catch (Exception e) {
             return false;
         }

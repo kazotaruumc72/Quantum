@@ -77,11 +77,12 @@ items:
       - ' '
       - '&e► Cliquez pour appliquer'
     button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
-    attribute: ATTACK_DAMAGE
-    amount: 2.0
-    operation: 0
-    equip_slot: MAIN_HAND
     static: true
+    attributes:
+      - attribute: ATTACK_DAMAGE
+        amount: 2.0
+        operation: 0
+        equip_slot: MAIN_HAND
 
   attack_speed:
     slot: 11
@@ -94,11 +95,12 @@ items:
       - ' '
       - '&e► Cliquez pour appliquer'
     button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
-    attribute: ATTACK_SPEED
-    amount: 0.5
-    operation: 0
-    equip_slot: MAIN_HAND
     static: true
+    attributes:
+      - attribute: ATTACK_SPEED
+        amount: 0.5
+        operation: 0
+        equip_slot: MAIN_HAND
 
   # ============================================================
   # ATTRIBUTS DÉFENSIFS
@@ -115,11 +117,12 @@ items:
       - ' '
       - '&e► Cliquez pour appliquer'
     button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
-    attribute: ARMOR
-    amount: 2.0
-    operation: 0
-    equip_slot: CHEST
     static: true
+    attributes:
+      - attribute: ARMOR
+        amount: 2.0
+        operation: 0
+        equip_slot: CHEST
 
   armor_toughness:
     slot: 20
@@ -132,11 +135,12 @@ items:
       - ' '
       - '&e► Cliquez pour appliquer'
     button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
-    attribute: ARMOR_TOUGHNESS
-    amount: 1.0
-    operation: 0
-    equip_slot: CHEST
     static: true
+    attributes:
+      - attribute: ARMOR_TOUGHNESS
+        amount: 1.0
+        operation: 0
+        equip_slot: CHEST
 
   knockback_resistance:
     slot: 21
@@ -149,11 +153,12 @@ items:
       - ' '
       - '&e► Cliquez pour appliquer'
     button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
-    attribute: KNOCKBACK_RESISTANCE
-    amount: 0.1
-    operation: 0
-    equip_slot: CHEST
     static: true
+    attributes:
+      - attribute: KNOCKBACK_RESISTANCE
+        amount: 0.1
+        operation: 0
+        equip_slot: CHEST
 
   max_health:
     slot: 22
@@ -166,11 +171,12 @@ items:
       - ' '
       - '&e► Cliquez pour appliquer'
     button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
-    attribute: MAX_HEALTH
-    amount: 2.0
-    operation: 0
-    equip_slot: HEAD
     static: true
+    attributes:
+      - attribute: MAX_HEALTH
+        amount: 2.0
+        operation: 0
+        equip_slot: HEAD
 
   # ============================================================
   # ATTRIBUTS DE MOBILITÉ
@@ -187,11 +193,12 @@ items:
       - ' '
       - '&e► Cliquez pour appliquer'
     button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
-    attribute: MOVEMENT_SPEED
-    amount: 0.1
-    operation: 0
-    equip_slot: MAIN_HAND
     static: true
+    attributes:
+      - attribute: MOVEMENT_SPEED
+        amount: 0.1
+        operation: 0
+        equip_slot: MAIN_HAND
 
   jump_strength:
     slot: 29
@@ -204,11 +211,12 @@ items:
       - ' '
       - '&e► Cliquez pour appliquer'
     button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
-    attribute: JUMP_STRENGTH
-    amount: 0.1
-    operation: 0
-    equip_slot: FEET
     static: true
+    attributes:
+      - attribute: JUMP_STRENGTH
+        amount: 0.1
+        operation: 0
+        equip_slot: FEET
 
   # ============================================================
   # ATTRIBUTS DIVERS
@@ -225,11 +233,12 @@ items:
       - ' '
       - '&e► Cliquez pour appliquer'
     button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
-    attribute: LUCK
-    amount: 1.0
-    operation: 0
-    equip_slot: MAIN_HAND
     static: true
+    attributes:
+      - attribute: LUCK
+        amount: 1.0
+        operation: 0
+        equip_slot: MAIN_HAND
 
   oxygen_bonus:
     slot: 38
@@ -242,8 +251,9 @@ items:
       - ' '
       - '&e► Cliquez pour appliquer'
     button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
-    attribute: OXYGEN_BONUS
-    amount: 1.0
-    operation: 0
-    equip_slot: HEAD
     static: true
+    attributes:
+      - attribute: OXYGEN_BONUS
+        amount: 1.0
+        operation: 0
+        equip_slot: HEAD

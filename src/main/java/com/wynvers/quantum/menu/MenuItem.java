@@ -499,11 +499,14 @@ public class MenuItem {
         
         // === QUANTUM_ITEM_ATTRIBUTES_MODIFIER ===
         if (buttonType == ButtonType.QUANTUM_ITEM_ATTRIBUTES_MODIFIER) {
-            String attributeName = (String) parameters.getOrDefault("attribute", "");
-            double amount = ((Number) parameters.getOrDefault("amount", 0.0)).doubleValue();
-            int operation = ((Number) parameters.getOrDefault("operation", 0)).intValue();
-            String equipSlot = (String) parameters.getOrDefault("equip_slot", "");
-            plugin.getQuantumItemAttributeManager().applyModifier(player, attributeName, amount, operation, equipSlot);
+            @SuppressWarnings("unchecked")
+            java.util.List<java.util.Map<String, Object>> attrList =
+                    (java.util.List<java.util.Map<String, Object>>) parameters.get("attributes");
+            if (attrList != null && !attrList.isEmpty()) {
+                plugin.getQuantumItemAttributeManager().applyModifiers(player, attrList);
+            } else {
+                player.sendMessage("§c§l✗ §cAucun attribut configuré pour ce bouton.");
+            }
             refreshActiveMenu(player, plugin);
             return;
         }

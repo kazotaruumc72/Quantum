@@ -176,17 +176,19 @@ public class MenuManager {
 
                 // === QUANTUM_ITEM_ATTRIBUTES_MODIFIER parameters ===
                 if (buttonType == ButtonType.QUANTUM_ITEM_ATTRIBUTES_MODIFIER) {
-                    if (section.contains("attribute")) {
-                        item.setParameter("attribute", section.getString("attribute"));
-                    }
-                    if (section.contains("amount")) {
-                        item.setParameter("amount", section.getDouble("amount"));
-                    }
-                    if (section.contains("operation")) {
-                        item.setParameter("operation", section.getInt("operation"));
-                    }
-                    if (section.contains("equip_slot")) {
-                        item.setParameter("equip_slot", section.getString("equip_slot"));
+                    if (section.contains("attributes")) {
+                        java.util.List<?> rawList = section.getList("attributes");
+                        if (rawList != null) {
+                            java.util.List<Map<String, Object>> attrList = new java.util.ArrayList<>();
+                            for (Object entry : rawList) {
+                                if (entry instanceof Map) {
+                                    @SuppressWarnings("unchecked")
+                                    Map<String, Object> entryMap = new HashMap<>((Map<String, Object>) entry);
+                                    attrList.add(entryMap);
+                                }
+                            }
+                            item.setParameter("attributes", attrList);
+                        }
                     }
                 }
                 

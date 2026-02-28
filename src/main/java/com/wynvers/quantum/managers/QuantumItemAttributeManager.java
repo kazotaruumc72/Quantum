@@ -59,12 +59,36 @@ public class QuantumItemAttributeManager {
     // ─────────────────── Apply modifier ───────────────────
 
     /**
+     * Apply (or replace) all attribute modifiers in {@code attrList} on the player's active item.
+     * Each entry must have the keys: {@code attribute}, {@code amount}, {@code operation}, {@code equip_slot}.
+     */
+    public void applyModifiers(Player player, java.util.List<java.util.Map<String, Object>> attrList) {
+        ItemStack item = getActiveItem(player);
+        if (item == null || !item.hasItemMeta()) {
+            player.sendMessage("§c§l✗ §cAucun item actif à modifier.");
+            return;
+        }
+
+        for (java.util.Map<String, Object> entry : attrList) {
+            String attributeName = entry.containsKey("attribute") ? String.valueOf(entry.get("attribute")) : "";
+            if (attributeName.isEmpty()) {
+                plugin.getQuantumLogger().warning("[QuantumItemAttributes] Entrée sans clé 'attribute' — ignorée.");
+                continue;
+            }
+            double amount = entry.containsKey("amount") ? ((Number) entry.get("amount")).doubleValue() : 0.0;
+            int operationInt = entry.containsKey("operation") ? ((Number) entry.get("operation")).intValue() : 0;
+            String slotStr = entry.containsKey("equip_slot") ? String.valueOf(entry.get("equip_slot")) : "";
+            applyModifier(player, attributeName, amount, operationInt, slotStr);
+        }
+    }
+
+    /**
      * Apply (or replace) an attribute modifier on the player's active item.
      *
      * @param attributeName config name, e.g. "MOVEMENT_SPEED" or "GENERIC_MOVEMENT_SPEED"
      * @param amount        modifier value
      * @param operationInt  0=ADD_NUMBER, 1=ADD_SCALAR, 2=MULTIPLY_SCALAR_1
-     * @param slotStr       equipment slot string: HAND, OFF_HAND, FEET, LEGS, CHEST, HEAD (or null/empty)
+     * @param slotStr       equipment slot string: MAIN_HAND, OFF_HAND, FEET, LEGS, CHEST, HEAD (or null/empty)
      */
     public void applyModifier(Player player, String attributeName, double amount, int operationInt, String slotStr) {
         ItemStack item = getActiveItem(player);

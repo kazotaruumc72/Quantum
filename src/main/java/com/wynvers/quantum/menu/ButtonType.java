@@ -69,5 +69,9 @@ public enum ButtonType {
     // === TOWER STORAGE UPGRADE BUTTONS ===
     QUANTUM_TOWER_STORAGE_UPGRADE_MULTIPLIER, // Upgrade multiplicateur de vente (tower storage)
     QUANTUM_TOWER_STORAGE_UPGRADE_STACK,      // Upgrade taille des stacks (tower storage)
-    QUANTUM_TOWER_STORAGE_UPGRADE_PAGE        // Upgrade nombre de pages (tower storage)
+    QUANTUM_TOWER_STORAGE_UPGRADE_PAGE,       // Upgrade nombre de pages (tower storage)
+
+    // === QUANTUM ITEM ATTRIBUTE MODIFIER BUTTONS ===
+    QUANTUM_ITEM_ATTRIBUTES_MODIFIER,         // Applique un AttributeModifier à l'item actif
+    QUANTUM_ITEM_ATTRIBUTES_RESET             // Supprime tous les AttributeModifier Quantum de l'item actif
 }

@@ -173,6 +173,22 @@ public class MenuManager {
                         item.setChangeAmount(section.getInt("amount"));
                     }
                 }
+
+                // === QUANTUM_ITEM_ATTRIBUTES_MODIFIER parameters ===
+                if (buttonType == ButtonType.QUANTUM_ITEM_ATTRIBUTES_MODIFIER) {
+                    if (section.contains("attribute")) {
+                        item.setParameter("attribute", section.getString("attribute"));
+                    }
+                    if (section.contains("amount")) {
+                        item.setParameter("amount", section.getDouble("amount"));
+                    }
+                    if (section.contains("operation")) {
+                        item.setParameter("operation", section.getInt("operation"));
+                    }
+                    if (section.contains("equip_slot")) {
+                        item.setParameter("equip_slot", section.getString("equip_slot"));
+                    }
+                }
                 
                 if (section.contains("parameters")) {
                     ConfigurationSection paramsSection = section.getConfigurationSection("parameters");

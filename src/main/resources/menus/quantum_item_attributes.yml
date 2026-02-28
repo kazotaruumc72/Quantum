@@ -1,0 +1,249 @@
+# ============================================================
+# QUANTUM ITEM - MODIFICATEUR D'ATTRIBUTS
+# Ouverture: Shift + clic droit avec un item Quantum en main
+# ============================================================
+title: '&6&lModificateur d''Attributs'
+size: 54
+
+items:
+
+  # ── Bordure ──────────────────────────────────────────────
+  border:
+    material: BLACK_STAINED_GLASS_PANE
+    display_name: ' '
+    static: true
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8,
+            45, 46, 47, 50, 51, 52, 53]
+
+  divider:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: ' '
+    static: true
+    slots: [9, 17, 27, 35, 36, 44]
+
+  # ── Fermer ───────────────────────────────────────────────
+  close:
+    slot: 49
+    material: BARRIER
+    display_name: '&cFermer'
+    lore:
+      - '&7Ferme le menu sans appliquer'
+      - '&7de modifications supplémentaires.'
+      - ' '
+      - '&e► Cliquez pour fermer'
+    static: true
+    click_actions:
+      - '[close]'
+
+  # ── Reset (admins seulement) ─────────────────────────────
+  reset:
+    slot: 48
+    material: LAVA_BUCKET
+    display_name: '&c&lRéinitialiser les attributs'
+    lore:
+      - '&7Supprime tous les modificateurs'
+      - '&7Quantum appliqués à cet item.'
+      - ' '
+      - '&c⚠ &7Action irréversible!'
+      - ' '
+      - '&e► Cliquez pour réinitialiser'
+    button_type: QUANTUM_ITEM_ATTRIBUTES_RESET
+    static: true
+    view_requirements:
+      - 'permission:quantum.admin'
+
+  # ── Titre / séparateur ───────────────────────────────────
+  section_title:
+    slot: 4
+    material: NETHER_STAR
+    display_name: '&6&lModificateurs d''attributs'
+    lore:
+      - '&7Cliquez sur un bouton pour appliquer'
+      - '&7le modificateur correspondant à votre item.'
+    static: true
+
+  # ============================================================
+  # ATTRIBUTS OFFENSIFS
+  # ============================================================
+
+  attack_damage:
+    slot: 10
+    material: IRON_SWORD
+    display_name: '&c+Dégâts d''attaque'
+    lore:
+      - '&7Attribut: &eATTACK_DAMAGE'
+      - '&7Opération: &aADD_NUMBER &7(+2.0)'
+      - '&7Slot équipement: &bMAIN_HAND'
+      - ' '
+      - '&e► Cliquez pour appliquer'
+    button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
+    attribute: ATTACK_DAMAGE
+    amount: 2.0
+    operation: 0
+    equip_slot: MAIN_HAND
+    static: true
+
+  attack_speed:
+    slot: 11
+    material: CLOCK
+    display_name: '&e+Vitesse d''attaque'
+    lore:
+      - '&7Attribut: &eATTACK_SPEED'
+      - '&7Opération: &aADD_NUMBER &7(+0.5)'
+      - '&7Slot équipement: &bMAIN_HAND'
+      - ' '
+      - '&e► Cliquez pour appliquer'
+    button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
+    attribute: ATTACK_SPEED
+    amount: 0.5
+    operation: 0
+    equip_slot: MAIN_HAND
+    static: true
+
+  # ============================================================
+  # ATTRIBUTS DÉFENSIFS
+  # ============================================================
+
+  armor:
+    slot: 19
+    material: IRON_CHESTPLATE
+    display_name: '&7+Armure'
+    lore:
+      - '&7Attribut: &eARMOR'
+      - '&7Opération: &aADD_NUMBER &7(+2.0)'
+      - '&7Slot équipement: &bCHEST'
+      - ' '
+      - '&e► Cliquez pour appliquer'
+    button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
+    attribute: ARMOR
+    amount: 2.0
+    operation: 0
+    equip_slot: CHEST
+    static: true
+
+  armor_toughness:
+    slot: 20
+    material: DIAMOND_CHESTPLATE
+    display_name: '&b+Solidité d''armure'
+    lore:
+      - '&7Attribut: &eARMOR_TOUGHNESS'
+      - '&7Opération: &aADD_NUMBER &7(+1.0)'
+      - '&7Slot équipement: &bCHEST'
+      - ' '
+      - '&e► Cliquez pour appliquer'
+    button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
+    attribute: ARMOR_TOUGHNESS
+    amount: 1.0
+    operation: 0
+    equip_slot: CHEST
+    static: true
+
+  knockback_resistance:
+    slot: 21
+    material: SHIELD
+    display_name: '&a+Résistance au recul'
+    lore:
+      - '&7Attribut: &eKNOCKBACK_RESISTANCE'
+      - '&7Opération: &aADD_NUMBER &7(+0.1 = 10%)'
+      - '&7Slot équipement: &bCHEST'
+      - ' '
+      - '&e► Cliquez pour appliquer'
+    button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
+    attribute: KNOCKBACK_RESISTANCE
+    amount: 0.1
+    operation: 0
+    equip_slot: CHEST
+    static: true
+
+  max_health:
+    slot: 22
+    material: GOLDEN_APPLE
+    display_name: '&c+Santé maximale'
+    lore:
+      - '&7Attribut: &eMAX_HEALTH'
+      - '&7Opération: &aADD_NUMBER &7(+2.0 = +1 cœur)'
+      - '&7Slot équipement: &bHEAD'
+      - ' '
+      - '&e► Cliquez pour appliquer'
+    button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
+    attribute: MAX_HEALTH
+    amount: 2.0
+    operation: 0
+    equip_slot: HEAD
+    static: true
+
+  # ============================================================
+  # ATTRIBUTS DE MOBILITÉ
+  # ============================================================
+
+  movement_speed:
+    slot: 28
+    material: FEATHER
+    display_name: '&b+Vitesse de déplacement'
+    lore:
+      - '&7Attribut: &eMOVEMENT_SPEED'
+      - '&7Opération: &aADD_NUMBER &7(+0.1)'
+      - '&7Slot équipement: &bMAIN_HAND'
+      - ' '
+      - '&e► Cliquez pour appliquer'
+    button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
+    attribute: MOVEMENT_SPEED
+    amount: 0.1
+    operation: 0
+    equip_slot: MAIN_HAND
+    static: true
+
+  jump_strength:
+    slot: 29
+    material: SLIME_BALL
+    display_name: '&a+Force de saut'
+    lore:
+      - '&7Attribut: &eJUMP_STRENGTH'
+      - '&7Opération: &aADD_NUMBER &7(+0.1)'
+      - '&7Slot équipement: &bFEET'
+      - ' '
+      - '&e► Cliquez pour appliquer'
+    button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
+    attribute: JUMP_STRENGTH
+    amount: 0.1
+    operation: 0
+    equip_slot: FEET
+    static: true
+
+  # ============================================================
+  # ATTRIBUTS DIVERS
+  # ============================================================
+
+  luck:
+    slot: 37
+    material: RABBIT_FOOT
+    display_name: '&d+Chance'
+    lore:
+      - '&7Attribut: &eLUCK'
+      - '&7Opération: &aADD_NUMBER &7(+1.0)'
+      - '&7Slot équipement: &bMAIN_HAND'
+      - ' '
+      - '&e► Cliquez pour appliquer'
+    button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
+    attribute: LUCK
+    amount: 1.0
+    operation: 0
+    equip_slot: MAIN_HAND
+    static: true
+
+  oxygen_bonus:
+    slot: 38
+    material: HEART_OF_THE_SEA
+    display_name: '&9+Bonus d''oxygène'
+    lore:
+      - '&7Attribut: &eOXYGEN_BONUS'
+      - '&7Opération: &aADD_NUMBER &7(+1.0)'
+      - '&7Slot équipement: &bHEAD'
+      - ' '
+      - '&e► Cliquez pour appliquer'
+    button_type: QUANTUM_ITEM_ATTRIBUTES_MODIFIER
+    attribute: OXYGEN_BONUS
+    amount: 1.0
+    operation: 0
+    equip_slot: HEAD
+    static: true

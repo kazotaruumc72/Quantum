@@ -121,6 +121,7 @@ public final class Quantum extends JavaPlugin {
     private StorageUpgradeManager storageUpgradeManager;
     private StorageUpgradeManager towerStorageUpgradeManager;
     private com.wynvers.quantum.managers.TowerStorageManager towerStorageManager;
+    private com.wynvers.quantum.managers.QuantumItemAttributeManager quantumItemAttributeManager;
 
 
     private DungeonArmor dungeonArmor;     // Dungeon armor system
@@ -297,6 +298,14 @@ public final class Quantum extends JavaPlugin {
                 this
         );
         logger.success("✓ Tower Storage listeners registered!");
+
+        // Quantum Item Attributes Modifier
+        quantumItemAttributeManager = new com.wynvers.quantum.managers.QuantumItemAttributeManager(this);
+        getServer().getPluginManager().registerEvents(
+                new com.wynvers.quantum.listeners.QuantumItemInteractListener(this),
+                this
+        );
+        logger.success("✓ Quantum Item Attributes Modifier initialized!");
     }
 
     // ───────────────────── Ressources ─────────────────────
@@ -332,6 +341,7 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/history.yml");
         extractResource("menus/statistics.yml");
         extractResource("menus/rune_equipment.yml");
+        extractResource("menus/quantum_item_attributes.yml");
 
         extractResource("menus/quantum_admin.yml");
 
@@ -958,6 +968,10 @@ public final class Quantum extends JavaPlugin {
     
     public com.wynvers.quantum.chat.ChatManager getChatManager() {
         return chatManager;
+    }
+
+    public com.wynvers.quantum.managers.QuantumItemAttributeManager getQuantumItemAttributeManager() {
+        return quantumItemAttributeManager;
     }
 
     public com.wynvers.quantum.dungeonutis.DungeonUtils getDungeonUtils() {

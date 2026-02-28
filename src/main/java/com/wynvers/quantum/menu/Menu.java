@@ -438,6 +438,18 @@ public class Menu {
         // Premièrement, remplir les items standards (non-quantum_storage)
         for (MenuItem item : items.values()) {
             if (item.getSlots().isEmpty()) continue;
+
+            // Vérifier les view requirements (ex: permission admin pour bouton reset)
+            if (player != null && !item.getViewRequirements().isEmpty()) {
+                boolean visible = true;
+                for (Requirement req : item.getViewRequirements()) {
+                    if (!req.check(player, plugin)) {
+                        visible = false;
+                        break;
+                    }
+                }
+                if (!visible) continue;
+            }
             
             // Si c'est un slot quantum_storage, le StorageRenderer s'en occupera
             if (item.isQuantumStorage()) {

@@ -37,7 +37,7 @@ public class PlaceholderManager {
         final String VANILLA_MARKER = "\u0001VF\u0001";
         Map<String, String> vanillaFormats = new java.util.HashMap<>();
         int idx = 0;
-        Pattern vanillaPattern = Pattern.compile("%(s|d|f|n|x|o|e|g|a|h|b|c)");
+        Pattern vanillaPattern = Pattern.compile("%(s|d|f|n|x|o|e|g|a|h|b|c)(?![a-zA-Z0-9_])");
         Matcher vanillaMatcher = vanillaPattern.matcher(text);
         StringBuffer tempText = new StringBuffer();
         while (vanillaMatcher.find()) {

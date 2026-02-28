@@ -22,7 +22,7 @@ items:
     material: GRAY_STAINED_GLASS_PANE
     display_name: ' '
     custom_model_data: 1
-    slots: [1, 2, 3, 5, 6, 7]
+    slots: [1, 2, 3, 5, 6, 7, 46, 52]
     static: true
 
   # ──────────────────────────────────────
@@ -131,15 +131,6 @@ items:
     static: true
 
   # ──────────────────────────────────────
-  # BOUTON: DÉCORATIF
-  # ──────────────────────────────────────
-  deco_46:
-    slots: [46]
-    material: GRAY_STAINED_GLASS_PANE
-    display_name: ' '
-    static: true
-
-  # ──────────────────────────────────────
   # BOUTON: MULTIPLICATEUR DE VENTE (slot 47)
   # ──────────────────────────────────────
   upgrade_multiplier:
@@ -178,10 +169,26 @@ items:
     static: true
 
   # ──────────────────────────────────────
-  # BOUTON: PAGES (slot 49)
+  # BOUTON: FERMER (slot 49)
+  # ──────────────────────────────────────
+  close:
+    slots: [49]
+    material: BARRIER
+    custom_model_data: 399
+    display_name: '&c&l✖ Fermer'
+    lore:
+      - '&7Fermez ce menu'
+      - ' '
+      - '&e► Cliquez pour fermer'
+    left_click_actions:
+      - '[close]'
+    static: true
+
+  # ──────────────────────────────────────
+  # BOUTON: PAGES (slot 50)
   # ──────────────────────────────────────
   upgrade_page:
-    slots: [49]
+    slots: [50]
     material: BOOK
     display_name: '&d&l⚡ Pages de storage'
     lore:
@@ -198,10 +205,10 @@ items:
     static: true
 
   # ──────────────────────────────────────
-  # BOUTON: VENDRE TOUT (slot 50)
+  # BOUTON: VENDRE TOUT (slot 51)
   # ──────────────────────────────────────
   sell_all:
-    slots: [50]
+    slots: [51]
     material: RED_DYE
     display_name: '&c&l⚡ Vendre tout'
     lore:
@@ -211,21 +218,6 @@ items:
       - ' '
       - '&e► Cliquez pour vendre tout'
     button_type: QUANTUM_STORAGE_SELL_ALL
-    static: true
-
-  # ──────────────────────────────────────
-  # BOUTONS DÉCORATIFS
-  # ──────────────────────────────────────
-  deco_51:
-    slots: [51]
-    material: GRAY_STAINED_GLASS_PANE
-    display_name: ' '
-    static: true
-
-  deco_52:
-    slots: [52]
-    material: GRAY_STAINED_GLASS_PANE
-    display_name: ' '
     static: true
 
   # ──────────────────────────────────────

@@ -1,6 +1,8 @@
 package com.wynvers.quantum.managers;
 
 import com.wynvers.quantum.Quantum;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import io.papermc.paper.datacomponent.item.ItemAttributeModifiers;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
@@ -8,7 +10,6 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -112,11 +113,25 @@ public class QuantumItemAttributeManager {
         NamespacedKey key = new NamespacedKey(plugin, MODIFIER_KEY_PREFIX + sanitize(attributeName) + "_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12));
         AttributeModifier modifier = new AttributeModifier(key, amount, operation, eqSlot);
 
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null) return;
+        // Use Paper's data component API to read and write ATTRIBUTE_MODIFIERS directly.
+        // This preserves all existing modifiers (base item defaults, Nexo-defined ones)
+        // which would otherwise be silently overwritten by ItemMeta.setItemMeta().
+        ItemAttributeModifiers existing =
+                item.getData(DataComponentTypes.ATTRIBUTE_MODIFIERS);
 
-        meta.addAttributeModifier(attribute, modifier);
-        item.setItemMeta(meta);
+        ItemAttributeModifiers.Builder builder =
+                ItemAttributeModifiers.itemAttributeModifiers();
+
+        if (existing != null) {
+            // Copy every existing entry so neither base nor Nexo attributes are lost
+            for (ItemAttributeModifiers.Entry entry : existing.modifiers()) {
+                builder.addModifier(entry.attribute(), entry.modifier(), entry.slot());
+            }
+            builder.showInTooltip(existing.showInTooltip());
+        }
+
+        builder.addModifier(attribute, modifier, eqSlot);
+        item.setData(DataComponentTypes.ATTRIBUTE_MODIFIERS, builder.build());
 
         int slot = getActiveSlot(player);
         player.getInventory().setItem(slot, item);
@@ -130,6 +145,7 @@ public class QuantumItemAttributeManager {
 
     /**
      * Remove ALL Quantum attribute modifiers from the player's active item.
+     * Base item attributes and Nexo-defined ones are left untouched.
      */
     public void resetModifiers(Player player) {
         ItemStack item = getActiveItem(player);
@@ -138,23 +154,29 @@ public class QuantumItemAttributeManager {
             return;
         }
 
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null) return;
+        ItemAttributeModifiers existing =
+                item.getData(DataComponentTypes.ATTRIBUTE_MODIFIERS);
+
+        if (existing == null || existing.modifiers().isEmpty()) {
+            player.sendMessage("§7Aucun attribut Quantum à réinitialiser sur cet item.");
+            return;
+        }
+
+        ItemAttributeModifiers.Builder builder =
+                ItemAttributeModifiers.itemAttributeModifiers();
+        builder.showInTooltip(existing.showInTooltip());
 
         boolean changed = false;
-        // Use the item's own attribute map rather than iterating the full registry
-        com.google.common.collect.Multimap<Attribute, AttributeModifier> allMods = meta.getAttributeModifiers();
-        if (allMods != null) {
-            for (Map.Entry<Attribute, AttributeModifier> entry : new ArrayList<>(allMods.entries())) {
-                if (isQuantumModifier(entry.getValue())) {
-                    meta.removeAttributeModifier(entry.getKey(), entry.getValue());
-                    changed = true;
-                }
+        for (ItemAttributeModifiers.Entry entry : existing.modifiers()) {
+            if (isQuantumModifier(entry.modifier())) {
+                changed = true; // Quantum modifier — exclude from rebuilt attribute list
+            } else {
+                builder.addModifier(entry.attribute(), entry.modifier(), entry.slot());
             }
         }
 
         if (changed) {
-            item.setItemMeta(meta);
+            item.setData(DataComponentTypes.ATTRIBUTE_MODIFIERS, builder.build());
             int slot = getActiveSlot(player);
             player.getInventory().setItem(slot, item);
             player.sendMessage("§a§l✓ §aTous les attributs Quantum ont été réinitialisés!");

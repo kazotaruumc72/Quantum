@@ -118,6 +118,10 @@ public class MenuAction {
                 // Ces actions sont gérées dans ActionExecutor
                 plugin.getActionExecutor().executeAction(player, this);
                 break;
+
+            case ADD_HEALTH:
+                plugin.getActionExecutor().executeAction(player, this);
+                break;
         }
     }
     
@@ -236,6 +240,8 @@ public class MenuAction {
         QUANTUM_ADJUST_PRICE,      // Ajuster le prix (+5%, +20%, -5%, -20%)
         QUANTUM_SET_PRICE_MAX,     // Définir prix au maximum
         QUANTUM_FINALIZE_ORDER,    // Finaliser et créer l'offre
-        QUANTUM_CANCEL_ORDER       // Annuler la création d'offre
+        QUANTUM_CANCEL_ORDER,      // Annuler la création d'offre
+
+        ADD_HEALTH                 // Ajouter de la vie au joueur (valeur en demi-coeurs)
     }
 }

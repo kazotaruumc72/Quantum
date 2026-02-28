@@ -11,7 +11,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -109,22 +108,12 @@ public class QuantumItemAttributeManager {
 
         EquipmentSlotGroup eqSlot = parseEquipmentSlotGroup(slotStr);
 
-        // Unique key per attribute so repeated clicks replace the modifier
-        NamespacedKey key = new NamespacedKey(plugin, MODIFIER_KEY_PREFIX + sanitize(attributeName));
+        // Unique key per application so modifiers stack (UUID-based to avoid collisions)
+        NamespacedKey key = new NamespacedKey(plugin, MODIFIER_KEY_PREFIX + sanitize(attributeName) + "_" + UUID.randomUUID().toString().replace("-", "").substring(0, 12));
         AttributeModifier modifier = new AttributeModifier(key, amount, operation, eqSlot);
 
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
-
-        // Remove any previous quantum modifier for this attribute
-        Collection<AttributeModifier> existing = meta.getAttributeModifiers(attribute);
-        if (existing != null) {
-            for (AttributeModifier mod : new ArrayList<>(existing)) {
-                if (isQuantumModifier(mod)) {
-                    meta.removeAttributeModifier(attribute, mod);
-                }
-            }
-        }
 
         meta.addAttributeModifier(attribute, modifier);
         item.setItemMeta(meta);

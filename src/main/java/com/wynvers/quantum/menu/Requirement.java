@@ -1,6 +1,9 @@
 package com.wynvers.quantum.menu;
 
 import com.wynvers.quantum.Quantum;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.model.user.User;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -45,6 +48,12 @@ public class Requirement {
             case EXP:
                 return checkExp(player);
                 
+            case LUCKPERMS_GROUP:
+                return checkLuckPermsGroup(player);
+                
+            case LUCKPERMS_PERM:
+                return checkLuckPermsPerm(player);
+                
             default:
                 return false;
         }
@@ -88,6 +97,35 @@ public class Requirement {
         }
     }
     
+    private boolean checkLuckPermsGroup(Player player) {
+        if (!isLuckPermsAvailable()) return false;
+        try {
+            User user = LuckPermsProvider.get().getUserManager().getUser(player.getUniqueId());
+            if (user == null) return false;
+            return user.getPrimaryGroup().equalsIgnoreCase(value)
+                    || user.getCachedData().getPermissionData()
+                           .checkPermission("group." + value.toLowerCase()).result().asBoolean();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean checkLuckPermsPerm(Player player) {
+        if (!isLuckPermsAvailable()) return false;
+        try {
+            User user = LuckPermsProvider.get().getUserManager().getUser(player.getUniqueId());
+            if (user == null) return false;
+            return user.getCachedData().getPermissionData()
+                       .checkPermission(value).result().asBoolean();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static boolean isLuckPermsAvailable() {
+        return Bukkit.getPluginManager().getPlugin("LuckPerms") != null;
+    }
+
     /**
      * Parse requirement from string format: type:value
      * Examples:
@@ -116,10 +154,12 @@ public class Requirement {
     }
     
     public enum RequirementType {
-        PERMISSION,   // permission:quantum.vip
-        PLACEHOLDER,  // placeholder:%player_level% >= 10
-        MONEY,        // money:1000 (requires Vault)
-        ITEM,         // item:DIAMOND:10 (requires X amount of item)
-        EXP           // exp:30 (requires X exp levels)
+        PERMISSION,       // permission:quantum.vip
+        PLACEHOLDER,      // placeholder:%player_level% >= 10
+        MONEY,            // money:1000 (requires Vault)
+        ITEM,             // item:DIAMOND:10 (requires X amount of item)
+        EXP,              // exp:30 (requires X exp levels)
+        LUCKPERMS_GROUP,  // luckperms_group:vip (requires player to be in LuckPerms group)
+        LUCKPERMS_PERM    // luckperms_perm:some.permission (checks via LuckPerms API)
     }
 }

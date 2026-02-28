@@ -1,0 +1,39 @@
+# ========================================
+# QUANTUM STORAGE - SÉLECTEUR DE TYPE
+# ========================================
+# Menu ouvert par /quantum storage (sans argument).
+# Permet de choisir entre le Storage Classique et le Tower Storage.
+menu_title: '&8Sélecteur de Storage'
+size: 27
+
+items:
+
+  border:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: ' '
+    custom_model_data: 1
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26]
+
+  # ──────────────────────────────────────
+  # BOUTON: STORAGE CLASSIQUE
+  # ──────────────────────────────────────
+  classic_storage:
+    slots: [11]
+    material: CHEST
+    display_name: '&b&l⚡ Storage Classique'
+    lore:
+      - '&7Votre stockage virtuel personnel.'
+      - ' '
+      - '&e► Cliquez pour ouvrir'
+
+  # ──────────────────────────────────────
+  # BOUTON: TOWER STORAGE
+  # ──────────────────────────────────────
+  tower_storage:
+    slots: [15]
+    material: ENDER_CHEST
+    display_name: '&6&l⚡ Tower Storage'
+    lore:
+      - '&7Le stockage lié à votre progression en tour.'
+      - ' '
+      - '&e► Cliquez pour ouvrir'

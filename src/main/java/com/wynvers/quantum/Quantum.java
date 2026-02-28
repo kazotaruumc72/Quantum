@@ -278,6 +278,10 @@ public final class Quantum extends JavaPlugin {
                 new StorageSettingsMenuListener(this, storageUpgradeManager),
                 this
         );
+        getServer().getPluginManager().registerEvents(
+                new com.wynvers.quantum.menu.StorageSelectorMenuListener(this),
+                this
+        );
 
         towerStorageUpgradeManager = new StorageUpgradeManager("tower_storage_upgrades");
         towerStorageUpgradeManager.setPlugin(this);
@@ -307,6 +311,7 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/example_advanced.yml");
         extractResource("menus/storage.yml");
         extractResource("menus/storage_settings.yml");
+        extractResource("menus/storage_selector.yml");
         extractResource("menus/tower_storage.yml");
         extractResource("menus/tower_storage_settings.yml");
         extractResource("menus/sell.yml");

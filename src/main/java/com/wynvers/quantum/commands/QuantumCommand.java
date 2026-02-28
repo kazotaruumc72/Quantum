@@ -1,6 +1,7 @@
 package com.wynvers.quantum.commands;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.menu.Menu;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -361,10 +362,21 @@ public class QuantumCommand implements CommandExecutor {
     }
 
     private boolean handleStorage(CommandSender sender, Command command, String[] args) {
-        // Must specify type: tower or classic
+        // No type specified – open the storage selector menu (players) or show usage (console)
         if (args.length == 1) {
-            sender.sendMessage("§cUsage: /quantum storage <tower|classic>");
-            sender.sendMessage("§7  tower: add|remove   §7|  §7classic: transfer|remove");
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage("§cUsage: /quantum storage <tower|classic>");
+                sender.sendMessage("§7  tower: add|remove   §7|  §7classic: transfer|remove");
+                return true;
+            }
+            Menu selectorMenu = plugin.getMenuManager().getMenu("storage_selector");
+            if (selectorMenu != null) {
+                selectorMenu.open(player, plugin);
+            } else {
+                // Fallback if menu file is missing: show usage
+                player.sendMessage("§cUsage: /quantum storage <tower|classic>");
+                player.sendMessage("§7  tower: add|remove   §7|  §7classic: transfer|remove");
+            }
             return true;
         }
 
@@ -395,7 +407,7 @@ public class QuantumCommand implements CommandExecutor {
                 plugin.getMessageManager().sendMessage(player, "system.no-permission");
                 return true;
             }
-            com.wynvers.quantum.menu.Menu towerStorageMenu = plugin.getMenuManager().getMenu("tower_storage");
+            Menu towerStorageMenu = plugin.getMenuManager().getMenu("tower_storage");
             if (towerStorageMenu != null) {
                 towerStorageMenu.open(player, plugin);
             } else {
@@ -426,7 +438,7 @@ public class QuantumCommand implements CommandExecutor {
                 plugin.getMessageManager().sendMessage(player, "system.no-permission");
                 return true;
             }
-            com.wynvers.quantum.menu.Menu storageMenu = plugin.getMenuManager().getMenu("storage");
+            Menu storageMenu = plugin.getMenuManager().getMenu("storage");
             if (storageMenu != null) {
                 storageMenu.open(player, plugin);
             } else {
@@ -500,7 +512,8 @@ public class QuantumCommand implements CommandExecutor {
     private void sendHelp(CommandSender sender) {
         sender.sendMessage("§6§lCOMMANDES QUANTUM");
         sender.sendMessage("§e/quantum reload [all|runes|config|towers|price|messages|...]");
-        sender.sendMessage("§e/quantum storage <tower|classic> §7- Ouvrir le storage virtuel");
+        sender.sendMessage("§e/quantum storage §7- Sélectionner un storage (tower/classic)");
+        sender.sendMessage("§e/quantum storage <tower|classic> §7- Ouvrir directement un storage");
         sender.sendMessage("§e/quantum stats [category] §7- Afficher les statistiques");
         sender.sendMessage("§e/quantum storagestats §7- Stats du storage");
         if (sender.hasPermission("quantum.admin")) {

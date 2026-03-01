@@ -266,6 +266,13 @@ public class PlayerTowerStorage {
                 }
             }
 
+            // Cap items at the upgrade stack limit (200 by default, more with stack upgrades)
+            if (plugin.getTowerStorageUpgradeManager() != null) {
+                int maxStack = plugin.getTowerStorageUpgradeManager().getUpgradeStackMax(uuid);
+                vanillaItems.replaceAll((mat, amt) -> Math.min(amt, maxStack));
+                nexoItems.replaceAll((id, amt) -> Math.min(amt, maxStack));
+            }
+
         } catch (SQLException e) {
             plugin.getQuantumLogger().error("Failed to load tower storage for " + uuid + ": " + e.getMessage());
         }

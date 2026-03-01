@@ -286,8 +286,9 @@ public class StorageMenuHandler {
             return;
         }
 
-        // Créer une session de vente
-        SellSession session = plugin.getSellManager().createSession(player, clickedItem, available, pricePerUnit);
+        // Créer une session de vente (avec multiplicateur appliqué au prix)
+        double multiplier = plugin.getStorageUpgradeManager().getSellMultiplier(player);
+        SellSession session = plugin.getSellManager().createSession(player, clickedItem, available, pricePerUnit * multiplier);
 
         // Ouvrir le menu de vente
         Menu sellMenu = plugin.getMenuManager().getMenu("sell");

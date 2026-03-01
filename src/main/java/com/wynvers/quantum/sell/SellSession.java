@@ -18,6 +18,7 @@ public class SellSession {
     private int quantity;
     private int maxQuantity;
     private double pricePerUnit;
+    private boolean towerStorage;
     
     public SellSession(UUID playerUUID, ItemStack itemToSell, int maxQuantity, double pricePerUnit) {
         this.playerUUID = playerUUID;
@@ -25,10 +26,19 @@ public class SellSession {
         this.maxQuantity = maxQuantity;
         this.pricePerUnit = pricePerUnit;
         this.quantity = Math.min(maxQuantity / 2, 1); // Par défaut: moitié ou 1 minimum
+        this.towerStorage = false;
     }
     
     public UUID getPlayerUUID() {
         return playerUUID;
+    }
+    
+    public boolean isTowerStorage() {
+        return towerStorage;
+    }
+
+    public void setTowerStorage(boolean towerStorage) {
+        this.towerStorage = towerStorage;
     }
     
     public ItemStack getItemToSell() {

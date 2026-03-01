@@ -47,12 +47,17 @@ public class StorageListener implements Listener {
             
             if (!(event.getWhoClicked() instanceof Player)) return;
             Player player = (Player) event.getWhoClicked();
+
+            // If MenuListener is already managing this menu, defer to it
+            Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
+            if (activeMenu != null && activeMenu.getId().equals("storage")) {
+                return;
+            }
             
             ItemStack clicked = event.getCurrentItem();
             if (clicked == null || clicked.getType() == Material.AIR) return;
             
             // === FILTRE: Vérifier si c'est un bouton/item statique ===
-            Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
             if (activeMenu != null) {
                 MenuItem menuItem = activeMenu.getItemAt(event.getSlot());
                 

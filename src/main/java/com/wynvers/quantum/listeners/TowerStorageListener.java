@@ -46,10 +46,15 @@ public class TowerStorageListener implements Listener {
             if (!(event.getWhoClicked() instanceof Player)) return;
             Player player = (Player) event.getWhoClicked();
 
+            // If MenuListener is already managing this menu, defer to it
+            Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
+            if (activeMenu != null && activeMenu.getId().equals("tower_storage")) {
+                return;
+            }
+
             ItemStack clicked = event.getCurrentItem();
             if (clicked == null || clicked.getType() == Material.AIR) return;
 
-            Menu activeMenu = plugin.getMenuManager().getActiveMenu(player);
             if (activeMenu != null) {
                 MenuItem menuItem = activeMenu.getItemAt(event.getSlot());
 

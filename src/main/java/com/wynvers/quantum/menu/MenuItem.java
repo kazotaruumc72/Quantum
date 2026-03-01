@@ -419,15 +419,18 @@ public class MenuItem {
         
         // === QUANTUM_SELL ===
         if (buttonType == ButtonType.QUANTUM_SELL) {
+            com.wynvers.quantum.sell.SellSession sellSession = plugin.getSellManager().getSession(player);
+            boolean isTowerSell = sellSession != null && sellSession.isTowerStorage();
             if (plugin.getSellManager().executeSell(player)) {
-                // Vente réussie, fermer le menu et retourner au storage
+                // Vente réussie, fermer le menu et retourner au bon storage
                 player.closeInventory();
                 
-                // Ouvrir le storage après 2 ticks
+                // Ouvrir le storage approprié après 2 ticks
                 org.bukkit.Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    Menu storageMenu = plugin.getMenuManager().getMenu("storage");
-                    if (storageMenu != null) {
-                        storageMenu.open(player, plugin);
+                    String menuId = isTowerSell ? "tower_storage" : "storage";
+                    Menu returnMenu = plugin.getMenuManager().getMenu(menuId);
+                    if (returnMenu != null) {
+                        returnMenu.open(player, plugin);
                     }
                 }, 2L);
             }

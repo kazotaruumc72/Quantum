@@ -682,8 +682,12 @@ public class Menu {
         
         // Ensuite, remplir les slots quantum_storage avec les items du joueur
         if (player != null) {
-            renderStorageSlots(player, inventory);
-            renderTowerStorageSlots(player, inventory);
+            if (hasQuantumStorageSlots()) {
+                renderStorageSlots(player, inventory);
+            }
+            if (hasQuantumTowerStorageSlots()) {
+                renderTowerStorageSlots(player, inventory);
+            }
         }
     }
     
@@ -705,6 +709,30 @@ public class Menu {
             : plugin.getPlaceholderManager().parse(player, texts);
     }
     
+    /**
+     * Returns true if this menu has at least one quantum_storage type slot
+     */
+    private boolean hasQuantumStorageSlots() {
+        for (MenuItem item : items.values()) {
+            if (item.isQuantumStorage()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if this menu has at least one quantum_tower_storage type slot
+     */
+    private boolean hasQuantumTowerStorageSlots() {
+        for (MenuItem item : items.values()) {
+            if (item.isQuantumTowerStorage()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Render storage slots for a player
      */

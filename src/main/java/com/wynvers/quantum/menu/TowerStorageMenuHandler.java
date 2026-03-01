@@ -30,7 +30,7 @@ public class TowerStorageMenuHandler {
 
     public TowerStorageMenuHandler(Quantum plugin) {
         this.plugin = plugin;
-        this.itemIdKey = new NamespacedKey(plugin, "quantum_item_id");
+        this.itemIdKey = new NamespacedKey(plugin, "tower_quantum_item_id");
         this.buttonTypeKey = new NamespacedKey(plugin, "button_type");
     }
 
@@ -228,6 +228,7 @@ public class TowerStorageMenuHandler {
 
         double multiplier = plugin.getTowerStorageUpgradeManager().getSellMultiplier(player);
         SellSession session = plugin.getSellManager().createSession(player, clickedItem, available, pricePerUnit * multiplier);
+        session.setTowerStorage(true);
 
         Menu sellMenu = plugin.getMenuManager().getMenu("sell");
         if (sellMenu != null) {

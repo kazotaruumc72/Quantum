@@ -27,7 +27,7 @@ public class TowerStorageRenderer {
     public TowerStorageRenderer(Quantum plugin) {
         this.plugin = plugin;
         this.priceManager = plugin.getPriceManager();
-        this.itemIdKey = new NamespacedKey(plugin, "quantum_item_id");
+        this.itemIdKey = new NamespacedKey(plugin, "tower_quantum_item_id");
     }
 
     public NamespacedKey getItemIdKey() {

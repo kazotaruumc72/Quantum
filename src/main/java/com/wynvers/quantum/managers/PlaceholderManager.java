@@ -235,6 +235,12 @@ public class PlaceholderManager {
         if (params.equals("storage_pages")) {
             return String.valueOf(plugin.getStorageUpgradeManager().getPages(player));
         }
+        if (params.equals("autovente_statut")) {
+            return plugin.getStorageUpgradeManager().getState(player).autoSellEnabled ? "§aON" : "§cOFF";
+        }
+        if (params.equals("autovente_limite")) {
+            return String.valueOf(plugin.getStorageUpgradeManager().getState(player).autoSellLimit);
+        }
 
         // === TOWER STORAGE UPGRADE PLACEHOLDERS ===
         if (params.equals("tower_storage_multiplier_level")) {
@@ -254,6 +260,12 @@ public class PlaceholderManager {
         }
         if (params.equals("tower_storage_pages")) {
             return String.valueOf(plugin.getTowerStorageUpgradeManager().getPages(player));
+        }
+        if (params.equals("tower_autovente_statut")) {
+            return plugin.getTowerStorageUpgradeManager().getState(player).autoSellEnabled ? "§aON" : "§cOFF";
+        }
+        if (params.equals("tower_autovente_limite")) {
+            return String.valueOf(plugin.getTowerStorageUpgradeManager().getState(player).autoSellLimit);
         }
         
         // === STORAGE AMOUNT PLACEHOLDERS ===

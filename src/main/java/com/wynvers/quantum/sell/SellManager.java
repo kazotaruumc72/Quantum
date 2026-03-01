@@ -2,6 +2,7 @@ package com.wynvers.quantum.sell;
 
 import com.nexomc.nexo.api.NexoItems;
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.towers.storage.PlayerTowerStorage;
 import com.wynvers.quantum.managers.StorageManager;
 import com.wynvers.quantum.storage.PlayerStorage;
 import org.bukkit.entity.Player;
@@ -101,37 +102,60 @@ public class SellManager {
             return false;
         }
         
-        // Récupérer le storage du joueur
-        PlayerStorage storage = plugin.getStorageManager().getStorage(player);
+        // Récupérer le storage approprié (régulier ou tower)
         ItemStack itemToSell = session.getItemToSell();
         int quantity = session.getQuantity();
-        
-        // Déterminer si c'est un item Nexo ou vanilla
         String nexoId = NexoItems.idFromItem(itemToSell);
-        
-        // Vérifier que le joueur a toujours les items
-        boolean hasEnough;
-        if (nexoId != null) {
-            hasEnough = storage.hasNexoItem(nexoId, quantity);
+
+        if (session.isTowerStorage()) {
+            // Sell from tower storage
+            PlayerTowerStorage towerStorage = plugin.getTowerStorageManager().getStorage(player);
+
+            boolean hasEnough;
+            if (nexoId != null) {
+                hasEnough = towerStorage.hasNexoItem(nexoId, quantity);
+            } else {
+                hasEnough = towerStorage.hasItem(itemToSell.getType(), quantity);
+            }
+
+            if (!hasEnough) {
+                player.sendMessage("§cErreur: Vous n'avez plus assez de cet item en stock.");
+                removeSession(player);
+                return false;
+            }
+
+            if (nexoId != null) {
+                towerStorage.removeNexoItem(nexoId, quantity);
+            } else {
+                towerStorage.removeItem(itemToSell.getType(), quantity);
+            }
+
+            towerStorage.save(plugin);
         } else {
-            hasEnough = storage.hasItem(itemToSell.getType(), quantity);
+            // Sell from regular storage
+            PlayerStorage storage = plugin.getStorageManager().getStorage(player);
+
+            boolean hasEnough;
+            if (nexoId != null) {
+                hasEnough = storage.hasNexoItem(nexoId, quantity);
+            } else {
+                hasEnough = storage.hasItem(itemToSell.getType(), quantity);
+            }
+
+            if (!hasEnough) {
+                player.sendMessage("§cErreur: Vous n'avez plus assez de cet item en stock.");
+                removeSession(player);
+                return false;
+            }
+
+            if (nexoId != null) {
+                storage.removeNexoItem(nexoId, quantity);
+            } else {
+                storage.removeItem(itemToSell.getType(), quantity);
+            }
+
+            storage.save(plugin);
         }
-        
-        if (!hasEnough) {
-            player.sendMessage("§cErreur: Vous n'avez plus assez de cet item en stock.");
-            removeSession(player);
-            return false;
-        }
-        
-        // Retirer les items du storage
-        if (nexoId != null) {
-            storage.removeNexoItem(nexoId, quantity);
-        } else {
-            storage.removeItem(itemToSell.getType(), quantity);
-        }
-        
-        // Sauvegarder le storage
-        storage.save(plugin);
         
         // Ajouter l'argent au joueur
         double totalPrice = session.getTotalPrice();

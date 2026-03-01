@@ -250,6 +250,12 @@ public class TowerDoorManager {
             // Accorder la permission temporaire pour accéder à l'étage suivant
             // Le joueur a complété l'étage actuel (floor) et peut maintenant accéder à l'étage suivant (floor+1)
             grantDoorPermission(player, towerId, floor + 1);
+
+            // Envoyer des blocs AIR fictifs au joueur pour effacer tout BARRIER fictif
+            // qu'il aurait reçu d'un précédent refus d'entrée (showBarrierView).
+            // Sans cela, le client du joueur garde les barrières invisibles qui bloquent
+            // physiquement son passage même si les vrais blocs ont été retirés.
+            showAirView(player, towerId, floor);
         }
 
         // Effets

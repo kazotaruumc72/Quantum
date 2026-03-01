@@ -94,13 +94,7 @@ public class StorageUpgradeManager {
     // ===== Capacité =====
 
     public int getMaxStacks(StorageState state) {
-        int base = BASE_STACK_CAPACITY + state.extraStacks;
-
-        int factor = 1;
-        if (state.storage1Enabled) factor *= 2;
-        if (state.storage2Enabled) factor *= 2;
-
-        return base * factor;
+        return BASE_STACK_CAPACITY * (1 + state.stackLevel);
     }
 
     // ===== Permissions =====
@@ -196,7 +190,12 @@ public class StorageUpgradeManager {
 
     /** Taille max du stack par upgrade (base 200, +200 par niveau) */
     public int getUpgradeStackMax(Player player) {
-        return BASE_STACK_CAPACITY + getState(player).stackLevel * BASE_STACK_CAPACITY;
+        return getMaxStacks(getState(player));
+    }
+
+    /** Taille max du stack par upgrade via UUID (pour usage hors Player) */
+    public int getUpgradeStackMax(UUID uuid) {
+        return getMaxStacks(getState(uuid));
     }
 
     /** Nombre de pages (base 1, +1 par niveau, max MAX_PAGES) */

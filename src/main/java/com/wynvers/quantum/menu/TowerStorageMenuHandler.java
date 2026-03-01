@@ -226,7 +226,8 @@ public class TowerStorageMenuHandler {
             return;
         }
 
-        SellSession session = plugin.getSellManager().createSession(player, clickedItem, available, pricePerUnit);
+        double multiplier = plugin.getTowerStorageUpgradeManager().getSellMultiplier(player);
+        SellSession session = plugin.getSellManager().createSession(player, clickedItem, available, pricePerUnit * multiplier);
 
         Menu sellMenu = plugin.getMenuManager().getMenu("sell");
         if (sellMenu != null) {

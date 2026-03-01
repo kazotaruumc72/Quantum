@@ -214,8 +214,9 @@ public class StorageListener implements Listener {
             return;
         }
         
-        // Calculer le montant total
-        double totalPrice = pricePerItem * toSell;
+        // Calculer le montant total (avec multiplicateur de vente)
+        double multiplier = plugin.getStorageUpgradeManager().getSellMultiplier(player);
+        double totalPrice = pricePerItem * toSell * multiplier;
         
         // Retirer les items du storage
         storage.removeItemById(itemId, toSell);

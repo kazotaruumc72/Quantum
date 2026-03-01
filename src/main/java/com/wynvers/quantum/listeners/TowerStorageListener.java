@@ -185,7 +185,8 @@ public class TowerStorageListener implements Listener {
             return;
         }
 
-        double totalPrice = pricePerItem * toSell;
+        double multiplier = plugin.getTowerStorageUpgradeManager().getSellMultiplier(player);
+        double totalPrice = pricePerItem * toSell * multiplier;
 
         storage.removeItemById(itemId, toSell);
 

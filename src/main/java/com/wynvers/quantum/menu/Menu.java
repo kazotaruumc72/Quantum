@@ -599,6 +599,11 @@ public class Menu {
                         }
                         sellMeta.setLore(parsedLore);
                     }
+                    // Set button_type PDC so the item is consistently tagged like other special buttons
+                    org.bukkit.NamespacedKey btnKey = new org.bukkit.NamespacedKey(plugin, "button_type");
+                    sellMeta.getPersistentDataContainer().set(btnKey,
+                            org.bukkit.persistence.PersistentDataType.STRING,
+                            item.getButtonType().name());
                     sellAllItem.setItemMeta(sellMeta);
                 }
                 for (int slot : item.getSlots()) {

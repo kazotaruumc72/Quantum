@@ -21,7 +21,7 @@ items:
     custom_model_data: 310
     display_name: '&bAutovente'
     lore:
-      - '&7Statut actuel: &e%quantum_autovente_statut%'
+      - '&7Statut actuel: &e%tower_autovente_statut%'
       - ' '
       - '&7Active ou désactive l''autovente'
       - '&7pour ce Tower Storage.'
@@ -38,7 +38,7 @@ items:
     custom_model_data: 311
     display_name: '&eLimite d''autovente'
     lore:
-      - '&7Limite actuelle: &e%quantum_autovente_limite%'
+      - '&7Limite actuelle: &e%tower_autovente_limite%'
       - ' '
       - '&7La quantité minimale d''items à'
       - '&7garder en stock avant de vendre.'

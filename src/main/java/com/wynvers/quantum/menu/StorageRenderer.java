@@ -109,7 +109,7 @@ public class StorageRenderer {
             }
             
             StorageItemDisplay item = items.get(index);
-            ItemStack displayStack = createDisplayItem(item, loreConfig);
+            ItemStack displayStack = createDisplayItem(player, item, loreConfig);
             
             if (displayStack != null) {
                 inventory.setItem(slot, displayStack);
@@ -122,7 +122,7 @@ public class StorageRenderer {
     /**
      * Crée l'ItemStack d'affichage avec le lore personnalisé
      */
-    private ItemStack createDisplayItem(StorageItemDisplay item, LoreAppendConfig loreConfig) {
+    private ItemStack createDisplayItem(Player player, StorageItemDisplay item, LoreAppendConfig loreConfig) {
         ItemStack stack;
         String itemId;
         
@@ -175,7 +175,7 @@ public class StorageRenderer {
                 }
                 
                 for (String loreLine : loreConfig.getLoreTemplate()) {
-                    String processedLine = replacePlaceholders(loreLine, item);
+                    String processedLine = replacePlaceholders(loreLine, item, player);
                     currentLore.add(ChatColor.translateAlternateColorCodes('&', processedLine));
                 }
                 
@@ -196,7 +196,7 @@ public class StorageRenderer {
      * - Nexo: "afzelia_bark" (PAS "nexo:afzelia_bark")
      * - Vanilla: "stone" (PAS "minecraft:stone")
      */
-    private String replacePlaceholders(String text, StorageItemDisplay item) {
+    private String replacePlaceholders(String text, StorageItemDisplay item, Player player) {
         String result = text;
         
         // %quantity% - Quantité formatée
@@ -212,11 +212,14 @@ public class StorageRenderer {
             priceKey = item.material.name().toLowerCase();
         }
         
-        // %price% - Prix unitaire
-        double price = priceManager.getPrice(priceKey);
+        // Appliquer le multiplicateur de vente du joueur
+        double multiplier = plugin.getStorageUpgradeManager().getSellMultiplier(player);
+        
+        // %price% - Prix unitaire (avec multiplicateur)
+        double price = priceManager.getPrice(priceKey) * multiplier;
         result = result.replace("%price%", priceManager.formatPrice(price));
         
-        // %total_price% - Prix total
+        // %total_price% - Prix total (avec multiplicateur)
         double totalPrice = price * item.quantity;
         result = result.replace("%total_price%", priceManager.formatPrice(totalPrice));
         

@@ -6,6 +6,7 @@ import com.wynvers.quantum.menu.MenuAction;
 import com.wynvers.quantum.orders.OrderMenuHandler;
 import com.wynvers.quantum.sell.SellSession;
 import com.wynvers.quantum.storage.PlayerStorage;
+import com.wynvers.quantum.towers.storage.PlayerTowerStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
@@ -342,33 +343,58 @@ public class ActionExecutor {
             return;
         }
         
-        PlayerStorage storage = plugin.getStorageManager().getStorage(player);
-        
         // Déterminer si c'est un item Nexo ou vanilla
         String nexoId = com.nexomc.nexo.api.NexoItems.idFromItem(session.getItemToSell());
         
         int availableInStorage;
-        if (nexoId != null) {
-            availableInStorage = storage.getNexoAmount(nexoId);
+
+        if (session.isTowerStorage()) {
+            // Vente depuis le tower storage
+            PlayerTowerStorage towerStorage = plugin.getTowerStorageManager().getStorage(player);
+            if (nexoId != null) {
+                availableInStorage = towerStorage.getNexoAmount(nexoId);
+            } else {
+                availableInStorage = towerStorage.getAmount(session.getItemToSell().getType());
+            }
+
+            if (availableInStorage < session.getQuantity()) {
+                player.sendMessage(plugin.getMessagesManager().get("sell.not-enough-stock"));
+                player.closeInventory();
+                plugin.getSellManager().removeSession(player);
+                return;
+            }
+
+            if (nexoId != null) {
+                towerStorage.removeNexoItem(nexoId, session.getQuantity());
+            } else {
+                towerStorage.removeItem(session.getItemToSell().getType(), session.getQuantity());
+            }
+            towerStorage.save(plugin);
         } else {
-            availableInStorage = storage.getAmount(session.getItemToSell().getType());
+            // Vente depuis le storage régulier
+            PlayerStorage storage = plugin.getStorageManager().getStorage(player);
+            if (nexoId != null) {
+                availableInStorage = storage.getNexoAmount(nexoId);
+            } else {
+                availableInStorage = storage.getAmount(session.getItemToSell().getType());
+            }
+
+            // Vérifier que le joueur a toujours assez d'items
+            if (availableInStorage < session.getQuantity()) {
+                player.sendMessage(plugin.getMessagesManager().get("sell.not-enough-stock"));
+                player.closeInventory();
+                plugin.getSellManager().removeSession(player);
+                return;
+            }
+
+            // Retirer les items du storage
+            if (nexoId != null) {
+                storage.removeNexoItem(nexoId, session.getQuantity());
+            } else {
+                storage.removeItem(session.getItemToSell().getType(), session.getQuantity());
+            }
+            storage.save(plugin);
         }
-        
-        // Vérifier que le joueur a toujours assez d'items
-        if (availableInStorage < session.getQuantity()) {
-            player.sendMessage(plugin.getMessagesManager().get("sell.not-enough-stock"));
-            player.closeInventory();
-            plugin.getSellManager().removeSession(player);
-            return;
-        }
-        
-        // Retirer les items du storage
-        if (nexoId != null) {
-            storage.removeNexoItem(nexoId, session.getQuantity());
-        } else {
-            storage.removeItem(session.getItemToSell().getType(), session.getQuantity());
-        }
-        storage.save(plugin);
         
         // Donner l'argent au joueur
         double totalPrice = session.getTotalPrice();

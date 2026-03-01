@@ -82,7 +82,7 @@ public class TowerStorageRenderer {
             }
 
             TowerStorageItemDisplay item = items.get(index);
-            ItemStack displayStack = createDisplayItem(item, loreConfig);
+            ItemStack displayStack = createDisplayItem(player, item, loreConfig);
 
             if (displayStack != null) {
                 inventory.setItem(slot, displayStack);
@@ -92,7 +92,7 @@ public class TowerStorageRenderer {
         }
     }
 
-    private ItemStack createDisplayItem(TowerStorageItemDisplay item, LoreAppendConfig loreConfig) {
+    private ItemStack createDisplayItem(Player player, TowerStorageItemDisplay item, LoreAppendConfig loreConfig) {
         ItemStack stack;
         String itemId;
 
@@ -136,7 +136,7 @@ public class TowerStorageRenderer {
                 }
 
                 for (String loreLine : loreConfig.getLoreTemplate()) {
-                    String processedLine = replacePlaceholders(loreLine, item);
+                    String processedLine = replacePlaceholders(loreLine, item, player);
                     currentLore.add(ChatColor.translateAlternateColorCodes('&', processedLine));
                 }
 
@@ -149,7 +149,7 @@ public class TowerStorageRenderer {
         return stack;
     }
 
-    private String replacePlaceholders(String text, TowerStorageItemDisplay item) {
+    private String replacePlaceholders(String text, TowerStorageItemDisplay item, Player player) {
         String result = text;
 
         result = result.replace("%quantity%", formatNumber(item.quantity));
@@ -161,7 +161,10 @@ public class TowerStorageRenderer {
             priceKey = item.material.name().toLowerCase();
         }
 
-        double price = priceManager.getPrice(priceKey);
+        // Appliquer le multiplicateur de vente du joueur
+        double multiplier = plugin.getTowerStorageUpgradeManager().getSellMultiplier(player);
+
+        double price = priceManager.getPrice(priceKey) * multiplier;
         result = result.replace("%price%", priceManager.formatPrice(price));
 
         double totalPrice = price * item.quantity;

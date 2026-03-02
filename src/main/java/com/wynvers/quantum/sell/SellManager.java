@@ -188,14 +188,12 @@ public class SellManager {
         
         // Créer les placeholders pour les messages
         Map<String, String> placeholders = new HashMap<>();
-        placeholders.put("amount", String.valueOf(quantity));
+        placeholders.put("quantity", String.valueOf(quantity));
         placeholders.put("item", itemDisplayName);
-        placeholders.put("total_price", String.format("%.2f$", totalPrice));
+        placeholders.put("price", String.format("%.2f", totalPrice));
         
-        // Messages de succès avec placeholders
-        player.sendMessage(plugin.getMessagesManager().get("sell.success-title", placeholders));
-        player.sendMessage(plugin.getMessagesManager().get("sell.success-sold", placeholders));
-        player.sendMessage(plugin.getMessagesManager().get("sell.success-received", placeholders));
+        // Message de succès
+        plugin.getMessageManager().sendMessage(player, "sell.success", placeholders);
         
         // Supprimer la session
         removeSession(player);

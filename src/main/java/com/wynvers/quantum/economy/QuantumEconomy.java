@@ -239,8 +239,12 @@ public class QuantumEconomy implements Economy {
             ps.setDouble(1, amount);
             ps.setString(2, player.getUniqueId().toString());
             ps.setString(3, currencyId);
-            ps.executeUpdate();
-            
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                plugin.getQuantumLogger().error("Deposit failed: no account row found for " + player.getUniqueId() + " currency " + currencyId);
+                return new EconomyResponse(0, getBalance(player), EconomyResponse.ResponseType.FAILURE, "Account not found after creation");
+            }
+
             double newBalance = getBalance(player);
             return new EconomyResponse(amount, newBalance, EconomyResponse.ResponseType.SUCCESS, null);
         } catch (SQLException e) {

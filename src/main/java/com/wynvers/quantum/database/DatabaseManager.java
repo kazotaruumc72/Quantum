@@ -73,6 +73,9 @@ public class DatabaseManager {
         if (connection == null || connection.isClosed()) {
             connect();
         }
+        if (connection == null) {
+            throw new SQLException("Database connection is not available");
+        }
         return connection;
     }
 

@@ -596,57 +596,38 @@ public class MenuItem {
             return;
         }
 
+        // Étape 1: calculer le total sans retirer les items
         double totalEarned = 0.0;
         int totalItems = 0;
+
+        Map<org.bukkit.Material, Integer> vanillaCopy;
+        Map<String, Integer> nexoCopy;
 
         if (towerStorage) {
             com.wynvers.quantum.towers.storage.PlayerTowerStorage storage =
                     plugin.getTowerStorageManager().getStorage(player);
-
-            Map<org.bukkit.Material, Integer> vanillaCopy = new HashMap<>(storage.getVanillaItems());
-            Map<String, Integer> nexoCopy = new HashMap<>(storage.getNexoItems());
-
-            for (Map.Entry<org.bukkit.Material, Integer> entry : vanillaCopy.entrySet()) {
-                double price = plugin.getPriceManager().getPrice(entry.getKey().name().toUpperCase());
-                if (price > 0) {
-                    totalEarned += price * entry.getValue();
-                    totalItems += entry.getValue();
-                    storage.removeItem(entry.getKey(), entry.getValue());
-                }
-            }
-            for (Map.Entry<String, Integer> entry : nexoCopy.entrySet()) {
-                double price = plugin.getPriceManager().getPrice(entry.getKey());
-                if (price > 0) {
-                    totalEarned += price * entry.getValue();
-                    totalItems += entry.getValue();
-                    storage.removeNexoItem(entry.getKey(), entry.getValue());
-                }
-            }
-            storage.save(plugin);
+            vanillaCopy = new HashMap<>(storage.getVanillaItems());
+            nexoCopy = new HashMap<>(storage.getNexoItems());
         } else {
             com.wynvers.quantum.storage.PlayerStorage storage =
                     plugin.getStorageManager().getStorage(player);
+            vanillaCopy = new HashMap<>(storage.getVanillaItems());
+            nexoCopy = new HashMap<>(storage.getNexoItems());
+        }
 
-            Map<org.bukkit.Material, Integer> vanillaCopy = new HashMap<>(storage.getVanillaItems());
-            Map<String, Integer> nexoCopy = new HashMap<>(storage.getNexoItems());
-
-            for (Map.Entry<org.bukkit.Material, Integer> entry : vanillaCopy.entrySet()) {
-                double price = plugin.getPriceManager().getPrice(entry.getKey().name().toUpperCase());
-                if (price > 0) {
-                    totalEarned += price * entry.getValue();
-                    totalItems += entry.getValue();
-                    storage.removeItem(entry.getKey(), entry.getValue());
-                }
+        for (Map.Entry<org.bukkit.Material, Integer> entry : vanillaCopy.entrySet()) {
+            double price = plugin.getPriceManager().getPrice(entry.getKey().name().toUpperCase());
+            if (price > 0) {
+                totalEarned += price * entry.getValue();
+                totalItems += entry.getValue();
             }
-            for (Map.Entry<String, Integer> entry : nexoCopy.entrySet()) {
-                double price = plugin.getPriceManager().getPrice(entry.getKey());
-                if (price > 0) {
-                    totalEarned += price * entry.getValue();
-                    totalItems += entry.getValue();
-                    storage.removeNexoItem(entry.getKey(), entry.getValue());
-                }
+        }
+        for (Map.Entry<String, Integer> entry : nexoCopy.entrySet()) {
+            double price = plugin.getPriceManager().getPrice(entry.getKey());
+            if (price > 0) {
+                totalEarned += price * entry.getValue();
+                totalItems += entry.getValue();
             }
-            storage.save(plugin);
         }
 
         if (totalItems == 0) {
@@ -660,7 +641,46 @@ public class MenuItem {
                 : plugin.getStorageUpgradeManager().getSellMultiplier(player);
         totalEarned *= multiplier;
 
-        plugin.getVaultManager().deposit(player, totalEarned);
+        // Étape 2: tenter le dépôt avant de retirer les items
+        if (!plugin.getVaultManager().deposit(player, totalEarned)) {
+            player.sendMessage("§c§l✗ §cErreur: Le paiement a échoué. Vente annulée.");
+            return;
+        }
+
+        // Étape 3: retirer les items du storage (le paiement a réussi)
+        if (towerStorage) {
+            com.wynvers.quantum.towers.storage.PlayerTowerStorage storage =
+                    plugin.getTowerStorageManager().getStorage(player);
+            for (Map.Entry<org.bukkit.Material, Integer> entry : vanillaCopy.entrySet()) {
+                double price = plugin.getPriceManager().getPrice(entry.getKey().name().toUpperCase());
+                if (price > 0) {
+                    storage.removeItem(entry.getKey(), entry.getValue());
+                }
+            }
+            for (Map.Entry<String, Integer> entry : nexoCopy.entrySet()) {
+                double price = plugin.getPriceManager().getPrice(entry.getKey());
+                if (price > 0) {
+                    storage.removeNexoItem(entry.getKey(), entry.getValue());
+                }
+            }
+            storage.save(plugin);
+        } else {
+            com.wynvers.quantum.storage.PlayerStorage storage =
+                    plugin.getStorageManager().getStorage(player);
+            for (Map.Entry<org.bukkit.Material, Integer> entry : vanillaCopy.entrySet()) {
+                double price = plugin.getPriceManager().getPrice(entry.getKey().name().toUpperCase());
+                if (price > 0) {
+                    storage.removeItem(entry.getKey(), entry.getValue());
+                }
+            }
+            for (Map.Entry<String, Integer> entry : nexoCopy.entrySet()) {
+                double price = plugin.getPriceManager().getPrice(entry.getKey());
+                if (price > 0) {
+                    storage.removeNexoItem(entry.getKey(), entry.getValue());
+                }
+            }
+            storage.save(plugin);
+        }
 
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.2f);
         player.sendMessage("§a§l✓ §aVente totale: §e" + totalItems + " §aitems vendus pour §6"

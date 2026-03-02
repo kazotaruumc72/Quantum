@@ -69,16 +69,30 @@ public class ArmorManager {
     }
     
     /**
-     * Applique le bonus de vitesse
+     * Applique le bonus de vitesse en additionnant les bonus de toutes les pièces
      */
     private void applySpeedBonus(Player player, Map<RuneType, Integer> runes) {
-        if (runes.containsKey(RuneType.SPEED)) {
-            int level = runes.get(RuneType.SPEED);
-            double speedBonus = RuneType.SPEED.getSpeedBonus(level);
-            
+        // Calculer le bonus total de vitesse depuis toutes les pièces d'armure
+        double totalSpeedBonus = 1.0;
+        ItemStack[] armorPieces = {
+            player.getInventory().getHelmet(),
+            player.getInventory().getChestplate(),
+            player.getInventory().getLeggings(),
+            player.getInventory().getBoots()
+        };
+
+        for (ItemStack piece : armorPieces) {
+            Map<RuneType, Integer> pieceRunes = dungeonArmor.getAppliedRunesWithLevels(piece);
+            if (pieceRunes.containsKey(RuneType.SPEED)) {
+                double pieceBonus = RuneType.SPEED.getSpeedBonus(pieceRunes.get(RuneType.SPEED));
+                totalSpeedBonus += (pieceBonus - 1.0); // Ajouter le bonus (sans le multiplicateur de base 1.0)
+            }
+        }
+
+        if (totalSpeedBonus > 1.0) {
             // Appliquer une vitesse en fonction du bonus
             // Minecraft: valeur entre 0 et 1, défaut 0.2
-            float newSpeed = Math.min(1.0f, (float) (0.2f + (speedBonus - 1.0f) * 0.05f));
+            float newSpeed = Math.min(1.0f, (float) (0.2f + (totalSpeedBonus - 1.0f) * 0.05f));
             player.setWalkSpeed(newSpeed);
         }
     }
@@ -119,58 +133,134 @@ public class ArmorManager {
     }
     
     /**
-     * Récupère le bonus de dégâts total pour un joueur
+     * Récupère le bonus de dégâts total pour un joueur en additionnant tous les bonus de chaque pièce
      */
     public double getDamageBonus(Player player) {
-        Map<RuneType, Integer> runes = playerRunes.getOrDefault(player, new HashMap<>());
-        if (runes.containsKey(RuneType.FORCE)) {
-            return RuneType.FORCE.getDamageBonus(runes.get(RuneType.FORCE));
+        if (!dungeonArmor.hasCompleteArmor(player)) {
+            return 1.0;
         }
-        return 1.0;
+
+        double totalBonus = 1.0;
+        ItemStack[] armorPieces = {
+            player.getInventory().getHelmet(),
+            player.getInventory().getChestplate(),
+            player.getInventory().getLeggings(),
+            player.getInventory().getBoots()
+        };
+
+        for (ItemStack piece : armorPieces) {
+            Map<RuneType, Integer> pieceRunes = dungeonArmor.getAppliedRunesWithLevels(piece);
+            if (pieceRunes.containsKey(RuneType.FORCE)) {
+                double pieceBonus = RuneType.FORCE.getDamageBonus(pieceRunes.get(RuneType.FORCE));
+                totalBonus += (pieceBonus - 1.0); // Ajouter le bonus (sans le multiplicateur de base 1.0)
+            }
+        }
+
+        return totalBonus;
     }
     
     /**
-     * Récupère la réduction de dégâts pour un joueur
+     * Récupère la réduction de dégâts pour un joueur en additionnant tous les bonus de chaque pièce
      */
     public double getDamageReduction(Player player) {
-        Map<RuneType, Integer> runes = playerRunes.getOrDefault(player, new HashMap<>());
-        if (runes.containsKey(RuneType.RESISTANCE)) {
-            return RuneType.RESISTANCE.getDamageReduction(runes.get(RuneType.RESISTANCE));
+        if (!dungeonArmor.hasCompleteArmor(player)) {
+            return 0.0;
         }
-        return 0.0;
+
+        double totalReduction = 0.0;
+        ItemStack[] armorPieces = {
+            player.getInventory().getHelmet(),
+            player.getInventory().getChestplate(),
+            player.getInventory().getLeggings(),
+            player.getInventory().getBoots()
+        };
+
+        for (ItemStack piece : armorPieces) {
+            Map<RuneType, Integer> pieceRunes = dungeonArmor.getAppliedRunesWithLevels(piece);
+            if (pieceRunes.containsKey(RuneType.RESISTANCE)) {
+                totalReduction += RuneType.RESISTANCE.getDamageReduction(pieceRunes.get(RuneType.RESISTANCE));
+            }
+        }
+
+        return totalReduction;
     }
     
     /**
-     * Récupère la chance de critique pour un joueur
+     * Récupère la chance de critique pour un joueur en additionnant tous les bonus de chaque pièce
      */
     public double getCriticalChance(Player player) {
-        Map<RuneType, Integer> runes = playerRunes.getOrDefault(player, new HashMap<>());
-        if (runes.containsKey(RuneType.CRITICAL)) {
-            return RuneType.CRITICAL.getCriticalChance(runes.get(RuneType.CRITICAL));
+        if (!dungeonArmor.hasCompleteArmor(player)) {
+            return 0.0;
         }
-        return 0.0;
+
+        double totalChance = 0.0;
+        ItemStack[] armorPieces = {
+            player.getInventory().getHelmet(),
+            player.getInventory().getChestplate(),
+            player.getInventory().getLeggings(),
+            player.getInventory().getBoots()
+        };
+
+        for (ItemStack piece : armorPieces) {
+            Map<RuneType, Integer> pieceRunes = dungeonArmor.getAppliedRunesWithLevels(piece);
+            if (pieceRunes.containsKey(RuneType.CRITICAL)) {
+                totalChance += RuneType.CRITICAL.getCriticalChance(pieceRunes.get(RuneType.CRITICAL));
+            }
+        }
+
+        return totalChance;
     }
     
     /**
-     * Récupère le pourcentage de vampirisme pour un joueur
+     * Récupère le pourcentage de vampirisme pour un joueur en additionnant tous les bonus de chaque pièce
      */
     public double getVampirismPercent(Player player) {
-        Map<RuneType, Integer> runes = playerRunes.getOrDefault(player, new HashMap<>());
-        if (runes.containsKey(RuneType.VAMPIRISM)) {
-            return RuneType.VAMPIRISM.getVampirismPercent(runes.get(RuneType.VAMPIRISM));
+        if (!dungeonArmor.hasCompleteArmor(player)) {
+            return 0.0;
         }
-        return 0.0;
+
+        double totalVampirism = 0.0;
+        ItemStack[] armorPieces = {
+            player.getInventory().getHelmet(),
+            player.getInventory().getChestplate(),
+            player.getInventory().getLeggings(),
+            player.getInventory().getBoots()
+        };
+
+        for (ItemStack piece : armorPieces) {
+            Map<RuneType, Integer> pieceRunes = dungeonArmor.getAppliedRunesWithLevels(piece);
+            if (pieceRunes.containsKey(RuneType.VAMPIRISM)) {
+                totalVampirism += RuneType.VAMPIRISM.getVampirismPercent(pieceRunes.get(RuneType.VAMPIRISM));
+            }
+        }
+
+        return totalVampirism;
     }
 
     /**
-     * Récupère le bonus de saut (AGILITY) pour un joueur
+     * Récupère le bonus de saut (AGILITY) pour un joueur en additionnant tous les bonus de chaque pièce
      */
     public double getJumpBonus(Player player) {
-        Map<RuneType, Integer> runes = playerRunes.getOrDefault(player, new HashMap<>());
-        if (runes.containsKey(RuneType.AGILITY)) {
-            return RuneType.AGILITY.getJumpBonus(runes.get(RuneType.AGILITY));
+        if (!dungeonArmor.hasCompleteArmor(player)) {
+            return 0.0;
         }
-        return 0.0;
+
+        double totalJump = 0.0;
+        ItemStack[] armorPieces = {
+            player.getInventory().getHelmet(),
+            player.getInventory().getChestplate(),
+            player.getInventory().getLeggings(),
+            player.getInventory().getBoots()
+        };
+
+        for (ItemStack piece : armorPieces) {
+            Map<RuneType, Integer> pieceRunes = dungeonArmor.getAppliedRunesWithLevels(piece);
+            if (pieceRunes.containsKey(RuneType.AGILITY)) {
+                totalJump += RuneType.AGILITY.getJumpBonus(pieceRunes.get(RuneType.AGILITY));
+            }
+        }
+
+        return totalJump;
     }
     
     /**
@@ -182,18 +272,30 @@ public class ArmorManager {
             @Override
             public void run() {
                 for (Player player : plugin.getServer().getOnlinePlayers()) {
-                    Map<RuneType, Integer> runes = playerRunes.get(player);
-                    if (runes == null || runes.isEmpty()) {
+                    if (!dungeonArmor.hasCompleteArmor(player)) {
                         continue;
                     }
-                    
-                    // Vérifier si le joueur a la régénération
-                    if (runes.containsKey(RuneType.REGENERATION)) {
-                        int level = runes.get(RuneType.REGENERATION);
-                        double regenPerSecond = RuneType.REGENERATION.getRegeneration(level);
-                        
+
+                    // Calculer la régénération totale de toutes les pièces d'armure
+                    double totalRegenPerSecond = 0.0;
+                    ItemStack[] armorPieces = {
+                        player.getInventory().getHelmet(),
+                        player.getInventory().getChestplate(),
+                        player.getInventory().getLeggings(),
+                        player.getInventory().getBoots()
+                    };
+
+                    for (ItemStack piece : armorPieces) {
+                        Map<RuneType, Integer> pieceRunes = dungeonArmor.getAppliedRunesWithLevels(piece);
+                        if (pieceRunes.containsKey(RuneType.REGENERATION)) {
+                            int level = pieceRunes.get(RuneType.REGENERATION);
+                            totalRegenPerSecond += RuneType.REGENERATION.getRegeneration(level);
+                        }
+                    }
+
+                    if (totalRegenPerSecond > 0) {
                         // Appliquer la régénération directement (tâche exécutée toutes les secondes)
-                        double newHealth = Math.min(player.getMaxHealth(), player.getHealth() + regenPerSecond);
+                        double newHealth = Math.min(player.getMaxHealth(), player.getHealth() + totalRegenPerSecond);
                         player.setHealth(newHealth);
                     }
                 }

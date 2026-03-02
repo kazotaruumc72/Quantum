@@ -398,8 +398,31 @@ public class ActionExecutor {
         
         // Donner l'argent au joueur
         double totalPrice = session.getTotalPrice();
-        plugin.getVaultManager().deposit(player, totalPrice);
-        
+        if (!plugin.getVaultManager().deposit(player, totalPrice)) {
+            // Rollback: restaurer les items dans le storage
+            if (session.isTowerStorage()) {
+                PlayerTowerStorage towerStorage = plugin.getTowerStorageManager().getStorage(player);
+                if (nexoId != null) {
+                    towerStorage.addNexoItem(nexoId, session.getQuantity());
+                } else {
+                    towerStorage.addItem(session.getItemToSell().getType(), session.getQuantity());
+                }
+                towerStorage.save(plugin);
+            } else {
+                PlayerStorage storage = plugin.getStorageManager().getStorage(player);
+                if (nexoId != null) {
+                    storage.addNexoItem(nexoId, session.getQuantity());
+                } else {
+                    storage.addItem(session.getItemToSell().getType(), session.getQuantity());
+                }
+                storage.save(plugin);
+            }
+            player.sendMessage("§cErreur: Le paiement a échoué. Vos items ont été restaurés.");
+            player.closeInventory();
+            plugin.getSellManager().removeSession(player);
+            return;
+        }
+
         // Obtenir le display name de l'item
         String itemDisplayName;
         if (session.getItemToSell().hasItemMeta() && session.getItemToSell().getItemMeta().hasDisplayName()) {

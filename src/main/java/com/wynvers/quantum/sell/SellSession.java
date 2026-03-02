@@ -25,7 +25,7 @@ public class SellSession {
         this.itemToSell = itemToSell.clone();
         this.maxQuantity = maxQuantity;
         this.pricePerUnit = pricePerUnit;
-        this.quantity = Math.min(maxQuantity / 2, 1); // Par défaut: moitié ou 1 minimum
+        this.quantity = Math.max(maxQuantity / 2, 1); // Par défaut: moitié ou 1 minimum
         this.towerStorage = false;
     }
     

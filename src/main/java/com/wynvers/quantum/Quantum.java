@@ -127,6 +127,7 @@ public final class Quantum extends JavaPlugin {
     private DungeonArmor dungeonArmor;     // Dungeon armor system
     private ArmorManager armorManager;
     private RuneItem runeItem;
+    private com.wynvers.quantum.armor.ArmorGUI armorGUI;
     
     // Mob Bestiary (mobs.yml)
     private MobConfig mobConfig;
@@ -187,6 +188,7 @@ public final class Quantum extends JavaPlugin {
         RuneType.init(this);
         this.armorManager = new ArmorManager(this, dungeonArmor);
         this.runeItem = new RuneItem(this);
+        this.armorGUI = new com.wynvers.quantum.armor.ArmorGUI(dungeonArmor, runeItem, placeholderManager);
         logger.success("✓ Dungeon Armor & Rune system initialized! (9 runes with 3 levels)");
 
         // Tours
@@ -418,6 +420,9 @@ public final class Quantum extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new RuneApplyListener(runeItem, dungeonArmor), this);
         logger.success("✓ Rune Apply Listener (drag & drop runes)");
+
+        Bukkit.getPluginManager().registerEvents(new com.wynvers.quantum.armor.ArmorGUIListener(armorGUI), this);
+        logger.success("✓ Armor GUI Listener (rune selection menu)");
     }
 
     // ───────────────────── Managers ─────────────────────
@@ -632,13 +637,13 @@ public final class Quantum extends JavaPlugin {
             logger.success("✓ Tower Command + TabCompleter");
         }
 
-        getCommand("armor").setExecutor(new ArmorCommand(this));
-        getCommand("armor").setTabCompleter(new ArmorTabCompleter());
-        logger.success("✓ Armor Command + TabCompleter");
+        getCommand("armor").setExecutor(new com.wynvers.quantum.armor.ArmorCommand(dungeonArmor, armorGUI, runeItem));
+        getCommand("armor").setTabCompleter(new com.wynvers.quantum.armor.ArmorCommand(dungeonArmor, armorGUI, runeItem));
+        logger.success("✓ Armor Command + TabCompleter (with GUI)");
 
         if (getCommand("armure") != null) {
-            getCommand("armure").setExecutor(new ArmorCommand(this));
-            getCommand("armure").setTabCompleter(new ArmorTabCompleter());
+            getCommand("armure").setExecutor(new com.wynvers.quantum.armor.ArmorCommand(dungeonArmor, armorGUI, runeItem));
+            getCommand("armure").setTabCompleter(new com.wynvers.quantum.armor.ArmorCommand(dungeonArmor, armorGUI, runeItem));
         }
 
         getCommand("rune").setExecutor(new RuneCommand(this));
@@ -937,6 +942,10 @@ public final class Quantum extends JavaPlugin {
 
     public RuneItem getRuneItem() {
         return runeItem;
+    }
+
+    public com.wynvers.quantum.armor.ArmorGUI getArmorGUI() {
+        return armorGUI;
     }
     
     // NEW: Getters for Furniture, Crops, Tools, and Weapon systems

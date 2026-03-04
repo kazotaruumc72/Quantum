@@ -1,6 +1,7 @@
 package com.wynvers.quantum.armor;
 
 import com.nexomc.nexo.api.NexoItems;
+import com.wynvers.quantum.managers.PlaceholderManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -12,13 +13,15 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 
 public class ArmorGUI {
-    
+
     private final DungeonArmor armorManager;
     private final RuneItem runeItemManager;
+    private final PlaceholderManager placeholderManager;
     
-    public ArmorGUI(DungeonArmor armorManager, RuneItem runeItemManager) {
+    public ArmorGUI(DungeonArmor armorManager, RuneItem runeItemManager, PlaceholderManager placeholderManager) {
         this.armorManager = armorManager;
         this.runeItemManager = runeItemManager;
+        this.placeholderManager = placeholderManager;
     }
     
     /**
@@ -240,10 +243,10 @@ public class ArmorGUI {
     
     private ItemStack createRuneItem(Player player, RuneType rune, int currentLevel, boolean isApplied, int maxSlots, int usedSlots) {
         Material material = isApplied ? Material.LIME_DYE : (usedSlots >= maxSlots ? Material.GRAY_DYE : Material.PAPER);
-        
+
         List<String> lore = new ArrayList<>();
         lore.add("");
-        
+
         if (isApplied) {
             lore.add("§a§l✔ APPLIQUÉE - Niveau " + toRoman(currentLevel));
             lore.add("§7" + rune.getDescription(currentLevel));
@@ -258,40 +261,48 @@ public class ArmorGUI {
             lore.add("");
             lore.add("§7Runes dans votre inventaire:");
             lore.add("");
-            
+
             // Afficher les runes que le joueur possède
             for (int level = 1; level <= rune.getMaxLevel(); level++) {
                 String nexoId = rune.getNexoId(level);
                 ItemStack found = findRuneInInventory(player, nexoId);
-                
+
                 if (found != null) {
                     int chance = runeItemManager.getSuccessChance(found);
                     String color = getChanceColor(chance);
-                    lore.add("§f• Niveau " + toRoman(level) + " " + color + "(" + chance + "% réussite)");
+                    // Add Nexo glyph placeholder before the level info
+                    String glyphPlaceholder = "%nexo_" + nexoId + "%";
+                    String parsedGlyph = placeholderManager.parse(player, glyphPlaceholder);
+                    lore.add("§f• " + parsedGlyph + " Niveau " + toRoman(level) + " " + color + "(" + chance + "% réussite)");
                     lore.add("  §7" + rune.getDescription(level));
                 }
             }
-            
+
             lore.add("");
             lore.add("§e§l» Cliquez pour choisir le niveau");
         }
-        
+
         return createItem(material, rune.getDisplay(), lore);
     }
     
     private ItemStack createRuneLevelItem(Player player, RuneType rune, int level) {
         String nexoId = rune.getNexoId(level);
         ItemStack runeItem = findRuneInInventory(player, nexoId);
-        
+
         if (runeItem == null) {
-            return createItem(Material.BARRIER, "§c" + rune.getDisplay() + " §7" + toRoman(level), 
+            return createItem(Material.BARRIER, "§c" + rune.getDisplay() + " §7" + toRoman(level),
                 Arrays.asList("", "§c✖ Vous ne possédez pas cette rune !"));
         }
-        
+
         int chance = runeItemManager.getSuccessChance(runeItem);
         String color = getChanceColor(chance);
-        
+
         List<String> lore = new ArrayList<>();
+        lore.add("");
+        // Add Nexo glyph placeholder
+        String glyphPlaceholder = "%nexo_" + nexoId + "%";
+        String parsedGlyph = placeholderManager.parse(player, glyphPlaceholder);
+        lore.add("§7Glyph: " + parsedGlyph);
         lore.add("");
         lore.add("§7Description:");
         lore.add("§f" + rune.getDescription(level));
@@ -302,10 +313,10 @@ public class ArmorGUI {
         lore.add("§a✔ Si elle réussit, elle sera permanente");
         lore.add("");
         lore.add("§e§l» Cliquez pour appliquer");
-        
+
         Material material = chance >= 70 ? Material.EMERALD : (chance >= 40 ? Material.GOLD_INGOT : Material.REDSTONE);
-        
-        return createItem(material, rune.getDisplay() + " §7" + toRoman(level), lore);
+
+        return createItem(material, parsedGlyph + " " + rune.getDisplay() + " §7" + toRoman(level), lore);
     }
     
     private String getChanceColor(int chance) {

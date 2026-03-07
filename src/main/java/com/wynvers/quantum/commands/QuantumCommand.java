@@ -306,14 +306,6 @@ public class QuantumCommand implements CommandExecutor {
                             }
                             break;
 
-                        case "jobs":
-                        case "jobs.yml":
-                            if (plugin.getJobManager() != null) {
-                                plugin.getJobManager().reload();
-                                sender.sendMessage("§a§l✓ §ajobs.yml rechargé!");
-                            }
-                            break;
-
                         default:
                             sender.sendMessage("§c⚠ Type de reload invalide!");
                             break;
@@ -357,7 +349,6 @@ public class QuantumCommand implements CommandExecutor {
         if (plugin.getCustomCropManager() != null) plugin.getCustomCropManager().reload();
         if (plugin.getDungeonUtils() != null) plugin.getDungeonUtils().reload();
         if (plugin.getTowerInventoryManager() != null) plugin.getTowerInventoryManager().reload();
-        if (plugin.getJobManager() != null) plugin.getJobManager().reload();
 
         sender.sendMessage("§a§l✓ §aTout a été rechargé avec succès!");
     }

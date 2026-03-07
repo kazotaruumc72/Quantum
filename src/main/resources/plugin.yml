@@ -94,17 +94,6 @@ commands:
     usage: /dutil <give> <type> [rarity]
     aliases: [dungeonutil, outildonjon, outilsdonjon]
 
-  job:
-    description: Manage your job
-    usage: /job [select|list|info|rewards] [args]
-    aliases: [metier, jobs, metiers]
-  
-  jobadmin:
-    description: Manage player jobs (admin)
-    usage: /jobadmin <set|addexp|setlevel|reset|info|reload> [args]
-    aliases: [jadmin, jobsadmin]
-    permission: quantum.job.admin
-  
   gmc:
     description: Change gamemode to creative
     usage: /gmc
@@ -172,7 +161,6 @@ permissions:
       quantum.exp.admin: true
       quantum.weapon.*: true
       quantum.dutil.*: true
-      quantum.job.*: true
       quantum.spawn.*: true
       quantum.chat.*: true
   
@@ -345,25 +333,6 @@ permissions:
   quantum.dutil.give:
     description: Give dungeon utils tools to players
     default: op
-
-  # Jobs system
-  quantum.job.*:
-    description: All job permissions
-    default: true
-    children:
-      quantum.job.use: true
-      quantum.job.admin: true
-  
-  quantum.job.use:
-    description: Use job system
-    default: true
-  
-  quantum.job.bypass:
-    description: Bypass job requirement for block break/place/chat
-    default: false
-  
-  quantum.job.admin:
-    description: Admin job commands
 
   # Gamemode shortcuts
   quantum.gamemode.*:

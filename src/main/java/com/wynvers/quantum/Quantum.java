@@ -12,13 +12,6 @@ import com.wynvers.quantum.furniture.FurnitureManager;
 import com.wynvers.quantum.furniture.FurnitureListener;
 import com.wynvers.quantum.crops.CustomCropManager;
 import com.wynvers.quantum.crops.CustomCropListener;
-import com.wynvers.quantum.jobs.JobManager;
-import com.wynvers.quantum.jobs.JobListener;
-import com.wynvers.quantum.jobs.JobActionListener;
-import com.wynvers.quantum.jobs.JobCommand;
-import com.wynvers.quantum.jobs.JobAdminCommand;
-import com.wynvers.quantum.jobs.JobTabCompleter;
-import com.wynvers.quantum.jobs.JobAdminTabCompleter;
 import com.wynvers.quantum.home.HomeManager;
 import com.wynvers.quantum.database.DatabaseManager;
 import com.wynvers.quantum.placeholderapi.PlaceholderAPIManager;
@@ -137,9 +130,6 @@ public final class Quantum extends JavaPlugin {
     private CustomCropManager customCropManager;
     private com.wynvers.quantum.dungeonutis.DungeonUtils dungeonUtils;
 
-    // Jobs System
-    private JobManager jobManager;
-    
     // Home System
     private HomeManager homeManager;
     
@@ -357,7 +347,6 @@ public final class Quantum extends JavaPlugin {
         extractResource("mobilier.yml");
         extractResource("custom_crops.yml");
         extractResource("dungeons_utils.yml");
-        extractResource("jobs.yml");
 
         extractResource("dungeon.yml");
         extractResource("dungeon_armor.yml");
@@ -518,13 +507,6 @@ public final class Quantum extends JavaPlugin {
         this.dungeonUtils = new com.wynvers.quantum.dungeonutis.DungeonUtils(this);
         getServer().getPluginManager().registerEvents(new com.wynvers.quantum.dungeonutis.DungeonUtilsListener(this), this);
         logger.success("✓ Dungeon Utils System initialized!");
-
-        // Jobs System
-        this.jobManager = new JobManager(this, databaseManager);
-        getServer().getPluginManager().registerEvents(new JobListener(this, jobManager), this);
-        getServer().getPluginManager().registerEvents(new JobActionListener(this, jobManager), this);
-
-        logger.success("✓ Jobs System initialized! (" + jobManager.getAllJobs().size() + " jobs available)");
     }
     
     // ───────────────────── Internal Regions Loading ─────────────────────
@@ -662,15 +644,6 @@ public final class Quantum extends JavaPlugin {
             logger.success("✓ DungeonUtil Command + TabCompleter");
         }
 
-        // Jobs Commands
-        if (jobManager != null) {
-            getCommand("job").setExecutor(new JobCommand(this, jobManager));
-            getCommand("job").setTabCompleter(new JobTabCompleter(jobManager));
-            getCommand("jobadmin").setExecutor(new JobAdminCommand(this, jobManager));
-            getCommand("jobadmin").setTabCompleter(new JobAdminTabCompleter(jobManager));
-            logger.success("✓ Job Commands + TabCompleters");
-        }
-        
         // Gamemode Shortcuts
         GamemodeCommand gamemodeCommand = new GamemodeCommand(messageManager);
         getCommand("gmc").setExecutor(gamemodeCommand);
@@ -958,10 +931,6 @@ public final class Quantum extends JavaPlugin {
         return customCropManager;
     }
 
-    public JobManager getJobManager() {
-        return jobManager;
-    }
-    
     public HomeManager getHomeManager() {
         return homeManager;
     }

@@ -130,29 +130,6 @@ public class QuantumExpansion extends PlaceholderExpansion {
             return String.valueOf(plugin.getPlayerLevelManager().getMaxLevel());
         }
 
-        // ============
-        // JOB SYSTEM
-        // ============
-        if (p.equals("job")) {
-            if (plugin.getJobManager() == null) return "None";
-            var jobData = plugin.getJobManager().getPlayerJob(offlinePlayer.getUniqueId());
-            if (jobData == null) return "None";
-            var job = plugin.getJobManager().getJob(jobData.getJobId());
-            return job != null ? job.getDisplayName() : "Unknown";
-        }
-
-        if (p.equals("job_level")) {
-            if (plugin.getJobManager() == null) return "0";
-            var jobData = plugin.getJobManager().getPlayerJob(offlinePlayer.getUniqueId());
-            return jobData != null ? String.valueOf(jobData.getLevel()) : "0";
-        }
-
-        if (p.equals("job_exp")) {
-            if (plugin.getJobManager() == null) return "0";
-            var jobData = plugin.getJobManager().getPlayerJob(offlinePlayer.getUniqueId());
-            return jobData != null ? String.valueOf(jobData.getExperience()) : "0";
-        }
-
         // =================
         // TOWER (joueur)
         // =================

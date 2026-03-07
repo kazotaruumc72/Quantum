@@ -3,7 +3,6 @@ package com.wynvers.quantum.dungeonutis;
 import com.nexomc.nexo.api.NexoItems;
 import com.nexomc.nexo.items.ItemBuilder;
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.jobs.JobData;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -177,39 +176,6 @@ public class DungeonUtils {
     }
 
     /**
-     * Checks if a player can use this dungeon util for their current job
-     */
-    public boolean canUseForJob(Player player, ItemStack item) {
-        DungeonUtilsType type = getType(item);
-        if (type == null) return false;
-
-        // Get player's current job
-        if (plugin.getJobManager() == null) return false;
-
-        JobData jobData = plugin.getJobManager().getPlayerJob(player.getUniqueId());
-        if (jobData == null) return false;
-
-        // Check if job is compatible
-        return type.getCompatibleJob().equalsIgnoreCase(jobData.getJobId());
-    }
-
-    /**
-     * Gets the job exp bonus multiplier for this item
-     */
-    public double getJobExpBonus(ItemStack item) {
-        DungeonUtilsRarity rarity = getRarity(item);
-        return rarity != null ? rarity.getJobExpBonus() : 1.0;
-    }
-
-    /**
-     * Gets the job money bonus multiplier for this item
-     */
-    public double getJobMoneyBonus(ItemStack item) {
-        DungeonUtilsRarity rarity = getRarity(item);
-        return rarity != null ? rarity.getJobMoneyBonus() : 1.0;
-    }
-
-    /**
      * Gets the level of a dungeon util
      */
     public int getLevel(ItemStack item) {
@@ -368,21 +334,6 @@ public class DungeonUtils {
 
         lore.add("");
 
-        // Job bonuses
-        String jobBonusHeader = config.getString("messages.lore.job_bonus_header", "&e&lBonus de Job:");
-        lore.add(jobBonusHeader.replace('&', '§'));
-
-        String expBonusFormat = config.getString("messages.lore.job_exp_bonus", "&8▪ &7XP: &a+{bonus}%");
-        lore.add(expBonusFormat.replace("{bonus}", String.valueOf(rarity.getExpBonusPercent())).replace('&', '§'));
-
-        String moneyBonusFormat = config.getString("messages.lore.job_money_bonus", "&8▪ &7Argent: &a+{bonus}%");
-        lore.add(moneyBonusFormat.replace("{bonus}", String.valueOf(rarity.getMoneyBonusPercent())).replace('&', '§'));
-
-        String durabilityBonusFormat = config.getString("messages.lore.durability_bonus", "&8▪ &7Durabilité: &a+{bonus}%");
-        lore.add(durabilityBonusFormat.replace("{bonus}", String.valueOf(rarity.getDurabilityBonusPercent())).replace('&', '§'));
-
-        lore.add("");
-
         // Compatible job
         String compatibleJobsFormat = config.getString("messages.lore.compatible_jobs", "&7Compatible avec: &e{jobs}");
         lore.add(compatibleJobsFormat.replace("{jobs}", type.getCompatibleJob()).replace('&', '§'));
@@ -397,18 +348,5 @@ public class DungeonUtils {
 
         meta.setLore(lore);
         item.setItemMeta(meta);
-    }
-
-    /**
-     * Sends a message to player when job bonus is active
-     */
-    public void notifyJobBonus(Player player, ItemStack item) {
-        DungeonUtilsRarity rarity = getRarity(item);
-        if (rarity == null || rarity == DungeonUtilsRarity.COMMON) return;
-
-        String message = config.getString("messages.job_bonus_active", "&e⚡ Bonus de job actif: &a+{exp_bonus}% XP &7| &a+{money_bonus}% $");
-        message = message.replace("{exp_bonus}", String.valueOf(rarity.getExpBonusPercent()));
-        message = message.replace("{money_bonus}", String.valueOf(rarity.getMoneyBonusPercent()));
-        player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
     }
 }

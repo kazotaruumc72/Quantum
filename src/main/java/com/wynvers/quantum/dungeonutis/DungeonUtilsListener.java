@@ -1,8 +1,6 @@
 package com.wynvers.quantum.dungeonutis;
 
 import com.wynvers.quantum.Quantum;
-import com.wynvers.quantum.jobs.JobData;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -13,7 +11,6 @@ import org.bukkit.inventory.ItemStack;
 
 /**
  * Listener for dungeon utils events
- * Integrates with the jobs system to provide bonuses
  */
 public class DungeonUtilsListener implements Listener {
 
@@ -26,7 +23,7 @@ public class DungeonUtilsListener implements Listener {
     }
 
     /**
-     * Handle block break events to check if player is using dungeon tools
+     * Handle block break events to add exp to dungeon tools
      */
     @EventHandler(priority = EventPriority.NORMAL)
     public void onBlockBreak(BlockBreakEvent event) {
@@ -40,30 +37,12 @@ public class DungeonUtilsListener implements Listener {
         DungeonUtilsType type = dungeonUtils.getType(item);
         if (type == null || !type.isTool()) return;
 
-        // Check if player has a job and if it's compatible
-        if (plugin.getJobManager() == null) return;
-
-        JobData jobData = plugin.getJobManager().getPlayerJob(player.getUniqueId());
-        if (jobData == null) {
-            String message = plugin.getDungeonUtils().getConfig().getString("messages.no_job", "&c✖ Vous devez avoir un métier pour utiliser cet outil!");
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
-            event.setCancelled(true);
-            return;
-        }
-
-        if (!dungeonUtils.canUseForJob(player, item)) {
-            String message = plugin.getDungeonUtils().getConfig().getString("messages.incompatible_job", "&c✖ Cet outil n'est pas compatible avec votre métier actuel!");
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
-            event.setCancelled(true);
-            return;
-        }
-
-        // The actual bonus will be applied by the JobActionListener
-        // This just validates that the tool can be used
+        // Tools can be used without restrictions now
+        // No job system checks needed
     }
 
     /**
-     * Handle entity damage to check if player is using dungeon weapons
+     * Handle entity damage to add exp to dungeon weapons
      */
     @EventHandler(priority = EventPriority.NORMAL)
     public void onEntityDamage(EntityDamageByEntityEvent event) {
@@ -78,25 +57,7 @@ public class DungeonUtilsListener implements Listener {
         DungeonUtilsType type = dungeonUtils.getType(item);
         if (type == null || !type.isWeapon()) return;
 
-        // Check if player has a job and if it's compatible
-        if (plugin.getJobManager() == null) return;
-
-        JobData jobData = plugin.getJobManager().getPlayerJob(player.getUniqueId());
-        if (jobData == null) {
-            String message = plugin.getDungeonUtils().getConfig().getString("messages.no_job", "&c✖ Vous devez avoir un métier pour utiliser cette arme!");
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
-            event.setCancelled(true);
-            return;
-        }
-
-        if (!dungeonUtils.canUseForJob(player, item)) {
-            String message = plugin.getDungeonUtils().getConfig().getString("messages.incompatible_job", "&c✖ Cette arme n'est pas compatible avec votre métier actuel!");
-            player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
-            event.setCancelled(true);
-            return;
-        }
-
-        // The actual bonus will be applied by the JobActionListener
-        // This just validates that the weapon can be used
+        // Weapons can be used without restrictions now
+        // No job system checks needed
     }
 }

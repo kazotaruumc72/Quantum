@@ -244,11 +244,16 @@ public class MenuManager {
             }
         } else if ("has item".equalsIgnoreCase(type)) {
             // Build item requirement from complex structure
+            // For now, we support the basic material:amount format
+            // Full implementation with all options would require extending the Requirement class
             String material = (String) reqMap.get("material");
             Object amountObj = reqMap.get("amount");
-            int amount = amountObj != null ? (Integer) amountObj : 1;
+            int amount = amountObj != null ? ((Number) amountObj).intValue() : 1;
 
             if (material != null) {
+                // Simple format: material:amount
+                // TODO: Extend Requirement class to support advanced item matching
+                // (name, lore, modeldata, name_contains, etc.)
                 return new Requirement(Requirement.RequirementType.ITEM, material + ":" + amount);
             }
         }

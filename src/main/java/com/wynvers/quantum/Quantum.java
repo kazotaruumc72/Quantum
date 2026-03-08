@@ -338,7 +338,9 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/history.yml");
         extractResource("menus/statistics.yml");
         extractResource("menus/rune_equipment.yml");
-        extractResource("menus/quantum_item_attributes.yml");
+
+        createDirectory("menus/attributes");
+        extractResource("menus/attributes/quantum_item_attributes.yml");
 
         extractResource("menus/quantum_admin.yml");
 

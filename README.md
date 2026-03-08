@@ -11,6 +11,7 @@ Quantum is an advanced Minecraft plugin featuring virtual storage, dynamic GUI b
 ### Core Systems
 - 🗄️ **Virtual Storage** - Advanced virtual storage with dynamic capacity
 - 🎨 **Dynamic GUI Builder** - Create custom menus via YAML configuration
+- 🌐 **Client-Side Menu Builder** - Web-based visual menu editor (NEW!)
 - 💰 **Orders System** - Player-to-player trading orders
 - 🏢 **Job System** - Multiple jobs with levels and rewards
 - 🗼 **Tower Progression** - Tower-based advancement system
@@ -95,6 +96,7 @@ For detailed build instructions, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 - **[Plugin Integrations Directory](plugins-integration/)** - Complete integration package with all files
 - **[Installation Guide](plugins-integration/INSTALLATION_GUIDE.md)** - Step-by-step setup instructions
 - **[Plugin Integrations Overview](PLUGIN_INTEGRATIONS.md)** - Overview of all integrations
+- **[Menu Builder Guide](MENU_BUILDER.md)** - Web-based visual menu editor (NEW!)
 - **[TAB System](TAB_SYSTEM.md)** - Complete tab system with permission-based headers/footers
 - **[TAB Integration](TAB_INTEGRATION.md)** - TAB API and placeholders
 - **[PlaceholderAPI Integration](PLACEHOLDERAPI_INTEGRATION.md)** - Universal placeholders

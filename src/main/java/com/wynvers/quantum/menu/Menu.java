@@ -30,11 +30,14 @@ public class Menu {
     private String title;
     private int size;
     private String openCommand;
- 
-    // Animated title
+
+    // Animated title (legacy support)
     private boolean animatedTitle;
     private List<String> titleFrames;
     private int titleSpeed;
+
+    // New title configuration system
+    private TitleConfig titleConfig;
  
     // Items
     private final Map<String, MenuItem> items;
@@ -88,15 +91,19 @@ public class Menu {
     public List<String> getTitleFrames() {
         return titleFrames;
     }
- 
+
     public int getTitleSpeed() {
         return titleSpeed;
     }
- 
+
+    public TitleConfig getTitleConfig() {
+        return titleConfig;
+    }
+
     public Map<String, MenuItem> getItems() {
         return items;
     }
- 
+
     public MenuItem getItem(String id) {
         return items.get(id);
     }
@@ -143,11 +150,15 @@ public class Menu {
     public void setTitleSpeed(int titleSpeed) {
         this.titleSpeed = Math.max(1, titleSpeed);
     }
- 
+
+    public void setTitleConfig(TitleConfig titleConfig) {
+        this.titleConfig = titleConfig;
+    }
+
     public void addItem(MenuItem item) {
         items.put(item.getId(), item);
     }
-    
+
     /**
      * Parse title avec support MiniMessage + Legacy
      * Si le titre contient '<', c'est du MiniMessage
@@ -172,35 +183,122 @@ public class Menu {
             return ChatColor.translateAlternateColorCodes('&', rawTitle);
         }
     }
-    
+
+    /**
+     * Resolve the title based on TitleConfig
+     * Returns the appropriate title based on player conditions
+     */
+    private String resolveTitleFromConfig(Player player, Quantum plugin) {
+        if (titleConfig == null) {
+            return title;
+        }
+
+        if (titleConfig.getTitleType() == TitleConfig.TitleType.SIMPLY) {
+            return titleConfig.getSimpleTitle() != null ? titleConfig.getSimpleTitle() : title;
+        } else if (titleConfig.getTitleType() == TitleConfig.TitleType.CONDITIONNAL) {
+            // Check each condition in order
+            for (TitleConfig.ConditionalTitle condition : titleConfig.getConditions()) {
+                boolean allRequirementsMet = true;
+
+                // Check all requirements for this condition
+                for (Requirement req : condition.getRequirements()) {
+                    if (!req.check(player, plugin)) {
+                        allRequirementsMet = false;
+                        break;
+                    }
+                }
+
+                // If all requirements are met, use this title
+                if (allRequirementsMet && condition.getTitle() != null) {
+                    return condition.getTitle();
+                }
+            }
+        }
+
+        // Fallback to default title
+        return title;
+    }
+
+    /**
+     * Get animation frames from TitleConfig if available, otherwise use legacy frames
+     */
+    private List<String> getAnimationFramesFromConfig() {
+        if (titleConfig != null && titleConfig.getTitleType() == TitleConfig.TitleType.SIMPLY
+            && titleConfig.isTitleAnimation() && !titleConfig.getAnimations().isEmpty()) {
+
+            List<String> frames = new ArrayList<>();
+            for (TitleConfig.AnimationFrame frame : titleConfig.getAnimations()) {
+                frames.add(frame.getFrame());
+            }
+            return frames;
+        }
+
+        // Fallback to legacy frames
+        return titleFrames;
+    }
+
+    /**
+     * Get animation delay from TitleConfig if available, otherwise use legacy speed
+     */
+    private int getAnimationSpeedFromConfig() {
+        if (titleConfig != null && titleConfig.getTitleType() == TitleConfig.TitleType.SIMPLY
+            && titleConfig.isTitleAnimation()) {
+            return titleConfig.getDelayAnimation();
+        }
+
+        // Fallback to legacy speed (already in ticks)
+        return titleSpeed;
+    }
+
+    /**
+     * Check if animation is enabled from TitleConfig or legacy settings
+     */
+    private boolean isAnimationEnabled() {
+        if (titleConfig != null && titleConfig.getTitleType() == TitleConfig.TitleType.SIMPLY) {
+            return titleConfig.isTitleAnimation();
+        }
+
+        // Fallback to legacy animated title
+        return animatedTitle;
+    }
+
     /**
      * Open this menu for a player
      */
     public void open(Player player, Quantum plugin) {
         open(player, plugin, null);
     }
-    
+
     /**
      * Open this menu for a player avec placeholders personnalisés
      */
     public void open(Player player, Quantum plugin, Map<String, String> customPlaceholders) {
         plugin.getMenuManager().setActiveMenu(player, this);
-        
-        String parsedTitle = customPlaceholders != null 
-            ? plugin.getPlaceholderManager().parse(player, title, customPlaceholders)
-            : plugin.getPlaceholderManager().parse(player, title);
-        
+
+        // Resolve title from TitleConfig or use default title
+        String resolvedTitle = resolveTitleFromConfig(player, plugin);
+
+        String parsedTitle = customPlaceholders != null
+            ? plugin.getPlaceholderManager().parse(player, resolvedTitle, customPlaceholders)
+            : plugin.getPlaceholderManager().parse(player, resolvedTitle);
+
         // PATCH: Appliquer MiniMessage + Legacy
         parsedTitle = parseTitle(parsedTitle);
-        
+
         Inventory inventory = Bukkit.createInventory(null, size, parsedTitle);
- 
+
         populateInventory(inventory, player, customPlaceholders);
-        
+
         player.openInventory(inventory);
-        
-        if (animatedTitle && titleFrames != null && !titleFrames.isEmpty()) {
-            plugin.getAnimationManager().startAnimation(player, titleFrames, titleSpeed);
+
+        // Check if animation is enabled (from TitleConfig or legacy)
+        if (isAnimationEnabled()) {
+            List<String> frames = getAnimationFramesFromConfig();
+            int speed = getAnimationSpeedFromConfig();
+
+            if (frames != null && !frames.isEmpty()) {
+                plugin.getAnimationManager().startAnimation(player, frames, speed);
+            }
         }
     }
     

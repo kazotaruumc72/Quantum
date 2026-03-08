@@ -85,19 +85,42 @@ public class MenuManager {
 
     private Menu loadMenu(File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        
+
         String menuId = file.getName().replace(".yml", "");
         Menu menu = new Menu(plugin, menuId);
-        
-        String title = config.getString("title");
-        if (title == null) {
-            title = config.getString("menu_title", "Menu");
+
+        // Load title - check for new format first, then fall back to legacy
+        if (config.contains("title") && config.isConfigurationSection("title")) {
+            // New TitleConfig format
+            TitleConfig titleConfig = loadTitleConfig(config.getConfigurationSection("title"));
+            menu.setTitleConfig(titleConfig);
+
+            // Also set the default title for backward compatibility
+            if (titleConfig.getTitleType() == TitleConfig.TitleType.SIMPLY) {
+                menu.setTitle(color(titleConfig.getSimpleTitle() != null ? titleConfig.getSimpleTitle() : "Menu"));
+            } else if (titleConfig.getTitleType() == TitleConfig.TitleType.CONDITIONNAL) {
+                // Use first condition title as default, or fallback
+                if (!titleConfig.getConditions().isEmpty()) {
+                    TitleConfig.ConditionalTitle firstCondition = titleConfig.getConditions().get(0);
+                    menu.setTitle(color(firstCondition.getTitle() != null ? firstCondition.getTitle() : "Menu"));
+                } else {
+                    menu.setTitle(color("Menu"));
+                }
+            }
+        } else {
+            // Legacy format - simple string title
+            String title = config.getString("title");
+            if (title == null) {
+                title = config.getString("menu_title", "Menu");
+            }
+            menu.setTitle(color(title));
         }
-        menu.setTitle(color(title));
+
         menu.setSize(config.getInt("size", 54));
         menu.setOpenCommand(config.getString("open_command"));
-        
-        if (config.contains("animated_title")) {
+
+        // Legacy animated_title support (only if new TitleConfig not used)
+        if (menu.getTitleConfig() == null && config.contains("animated_title")) {
             ConfigurationSection animSection = config.getConfigurationSection("animated_title");
             if (animSection != null && animSection.getBoolean("enabled", false)) {
                 menu.setAnimatedTitle(true);
@@ -105,7 +128,7 @@ public class MenuManager {
                 menu.setTitleSpeed(animSection.getInt("speed", 10));
             }
         }
-        
+
         ConfigurationSection itemsSection = config.getConfigurationSection("items");
         if (itemsSection != null) {
             for (String itemId : itemsSection.getKeys(false)) {
@@ -115,8 +138,122 @@ public class MenuManager {
                 }
             }
         }
-        
+
         return menu;
+    }
+
+    /**
+     * Load TitleConfig from configuration section
+     */
+    private TitleConfig loadTitleConfig(ConfigurationSection section) {
+        TitleConfig titleConfig = new TitleConfig();
+
+        String titleTypeStr = section.getString("title_type", "SIMPLY");
+        try {
+            TitleConfig.TitleType titleType = TitleConfig.TitleType.valueOf(titleTypeStr.toUpperCase());
+            titleConfig.setTitleType(titleType);
+
+            if (titleType == TitleConfig.TitleType.SIMPLY) {
+                // Load SIMPLY type configuration
+                titleConfig.setSimpleTitle(color(section.getString("title", "Menu")));
+                titleConfig.setTitleAnimation(section.getBoolean("title_animation", false));
+                titleConfig.setDelayAnimation(section.getInt("delay_animation", 2));
+
+                // Load animations
+                if (section.contains("animations")) {
+                    List<?> animList = section.getList("animations");
+                    if (animList != null) {
+                        for (Object animObj : animList) {
+                            if (animObj instanceof java.util.Map) {
+                                @SuppressWarnings("unchecked")
+                                java.util.Map<String, Object> animMap = (java.util.Map<String, Object>) animObj;
+
+                                // Each animation should have a frame field
+                                for (java.util.Map.Entry<String, Object> entry : animMap.entrySet()) {
+                                    if (entry.getValue() instanceof java.util.Map) {
+                                        @SuppressWarnings("unchecked")
+                                        java.util.Map<String, Object> frameMap = (java.util.Map<String, Object>) entry.getValue();
+                                        String frame = (String) frameMap.get("frame");
+                                        if (frame != null) {
+                                            titleConfig.addAnimation(new TitleConfig.AnimationFrame(color(frame)));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (titleType == TitleConfig.TitleType.CONDITIONNAL) {
+                // Load CONDITIONNAL type configuration
+                ConfigurationSection conditionsSection = section.getConfigurationSection("conditions");
+                if (conditionsSection != null) {
+                    for (String conditionId : conditionsSection.getKeys(false)) {
+                        List<?> conditionList = conditionsSection.getList(conditionId);
+                        if (conditionList != null && !conditionList.isEmpty()) {
+                            TitleConfig.ConditionalTitle conditionalTitle = new TitleConfig.ConditionalTitle(conditionId);
+
+                            // Parse each requirement in the list
+                            for (Object reqObj : conditionList) {
+                                if (reqObj instanceof java.util.Map) {
+                                    @SuppressWarnings("unchecked")
+                                    java.util.Map<String, Object> reqMap = (java.util.Map<String, Object>) reqObj;
+
+                                    // Check if this is a title field
+                                    if (reqMap.containsKey("title")) {
+                                        conditionalTitle.setTitle(color((String) reqMap.get("title")));
+                                    } else {
+                                        // Parse as requirement
+                                        Requirement requirement = parseRequirementFromMap(reqMap);
+                                        if (requirement != null) {
+                                            conditionalTitle.addRequirement(requirement);
+                                        }
+                                    }
+                                }
+                            }
+
+                            titleConfig.addCondition(conditionalTitle);
+                        }
+                    }
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            plugin.getQuantumLogger().warning("Invalid title_type: " + titleTypeStr + ", using SIMPLY");
+        }
+
+        return titleConfig;
+    }
+
+    /**
+     * Parse a Requirement from a map structure
+     */
+    private Requirement parseRequirementFromMap(java.util.Map<String, Object> reqMap) {
+        String type = (String) reqMap.get("type");
+        if (type == null) return null;
+
+        if ("has permission".equalsIgnoreCase(type)) {
+            String permission = (String) reqMap.get("permission");
+            if (permission != null) {
+                return new Requirement(Requirement.RequirementType.PERMISSION, permission);
+            }
+        } else if ("placeholder".equalsIgnoreCase(type)) {
+            String input = (String) reqMap.get("input");
+            String output = (String) reqMap.get("output");
+            if (input != null && output != null) {
+                // Create a placeholder requirement string: input == output
+                return new Requirement(Requirement.RequirementType.PLACEHOLDER, input + " == " + output);
+            }
+        } else if ("has item".equalsIgnoreCase(type)) {
+            // Build item requirement from complex structure
+            String material = (String) reqMap.get("material");
+            Object amountObj = reqMap.get("amount");
+            int amount = amountObj != null ? (Integer) amountObj : 1;
+
+            if (material != null) {
+                return new Requirement(Requirement.RequirementType.ITEM, material + ":" + amount);
+            }
+        }
+
+        return null;
     }
     
     private MenuItem loadMenuItem(ConfigurationSection section, String itemId) {

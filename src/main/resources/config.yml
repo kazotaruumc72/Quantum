@@ -283,5 +283,37 @@ join-leave:
 #   /quantum reload                              - Recharger la config
 #   /quantum orders button createcategorie <nom> - Créer une catégorie
 #   /quantum orders button deletecategorie <nom> - Supprimer une catégorie
-# 
+#
+# ───────────────────────────────────────────────────────────────
+
+# ───────────────────────────────────────────────────────────────
+# MENU BUILDER WEB INTERFACE
+# ───────────────────────────────────────────────────────────────
+#
+# Client-side menu builder configuration
+# Access the web interface at: http://localhost:{port}
+#
+# This web interface allows administrators to:
+#   - Create and edit menus visually
+#   - Configure menu items with drag-and-drop
+#   - Preview menus in real-time
+#   - Manage all menu files from a browser
+#
+# Security note: The web interface should only be accessible from
+# trusted networks. Consider using a firewall or reverse proxy with
+# authentication if exposing to the internet.
+#
+menu-builder:
+  # Enable the web interface (default: true)
+  enabled: true
+
+  # Port for the web server (default: 8080)
+  # Make sure this port is not used by another application
+  port: 8080
+
+  # Admin token for API access (optional, leave empty to disable)
+  # If set, all API requests must include this token in the Authorization header
+  # Example: Authorization: Bearer your-secure-token-here
+  admin-token: ""
+#
 # ───────────────────────────────────────────────────────────────

@@ -104,7 +104,6 @@ public final class Quantum extends JavaPlugin {
     private TradingStatisticsManager tradingStatisticsManager;     // NEW
     private ZoneManager zoneManager;        // Tower zone management (internal regions)
     private com.wynvers.quantum.regions.InternalRegionManager internalRegionManager; // Internal region system
-    private SpawnSelectionManager spawnSelectionManager; // Zone selection tool (netherite axe)
     private TowerManager towerManager;     // Tower progression system
     private TowerDoorManager doorManager;
     private TowerNPCManager npcManager;
@@ -134,10 +133,7 @@ public final class Quantum extends JavaPlugin {
 
     // Home System
     private HomeManager homeManager;
-    
-    // Spawn System
-    private com.wynvers.quantum.spawn.SpawnManager spawnManager;
-    
+
     // PlaceholderAPI Integration
     private PlaceholderAPIManager placeholderAPIManager;
     
@@ -188,15 +184,7 @@ public final class Quantum extends JavaPlugin {
 
         this.doorManager = new TowerDoorManager(this);
         this.npcManager = new TowerNPCManager(this);
-        
-        // Spawn Selection Manager + Listener (hache netherite pour définir zones)
-        this.spawnSelectionManager = new SpawnSelectionManager();
-        Bukkit.getPluginManager().registerEvents(
-                new com.wynvers.quantum.listeners.SpawnSelectionListener(this, spawnSelectionManager),
-                this
-        );
-        logger.success("✓ Spawn Selection Manager + Listener initialized!");
-        
+
         // Enregistrer les listeners
         getServer().getPluginManager().registerEvents(new DoorSelectionListener(this, doorManager), this);
 
@@ -482,15 +470,10 @@ public final class Quantum extends JavaPlugin {
 
         this.actionExecutor = new ActionExecutor(this);
         logger.success("✓ Action Executor");
-        
+
         this.homeManager = new HomeManager(this, databaseManager);
         logger.success("✓ Home Manager");
-        
-        this.spawnManager = new com.wynvers.quantum.spawn.SpawnManager(this, databaseManager);
-        getServer().getPluginManager().registerEvents(new com.wynvers.quantum.spawn.FirstJoinListener(spawnManager), this);
-        logger.success("✓ Spawn Manager");
-        
-        
+
         // Chat System
         this.chatManager = new ChatManager(this, messageManager, placeholderManager);
         getServer().getPluginManager().registerEvents(new ChatListener(this, chatManager), this);
@@ -676,17 +659,7 @@ public final class Quantum extends JavaPlugin {
             getCommand("delhome").setTabCompleter(homeTabCompleter);
             logger.success("✓ Home Commands + TabCompleters");
         }
-        
-        // Spawn Command
-        if (spawnManager != null) {
-            com.wynvers.quantum.commands.SpawnCommand spawnCommand = new com.wynvers.quantum.commands.SpawnCommand(spawnManager);
-            com.wynvers.quantum.tabcompleters.SpawnTabCompleter spawnTabCompleter = new com.wynvers.quantum.tabcompleters.SpawnTabCompleter();
-            getCommand("spawn").setExecutor(spawnCommand);
-            getCommand("spawn").setTabCompleter(spawnTabCompleter);
-            logger.success("✓ Spawn Command + TabCompleter");
-        }
-        
-        
+
         // Chat Command
         if (chatManager != null) {
             getCommand("chat").setExecutor(new ChatCommand(this, chatManager, messageManager));
@@ -917,10 +890,6 @@ public final class Quantum extends JavaPlugin {
     public com.wynvers.quantum.regions.InternalRegionManager getInternalRegionManager() {
         return internalRegionManager;
     }
-    
-    public SpawnSelectionManager getSpawnSelectionManager() {
-        return spawnSelectionManager;
-    }
 
     public DungeonArmor getDungeonArmor() {
         return dungeonArmor;
@@ -951,11 +920,7 @@ public final class Quantum extends JavaPlugin {
     public HomeManager getHomeManager() {
         return homeManager;
     }
-    
-    public com.wynvers.quantum.spawn.SpawnManager getSpawnManager() {
-        return spawnManager;
-    }
-    
+
     public PlaceholderAPIManager getPlaceholderAPIManager() {
         return placeholderAPIManager;
     }

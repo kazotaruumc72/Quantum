@@ -27,15 +27,13 @@ public class QuantumTowerCommand implements CommandExecutor {
     private final TowerManager towerManager;
     private final TowerDoorManager doorManager;
     private final TowerNPCManager npcManager;
-    private final SpawnSelectionManager selectionManager;
-    
-    public QuantumTowerCommand(Quantum plugin, TowerManager towerManager, 
+
+    public QuantumTowerCommand(Quantum plugin, TowerManager towerManager,
                               TowerDoorManager doorManager, TowerNPCManager npcManager) {
         this.plugin = plugin;
         this.towerManager = towerManager;
         this.doorManager = doorManager;
         this.npcManager = npcManager;
-        this.selectionManager = plugin.getSpawnSelectionManager();
     }
     
     @Override
@@ -61,8 +59,6 @@ public class QuantumTowerCommand implements CommandExecutor {
                 return handleReset(sender, args);
             case "reload":
                 return handleReload(sender);
-            case "mobspawnzone":
-                return handleMobSpawnZone(sender, args);
             default:
                 sendMainHelp(sender);
                 return true;
@@ -432,106 +428,9 @@ public class QuantumTowerCommand implements CommandExecutor {
         sender.sendMessage("§6§m══════════════════════════════");
         return true;
     }
-    
-    // ==================== ZONE COMMANDS ====================
-    
-    private boolean handleMobSpawnZone(CommandSender sender, String[] args) {
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("§cCette commande est réservée aux joueurs.");
-            return true;
-        }
 
-        if (!sender.hasPermission("quantum.tower.mobspawnzone")) {
-            sender.sendMessage("§cVous n'avez pas la permission!");
-            return true;
-        }
-
-        // /quantum mobspawnzone create <tower_id> <floor>
-        if (args.length < 4 || !args[1].equalsIgnoreCase("create")) {
-            sender.sendMessage("§cUsage: /quantum mobspawnzone create <tower_id> <floor>");
-            return true;
-        }
-
-        Player player = (Player) sender;
-        String towerId = args[2];
-
-        TowerConfig tower = towerManager.getTower(towerId);
-        if (tower == null) {
-            player.sendMessage("§c§l[Zone] §cTour introuvable: " + towerId);
-            return true;
-        }
-
-        int floor;
-        try {
-            floor = Integer.parseInt(args[3]);
-        } catch (NumberFormatException e) {
-            player.sendMessage("§c§l[Zone] §cÉtage invalide: " + args[3]);
-            return true;
-        }
-
-        if (floor < 1 || floor > tower.getTotalFloors()) {
-            player.sendMessage("§c§l[Zone] §cÉtage invalide. Min: 1, Max: " + tower.getTotalFloors());
-            return true;
-        }
-
-        // Récupérer la sélection (Pos1 / Pos2) faite avec la hache en netherite
-        Location pos1 = selectionManager.getPos1(player.getUniqueId());
-        Location pos2 = selectionManager.getPos2(player.getUniqueId());
-
-        if (pos1 == null || pos2 == null) {
-            player.sendMessage("§c§l[Zone] §cVous devez d'abord définir Pos1 et Pos2 avec la hache en netherite.");
-            player.sendMessage("§7Clic gauche bloc = Pos1, Clic droit bloc = Pos2.");
-            return true;
-        }
-
-        if (pos1.getWorld() == null || pos2.getWorld() == null ||
-                !pos1.getWorld().getName().equals(pos2.getWorld().getName())) {
-            player.sendMessage("§c§l[Zone] §cPos1 et Pos2 doivent être dans le même monde.");
-            return true;
-        }
-
-        String worldName = pos1.getWorld().getName();
-
-        double x1 = Math.min(pos1.getX(), pos2.getX());
-        double y1 = Math.min(pos1.getY(), pos2.getY());
-        double z1 = Math.min(pos1.getZ(), pos2.getZ());
-        double x2 = Math.max(pos1.getX(), pos2.getX());
-        double y2 = Math.max(pos1.getY(), pos2.getY());
-        double z2 = Math.max(pos1.getZ(), pos2.getZ());
-
-        // Enregistrer la zone dans towers.yml
-        File towersFile = new File(plugin.getDataFolder(), "towers.yml");
-        if (!towersFile.exists()) {
-            player.sendMessage("§c§l[Zone] §cFichier towers.yml introuvable.");
-            return true;
-        }
-
-        FileConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
-        String regionPath = "towers." + towerId + ".floors." + floor + ".region";
-        config.set(regionPath + ".world", worldName);
-        config.set(regionPath + ".x1", x1);
-        config.set(regionPath + ".y1", y1);
-        config.set(regionPath + ".z1", z1);
-        config.set(regionPath + ".x2", x2);
-        config.set(regionPath + ".y2", y2);
-        config.set(regionPath + ".z2", z2);
-
-        try {
-            config.save(towersFile);
-        } catch (Exception e) {
-            player.sendMessage("§c§l[Zone] §cErreur lors de l'enregistrement de towers.yml: " + e.getMessage());
-            return true;
-        }
-
-        // Recharger les tours pour prendre en compte la nouvelle région
-        towerManager.reload();
-        player.sendMessage("§a§l[Zone] §aZone enregistrée pour " + towerId + " étage " + floor + ".");
-
-        return true;
-    }
-    
     // ==================== OTHER COMMANDS ====================
-    
+
     private boolean handleProgress(CommandSender sender, String[] args) {
         Player target;
         

@@ -7,13 +7,10 @@ import com.wynvers.quantum.towers.TowerManager;
 import com.wynvers.quantum.towers.TowerProgress;
 import com.wynvers.quantum.towers.storage.PlayerTowerStorage;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -28,7 +25,6 @@ import java.util.Map;
  * /tower tp <tower> <floor> - Teleport to floor (admin)
  * /tower complete <player> <tower> <floor> - Mark floor as complete (admin)
  * /tower reload             - Reload tower configs (admin)
- * /tower set spawn <tower> <floor> - Set spawn location (admin)
  */
 public class TowerCommand implements CommandExecutor {
 
@@ -55,17 +51,12 @@ public class TowerCommand implements CommandExecutor {
                 return handleProgress(sender, args);
             case "reset":
                 return handleReset(sender, args);
-            case "tp":
-            case "teleport":
-                return handleTeleport(sender, args);
             case "complete":
                 return handleComplete(sender, args);
             case "reload":
                 return handleReload(sender);
             case "storage":
                 return handleStorage(sender, args);
-            case "set":
-                return handleSet(sender, args);
             default:
                 sendHelp(sender);
                 return true;
@@ -207,89 +198,6 @@ public class TowerCommand implements CommandExecutor {
     }
 
     /**
-     * Teleport to tower floor using the spawn coordinates from towers.yml
-     */
-    private boolean handleTeleport(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("quantum.tower.teleport")) {
-            sender.sendMessage("§cVous n'avez pas la permission de téléportation.");
-            return true;
-        }
-
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("§cCette commande est réservée aux joueurs.");
-            return true;
-        }
-
-        if (args.length < 3) {
-            sender.sendMessage("§cUsage: /tower tp <tower> <floor>");
-            return true;
-        }
-
-        Player player = (Player) sender;
-        String towerId = args[1];
-
-        TowerConfig tower = towerManager.getTower(towerId);
-        if (tower == null) {
-            sender.sendMessage("§cTour introuvable: " + towerId);
-            sender.sendMessage("§7Tours disponibles: " + String.join(", ", towerManager.getAllTowers().keySet()));
-            return true;
-        }
-
-        int floor;
-        try {
-            floor = Integer.parseInt(args[2]);
-        } catch (NumberFormatException e) {
-            sender.sendMessage("§cNuméro d'étage invalide: " + args[2]);
-            return true;
-        }
-
-        if (floor < 1 || floor > tower.getTotalFloors()) {
-            sender.sendMessage("§cÉtage invalide. Min: 1, Max: " + tower.getTotalFloors());
-            return true;
-        }
-
-        Location spawnLoc = getFloorSpawnLocation(towerId, floor);
-        if (spawnLoc == null) {
-            sender.sendMessage("§cAucun point de spawn configuré pour " + tower.getName() + " étage " + floor + ".");
-            sender.sendMessage("§7Configurez la section 'spawn' dans towers.yml pour cet étage.");
-            return true;
-        }
-
-        player.teleport(spawnLoc);
-        player.sendMessage("§a§l✓ §aTéléportation vers: §f" + tower.getName() + " §7Étage " + floor);
-        towerManager.updateCurrentLocation(player, towerId, floor);
-        return true;
-    }
-
-    /**
-     * Read spawn location from towers.yml for a given tower floor.
-     */
-    private Location getFloorSpawnLocation(String towerId, int floor) {
-        File towersFile = new File(plugin.getDataFolder(), "towers.yml");
-        if (!towersFile.exists()) return null;
-
-        FileConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
-        ConfigurationSection spawnSection = config.getConfigurationSection(
-                "towers." + towerId + ".floors." + floor + ".spawn");
-        if (spawnSection == null) return null;
-
-        String worldName = spawnSection.getString("world");
-        if (worldName == null) return null;
-
-        World world = Bukkit.getWorld(worldName);
-        if (world == null) return null;
-
-        return new Location(
-                world,
-                spawnSection.getDouble("x"),
-                spawnSection.getDouble("y"),
-                spawnSection.getDouble("z"),
-                (float) spawnSection.getDouble("yaw", 0.0),
-                (float) spawnSection.getDouble("pitch", 0.0)
-        );
-    }
-
-    /**
      * Mark a floor as complete for a player (admin command).
      * Triggers all rewards and events as if the player cleared the floor normally.
      */
@@ -348,95 +256,6 @@ public class TowerCommand implements CommandExecutor {
 
         towerManager.reload();
         sender.sendMessage("§aConfigurations des tours rechargées! (" + towerManager.getTowerCount() + " tours)");
-        return true;
-    }
-
-    /**
-     * Handle set commands (spawn, etc.)
-     */
-    private boolean handleSet(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("quantum.tower.set")) {
-            sender.sendMessage("§cVous n'avez pas la permission.");
-            return true;
-        }
-
-        if (!(sender instanceof Player)) {
-            sender.sendMessage("§cCette commande est réservée aux joueurs.");
-            return true;
-        }
-
-        if (args.length < 2) {
-            sender.sendMessage("§cUsage: /tower set spawn <tower> <floor>");
-            return true;
-        }
-
-        String subCommand = args[1].toLowerCase();
-
-        if (subCommand.equals("spawn")) {
-            return handleSetSpawn(sender, args);
-        }
-
-        sender.sendMessage("§cSous-commande inconnue: " + args[1]);
-        return true;
-    }
-
-    /**
-     * Set spawn location for a tower floor
-     * /tower set spawn <tower> <floor>
-     */
-    private boolean handleSetSpawn(CommandSender sender, String[] args) {
-        if (args.length < 4) {
-            sender.sendMessage("§cUsage: /tower set spawn <tower> <floor>");
-            return true;
-        }
-
-        Player player = (Player) sender;
-        String towerId = args[2];
-
-        TowerConfig tower = towerManager.getTower(towerId);
-        if (tower == null) {
-            sender.sendMessage("§cTour introuvable: " + towerId);
-            sender.sendMessage("§7Tours disponibles: " + String.join(", ", towerManager.getAllTowers().keySet()));
-            return true;
-        }
-
-        int floor;
-        try {
-            floor = Integer.parseInt(args[3]);
-        } catch (NumberFormatException e) {
-            sender.sendMessage("§cNuméro d'étage invalide: " + args[3]);
-            return true;
-        }
-
-        if (floor < 1 || floor > tower.getTotalFloors()) {
-            sender.sendMessage("§cÉtage invalide. Min: 1, Max: " + tower.getTotalFloors());
-            return true;
-        }
-
-        Location loc = player.getLocation();
-
-        // Save to towers.yml
-        File towersFile = new File(plugin.getDataFolder(), "towers.yml");
-        FileConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
-
-        String basePath = "towers." + towerId + ".floors." + floor + ".spawn";
-        config.set(basePath + ".world", loc.getWorld().getName());
-        config.set(basePath + ".x", loc.getX());
-        config.set(basePath + ".y", loc.getY());
-        config.set(basePath + ".z", loc.getZ());
-        config.set(basePath + ".yaw", loc.getYaw());
-        config.set(basePath + ".pitch", loc.getPitch());
-
-        try {
-            config.save(towersFile);
-            sender.sendMessage("§a§l✓ §aPoint de spawn défini pour: §f" + tower.getName() + " §7Étage " + floor);
-            sender.sendMessage("§7Position: §f" + String.format("%.1f, %.1f, %.1f", loc.getX(), loc.getY(), loc.getZ()));
-            towerManager.reload();
-        } catch (Exception e) {
-            sender.sendMessage("§cErreur lors de la sauvegarde: " + e.getMessage());
-            e.printStackTrace();
-        }
-
         return true;
     }
 
@@ -581,14 +400,6 @@ public class TowerCommand implements CommandExecutor {
         if (sender.hasPermission("quantum.tower.reset")) {
             sender.sendMessage("§e/tower reset <joueur> §7- Réinitialiser la progression");
             sender.sendMessage("§e/tower reset <joueur> <tower> §7- Réinitialiser une tour");
-        }
-
-        if (sender.hasPermission("quantum.tower.teleport")) {
-            sender.sendMessage("§e/tower tp <tower> <floor> §7- Téléportation à un étage");
-        }
-
-        if (sender.hasPermission("quantum.tower.set")) {
-            sender.sendMessage("§e/tower set spawn <tower> <floor> §7- Définir le point de spawn");
         }
 
         if (sender.hasPermission("quantum.tower.complete")) {

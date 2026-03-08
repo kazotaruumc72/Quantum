@@ -1,0 +1,71 @@
+# ====================================
+#  EXAMPLE: CONDITIONNAL TITLE
+# ====================================
+# This demonstrates the new TitleConfig system with conditional titles
+# Different titles are shown based on player requirements
+
+# Conditional title configuration
+title:
+  title_type: CONDITIONNAL
+  conditions:
+    # First condition: Check if player has permission
+    perm_1:
+      - type: has permission
+        permission: 'quantum.vip'
+        title: "&dVIP Menu"  # Title shown if player has quantum.vip permission
+
+    # Second condition: Check placeholder value
+    perm_2:
+      - type: placeholder
+        input: '%player_name%'
+        output: 'Kazotaruu_'
+        title: "&eKazotaruu's Special Menu"  # Title shown if player name matches
+
+    # Third condition: Check if player has specific item
+    perm_3:
+      - type: has item
+        material: "DIAMOND"
+        amount: 10
+        title: "&bDiamond Holder Menu"  # Title shown if player has 10+ diamonds
+
+    # Default condition (no requirements, always matches as fallback)
+    default:
+      - title: "&7Default Menu"
+
+size: 45
+
+items:
+  # Info item
+  'info':
+    slot: 22
+    material: BOOK
+    amount: 1
+    display_name: '&e&lMenu Info'
+    lore:
+      - '&7This menu has a conditional title'
+      - '&7The title changes based on:'
+      - '&7- Your permissions'
+      - '&7- Your player name'
+      - '&7- Items in your inventory'
+
+  # Close button
+  'close':
+    slot: 40
+    material: BARRIER
+    amount: 1
+    display_name: '&c&lClose'
+    lore:
+      - '&7Click to close this menu'
+
+    left_click:
+      actions:
+        - '[close]'
+
+  # Fill glass pane
+  'filler':
+    slots:
+      - 0-8
+      - 36-44
+    material: GRAY_STAINED_GLASS_PANE
+    amount: 1
+    display_name: ' '

@@ -1,0 +1,43 @@
+# ====================================
+#   EXAMPLE: SIMPLY ANIMATED TITLE
+# ====================================
+# This demonstrates the new TitleConfig system with animated titles
+
+# New animated title configuration (SIMPLY type)
+title:
+  title_type: SIMPLY
+  title: "&6&lExample Menu"
+  title_animation: true  # false by default
+  delay_animation: 2  # in seconds (delay between frames)
+  animations:
+    - animation_1:
+        frame: "&aExample"
+    - animation_2:
+        frame: "&bExample"
+    - animation_3:
+        frame: "&cExample"
+
+size: 45
+
+items:
+  # Close button
+  'close':
+    slot: 40
+    material: BARRIER
+    amount: 1
+    display_name: '&c&lClose'
+    lore:
+      - '&7Click to close this menu'
+
+    left_click:
+      actions:
+        - '[close]'
+
+  # Fill glass pane
+  'filler':
+    slots:
+      - 0-8
+      - 36-44
+    material: GRAY_STAINED_GLASS_PANE
+    amount: 1
+    display_name: ' '

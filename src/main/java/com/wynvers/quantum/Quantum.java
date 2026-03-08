@@ -116,6 +116,8 @@ public final class Quantum extends JavaPlugin {
     private com.wynvers.quantum.managers.TowerStorageManager towerStorageManager;
     private com.wynvers.quantum.managers.QuantumItemAttributeManager quantumItemAttributeManager;
 
+    // Web Interface for Menu Builder
+    private com.wynvers.quantum.web.MenuBuilderServer menuBuilderServer;
 
     private DungeonArmor dungeonArmor;     // Dungeon armor system
     private ArmorManager armorManager;
@@ -252,6 +254,16 @@ public final class Quantum extends JavaPlugin {
 
         // Commandes
         registerCommands();
+
+        // Start web server for menu builder (client-side interface)
+        int webPort = getConfig().getInt("menu-builder.port", 8080);
+        boolean webEnabled = getConfig().getBoolean("menu-builder.enabled", true);
+        if (webEnabled) {
+            this.menuBuilderServer = new com.wynvers.quantum.web.MenuBuilderServer(this, webPort);
+            this.menuBuilderServer.start();
+        } else {
+            logger.info("Menu Builder web interface disabled in config");
+        }
 
         logger.success("✓ Quantum enabled successfully!");
         logger.info("Dynamic GUI system loaded!");
@@ -690,6 +702,11 @@ public final class Quantum extends JavaPlugin {
     @Override
     public void onDisable() {
         logger.info("Disabling Quantum...");
+
+        // Stop web server
+        if (menuBuilderServer != null) {
+            menuBuilderServer.stop();
+        }
 
         if (animationManager != null) animationManager.stopAll();
         if (sellManager != null) sellManager.clearAllSessions();

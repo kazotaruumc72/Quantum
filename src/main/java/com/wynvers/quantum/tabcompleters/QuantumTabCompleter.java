@@ -49,8 +49,6 @@ public class QuantumTabCompleter implements TabCompleter {
                 "npc",
                 "progress",
                 "reset",
-                "setspawn",
-                "setfirstspawn",
                 "wand",
                 "eco",
                 "economy"

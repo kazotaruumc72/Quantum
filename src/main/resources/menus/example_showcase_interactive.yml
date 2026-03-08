@@ -1,0 +1,516 @@
+# =====================================================
+# QUANTUM MENU EXAMPLE - INTERACTIVE FEATURES SHOWCASE
+# =====================================================
+# This example demonstrates:
+# - CONDITIONNAL type dynamic titles
+# - Dynamic content with placeholders
+# - Interactive workflows
+# - Menu refresh functionality
+# - Complex button interactions
+# - State-based displays
+# - Integration examples
+# =====================================================
+
+# Conditional title that changes based on player status
+title:
+  title_type: CONDITIONNAL
+  conditions:
+    admin_title:
+      - type: has permission
+        permission: 'quantum.admin'
+        title: "&c&l✦ ADMIN INTERACTIVE MENU ✦"
+
+    vip_title:
+      - type: has permission
+        permission: 'quantum.vip'
+        title: "&d&l✦ VIP INTERACTIVE MENU ✦"
+
+    rich_player:
+      - type: placeholder
+        input: '%vault_eco_balance%'
+        output: '10000'
+        title: "&6&l✦ WEALTHY PLAYER MENU ✦"
+
+    diamond_holder:
+      - type: has item
+        material: "DIAMOND"
+        amount: 10
+        title: "&b&l✦ DIAMOND COLLECTOR MENU ✦"
+
+    default:
+      - title: "&e&l✦ INTERACTIVE SHOWCASE ✦"
+
+size: 54
+open_command: interactiveshowcase
+
+items:
+  # ==========================================
+  # DYNAMIC BORDER (Changes based on status)
+  # ==========================================
+  border:
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 50, 51, 52, 53]
+    material: CYAN_STAINED_GLASS_PANE
+    display_name: ' '
+    static: true
+
+  # ==========================================
+  # DYNAMIC PLAYER STATUS DISPLAY
+  # ==========================================
+  player_status:
+    slot: 4
+    material: PLAYER_HEAD
+    skull_owner: '%player%'
+    display_name: '&b&l%player_name%''s Status'
+    lore:
+      - '&8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+      - '&e&lPLAYER INFORMATION'
+      - '&8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+      - ''
+      - '&7Name: &f%player_name%'
+      - '&7Level: &a%player_level%'
+      - '&7Balance: &6$%vault_eco_balance%'
+      - '&7Ping: &e%player_ping%ms'
+      - ''
+      - '&8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+      - '&a&lREAL-TIME DATA'
+      - '&8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬'
+      - ''
+      - '&7Click to refresh!'
+    left_click_actions:
+      - '[refresh]'
+      - '[message] &aStatus updated!'
+      - '[sound] BLOCK_NOTE_BLOCK_PLING:1.0:2.0'
+    glow: true
+
+  # ==========================================
+  # PERMISSION-BASED INTERACTIVE ITEMS
+  # ==========================================
+  admin_panel:
+    slot: 10
+    material: COMMAND_BLOCK
+    display_name: '&c&l[ADMIN] Control Panel'
+    lore:
+      - '&7Only visible to admins'
+      - ''
+      - '&eLeft Click: &fAdmin teleport'
+      - '&eRight Click: &fAdmin heal'
+      - '&eMiddle Click: &fAdmin fly'
+      - ''
+      - '&cRequires: &fquantum.admin'
+    view_requirements:
+      - 'permission:quantum.admin'
+    left_click_actions:
+      - '[console] tp %player% 0 100 0'
+      - '[message] &cAdmin teleport activated!'
+      - '[sound] ENTITY_ENDERMAN_TELEPORT:1.0:1.0'
+    right_click_actions:
+      - '[console] heal %player%'
+      - '[message] &cAdmin heal activated!'
+      - '[sound] ENTITY_PLAYER_LEVELUP:1.0:1.0'
+    middle_click_actions:
+      - '[player] fly'
+      - '[message] &cAdmin fly toggled!'
+      - '[sound] ENTITY_BAT_TAKEOFF:1.0:1.0'
+
+  vip_perks:
+    slot: 11
+    material: DIAMOND
+    display_name: '&d&l[VIP] Perks Menu'
+    lore:
+      - '&7Only visible to VIP members'
+      - ''
+      - '&eClick: &fAccess VIP features'
+      - ''
+      - '&dRequires: &fquantum.vip'
+    view_requirements:
+      - 'permission:quantum.vip'
+    left_click_actions:
+      - '[message] &d&lVIP PERKS ACTIVATED!'
+      - '[title] &d&lVIP MEMBER|&fEnjoy your perks!|10|60|10'
+      - '[sound] UI_TOAST_CHALLENGE_COMPLETE:1.0:1.0'
+
+  # ==========================================
+  # LEVEL-BASED PROGRESSION
+  # ==========================================
+  level_1_reward:
+    slot: 19
+    material: COAL
+    display_name: '&7&lLevel 1+ Reward'
+    lore:
+      - '&7Available from level 1'
+      - ''
+      - '&eReward: &f5 Coal'
+    view_requirements:
+      - 'placeholder:%player_level% >= 1'
+    left_click_actions:
+      - '[console] give %player% coal 5'
+      - '[message] &7Level 1 reward claimed!'
+      - '[sound] ENTITY_ITEM_PICKUP:1.0:1.0'
+
+  level_10_reward:
+    slot: 20
+    material: IRON_INGOT
+    display_name: '&f&lLevel 10+ Reward'
+    lore:
+      - '&7Available from level 10'
+      - ''
+      - '&eReward: &f10 Iron Ingots'
+    view_requirements:
+      - 'placeholder:%player_level% >= 10'
+    left_click_actions:
+      - '[console] give %player% iron_ingot 10'
+      - '[message] &fLevel 10 reward claimed!'
+      - '[sound] ENTITY_ITEM_PICKUP:1.0:1.0'
+
+  level_20_reward:
+    slot: 21
+    material: GOLD_INGOT
+    display_name: '&6&lLevel 20+ Reward'
+    lore:
+      - '&7Available from level 20'
+      - ''
+      - '&eReward: &f15 Gold Ingots'
+    view_requirements:
+      - 'placeholder:%player_level% >= 20'
+    left_click_actions:
+      - '[console] give %player% gold_ingot 15'
+      - '[message] &6Level 20 reward claimed!'
+      - '[sound] ENTITY_ITEM_PICKUP:1.0:1.0'
+
+  level_30_reward:
+    slot: 22
+    material: DIAMOND
+    display_name: '&b&lLevel 30+ Reward'
+    lore:
+      - '&7Available from level 30'
+      - ''
+      - '&eReward: &f5 Diamonds'
+    view_requirements:
+      - 'placeholder:%player_level% >= 30'
+    left_click_actions:
+      - '[console] give %player% diamond 5'
+      - '[message] &bLevel 30 reward claimed!'
+      - '[sound] ENTITY_PLAYER_LEVELUP:1.0:1.0'
+
+  level_50_reward:
+    slot: 23
+    material: NETHERITE_INGOT
+    display_name: '&4&lLevel 50+ Reward'
+    lore:
+      - '&7Available from level 50'
+      - ''
+      - '&eReward: &f3 Netherite Ingots'
+    view_requirements:
+      - 'placeholder:%player_level% >= 50'
+    glow: true
+    left_click_actions:
+      - '[console] give %player% netherite_ingot 3'
+      - '[message] &4&lLevel 50 reward claimed!'
+      - '[title] &4&lMASTER LEVEL!|&fNetherite reward unlocked|10|70|20'
+      - '[sound] UI_TOAST_CHALLENGE_COMPLETE:1.0:1.0'
+
+  # ==========================================
+  # ECONOMY-BASED PURCHASES
+  # ==========================================
+  cheap_item:
+    slot: 28
+    material: APPLE
+    display_name: '&a&lCheap Item - $10'
+    lore:
+      - '&7Purchase an apple'
+      - ''
+      - '&eCost: &f$10'
+      - '&7Balance: &6$%vault_eco_balance%'
+      - ''
+      - '&aClick to purchase!'
+    click_requirements:
+      - 'money:10'
+    deny_message: '&cYou need $10 to purchase this item!'
+    left_click_actions:
+      - '[console] eco take %player% 10'
+      - '[console] give %player% apple 1'
+      - '[message] &aPurchased apple for $10!'
+      - '[sound] ENTITY_VILLAGER_YES:1.0:1.0'
+      - '[refresh]'
+
+  medium_item:
+    slot: 29
+    material: GOLDEN_APPLE
+    display_name: '&6&lMedium Item - $100'
+    lore:
+      - '&7Purchase a golden apple'
+      - ''
+      - '&eCost: &f$100'
+      - '&7Balance: &6$%vault_eco_balance%'
+      - ''
+      - '&6Click to purchase!'
+    click_requirements:
+      - 'money:100'
+    deny_message: '&cYou need $100 to purchase this item!'
+    left_click_actions:
+      - '[console] eco take %player% 100'
+      - '[console] give %player% golden_apple 1'
+      - '[message] &6Purchased golden apple for $100!'
+      - '[sound] ENTITY_VILLAGER_YES:1.0:1.0'
+      - '[refresh]'
+
+  expensive_item:
+    slot: 30
+    material: ENCHANTED_GOLDEN_APPLE
+    display_name: '&d&lExpensive Item - $1000'
+    lore:
+      - '&7Purchase an enchanted golden apple'
+      - ''
+      - '&eCost: &f$1000'
+      - '&7Balance: &6$%vault_eco_balance%'
+      - ''
+      - '&d&lClick to purchase!'
+    click_requirements:
+      - 'money:1000'
+    deny_message: '&cYou need $1000 to purchase this item!'
+    glow: true
+    left_click_actions:
+      - '[console] eco take %player% 1000'
+      - '[console] give %player% enchanted_golden_apple 1'
+      - '[message] &d&lPurchased enchanted golden apple for $1000!'
+      - '[title] &d&lLUXURY PURCHASE!|&fEnjoy your item|5|40|10'
+      - '[sound] ENTITY_PLAYER_LEVELUP:1.0:1.5'
+      - '[refresh]'
+
+  # ==========================================
+  # ITEM EXCHANGE SYSTEM
+  # ==========================================
+  diamond_exchange:
+    slot: 37
+    material: DIAMOND_BLOCK
+    display_name: '&b&lDiamond Exchange'
+    lore:
+      - '&7Trade diamonds for emeralds'
+      - ''
+      - '&eRequired: &f10 Diamonds'
+      - '&eReceive: &f15 Emeralds'
+      - ''
+      - '&bClick to exchange!'
+    click_requirements:
+      - 'item:DIAMOND:10'
+    deny_message: '&cYou need 10 diamonds to exchange!'
+    left_click_actions:
+      - '[console] clear %player% diamond 10'
+      - '[console] give %player% emerald 15'
+      - '[message] &b&lExchanged 10 diamonds for 15 emeralds!'
+      - '[sound] BLOCK_ANVIL_USE:1.0:2.0'
+      - '[refresh]'
+
+  emerald_exchange:
+    slot: 38
+    material: EMERALD_BLOCK
+    display_name: '&a&lEmerald Exchange'
+    lore:
+      - '&7Trade emeralds for gold'
+      - ''
+      - '&eRequired: &f20 Emeralds'
+      - '&eReceive: &f32 Gold Ingots'
+      - ''
+      - '&aClick to exchange!'
+    click_requirements:
+      - 'item:EMERALD:20'
+    deny_message: '&cYou need 20 emeralds to exchange!'
+    left_click_actions:
+      - '[console] clear %player% emerald 20'
+      - '[console] give %player% gold_ingot 32'
+      - '[message] &a&lExchanged 20 emeralds for 32 gold ingots!'
+      - '[sound] BLOCK_ANVIL_USE:1.0:2.0'
+      - '[refresh]'
+
+  # ==========================================
+  # INTERACTIVE UTILITIES
+  # ==========================================
+  heal_station:
+    slot: 31
+    material: POTION
+    display_name: '&c&lHealing Station'
+    lore:
+      - '&7Restore your health'
+      - ''
+      - '&eCost: &f$50'
+      - '&eEffect: &fFull heal + saturation'
+      - ''
+      - '&cClick to heal!'
+    click_requirements:
+      - 'money:50'
+    deny_message: '&cYou need $50 to use the healing station!'
+    left_click_actions:
+      - '[console] eco take %player% 50'
+      - '[console] effect give %player% instant_health 1 10'
+      - '[console] effect give %player% saturation 10 255'
+      - '[add_health] 20'
+      - '[message] &a&lFully healed!'
+      - '[title] &c&l+ HEALTH RESTORED +|&fYou feel refreshed!|5|40|10'
+      - '[sound] ENTITY_PLAYER_LEVELUP:1.0:1.0'
+      - '[refresh]'
+
+  teleport_hub:
+    slot: 32
+    material: ENDER_PEARL
+    display_name: '&5&lTeleport to Hub'
+    lore:
+      - '&7Instant teleport to spawn'
+      - ''
+      - '&eCost: &f$25'
+      - ''
+      - '&5Click to teleport!'
+    click_requirements:
+      - 'money:25'
+    deny_message: '&cYou need $25 to teleport!'
+    left_click_actions:
+      - '[console] eco take %player% 25'
+      - '[player] spawn'
+      - '[message] &5Teleporting to hub...'
+      - '[sound] ENTITY_ENDERMAN_TELEPORT:1.0:1.0'
+
+  buff_station:
+    slot: 33
+    material: ENCHANTED_BOOK
+    display_name: '&d&lBuff Station'
+    lore:
+      - '&7Receive temporary buffs'
+      - ''
+      - '&eCost: &f$200'
+      - '&eEffects: &fSpeed II, Jump Boost II'
+      - '&eDuration: &f5 minutes'
+      - ''
+      - '&d&lClick for buffs!'
+    click_requirements:
+      - 'money:200'
+    deny_message: '&cYou need $200 to receive buffs!'
+    glow: true
+    left_click_actions:
+      - '[console] eco take %player% 200'
+      - '[console] effect give %player% speed 300 1'
+      - '[console] effect give %player% jump_boost 300 1'
+      - '[message] &d&lBuffs applied for 5 minutes!'
+      - '[actionbar] &5&l✦ SPEED II + JUMP BOOST II ✦'
+      - '[sound] BLOCK_ENCHANTMENT_TABLE_USE:1.0:1.0'
+      - '[refresh]'
+
+  # ==========================================
+  # REFRESH & MENU NAVIGATION
+  # ==========================================
+  refresh_button:
+    slot: 49
+    material: LIME_DYE
+    display_name: '&a&l⟳ Refresh Menu'
+    lore:
+      - '&7Update all dynamic content'
+      - ''
+      - '&7This will refresh:'
+      - '&e• &fPlayer status'
+      - '&e• &fBalance displays'
+      - '&e• &fItem requirements'
+      - '&e• &fPlaceholders'
+      - ''
+      - '&aClick to refresh!'
+    left_click_actions:
+      - '[refresh]'
+      - '[message] &a&lMenu refreshed!'
+      - '[actionbar] &a✓ All content updated!'
+      - '[sound] BLOCK_NOTE_BLOCK_BELL:1.0:2.0'
+
+  back_to_advanced:
+    slot: 45
+    material: ARROW
+    display_name: '&d&l← Back to Advanced Showcase'
+    lore:
+      - '&7Return to advanced menu'
+    left_click_actions:
+      - '[menu] example_showcase_advanced'
+      - '[sound] UI_BUTTON_CLICK:1.0:1.0'
+
+  to_basic:
+    slot: 46
+    material: ARROW
+    display_name: '&e&l← Back to Basic Showcase'
+    lore:
+      - '&7Return to basic menu'
+    left_click_actions:
+      - '[menu] example_showcase_basic'
+      - '[sound] UI_BUTTON_CLICK:1.0:1.0'
+
+  close_menu:
+    slot: 53
+    material: BARRIER
+    display_name: '&c&lClose Menu'
+    lore:
+      - '&7Close this menu'
+    left_click_actions:
+      - '[close]'
+      - '[sound] BLOCK_CHEST_CLOSE:1.0:1.0'
+
+  # ==========================================
+  # INFORMATION PANEL
+  # ==========================================
+  info_panel:
+    slot: 13
+    material: KNOWLEDGE_BOOK
+    display_name: '&5&lInteractive Features Info'
+    lore:
+      - '&7This menu showcases:'
+      - ''
+      - '&d✦ &fConditional titles (CONDITIONNAL type)'
+      - '&d✦ &fDynamic player status'
+      - '&d✦ &fPermission-based content'
+      - '&d✦ &fLevel-based progression'
+      - '&d✦ &fEconomy integration'
+      - '&d✦ &fItem exchange systems'
+      - '&d✦ &fInteractive utilities'
+      - '&d✦ &fReal-time placeholder updates'
+      - '&d✦ &fMenu refresh functionality'
+      - ''
+      - '&8&oQuantum Plugin - Interactive Showcase'
+    glow: true
+    static: true
+
+  # ==========================================
+  # COMBO REQUIREMENTS SHOWCASE
+  # ==========================================
+  ultimate_item:
+    slot: 40
+    material: NETHER_STAR
+    display_name: '&4&l&k|||&r &6&lULTIMATE REWARD &4&l&k|||'
+    lore:
+      - '&7The ultimate challenge!'
+      - ''
+      - '&c&lREQUIREMENTS:'
+      - '&e✓ &fLevel 30+'
+      - '&e✓ &f$10,000 balance'
+      - '&e✓ &f64 Diamonds'
+      - '&e✓ &fquantum.vip permission'
+      - ''
+      - '&6&lREWARD:'
+      - '&d✦ &fEnchanted Golden Apple x5'
+      - '&d✦ &fNetherite Ingot x3'
+      - '&d✦ &fDiamond x16'
+      - ''
+      - '&6&lCLICK TO CLAIM!'
+    view_requirements:
+      - 'placeholder:%player_level% >= 30'
+      - 'money:10000'
+      - 'item:DIAMOND:64'
+      - 'permission:quantum.vip'
+    glow: true
+    hide_flags:
+      - HIDE_ENCHANTS
+    left_click_actions:
+      - '[console] eco take %player% 10000'
+      - '[console] clear %player% diamond 64'
+      - '[console] give %player% enchanted_golden_apple 5'
+      - '[console] give %player% netherite_ingot 3'
+      - '[console] give %player% diamond 16'
+      - '[title] &6&lULTIMATE REWARD!|&d&lCONGRATULATIONS!|10|80|20'
+      - '[broadcast] &e&l[!] &6%player_name% &7claimed the &6&lULTIMATE REWARD&7!'
+      - '[message] &6&l&m                                                   '
+      - '[message] &6&lCONGRATULATIONS!'
+      - '[message] &7You claimed the ultimate reward!'
+      - '[message] &6&l&m                                                   '
+      - '[sound] UI_TOAST_CHALLENGE_COMPLETE:1.0:1.0'
+      - '[refresh]'

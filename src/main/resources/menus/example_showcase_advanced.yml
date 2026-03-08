@@ -1,0 +1,407 @@
+# =====================================================
+# QUANTUM MENU EXAMPLE - ADVANCED FEATURES SHOWCASE
+# =====================================================
+# This example demonstrates:
+# - SIMPLY type animated titles
+# - CONDITIONNAL type dynamic titles
+# - Custom model data
+# - Glow effects
+# - Hide flags
+# - Advanced lore formatting
+# - Nexo custom items integration
+# - Complex requirement combinations
+# =====================================================
+
+# Advanced title with animation
+title:
+  title_type: SIMPLY
+  title: "&6&l✦ &e&lADVANCED SHOWCASE &6&l✦"
+  title_animation: true
+  delay_animation: 2
+  animations:
+    - animation_1:
+        frame: "&6&l✦ &e&lADVANCED SHOWCASE &6&l✦"
+    - animation_2:
+        frame: "&e&l✦ &6&lADVANCED SHOWCASE &e&l✦"
+    - animation_3:
+        frame: "&6&l✧ &e&lADVANCED SHOWCASE &6&l✧"
+    - animation_4:
+        frame: "&e&l✧ &6&lADVANCED SHOWCASE &e&l✧"
+    - animation_5:
+        frame: "&6&l★ &e&lADVANCED SHOWCASE &6&l★"
+    - animation_6:
+        frame: "&e&l★ &6&lADVANCED SHOWCASE &e&l★"
+
+size: 54
+open_command: advancedshowcase
+
+items:
+  # ==========================================
+  # ANIMATED BORDER
+  # ==========================================
+  border_animation:
+    slots: [0, 1, 2, 3, 5, 6, 7, 8, 45, 46, 47, 48, 50, 51, 52, 53]
+    material: PURPLE_STAINED_GLASS_PANE
+    display_name: ' '
+    glow: true
+    static: true
+
+  # ==========================================
+  # CUSTOM MODEL DATA ITEMS
+  # ==========================================
+  custom_model_1:
+    slot: 10
+    material: STICK
+    display_name: '&b&lCustom Model Data #1'
+    lore:
+      - '&7Uses custom model data'
+      - '&7for resource pack compatibility'
+      - ''
+      - '&eModel Data: &f1001'
+      - ''
+      - '&7This allows custom textures'
+      - '&7while using vanilla items'
+    custom_model_data: 1001
+    glow: true
+
+  custom_model_2:
+    slot: 11
+    material: CARROT_ON_A_STICK
+    display_name: '&d&lCustom Model Data #2'
+    lore:
+      - '&7Another custom model example'
+      - ''
+      - '&eModel Data: &f5000'
+    custom_model_data: 5000
+
+  custom_model_3:
+    slot: 12
+    material: PAPER
+    display_name: '&a&lCustom Model Data #3'
+    lore:
+      - '&7Custom GUI element'
+      - ''
+      - '&eModel Data: &f9999'
+    custom_model_data: 9999
+    glow: true
+
+  # ==========================================
+  # GLOW EFFECTS
+  # ==========================================
+  glow_showcase_1:
+    slot: 19
+    material: DIAMOND_SWORD
+    display_name: '&b&lGlowing Item'
+    lore:
+      - '&7This item has enchantment glow'
+      - '&7without any enchantments'
+      - ''
+      - '&eGlow: &aEnabled'
+    glow: true
+
+  glow_showcase_2:
+    slot: 20
+    material: GOLDEN_APPLE
+    display_name: '&6&lGolden Glow'
+    lore:
+      - '&7Enchantment glow effect'
+    glow: true
+
+  glow_showcase_3:
+    slot: 21
+    material: NETHER_STAR
+    display_name: '&f&lStarry Glow'
+    lore:
+      - '&7Makes items stand out'
+      - '&7in the menu'
+    glow: true
+
+  # ==========================================
+  # HIDE FLAGS SHOWCASE
+  # ==========================================
+  hide_enchants:
+    slot: 28
+    material: DIAMOND_PICKAXE
+    display_name: '&b&lHide Enchantments'
+    lore:
+      - '&7Enchantments are hidden'
+      - ''
+      - '&eHide Flag: &fHIDE_ENCHANTS'
+    glow: true
+    hide_flags:
+      - HIDE_ENCHANTS
+
+  hide_attributes:
+    slot: 29
+    material: DIAMOND_SWORD
+    display_name: '&c&lHide Attributes'
+    lore:
+      - '&7Item attributes are hidden'
+      - ''
+      - '&eHide Flag: &fHIDE_ATTRIBUTES'
+    hide_flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_ENCHANTS
+
+  hide_unbreakable:
+    slot: 30
+    material: SHIELD
+    display_name: '&e&lHide Unbreakable'
+    lore:
+      - '&7Unbreakable tag is hidden'
+      - ''
+      - '&eHide Flag: &fHIDE_UNBREAKABLE'
+    hide_flags:
+      - HIDE_UNBREAKABLE
+
+  hide_destroys:
+    slot: 31
+    material: IRON_PICKAXE
+    display_name: '&7&lHide Can Destroy'
+    lore:
+      - '&7Can destroy info is hidden'
+      - ''
+      - '&eHide Flag: &fHIDE_DESTROYS'
+    hide_flags:
+      - HIDE_DESTROYS
+
+  hide_placed_on:
+    slot: 32
+    material: OAK_SIGN
+    display_name: '&6&lHide Can Place On'
+    lore:
+      - '&7Can place on info is hidden'
+      - ''
+      - '&eHide Flag: &fHIDE_PLACED_ON'
+    hide_flags:
+      - HIDE_PLACED_ON
+
+  hide_potion:
+    slot: 33
+    material: POTION
+    display_name: '&d&lHide Potion Effects'
+    lore:
+      - '&7Potion effects are hidden'
+      - ''
+      - '&eHide Flag: &fHIDE_POTION_EFFECTS'
+    hide_flags:
+      - HIDE_POTION_EFFECTS
+
+  hide_dye:
+    slot: 34
+    material: LEATHER_CHESTPLATE
+    display_name: '&c&lHide Dye Color'
+    lore:
+      - '&7Dye color info is hidden'
+      - ''
+      - '&eHide Flag: &fHIDE_DYE'
+    hide_flags:
+      - HIDE_DYE
+
+  hide_all:
+    slot: 37
+    material: NETHERITE_SWORD
+    display_name: '&4&lHide Everything'
+    lore:
+      - '&7All item flags are hidden'
+      - ''
+      - '&eHide Flags: &fALL'
+    glow: true
+    hide_flags:
+      - HIDE_ENCHANTS
+      - HIDE_ATTRIBUTES
+      - HIDE_UNBREAKABLE
+      - HIDE_DESTROYS
+      - HIDE_PLACED_ON
+      - HIDE_POTION_EFFECTS
+      - HIDE_DYE
+
+  # ==========================================
+  # PLAYER SKULL VARIATIONS
+  # ==========================================
+  player_skull:
+    slot: 13
+    material: PLAYER_HEAD
+    skull_owner: '%player%'
+    display_name: '&b&l%player_name%''s Head'
+    lore:
+      - '&7Your player head'
+      - ''
+      - '&eDynamic: &fUses %player% placeholder'
+    glow: true
+
+  specific_skull:
+    slot: 14
+    material: PLAYER_HEAD
+    skull_owner: 'Notch'
+    display_name: '&e&lNotch''s Head'
+    lore:
+      - '&7A specific player head'
+      - ''
+      - '&ePlayer: &fNotch'
+
+  # ==========================================
+  # NEXO CUSTOM ITEMS INTEGRATION
+  # ==========================================
+  nexo_item_example:
+    slot: 22
+    nexo_item: 'custom_sword'
+    display_name: '&c&lNexo Custom Item'
+    lore:
+      - '&7This is a Nexo custom item'
+      - ''
+      - '&eNexo ID: &fcustom_sword'
+      - ''
+      - '&7Requires Nexo plugin installed'
+    left_click_actions:
+      - '[message] &eThis would be a custom Nexo item!'
+      - '[sound] ITEM_ARMOR_EQUIP_NETHERITE:1.0:1.0'
+
+  # ==========================================
+  # COMPLEX LORE FORMATTING
+  # ==========================================
+  advanced_lore:
+    slot: 40
+    material: BOOK
+    display_name: '&6&lAdvanced Lore Formatting'
+    lore:
+      - '&8┌─────────────────────┐'
+      - '&8│ &e&lFEATURES          &8│'
+      - '&8├─────────────────────┤'
+      - '&8│ &7• Color codes      &8│'
+      - '&8│ &7• Formatting       &8│'
+      - '&8│ &7• Box drawings     &8│'
+      - '&8│ &7• Placeholders     &8│'
+      - '&8└─────────────────────┘'
+      - ''
+      - '&b✦ &fPlayer: &e%player_name%'
+      - '&b✦ &fBalance: &a$%vault_eco_balance%'
+      - '&b✦ &fLevel: &e%player_level%'
+      - ''
+      - '&d&l▶ &fClick for info'
+
+  creative_lore:
+    slot: 41
+    material: EMERALD
+    display_name: '&a&l╔═══════════════╗'
+    lore:
+      - '&a&l║ &f&lCREATIVE DESIGN &a&l║'
+      - '&a&l╚═══════════════╝'
+      - ''
+      - '&f▰▰▰▰▰▰▰▰▰▰ &a100%'
+      - ''
+      - '&7Using Unicode characters'
+      - '&7for advanced formatting'
+      - ''
+      - '&e★ &6★ &e★ &6★ &e★'
+    glow: true
+
+  # ==========================================
+  # MULTI-LINE COMPLEX REQUIREMENTS
+  # ==========================================
+  multi_requirement:
+    slot: 23
+    material: BEACON
+    display_name: '&d&lMultiple Requirements'
+    lore:
+      - '&7Requires multiple conditions:'
+      - ''
+      - '&e✓ &fquantum.vip permission'
+      - '&e✓ &fLevel 20+'
+      - '&e✓ &f$5000 balance'
+      - '&e✓ &f5 Diamonds'
+      - ''
+      - '&7All must be met to see this!'
+    view_requirements:
+      - 'permission:quantum.vip'
+      - 'placeholder:%player_level% >= 20'
+      - 'money:5000'
+      - 'item:DIAMOND:5'
+    left_click_actions:
+      - '[message] &d&lYou met all requirements!'
+      - '[title] &d&lEXCLUSIVE ACCESS!|&fWelcome to the VIP area|10|60|10'
+      - '[sound] UI_TOAST_CHALLENGE_COMPLETE:1.0:1.0'
+
+  # ==========================================
+  # AMOUNT VARIATIONS
+  # ==========================================
+  item_amount_1:
+    slot: 15
+    material: GOLD_INGOT
+    amount: 1
+    display_name: '&6&lSingle Item'
+    lore:
+      - '&eAmount: &f1'
+
+  item_amount_16:
+    slot: 16
+    material: GOLD_INGOT
+    amount: 16
+    display_name: '&6&lStack of 16'
+    lore:
+      - '&eAmount: &f16'
+
+  item_amount_64:
+    slot: 17
+    material: GOLD_INGOT
+    amount: 64
+    display_name: '&6&lFull Stack'
+    lore:
+      - '&eAmount: &f64'
+
+  # ==========================================
+  # NAVIGATION
+  # ==========================================
+  back_to_basic:
+    slot: 45
+    material: ARROW
+    display_name: '&e&l← Back to Basic Showcase'
+    lore:
+      - '&7Return to the basic menu'
+    left_click_actions:
+      - '[menu] example_showcase_basic'
+      - '[sound] UI_BUTTON_CLICK:1.0:1.0'
+
+  to_interactive:
+    slot: 53
+    material: ENDER_EYE
+    display_name: '&5&lInteractive Showcase →'
+    lore:
+      - '&7Go to interactive features'
+    left_click_actions:
+      - '[menu] example_showcase_interactive'
+      - '[sound] ENTITY_ENDERMAN_TELEPORT:1.0:1.0'
+
+  close_menu:
+    slot: 49
+    material: BARRIER
+    display_name: '&c&lClose Menu'
+    lore:
+      - '&7Close this menu'
+    left_click_actions:
+      - '[close]'
+      - '[sound] BLOCK_CHEST_CLOSE:1.0:1.0'
+
+  # ==========================================
+  # INFORMATION PANEL
+  # ==========================================
+  info_panel:
+    slot: 4
+    material: ENCHANTED_BOOK
+    display_name: '&d&lAdvanced Features Info'
+    lore:
+      - '&7This menu showcases:'
+      - ''
+      - '&5✦ &fAnimated titles (SIMPLY type)'
+      - '&5✦ &fCustom model data'
+      - '&5✦ &fGlow effects'
+      - '&5✦ &fHide flags (all types)'
+      - '&5✦ &fPlayer skulls'
+      - '&5✦ &fNexo integration'
+      - '&5✦ &fAdvanced lore formatting'
+      - '&5✦ &fComplex requirements'
+      - '&5✦ &fItem amounts'
+      - ''
+      - '&8&oQuantum Plugin - Advanced Showcase'
+    glow: true
+    static: true

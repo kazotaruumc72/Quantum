@@ -1,0 +1,428 @@
+# =====================================================
+# QUANTUM MENU EXAMPLE - BASIC FEATURES SHOWCASE
+# =====================================================
+# This example demonstrates:
+# - Basic menu configuration
+# - Different item types and materials
+# - PlaceholderAPI integration
+# - All action types (message, console, player, sound, etc.)
+# - View and click requirements
+# - Custom skull heads
+# - Lore formatting
+# =====================================================
+
+# Simple title with color codes
+menu_title: '&6&l✦ &e&lBASIC FEATURES SHOWCASE &6&l✦'
+
+# Menu size (must be multiple of 9: 9, 18, 27, 36, 45, or 54)
+size: 54
+
+# Command to open this menu (/basicshowcase)
+open_command: basicshowcase
+
+items:
+  # ==========================================
+  # DECORATIVE BORDER
+  # ==========================================
+  border:
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 45, 46, 47, 48, 49, 50, 51, 52, 53]
+    material: BLACK_STAINED_GLASS_PANE
+    display_name: ' '
+    static: true
+
+  corner_1:
+    slot: 0
+    material: YELLOW_STAINED_GLASS_PANE
+    display_name: '&e&lBASIC FEATURES'
+    static: true
+
+  corner_2:
+    slot: 8
+    material: YELLOW_STAINED_GLASS_PANE
+    display_name: '&e&lBASIC FEATURES'
+    static: true
+
+  corner_3:
+    slot: 45
+    material: YELLOW_STAINED_GLASS_PANE
+    display_name: '&e&lBASIC FEATURES'
+    static: true
+
+  corner_4:
+    slot: 53
+    material: YELLOW_STAINED_GLASS_PANE
+    display_name: '&e&lBASIC FEATURES'
+    static: true
+
+  # ==========================================
+  # INFORMATION ITEM WITH PLACEHOLDERS
+  # ==========================================
+  player_info:
+    slot: 4
+    material: PLAYER_HEAD
+    skull_owner: '%player%'
+    display_name: '&b&l%player_name%''s Information'
+    lore:
+      - '&7Player: &e%player_name%'
+      - '&7UUID: &f%player_uuid%'
+      - '&7Level: &a%player_level%'
+      - '&7Ping: &e%player_ping%ms'
+      - '&7Balance: &6%vault_eco_balance%'
+      - ''
+      - '&8&oPlaceholderAPI Integration'
+    static: true
+
+  # ==========================================
+  # MESSAGE ACTIONS
+  # ==========================================
+  message_button:
+    slot: 10
+    material: PAPER
+    display_name: '&a&lMessage Action'
+    lore:
+      - '&7Click to receive a message!'
+      - ''
+      - '&eLeft Click: &fPrivate message'
+      - '&eRight Click: &fBroadcast message'
+      - '&eMiddle Click: &fAction bar message'
+    left_click_actions:
+      - '[message] &aHello, %player_name%! This is a private message.'
+      - '[sound] ENTITY_EXPERIENCE_ORB_PICKUP:1.0:1.0'
+    right_click_actions:
+      - '[broadcast] &e&l[!] &6%player_name% &7used the broadcast button!'
+      - '[sound] BLOCK_BELL_USE:1.0:1.0'
+    middle_click_actions:
+      - '[actionbar] &e&l✦ &6This is an action bar message! &e&l✦'
+      - '[sound] ENTITY_PLAYER_LEVELUP:1.0:2.0'
+
+  # ==========================================
+  # COMMAND ACTIONS
+  # ==========================================
+  console_command:
+    slot: 11
+    material: COMMAND_BLOCK
+    display_name: '&c&lConsole Command'
+    lore:
+      - '&7Executes a command as console'
+      - ''
+      - '&eLeft Click: &fGive yourself a diamond'
+      - ''
+      - '&cRequires: &fquantum.basic.give'
+    click_requirements:
+      - 'permission:quantum.basic.give'
+    deny_message: '&cYou need the permission quantum.basic.give to use this!'
+    left_click_actions:
+      - '[console] give %player% diamond 1'
+      - '[message] &aYou received 1 diamond!'
+      - '[sound] ENTITY_ITEM_PICKUP:1.0:1.0'
+
+  player_command:
+    slot: 12
+    material: COMPASS
+    display_name: '&b&lPlayer Command'
+    lore:
+      - '&7Executes a command as the player'
+      - ''
+      - '&eLeft Click: &fRun /spawn command'
+    left_click_actions:
+      - '[player] spawn'
+      - '[message] &aTeleporting to spawn...'
+
+  # ==========================================
+  # TITLE & SOUND ACTIONS
+  # ==========================================
+  title_action:
+    slot: 13
+    material: BOOK
+    display_name: '&d&lTitle Action'
+    lore:
+      - '&7Displays a title screen'
+      - ''
+      - '&eLeft Click: &fShow welcome title'
+      - '&7Format: title|subtitle|fadeIn|stay|fadeOut'
+    left_click_actions:
+      - '[title] &6&lWELCOME!|&eEnjoy your stay %player_name%|10|70|20'
+      - '[sound] UI_TOAST_CHALLENGE_COMPLETE:1.0:1.0'
+
+  sound_showcase:
+    slot: 14
+    material: NOTE_BLOCK
+    display_name: '&e&lSound Showcase'
+    lore:
+      - '&7Play different sounds'
+      - ''
+      - '&eLeft Click: &fLevel up sound'
+      - '&eRight Click: &fVillager sound'
+      - '&eMiddle Click: &fEnder dragon roar'
+    left_click_actions:
+      - '[sound] ENTITY_PLAYER_LEVELUP:1.0:1.0'
+      - '[message] &aPlayed level up sound!'
+    right_click_actions:
+      - '[sound] ENTITY_VILLAGER_YES:1.0:1.0'
+      - '[message] &aPlayed villager sound!'
+    middle_click_actions:
+      - '[sound] ENTITY_ENDER_DRAGON_GROWL:1.0:0.5'
+      - '[message] &aPlayed ender dragon roar!'
+
+  # ==========================================
+  # MENU NAVIGATION
+  # ==========================================
+  open_menu:
+    slot: 15
+    material: ENDER_PEARL
+    display_name: '&5&lOpen Another Menu'
+    lore:
+      - '&7Opens a different menu'
+      - ''
+      - '&eLeft Click: &fOpen advanced showcase'
+    left_click_actions:
+      - '[menu] example_showcase_advanced'
+      - '[sound] ENTITY_ENDERMAN_TELEPORT:1.0:1.0'
+
+  close_menu:
+    slot: 16
+    material: BARRIER
+    display_name: '&c&lClose Menu'
+    lore:
+      - '&7Closes this menu'
+      - ''
+      - '&eClick: &fClose'
+    left_click_actions:
+      - '[close]'
+      - '[sound] BLOCK_CHEST_CLOSE:1.0:1.0'
+
+  # ==========================================
+  # PERMISSION REQUIREMENTS
+  # ==========================================
+  vip_only:
+    slot: 19
+    material: DIAMOND
+    display_name: '&b&lVIP Only Item'
+    lore:
+      - '&7This item is only visible to VIPs'
+      - ''
+      - '&eRequires: &fquantum.vip'
+    view_requirements:
+      - 'permission:quantum.vip'
+
+  admin_only:
+    slot: 20
+    material: NETHER_STAR
+    display_name: '&c&lAdmin Only Item'
+    lore:
+      - '&7This item is only visible to admins'
+      - ''
+      - '&eRequires: &fquantum.admin'
+    view_requirements:
+      - 'permission:quantum.admin'
+
+  # ==========================================
+  # PLACEHOLDER REQUIREMENTS
+  # ==========================================
+  level_requirement:
+    slot: 21
+    material: EXPERIENCE_BOTTLE
+    display_name: '&a&lLevel 10+ Required'
+    lore:
+      - '&7Only visible if player is level 10+'
+      - ''
+      - '&eRequires: &fLevel 10'
+    view_requirements:
+      - 'placeholder:%player_level% >= 10'
+
+  # ==========================================
+  # MONEY REQUIREMENTS
+  # ==========================================
+  rich_player:
+    slot: 22
+    material: GOLD_INGOT
+    display_name: '&6&lRich Players Club'
+    lore:
+      - '&7Only visible if you have $1000+'
+      - ''
+      - '&eRequires: &f$1000'
+    view_requirements:
+      - 'money:1000'
+    left_click_actions:
+      - '[message] &6Welcome to the rich players club!'
+      - '[sound] ENTITY_PLAYER_LEVELUP:1.0:1.0'
+
+  # ==========================================
+  # ITEM REQUIREMENTS
+  # ==========================================
+  diamond_holder:
+    slot: 23
+    material: DIAMOND_BLOCK
+    display_name: '&b&lDiamond Holder'
+    lore:
+      - '&7Only visible if you have 10 diamonds'
+      - ''
+      - '&eRequires: &f10 Diamonds'
+    view_requirements:
+      - 'item:DIAMOND:10'
+
+  # ==========================================
+  # EXPERIENCE REQUIREMENTS
+  # ==========================================
+  exp_requirement:
+    slot: 24
+    material: ENCHANTED_BOOK
+    display_name: '&d&lExperience Required'
+    lore:
+      - '&7Only visible with level 30+'
+      - ''
+      - '&eRequires: &fLevel 30'
+    view_requirements:
+      - 'exp:30'
+
+  # ==========================================
+  # LUCKPERMS REQUIREMENTS
+  # ==========================================
+  luckperms_group:
+    slot: 25
+    material: EMERALD
+    display_name: '&a&lLuckPerms Group Check'
+    lore:
+      - '&7Only visible to VIP group members'
+      - ''
+      - '&eRequires: &fLuckPerms group: vip'
+    view_requirements:
+      - 'luckperms_group:vip'
+
+  # ==========================================
+  # CLICK REQUIREMENTS (Different from View)
+  # ==========================================
+  click_restricted:
+    slot: 28
+    material: REDSTONE_BLOCK
+    display_name: '&c&lClick Restricted'
+    lore:
+      - '&7Everyone can see this item'
+      - '&7but only admins can click it'
+      - ''
+      - '&eClick Requires: &fquantum.admin'
+    click_requirements:
+      - 'permission:quantum.admin'
+    deny_message: '&cOnly admins can click this button!'
+    left_click_actions:
+      - '[message] &aAdmin access granted!'
+      - '[sound] BLOCK_ANVIL_USE:1.0:2.0'
+
+  # ==========================================
+  # MULTIPLE CLICK TYPES
+  # ==========================================
+  multi_click:
+    slot: 29
+    material: TRIPWIRE_HOOK
+    display_name: '&e&lMultiple Click Types'
+    lore:
+      - '&7Different actions for different clicks'
+      - ''
+      - '&eLeft Click: &fGive stone'
+      - '&eRight Click: &fGive wood'
+      - '&eMiddle Click: &fGive iron'
+    left_click_actions:
+      - '[console] give %player% stone 1'
+      - '[message] &7You received stone!'
+    right_click_actions:
+      - '[console] give %player% oak_log 1'
+      - '[message] &6You received wood!'
+    middle_click_actions:
+      - '[console] give %player% iron_ingot 1'
+      - '[message] &fYou received iron!'
+
+  # ==========================================
+  # COMBINED ACTIONS
+  # ==========================================
+  combined_actions:
+    slot: 30
+    material: REDSTONE_TORCH
+    display_name: '&c&lCombined Actions'
+    lore:
+      - '&7Execute multiple actions at once'
+      - ''
+      - '&eLeft Click: &fMultiple effects'
+    left_click_actions:
+      - '[message] &e&lAction Chain Started!'
+      - '[sound] BLOCK_NOTE_BLOCK_PLING:1.0:1.0'
+      - '[actionbar] &6Processing...'
+      - '[console] give %player% apple 1'
+      - '[message] &aYou received an apple!'
+      - '[sound] ENTITY_ITEM_PICKUP:1.0:1.0'
+      - '[title] &a&lSUCCESS!|&eAction chain completed|5|40|10'
+
+  # ==========================================
+  # CUSTOM MATERIALS
+  # ==========================================
+  vanilla_items:
+    slot: 37
+    material: ENCHANTED_GOLDEN_APPLE
+    display_name: '&6&lEnchanted Golden Apple'
+    lore:
+      - '&7Regular Minecraft item'
+      - ''
+      - '&eClick: &fGet an enchanted golden apple'
+    left_click_actions:
+      - '[console] give %player% enchanted_golden_apple 1'
+      - '[message] &6Enjoy your golden apple!'
+      - '[sound] ENTITY_PLAYER_LEVELUP:1.0:1.5'
+
+  # ==========================================
+  # HEALTH ACTION
+  # ==========================================
+  health_boost:
+    slot: 31
+    material: GOLDEN_APPLE
+    display_name: '&c&lHealth Boost'
+    lore:
+      - '&7Instantly add health'
+      - ''
+      - '&eLeft Click: &f+10 health (5 hearts)'
+      - ''
+      - '&cRequires: &fquantum.basic.health'
+    click_requirements:
+      - 'permission:quantum.basic.health'
+    deny_message: '&cYou need permission to use health boost!'
+    left_click_actions:
+      - '[add_health] 10'
+      - '[message] &a+5 hearts!'
+      - '[sound] ENTITY_PLAYER_LEVELUP:1.0:1.0'
+
+  # ==========================================
+  # REFRESH ACTION
+  # ==========================================
+  refresh_menu:
+    slot: 32
+    material: LIME_DYE
+    display_name: '&a&lRefresh Menu'
+    lore:
+      - '&7Refresh the current menu'
+      - '&7to update dynamic content'
+      - ''
+      - '&eClick: &fRefresh'
+    left_click_actions:
+      - '[refresh]'
+      - '[message] &aMenu refreshed!'
+      - '[sound] BLOCK_ENCHANTMENT_TABLE_USE:1.0:2.0'
+
+  # ==========================================
+  # INFORMATION PANEL
+  # ==========================================
+  info_panel:
+    slot: 49
+    material: KNOWLEDGE_BOOK
+    display_name: '&e&lBasic Features Info'
+    lore:
+      - '&7This menu showcases:'
+      - ''
+      - '&b✦ &fAction types (message, console, player)'
+      - '&b✦ &fSound effects and titles'
+      - '&b✦ &fView and click requirements'
+      - '&b✦ &fPermission checks'
+      - '&b✦ &fPlaceholder integration'
+      - '&b✦ &fMultiple click handling'
+      - '&b✦ &fHealth actions'
+      - '&b✦ &fMenu navigation'
+      - ''
+      - '&8&oQuantum Plugin - Basic Showcase'
+    static: true

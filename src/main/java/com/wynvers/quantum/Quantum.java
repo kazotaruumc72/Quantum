@@ -310,6 +310,11 @@ public final class Quantum extends JavaPlugin {
         // Menus
         extractResource("menus/example.yml");
         extractResource("menus/example_advanced.yml");
+        extractResource("menus/example_animated_title.yml");
+        extractResource("menus/example_conditional_title.yml");
+        extractResource("menus/example_showcase_basic.yml");
+        extractResource("menus/example_showcase_advanced.yml");
+        extractResource("menus/example_showcase_interactive.yml");
         extractResource("menus/storage.yml");
         extractResource("menus/storage_settings.yml");
         extractResource("menus/storage_selector.yml");

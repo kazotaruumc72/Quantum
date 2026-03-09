@@ -3,6 +3,10 @@
 # ========================================
 # Menu d'affichage des têtes de joueurs depuis Wheads
 # Intégration avec l'API Wheads pour afficher les têtes disponibles
+#
+# DEUX MÉTHODES DISPONIBLES:
+# 1. Type dynamique: type: wheads_player_head (multiple têtes, API Wheads)
+# 2. Material static: material: PLAYER_HEAD avec skull_owner (têtes spécifiques)
 
 menu_title: '&6&lWheads - Player Heads'
 size: 54
@@ -21,21 +25,78 @@ items:
     static: true
 
   # ──────────────────────────────────────
-  # SLOTS POUR LES TÊTES DE JOUEURS
+  # MÉTHODE 1: PLAYER_HEAD avec skull_owner
   # ──────────────────────────────────────
-  player_heads_slots:
-    slots: [9, 10, 11, 12, 13, 14, 15, 16, 17,
-            18, 19, 20, 21, 22, 23, 24, 25, 26,
-            27, 28, 29, 30, 31, 32, 33, 34, 35,
-            36, 37, 38, 39, 40, 41, 42, 43, 44]
-    type: wheads_player_head
-    lore_append:
-      - ' '
-      - '&7Player: &f%head_owner%'
-      - '&7UUID: &8%head_uuid%'
+  # Utilisez material: PLAYER_HEAD avec skull_owner pour des têtes spécifiques
+  # Supporte les placeholders PlaceholderAPI
+
+  example_head_1:
+    slot: 9
+    material: PLAYER_HEAD
+    skull_owner: 'Notch'  # Nom du joueur
+    display_name: '&e&lNotch'
+    lore:
+      - '&7Player: &fNotch'
       - ' '
       - '&e► Left-click to get head'
       - '&e► Right-click for info'
+    left_click_actions:
+      - '[give] minecraft:player_head{SkullOwner:"Notch"} 1'
+      - '[message] &aVous avez reçu la tête de Notch!'
+    right_click_actions:
+      - '[message] &6&lInformations sur la tête:'
+      - '[message] &7Joueur: &fNotch'
+
+  example_head_2:
+    slot: 10
+    material: PLAYER_HEAD
+    skull_owner: 'jeb_'  # Nom du joueur
+    display_name: '&c&ljeb_'
+    lore:
+      - '&7Player: &fjeb_'
+      - ' '
+      - '&e► Left-click to get head'
+      - '&e► Right-click for info'
+    left_click_actions:
+      - '[give] minecraft:player_head{SkullOwner:"jeb_"} 1'
+      - '[message] &aVous avez reçu la tête de jeb_!'
+
+  example_head_player:
+    slot: 11
+    material: PLAYER_HEAD
+    skull_owner: '%player%'  # Utilise le nom du joueur courant
+    display_name: '&b&l%player%'
+    lore:
+      - '&7Your own head!'
+      - '&7Player: &f%player%'
+      - ' '
+      - '&e► Left-click to get your head'
+    left_click_actions:
+      - '[give] minecraft:player_head{SkullOwner:"%player%"} 1'
+      - '[message] &aVous avez reçu votre propre tête!'
+
+  # ──────────────────────────────────────
+  # MÉTHODE 2: Type wheads_player_head (Dynamic API)
+  # ──────────────────────────────────────
+  # Slots remplis dynamiquement par WheadsHeadsRenderer
+  # Récupère les têtes depuis l'API Wheads
+  #
+  # NOTE: Cette méthode est commentée par défaut
+  # Décommentez si vous voulez utiliser l'API Wheads dynamique
+
+  # player_heads_slots:
+  #   slots: [12, 13, 14, 15, 16, 17,
+  #           18, 19, 20, 21, 22, 23, 24, 25, 26,
+  #           27, 28, 29, 30, 31, 32, 33, 34, 35,
+  #           36, 37, 38, 39, 40, 41, 42, 43, 44]
+  #   type: wheads_player_head
+  #   lore_append:
+  #     - ' '
+  #     - '&7Player: &f%head_owner%'
+  #     - '&7UUID: &8%head_uuid%'
+  #     - ' '
+  #     - '&e► Left-click to get head'
+  #     - '&e► Right-click for info'
 
   # ──────────────────────────────────────
   # BOUTON: FERMER (slot 49)
@@ -56,16 +117,25 @@ items:
 # ========================================
 # NOTES IMPORTANTES
 # ========================================
-# • Ce menu affiche les têtes de joueurs depuis le plugin Wheads
-# • Le type 'wheads_player_head' indique que ces slots sont remplis dynamiquement
+#
+# MÉTHODE 1: Material-based (Recommandé pour simplicité)
+# • Utilisez material: PLAYER_HEAD avec skull_owner
+# • Facile à configurer, pas besoin d'API externe
+# • Supporte les placeholders PlaceholderAPI (%player%, etc.)
+# • Chaque tête nécessite sa propre configuration
+#
+# MÉTHODE 2: Dynamic API-based
+# • Utilisez type: wheads_player_head pour slots multiples
+# • Nécessite le plugin Wheads installé et activé
+# • Têtes remplies dynamiquement par WheadsHeadsRenderer
 # • Les têtes sont rendues par WheadsHeadsRenderer
 # • Cliquer sur une tête permet d'obtenir cette tête ou d'afficher des informations
 #
-# PLACEHOLDERS DISPONIBLES:
+# PLACEHOLDERS DISPONIBLES (Méthode 2):
 #   - %head_owner%: Nom du joueur
 #   - %head_uuid%: UUID du joueur
 #
-# PRÉREQUIS:
+# PRÉREQUIS (Méthode 2):
 #   - Plugin Wheads installé et activé
 #   - Permission quantum.wheads.view pour voir le menu
 #   - Permission quantum.wheads.get pour obtenir les têtes

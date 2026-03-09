@@ -85,6 +85,75 @@ The Wheads integration allows Quantum to display player heads from the Wheads pl
 
 ## Configuration
 
+### Two Configuration Methods
+
+Quantum supports two methods for displaying player heads in menus:
+
+#### Method 1: Material-Based (Recommended for Simplicity)
+
+Use standard `material: PLAYER_HEAD` with `skull_owner` for specific player heads. This method is simpler and doesn't require the Wheads plugin.
+
+**Example:**
+```yaml
+example_head:
+  slot: 9
+  material: PLAYER_HEAD
+  skull_owner: 'Notch'  # Player name or PlaceholderAPI placeholder
+  display_name: '&e&lNotch'
+  lore:
+    - '&7Player: &fNotch'
+    - ' '
+    - '&e► Left-click to get head'
+  left_click_actions:
+    - '[give] minecraft:player_head{SkullOwner:"Notch"} 1'
+    - '[message] &aVous avez reçu la tête de Notch!'
+```
+
+**Features:**
+- ✅ Simple configuration
+- ✅ No external plugin required
+- ✅ Supports PlaceholderAPI placeholders (`%player%`, etc.)
+- ✅ Works with standard menu actions
+- ❌ Each head needs individual configuration
+
+**Using Placeholders:**
+```yaml
+player_own_head:
+  slot: 10
+  material: PLAYER_HEAD
+  skull_owner: '%player%'  # Shows current player's head
+  display_name: '&b&l%player%'
+  lore:
+    - '&7Your own head!'
+    - '&7Player: &f%player%'
+```
+
+#### Method 2: Dynamic API-Based (For Wheads Integration)
+
+Use `type: wheads_player_head` for dynamic rendering from the Wheads plugin API.
+
+**Example:**
+```yaml
+player_heads_slots:
+  slots: [9, 10, 11, ..., 44]  # Multiple slots filled dynamically
+  type: wheads_player_head
+  lore_append:
+    - ' '
+    - '&7Player: &f%head_owner%'
+    - '&7UUID: &8%head_uuid%'
+    - ' '
+    - '&e► Left-click to get head'
+    - '&e► Right-click for info'
+```
+
+**Features:**
+- ✅ Multiple heads from single configuration
+- ✅ Automatically fetches heads from Wheads API
+- ✅ Dynamic lore with head-specific placeholders
+- ✅ Special click handling via MenuListener
+- ❌ Requires Wheads plugin installed
+- ❌ More complex setup
+
 ### Menu Configuration
 
 The wheads menu is configured in `plugins/Quantum/menus/wheads_heads.yml`:

@@ -12,7 +12,6 @@ import com.wynvers.quantum.furniture.FurnitureManager;
 import com.wynvers.quantum.furniture.FurnitureListener;
 import com.wynvers.quantum.crops.CustomCropManager;
 import com.wynvers.quantum.crops.CustomCropListener;
-import com.wynvers.quantum.home.HomeManager;
 import com.wynvers.quantum.database.DatabaseManager;
 import com.wynvers.quantum.placeholderapi.PlaceholderAPIManager;
 import com.wynvers.quantum.worldguard.ZoneManager;
@@ -26,7 +25,6 @@ import com.wynvers.quantum.commands.ArmorCommand;
 import com.wynvers.quantum.commands.ArmorTabCompleter;
 import com.wynvers.quantum.commands.ChatCommand;
 import com.wynvers.quantum.commands.GamemodeCommand;
-import com.wynvers.quantum.commands.HomeCommand;
 import com.wynvers.quantum.commands.MenuCommand;
 import com.wynvers.quantum.commands.OffreCommand;
 
@@ -130,9 +128,6 @@ public final class Quantum extends JavaPlugin {
     private FurnitureManager furnitureManager;
     private CustomCropManager customCropManager;
     private com.wynvers.quantum.dungeonutis.DungeonUtils dungeonUtils;
-
-    // Home System
-    private HomeManager homeManager;
 
     // PlaceholderAPI Integration
     private PlaceholderAPIManager placeholderAPIManager;
@@ -478,9 +473,6 @@ public final class Quantum extends JavaPlugin {
         this.actionExecutor = new ActionExecutor(this);
         logger.success("✓ Action Executor");
 
-        this.homeManager = new HomeManager(this, databaseManager);
-        logger.success("✓ Home Manager");
-
         // Chat System
         this.chatManager = new ChatManager(this, messageManager, placeholderManager);
         getServer().getPluginManager().registerEvents(new ChatListener(this, chatManager), this);
@@ -653,19 +645,6 @@ public final class Quantum extends JavaPlugin {
         getCommand("gmsp").setExecutor(gamemodeCommand);
         getCommand("gma").setExecutor(gamemodeCommand);
         logger.success("✓ Gamemode Shortcuts (gmc, gms, gmsp, gma)");
-        
-        // Home Commands
-        if (homeManager != null) {
-            HomeCommand homeCommand = new HomeCommand(homeManager);
-            HomeTabCompleter homeTabCompleter = new HomeTabCompleter(homeManager);
-            getCommand("home").setExecutor(homeCommand);
-            getCommand("home").setTabCompleter(homeTabCompleter);
-            getCommand("sethome").setExecutor(homeCommand);
-            getCommand("sethome").setTabCompleter(homeTabCompleter);
-            getCommand("delhome").setExecutor(homeCommand);
-            getCommand("delhome").setTabCompleter(homeTabCompleter);
-            logger.success("✓ Home Commands + TabCompleters");
-        }
 
         // Chat Command
         if (chatManager != null) {
@@ -922,10 +901,6 @@ public final class Quantum extends JavaPlugin {
     
     public CustomCropManager getCustomCropManager() {
         return customCropManager;
-    }
-
-    public HomeManager getHomeManager() {
-        return homeManager;
     }
 
     public PlaceholderAPIManager getPlaceholderAPIManager() {

@@ -85,13 +85,45 @@ The Wheads integration allows Quantum to display player heads from the Wheads pl
 
 ## Configuration
 
-### Two Configuration Methods
+### Three Configuration Methods
 
-Quantum supports two methods for displaying player heads in menus:
+Quantum supports three methods for displaying player heads in menus:
 
-#### Method 1: Material-Based (Recommended for Simplicity)
+#### Method 1: Nexo Items (Recommended if Wheads uses Nexo)
 
-Use standard `material: PLAYER_HEAD` with `skull_owner` for specific player heads. This method is simpler and doesn't require the Wheads plugin.
+Use `nexo_item: wheads-<id>` if Wheads registers its heads as Nexo custom items. This is the simplest method when Wheads is integrated with Nexo.
+
+**Example:**
+```yaml
+wheads_notch:
+  slot: 9
+  nexo_item: 'wheads-notch'  # Nexo ID for the head
+  display_name: '&e&lNotch'
+  lore:
+    - '&7Player: &fNotch'
+    - ' '
+    - '&e► Left-click to get head'
+  left_click_actions:
+    - '[give] nexo:wheads-notch 1'
+    - '[message] &aVous avez reçu la tête de Notch!'
+```
+
+**Features:**
+- ✅ Very simple configuration
+- ✅ Leverages Nexo's custom models and textures
+- ✅ Works with standard menu actions
+- ✅ Each head configured individually
+- ❌ Requires Wheads to be configured with Nexo
+- ❌ ID format depends on Wheads/Nexo setup
+
+**Common ID Patterns:**
+- `wheads-notch` - Player head for Notch
+- `wheads-jeb_` - Player head for jeb_
+- `wheads-<playername>` - Generic pattern
+
+#### Method 2: Material-Based (Alternative for Vanilla)
+
+Use standard `material: PLAYER_HEAD` with `skull_owner` for specific player heads. This method doesn't require Wheads or Nexo.
 
 **Example:**
 ```yaml
@@ -128,7 +160,7 @@ player_own_head:
     - '&7Player: &f%player%'
 ```
 
-#### Method 2: Dynamic API-Based (For Wheads Integration)
+#### Method 3: Dynamic API-Based (For Advanced Integration)
 
 Use `type: wheads_player_head` for dynamic rendering from the Wheads plugin API.
 

@@ -4,9 +4,10 @@
 # Menu d'affichage des têtes de joueurs depuis Wheads
 # Intégration avec l'API Wheads pour afficher les têtes disponibles
 #
-# DEUX MÉTHODES DISPONIBLES:
-# 1. Type dynamique: type: wheads_player_head (multiple têtes, API Wheads)
+# TROIS MÉTHODES DISPONIBLES:
+# 1. Nexo items: nexo_item: wheads-<id> (Recommandé si Wheads utilise Nexo)
 # 2. Material static: material: PLAYER_HEAD avec skull_owner (têtes spécifiques)
+# 3. Type dynamique: type: wheads_player_head (multiple têtes, API Wheads)
 
 menu_title: '&6&lWheads - Player Heads'
 size: 54
@@ -25,15 +26,14 @@ items:
     static: true
 
   # ──────────────────────────────────────
-  # MÉTHODE 1: PLAYER_HEAD avec skull_owner
+  # MÉTHODE 1: NEXO ITEM (Wheads comme Nexo)
   # ──────────────────────────────────────
-  # Utilisez material: PLAYER_HEAD avec skull_owner pour des têtes spécifiques
-  # Supporte les placeholders PlaceholderAPI
+  # Utilisez nexo_item: wheads-<id> si Wheads enregistre ses têtes comme items Nexo
+  # Remplacez <id> par l'ID Nexo correspondant à la tête
 
-  example_head_1:
+  wheads_notch:
     slot: 9
-    material: PLAYER_HEAD
-    skull_owner: 'Notch'  # Nom du joueur
+    nexo_item: 'wheads-notch'  # ID Nexo de la tête (ex: wheads-notch)
     display_name: '&e&lNotch'
     lore:
       - '&7Player: &fNotch'
@@ -41,16 +41,15 @@ items:
       - '&e► Left-click to get head'
       - '&e► Right-click for info'
     left_click_actions:
-      - '[give] minecraft:player_head{SkullOwner:"Notch"} 1'
+      - '[give] nexo:wheads-notch 1'
       - '[message] &aVous avez reçu la tête de Notch!'
     right_click_actions:
       - '[message] &6&lInformations sur la tête:'
       - '[message] &7Joueur: &fNotch'
 
-  example_head_2:
+  wheads_jeb:
     slot: 10
-    material: PLAYER_HEAD
-    skull_owner: 'jeb_'  # Nom du joueur
+    nexo_item: 'wheads-jeb_'  # ID Nexo de la tête
     display_name: '&c&ljeb_'
     lore:
       - '&7Player: &fjeb_'
@@ -58,25 +57,60 @@ items:
       - '&e► Left-click to get head'
       - '&e► Right-click for info'
     left_click_actions:
-      - '[give] minecraft:player_head{SkullOwner:"jeb_"} 1'
+      - '[give] nexo:wheads-jeb_ 1'
       - '[message] &aVous avez reçu la tête de jeb_!'
 
-  example_head_player:
+  wheads_dinnerbone:
     slot: 11
-    material: PLAYER_HEAD
-    skull_owner: '%player%'  # Utilise le nom du joueur courant
-    display_name: '&b&l%player%'
+    nexo_item: 'wheads-dinnerbone'  # ID Nexo de la tête
+    display_name: '&b&lDinnerbone'
     lore:
-      - '&7Your own head!'
-      - '&7Player: &f%player%'
+      - '&7Player: &fDinnerbone'
       - ' '
-      - '&e► Left-click to get your head'
+      - '&e► Left-click to get head'
     left_click_actions:
-      - '[give] minecraft:player_head{SkullOwner:"%player%"} 1'
-      - '[message] &aVous avez reçu votre propre tête!'
+      - '[give] nexo:wheads-dinnerbone 1'
+      - '[message] &aVous avez reçu la tête de Dinnerbone!'
 
   # ──────────────────────────────────────
-  # MÉTHODE 2: Type wheads_player_head (Dynamic API)
+  # MÉTHODE 2: PLAYER_HEAD avec skull_owner
+  # ──────────────────────────────────────
+  # Utilisez material: PLAYER_HEAD avec skull_owner pour des têtes spécifiques
+  # Supporte les placeholders PlaceholderAPI
+  #
+  # NOTE: Ces exemples sont commentés par défaut
+  # Décommentez si vous préférez utiliser material: PLAYER_HEAD
+
+  # example_head_1:
+  #   slot: 12
+  #   material: PLAYER_HEAD
+  #   skull_owner: 'Notch'  # Nom du joueur
+  #   display_name: '&e&lNotch'
+  #   lore:
+  #     - '&7Player: &fNotch'
+  #     - ' '
+  #     - '&e► Left-click to get head'
+  #     - '&e► Right-click for info'
+  #   left_click_actions:
+  #     - '[give] minecraft:player_head{SkullOwner:"Notch"} 1'
+  #     - '[message] &aVous avez reçu la tête de Notch!'
+
+  # example_head_player:
+  #   slot: 13
+  #   material: PLAYER_HEAD
+  #   skull_owner: '%player%'  # Utilise le nom du joueur courant
+  #   display_name: '&b&l%player%'
+  #   lore:
+  #     - '&7Your own head!'
+  #     - '&7Player: &f%player%'
+  #     - ' '
+  #     - '&e► Left-click to get your head'
+  #   left_click_actions:
+  #     - '[give] minecraft:player_head{SkullOwner:"%player%"} 1'
+  #     - '[message] &aVous avez reçu votre propre tête!'
+
+  # ──────────────────────────────────────
+  # MÉTHODE 3: Type wheads_player_head (Dynamic API)
   # ──────────────────────────────────────
   # Slots remplis dynamiquement par WheadsHeadsRenderer
   # Récupère les têtes depuis l'API Wheads
@@ -118,24 +152,42 @@ items:
 # NOTES IMPORTANTES
 # ========================================
 #
-# MÉTHODE 1: Material-based (Recommandé pour simplicité)
+# MÉTHODE 1: Nexo Item (Recommandé si Wheads utilise Nexo)
+# • Utilisez nexo_item: wheads-<id>
+# • Très facile à configurer si Wheads enregistre ses têtes dans Nexo
+# • Nécessite que Wheads soit configuré pour enregistrer ses items dans Nexo
+# • Format: wheads-<nom_joueur> ou selon la convention de votre serveur
+# • Supporte toutes les fonctionnalités Nexo (custom models, textures, etc.)
+# • Utilise [give] nexo:wheads-<id> dans les actions
+#
+# MÉTHODE 2: Material-based (Alternative simple)
 # • Utilisez material: PLAYER_HEAD avec skull_owner
 # • Facile à configurer, pas besoin d'API externe
 # • Supporte les placeholders PlaceholderAPI (%player%, etc.)
 # • Chaque tête nécessite sa propre configuration
+# • Utilise [give] minecraft:player_head{SkullOwner:"..."} dans les actions
 #
-# MÉTHODE 2: Dynamic API-based
+# MÉTHODE 3: Dynamic API-based (Pour intégration avancée)
 # • Utilisez type: wheads_player_head pour slots multiples
 # • Nécessite le plugin Wheads installé et activé
 # • Têtes remplies dynamiquement par WheadsHeadsRenderer
 # • Les têtes sont rendues par WheadsHeadsRenderer
 # • Cliquer sur une tête permet d'obtenir cette tête ou d'afficher des informations
 #
-# PLACEHOLDERS DISPONIBLES (Méthode 2):
+# PLACEHOLDERS DISPONIBLES (Méthode 3):
 #   - %head_owner%: Nom du joueur
 #   - %head_uuid%: UUID du joueur
 #
-# PRÉREQUIS (Méthode 2):
+# PRÉREQUIS (Méthode 3):
 #   - Plugin Wheads installé et activé
 #   - Permission quantum.wheads.view pour voir le menu
 #   - Permission quantum.wheads.get pour obtenir les têtes
+#
+# EXEMPLE D'UTILISATION NEXO:
+# Si Wheads enregistre ses têtes dans Nexo avec le format wheads-<nom>,
+# vous pouvez les utiliser directement dans vos menus sans configuration spéciale.
+# Exemples d'IDs Nexo possibles:
+#   - wheads-notch
+#   - wheads-jeb_
+#   - wheads-dinnerbone
+#   - wheads-<n'importe_quel_joueur>

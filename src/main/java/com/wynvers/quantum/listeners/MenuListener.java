@@ -116,7 +116,13 @@ public class MenuListener implements Listener {
             handleTowerStorageMenu(event, player, menu, clickedInv, topInv);
             return;
         }
-        
+
+        // === WHEADS HEADS MENU HANDLER ===
+        if (menu.getId().equals("wheads_heads")) {
+            handleWheadsMenu(event, player, menu, clickedInv, topInv);
+            return;
+        }
+
         // === ORDERS MENU HANDLER (orders_autre, orders_minerais, etc.) ===
         if (menu.getId().startsWith("orders_")) {
             handleOrdersMenu(event, player, menu, clickedInv, topInv);
@@ -270,10 +276,73 @@ public class MenuListener implements Listener {
             }
         }
     }
-    
+
+    /**
+     * Handle wheads player heads menu clicks
+     */
+    private void handleWheadsMenu(InventoryClickEvent event, Player player, Menu menu, Inventory clickedInv, Inventory topInv) {
+        if (clickedInv != null && clickedInv.equals(topInv)) {
+            int slot = event.getSlot();
+            MenuItem menuItem = menu.getItemAt(slot);
+            ItemStack clickedItem = topInv.getItem(slot);
+
+            // Check if it's a static button (close, navigation, etc.)
+            if (menuItem != null && isSpecialButton(menuItem)) {
+                if (!menuItem.meetsRequirements(player, plugin)) {
+                    if (menuItem.getDenyMessage() != null && !menuItem.getDenyMessage().isEmpty()) {
+                        player.sendMessage(menuItem.getDenyMessage());
+                    }
+                    return;
+                }
+
+                menuItem.executeActions(player, plugin, event.getClick());
+                return;
+            }
+
+            // Check if it's a decorative item
+            if (clickedItem != null && isDecorativeItem(clickedItem)) {
+                return;
+            }
+
+            // Check if the clicked item is a wheads player head
+            if (clickedItem != null && clickedItem.getType() == Material.PLAYER_HEAD) {
+                // Get head metadata from PDC
+                if (clickedItem.hasItemMeta() && clickedItem.getItemMeta() != null) {
+                    org.bukkit.inventory.meta.ItemMeta meta = clickedItem.getItemMeta();
+                    org.bukkit.NamespacedKey headUuidKey = new org.bukkit.NamespacedKey(plugin, "wheads_head_uuid");
+                    org.bukkit.NamespacedKey headNameKey = new org.bukkit.NamespacedKey(plugin, "wheads_head_name");
+
+                    String headUuid = meta.getPersistentDataContainer().get(headUuidKey, org.bukkit.persistence.PersistentDataType.STRING);
+                    String headName = meta.getPersistentDataContainer().get(headNameKey, org.bukkit.persistence.PersistentDataType.STRING);
+
+                    if (headUuid != null && headName != null) {
+                        // Handle head click based on click type
+                        if (event.isLeftClick()) {
+                            // Left click: Give player the head
+                            if (player.hasPermission("quantum.wheads.get")) {
+                                ItemStack headItem = clickedItem.clone();
+                                headItem.setAmount(1);
+                                player.getInventory().addItem(headItem);
+                                player.sendMessage("§aVous avez reçu la tête de §e" + headName + "§a!");
+                            } else {
+                                player.sendMessage("§cVous n'avez pas la permission d'obtenir des têtes.");
+                            }
+                        } else if (event.isRightClick()) {
+                            // Right click: Show info about the head
+                            player.sendMessage("§6§lInformations sur la tête:");
+                            player.sendMessage("§7Joueur: §f" + headName);
+                            player.sendMessage("§7UUID: §f" + headUuid);
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Handle orders menu clicks (orders_autre, orders_minerais, etc.)
-     * 
+     *
      * Gestion des clics:
      * - Clic Normal: Ouvrir order_confirm (vendre l'item)
      * - Shift + Clic Gauche (Admin): Retirer l'ordre de la recherche

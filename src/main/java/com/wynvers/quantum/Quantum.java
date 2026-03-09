@@ -131,8 +131,11 @@ public final class Quantum extends JavaPlugin {
 
     // PlaceholderAPI Integration
     private PlaceholderAPIManager placeholderAPIManager;
-    
-    
+
+    // Wheads Integration
+    private com.wynvers.quantum.wheads.WheadsAPI wheadsAPI;
+
+
     // Chat System
     private com.wynvers.quantum.chat.ChatManager chatManager;
 
@@ -228,9 +231,12 @@ public final class Quantum extends JavaPlugin {
         
         // NEW: Furniture, Crops, Tools, and Weapon systems
         initializeNewSystems();
-        
+
         // PlaceholderAPI Integration
         this.placeholderAPIManager = new PlaceholderAPIManager(this);
+
+        // Wheads Integration
+        this.wheadsAPI = new com.wynvers.quantum.wheads.WheadsAPI(this);
 
         // Listeners globaux (hors tours / niveaux)
         registerListeners();
@@ -333,6 +339,7 @@ public final class Quantum extends JavaPlugin {
         extractResource("menus/history.yml");
         extractResource("menus/statistics.yml");
         extractResource("menus/rune_equipment.yml");
+        extractResource("menus/wheads_heads.yml");
 
         createDirectory("menus/attributes");
         extractResource("menus/attributes/quantum_item_attributes.yml");
@@ -906,8 +913,12 @@ public final class Quantum extends JavaPlugin {
     public PlaceholderAPIManager getPlaceholderAPIManager() {
         return placeholderAPIManager;
     }
-    
-    
+
+    public com.wynvers.quantum.wheads.WheadsAPI getWheadsAPI() {
+        return wheadsAPI;
+    }
+
+
     public com.wynvers.quantum.chat.ChatManager getChatManager() {
         return chatManager;
     }

@@ -201,6 +201,10 @@ public class MenuItem {
     public boolean isQuantumTowerStorage() {
         return "quantum_tower_storage".equalsIgnoreCase(type);
     }
+
+    public boolean isWheadsPlayerHead() {
+        return "wheads_player_head".equalsIgnoreCase(type);
+    }
     
     // === SETTERS ===
     

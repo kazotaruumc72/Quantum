@@ -73,5 +73,12 @@ public enum ButtonType {
 
     // === QUANTUM ITEM ATTRIBUTE MODIFIER BUTTONS ===
     QUANTUM_ITEM_ATTRIBUTES_MODIFIER,         // Applique un AttributeModifier à l'item actif
-    QUANTUM_ITEM_ATTRIBUTES_RESET             // Supprime tous les AttributeModifier Quantum de l'item actif
+    QUANTUM_ITEM_ATTRIBUTES_RESET,            // Supprime tous les AttributeModifier Quantum de l'item actif
+
+    // === WHEADS PLAYER HEADS BUTTONS ===
+    WHEADS_HEAD_CLICK,                        // Click on a wheads player head
+    WHEADS_NEXT_PAGE,                         // Next page in wheads menu
+    WHEADS_PREV_PAGE,                         // Previous page in wheads menu
+    WHEADS_SEARCH,                            // Search for player heads
+    WHEADS_FILTER_CATEGORY                    // Filter heads by category
 }

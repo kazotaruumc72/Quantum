@@ -1,10 +1,14 @@
 package com.wynvers.quantum.managers;
 
 import com.wynvers.quantum.Quantum;
+import com.wynvers.quantum.commands.DynamicMenuCommand;
 import com.wynvers.quantum.menu.*;
 import com.wynvers.quantum.orders.OrderCreationSession;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.command.CommandMap;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -12,6 +16,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class MenuManager {
@@ -32,19 +37,19 @@ public class MenuManager {
     
     private void loadMenus() {
         File menusFolder = new File(plugin.getDataFolder(), "menus");
-        
+
         if (!menusFolder.exists()) {
             menusFolder.mkdirs();
             plugin.saveResource("menus/example.yml", false);
         }
-        
+
         List<File> files = getAllYmlFiles(menusFolder);
-        
+
         if (files.isEmpty()) {
             plugin.getQuantumLogger().warning("No menu files found in menus/ folder");
             return;
         }
-        
+
         int loaded = 0;
         for (File file : files) {
             try {
@@ -52,11 +57,12 @@ public class MenuManager {
                 Menu menu = loadMenu(file);
                 if (menu != null) {
                     menus.put(menu.getId(), menu);
-                    
+
                     if (menu.getOpenCommand() != null) {
                         commandMenus.put(menu.getOpenCommand().toLowerCase(), menu);
+                        registerMenuCommand(menu);
                     }
-                    
+
                     plugin.getQuantumLogger().success("✓ Loaded menu: " + menuId + " (" + menu.getItems().size() + " items)");
                     loaded++;
                 }
@@ -65,10 +71,54 @@ public class MenuManager {
                 e.printStackTrace();
             }
         }
-        
+
         plugin.getQuantumLogger().success("Total: " + loaded + " menus loaded");
     }
-    
+
+    private void registerMenuCommand(Menu menu) {
+        String commandName = menu.getOpenCommand();
+        if (commandName == null || commandName.isEmpty()) {
+            return;
+        }
+
+        try {
+            // Get the command map via reflection
+            Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            commandMapField.setAccessible(true);
+            CommandMap commandMap = (CommandMap) commandMapField.get(Bukkit.getServer());
+
+            // Create a simple command
+            org.bukkit.command.Command command = new org.bukkit.command.Command(commandName.toLowerCase()) {
+                @Override
+                public boolean execute(org.bukkit.command.CommandSender sender, String commandLabel, String[] args) {
+                    if (!(sender instanceof Player player)) {
+                        sender.sendMessage("§cThis command can only be executed by a player!");
+                        return true;
+                    }
+
+                    if (!player.hasPermission("quantum.menu.open")) {
+                        plugin.getMessageManager().sendMessage(player, "system.no-permission");
+                        return true;
+                    }
+
+                    menu.open(player, plugin);
+                    return true;
+                }
+            };
+
+            // Set command description
+            command.setDescription("Opens the " + menu.getId() + " menu");
+            command.setPermission("quantum.menu.open");
+
+            // Register the command
+            commandMap.register("quantum", command);
+            plugin.getQuantumLogger().info("  → Registered command: /" + commandName);
+
+        } catch (Exception e) {
+            plugin.getQuantumLogger().warning("Failed to register command for menu " + menu.getId() + ": " + e.getMessage());
+        }
+    }
+
     private List<File> getAllYmlFiles(File dir) {
         List<File> result = new ArrayList<>();
         File[] entries = dir.listFiles();
@@ -603,6 +653,10 @@ public class MenuManager {
 
     public Set<String> getAllMenuIds() {
         return menus.keySet();
+    }
+
+    public List<String> getMenuNames() {
+        return new ArrayList<>(menus.keySet());
     }
 
     public void reload() {

@@ -596,10 +596,7 @@ public final class Quantum extends JavaPlugin {
 
         getCommand("storage").setExecutor(new StorageCommand(this));
         getCommand("storage").setTabCompleter(new StorageTabCompleter());
-        
-        getCommand("menu").setExecutor(new MenuCommand(this));
-        getCommand("menu").setTabCompleter(new MenuTabCompleter(this));
-        
+
         getCommand("qstorage").setExecutor(new QuantumStorageCommand(this));
         getCommand("qstorage").setTabCompleter(new QuantumStorageTabCompleter(this));
 

@@ -30,12 +30,7 @@ commands:
     description: Open virtual storage (view-only for players)
     usage: /storage
     aliases: [store, st]
-  
-  menu:
-    description: Open custom menu
-    usage: /menu <menu_name>
-    aliases: [openmenu]
-  
+
   qstorage:
     description: Manage storage (admin-only)
     usage: /qstorage <transfer|remove> <item|hand|all> [amount]

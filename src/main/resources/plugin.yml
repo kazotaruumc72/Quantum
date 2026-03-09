@@ -18,6 +18,7 @@ softdepend:
   - PlaceholderAPI
   - WorldGuard
   - MythicMobs
+  - Wheads
 
 commands:
   quantum:

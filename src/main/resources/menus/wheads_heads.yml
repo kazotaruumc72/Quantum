@@ -1,0 +1,71 @@
+# ========================================
+# WHEADS PLAYER HEADS MENU
+# ========================================
+# Menu d'affichage des têtes de joueurs depuis Wheads
+# Intégration avec l'API Wheads pour afficher les têtes disponibles
+
+menu_title: '&6&lWheads - Player Heads'
+size: 54
+open_command: wheads
+
+items:
+
+  # ──────────────────────────────────────
+  # BORDURES DÉCORATIVES
+  # ──────────────────────────────────────
+  border:
+    material: PURPLE_STAINED_GLASS_PANE
+    display_name: ' '
+    custom_model_data: 1
+    slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 45, 46, 47, 48, 50, 51, 52, 53]
+    static: true
+
+  # ──────────────────────────────────────
+  # SLOTS POUR LES TÊTES DE JOUEURS
+  # ──────────────────────────────────────
+  player_heads_slots:
+    slots: [9, 10, 11, 12, 13, 14, 15, 16, 17,
+            18, 19, 20, 21, 22, 23, 24, 25, 26,
+            27, 28, 29, 30, 31, 32, 33, 34, 35,
+            36, 37, 38, 39, 40, 41, 42, 43, 44]
+    type: wheads_player_head
+    lore_append:
+      - ' '
+      - '&7Player: &f%head_owner%'
+      - '&7UUID: &8%head_uuid%'
+      - ' '
+      - '&e► Left-click to get head'
+      - '&e► Right-click for info'
+
+  # ──────────────────────────────────────
+  # BOUTON: FERMER (slot 49)
+  # ──────────────────────────────────────
+  close:
+    slots: [49]
+    material: BARRIER
+    custom_model_data: 399
+    display_name: '&c&l✖ Fermer'
+    lore:
+      - '&7Fermez ce menu'
+      - ' '
+      - '&e► Cliquez pour fermer'
+    left_click_actions:
+      - '[close]'
+    static: true
+
+# ========================================
+# NOTES IMPORTANTES
+# ========================================
+# • Ce menu affiche les têtes de joueurs depuis le plugin Wheads
+# • Le type 'wheads_player_head' indique que ces slots sont remplis dynamiquement
+# • Les têtes sont rendues par WheadsHeadsRenderer
+# • Cliquer sur une tête permet d'obtenir cette tête ou d'afficher des informations
+#
+# PLACEHOLDERS DISPONIBLES:
+#   - %head_owner%: Nom du joueur
+#   - %head_uuid%: UUID du joueur
+#
+# PRÉREQUIS:
+#   - Plugin Wheads installé et activé
+#   - Permission quantum.wheads.view pour voir le menu
+#   - Permission quantum.wheads.get pour obtenir les têtes

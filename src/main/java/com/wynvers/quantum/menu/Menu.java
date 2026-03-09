@@ -41,12 +41,15 @@ public class Menu {
  
     // Items
     private final Map<String, MenuItem> items;
-    
+
     // Storage renderer pour slots quantum_storage
     private StorageRenderer storageRenderer;
-    
+
     // Tower Storage renderer pour slots quantum_tower_storage
     private TowerStorageRenderer towerStorageRenderer;
+
+    // Wheads renderer pour slots wheads_player_head
+    private com.wynvers.quantum.wheads.WheadsHeadsRenderer wheadsHeadsRenderer;
     
     // MiniMessage parser pour les titres modernes
     private static final MiniMessage miniMessage = MiniMessage.miniMessage();
@@ -60,6 +63,7 @@ public class Menu {
         this.titleSpeed = 10;
         this.storageRenderer = new StorageRenderer(plugin);
         this.towerStorageRenderer = new TowerStorageRenderer(plugin);
+        this.wheadsHeadsRenderer = new com.wynvers.quantum.wheads.WheadsHeadsRenderer(plugin);
     }
  
     // === GETTERS ===
@@ -548,7 +552,7 @@ public class Menu {
                 }
                 if (!visible) continue;
             }
-            
+
             // Si c'est un slot quantum_storage, le StorageRenderer s'en occupera
             if (item.isQuantumStorage()) {
                 continue;
@@ -556,6 +560,11 @@ public class Menu {
 
             // Si c'est un slot quantum_tower_storage, le TowerStorageRenderer s'en occupera
             if (item.isQuantumTowerStorage()) {
+                continue;
+            }
+
+            // Si c'est un slot wheads_player_head, le WheadsHeadsRenderer s'en occupera
+            if (item.isWheadsPlayerHead()) {
                 continue;
             }
             
@@ -782,7 +791,7 @@ public class Menu {
                 }
             }
         }
-        
+
         // Ensuite, remplir les slots quantum_storage avec les items du joueur
         if (player != null) {
             if (hasQuantumStorageSlots()) {
@@ -790,6 +799,9 @@ public class Menu {
             }
             if (hasQuantumTowerStorageSlots()) {
                 renderTowerStorageSlots(player, inventory);
+            }
+            if (hasWheadsPlayerHeadSlots()) {
+                renderWheadsPlayerHeads(player, inventory);
             }
         }
     }
@@ -837,6 +849,18 @@ public class Menu {
     }
 
     /**
+     * Returns true if this menu has at least one wheads_player_head type slot
+     */
+    private boolean hasWheadsPlayerHeadSlots() {
+        for (MenuItem item : items.values()) {
+            if (item.isWheadsPlayerHead()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Render storage slots for a player
      */
     private void renderStorageSlots(Player player, Inventory inventory) {
@@ -866,5 +890,21 @@ public class Menu {
         }
 
         towerStorageRenderer.renderStorageSlots(player, inventory, this, loreConfig);
+    }
+
+    /**
+     * Render wheads player heads slots for a player
+     */
+    private void renderWheadsPlayerHeads(Player player, Inventory inventory) {
+        com.wynvers.quantum.wheads.WheadsHeadsRenderer.LoreAppendConfig loreConfig = null;
+
+        for (MenuItem item : items.values()) {
+            if (item.isWheadsPlayerHead() && item.getLoreAppend() != null && !item.getLoreAppend().isEmpty()) {
+                loreConfig = new com.wynvers.quantum.wheads.WheadsHeadsRenderer.LoreAppendConfig(item.getLoreAppend());
+                break;
+            }
+        }
+
+        wheadsHeadsRenderer.renderPlayerHeads(player, inventory, this, loreConfig);
     }
 }

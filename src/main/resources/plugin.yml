@@ -25,7 +25,13 @@ commands:
     description: Main Quantum command
     usage: /quantum <reload|storage <tower|classic>|help>
     aliases: [q]
-  
+
+  menu:
+    description: Open a menu by name
+    usage: /menu <menu_name>
+    aliases: [menus, gui]
+    permission: quantum.menu.open
+
   storage:
     description: Open virtual storage (view-only for players)
     usage: /storage

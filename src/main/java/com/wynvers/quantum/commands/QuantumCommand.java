@@ -79,6 +79,11 @@ public class QuantumCommand implements CommandExecutor {
             return economyCommand.execute(sender, args);
         }
 
+        // Menu command - delegate to menu opening
+        if (subCommand.equals("menu")) {
+            return handleMenu(sender, args);
+        }
+
         // Storage command - delegate to storage menu
         if (subCommand.equals("storage")) {
             return handleStorage(sender, command, args);
@@ -457,9 +462,58 @@ public class QuantumCommand implements CommandExecutor {
         return true;
     }
 
+    private boolean handleMenu(CommandSender sender, String[] args) {
+        // /quantum menu open <menu_name>
+
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("Only players can use this command!");
+            return true;
+        }
+
+        if (!player.hasPermission("quantum.menu")) {
+            plugin.getMessageManager().sendMessage(player, "system.no-permission");
+            return true;
+        }
+
+        // Check if "open" subcommand is specified
+        if (args.length < 2 || !args[1].equalsIgnoreCase("open")) {
+            player.sendMessage("§cUsage: /quantum menu open <menu_name>");
+            return true;
+        }
+
+        if (args.length < 3) {
+            plugin.getMessageManager().sendMessage(player, "commands.menu-usage");
+            return true;
+        }
+
+        String menuName = args[2].toLowerCase();
+
+        // Try to get menu by ID first
+        Menu menu = plugin.getMenuManager().getMenu(menuName);
+
+        // If not found by ID, try by command name
+        if (menu == null) {
+            menu = plugin.getMenuManager().getMenuByCommand(menuName);
+        }
+
+        if (menu == null) {
+            // Menu not found error
+            java.util.Map<String, String> placeholders = new java.util.HashMap<>();
+            placeholders.put("menu_name", menuName);
+            plugin.getMessageManager().sendMessage(player, "error.menu.failed-to-open", placeholders);
+            return true;
+        }
+
+        // Open the menu
+        menu.open(player, plugin);
+
+        return true;
+    }
+
     private void sendHelp(CommandSender sender) {
         sender.sendMessage("§6§lCOMMANDES QUANTUM");
         sender.sendMessage("§e/quantum reload [all|runes|config|towers|price|messages|...]");
+        sender.sendMessage("§e/quantum menu open <menu_name> §7- Ouvrir un menu personnalisé");
         sender.sendMessage("§e/quantum storage §7- Sélectionner un storage (tower/classic)");
         sender.sendMessage("§e/quantum storage <tower|classic> §7- Ouvrir directement un storage");
         sender.sendMessage("§e/quantum stats [category] §7- Afficher les statistiques");

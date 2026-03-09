@@ -44,6 +44,7 @@ public class QuantumTabCompleter implements TabCompleter {
                 "sstats",
                 "help",
                 "version",
+                "menu",
                 "tower",
                 "door",
                 "npc",
@@ -110,6 +111,17 @@ public class QuantumTabCompleter implements TabCompleter {
         else if (args[0].equalsIgnoreCase("wand")) {
             if (args.length == 2) {
                 completions.add("door");
+            }
+        }
+        // Tab completion pour /quantum menu
+        else if (args[0].equalsIgnoreCase("menu")) {
+            if (args.length == 2) {
+                completions.add("open");
+            } else if (args.length == 3 && args[1].equalsIgnoreCase("open")) {
+                // Auto-completion des noms de menus disponibles depuis le MenuManager
+                if (plugin.getMenuManager() != null) {
+                    completions.addAll(plugin.getMenuManager().getAllMenuIds());
+                }
             }
         }
         // Tab completion pour /quantum storage

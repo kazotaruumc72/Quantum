@@ -600,7 +600,11 @@ public class MenuManager {
     public int getMenuCount() {
         return menus.size();
     }
-    
+
+    public Set<String> getAllMenuIds() {
+        return menus.keySet();
+    }
+
     public void reload() {
         menus.clear();
         commandMenus.clear();

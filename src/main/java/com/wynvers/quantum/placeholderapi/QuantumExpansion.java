@@ -524,19 +524,6 @@ public class QuantumExpansion extends PlaceholderExpansion {
             }
         }
 
-        // =========
-        // HOMES
-        // =========
-        if (p.equals("homes")) {
-            if (plugin.getHomeManager() == null) return "0";
-            return String.valueOf(plugin.getHomeManager().getHomeCount(offlinePlayer.getUniqueId()));
-        }
-
-        if (p.equals("homes_max")) {
-            if (player == null || plugin.getHomeManager() == null) return "0";
-            return String.valueOf(plugin.getHomeManager().getMaxHomes(player));
-        }
-
         return null; // Placeholder not recognized
     }
 }

@@ -25,7 +25,6 @@ import com.wynvers.quantum.commands.ArmorCommand;
 import com.wynvers.quantum.commands.ArmorTabCompleter;
 import com.wynvers.quantum.commands.ChatCommand;
 import com.wynvers.quantum.commands.GamemodeCommand;
-import com.wynvers.quantum.commands.MenuCommand;
 import com.wynvers.quantum.commands.OffreCommand;
 
 import com.wynvers.quantum.commands.QexpCommand;
@@ -54,7 +53,6 @@ import com.wynvers.quantum.statistics.StorageStatsManager;
 import com.wynvers.quantum.statistics.TradingStatisticsManager;
 import com.wynvers.quantum.storage.upgrades.StorageUpgradeManager;
 import com.wynvers.quantum.tabcompleters.*;
-import com.wynvers.quantum.tabcompleters.MenuTabCompleter;
 import com.wynvers.quantum.towers.*;
 import com.wynvers.quantum.transactions.TransactionHistoryManager;
 import com.wynvers.quantum.utils.ActionExecutor;
@@ -600,11 +598,6 @@ public final class Quantum extends JavaPlugin {
 
         getCommand("qstorage").setExecutor(new QuantumStorageCommand(this));
         getCommand("qstorage").setTabCompleter(new QuantumStorageTabCompleter(this));
-
-        // Menu command
-        getCommand("menu").setExecutor(new MenuCommand(this));
-        getCommand("menu").setTabCompleter(new MenuTabCompleter(this));
-        logger.success("✓ Menu Command + TabCompleter");
 
         getCommand("rechercher").setExecutor(new RechercherCommand(this));
         getCommand("rechercher").setTabCompleter(new RechercherTabCompleter());

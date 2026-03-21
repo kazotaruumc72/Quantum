@@ -28,15 +28,6 @@ towers:
         # Format: 'mm:MythicMobsId:quantite'
         mob_kills_required:
           - 'mm:WaterSoldier:10'
-        
-        # Point de spawn (utilisé par /quantum tower etage et NPC)
-        spawn:
-          world: "world"
-          x: 100.5
-          y: 65.0
-          z: 200.5
-          yaw: 90.0
-          pitch: 0.0
 
         # Récompenses de fin d'étage
         rewards:
@@ -86,14 +77,6 @@ towers:
         mob_kills_required:
           - 'mm:WaterGuard:10'
           - 'mm:WaterArcher:5'
-        
-        spawn:
-          world: "world"
-          x: 120.5
-          y: 70.0
-          z: 250.5
-          yaw: 180.0
-          pitch: 0.0
 
         rewards:
           nexo:
@@ -125,14 +108,6 @@ towers:
         worldguard_region: "donjon_eau_3"
         mob_kills_required:
           - 'mm:WaterKnight:1'
-        
-        spawn:
-          world: "world"
-          x: 140.5
-          y: 75.0
-          z: 300.5
-          yaw: 270.0
-          pitch: 0.0
 
         rewards:
           nexo:
@@ -185,14 +160,6 @@ towers:
     floors:
       1:
         worldguard_region: "donjon_feu_1"
-        
-        spawn:
-          world: "world_nether"
-          x: 200.5
-          y: 80.0
-          z: 400.5
-          yaw: 0.0
-          pitch: 0.0
 
         rewards:
           nexo:

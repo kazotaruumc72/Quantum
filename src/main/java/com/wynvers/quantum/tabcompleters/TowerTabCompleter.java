@@ -53,10 +53,6 @@ public class TowerTabCompleter implements TabCompleter {
                 completions.add("complete");
             }
 
-            if (sender.hasPermission("quantum.tower.set")) {
-                completions.add("set");
-            }
-
             if (sender.hasPermission("quantum.tower.reload")) {
                 completions.add("reload");
             }
@@ -192,31 +188,6 @@ public class TowerTabCompleter implements TabCompleter {
                     Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()),
                     args[4]
                 );
-            }
-        }
-
-        // /tower set spawn <tower> <floor>
-        if (args[0].equalsIgnoreCase("set")) {
-            if (args.length == 2) {
-                return filterCompletions(List.of("spawn"), args[1]);
-            }
-            if (args.length == 3 && args[1].equalsIgnoreCase("spawn")) {
-                if (plugin.getTowerManager() != null) {
-                    return filterCompletions(plugin.getTowerManager().getTowerIds(), args[2]);
-                }
-            }
-            if (args.length == 4 && args[1].equalsIgnoreCase("spawn")) {
-                if (plugin.getTowerManager() != null) {
-                    String towerId = args[2];
-                    TowerConfig tower = plugin.getTowerManager().getTower(towerId);
-                    if (tower != null) {
-                        List<String> floors = new ArrayList<>();
-                        for (int i = 1; i <= tower.getTotalFloors(); i++) {
-                            floors.add(String.valueOf(i));
-                        }
-                        return filterCompletions(floors, args[3]);
-                    }
-                }
             }
         }
 

@@ -4,17 +4,11 @@ import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.listeners.DoorSelectionListener;
 import com.wynvers.quantum.towers.*;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import java.io.File;
 import java.util.*;
 
 /**
@@ -121,48 +115,10 @@ public class QuantumTowerCommand implements CommandExecutor {
             return true;
         }
         
-        // Charger le spawn point depuis towers.yml
-        Location spawnLoc = getFloorSpawnLocation(towerId, floor);
-        if (spawnLoc == null) {
-            player.sendMessage("§c§l[Tour] §cAucun point de spawn configuré pour cet étage!");
-            player.sendMessage("§7Ajoutez la section 'spawn' dans towers.yml pour l'étage " + floor);
-            return true;
-        }
-        
-        // Téléporter
-        player.teleport(spawnLoc);
-        player.sendMessage("§a§l✓ §aTéléportation vers: §f" + tower.getName() + " §7Étage " + floor);
-        
-        // Mettre à jour la location actuelle
-        towerManager.updateCurrentLocation(player, towerId, floor);
-        
+        player.sendMessage("§c§l[Tour] §cLa téléportation vers les étages n'est plus disponible.");
         return true;
     }
-    
-    private Location getFloorSpawnLocation(String towerId, int floor) {
-        File towersFile = new File(plugin.getDataFolder(), "towers.yml");
-        if (!towersFile.exists()) return null;
-        
-        FileConfiguration config = YamlConfiguration.loadConfiguration(towersFile);
-        String path = "towers." + towerId + ".floors." + floor + ".spawn";
-        
-        ConfigurationSection spawnSection = config.getConfigurationSection(path);
-        if (spawnSection == null) return null;
-        
-        String worldName = spawnSection.getString("world");
-        World world = Bukkit.getWorld(worldName);
-        if (world == null) return null;
-        
-        return new Location(
-            world,
-            spawnSection.getDouble("x"),
-            spawnSection.getDouble("y"),
-            spawnSection.getDouble("z"),
-            (float) spawnSection.getDouble("yaw", 0.0),
-            (float) spawnSection.getDouble("pitch", 0.0)
-        );
-    }
-    
+
     private boolean handleTowerInfo(CommandSender sender, String[] args) {
         if (args.length < 3) {
             sender.sendMessage("§cUsage: /quantum tower info <tower_id>");

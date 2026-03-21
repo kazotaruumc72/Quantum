@@ -26,8 +26,6 @@ quantum:
       - reset             # Reset data
       - info              # Information commands
       - mobspawnzone      # Mob spawn zone creation
-      - setspawn          # Set spawn location
-      - setfirstspawn     # Set first spawn location
       - structure         # Structure management
       - eco               # Economy commands
       - economy           # Alias for eco
@@ -428,12 +426,6 @@ delhome:
   tab_completion:
     level_1:
       # dynamic: player_homes    # Player's saved home names
-
-spawn:
-  description: Teleport to spawn
-  permission: quantum.spawn.use
-  tab_completion:
-    # No arguments
 
 apartment:
   aliases: [apt, appart]

@@ -283,7 +283,6 @@ towers:
   no-permission: "<red>✖ Vous n'avez pas la permission!</red>"
   tower-not-found: "<red>✖ Tour introuvable: <yellow>%tower_id%</yellow></red>"
   teleported: "<green>✔ Téléporté à la tour: <yellow>%tower_name%</yellow></green>"
-  spawn-set: "<green>✔ Point de spawn de la tour défini!</green>"
   door-set: "<green>✔ Position de la porte définie!</green>"
   selection-mode-enabled: "<yellow>⚠ Mode de sélection activé. Cliquez sur un bloc pour définir la position.</yellow>"
   selection-cancelled: "<yellow>⚠ Sélection annulée.</yellow>"

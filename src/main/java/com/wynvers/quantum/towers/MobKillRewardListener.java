@@ -4,6 +4,7 @@ import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.armor.DungeonArmor;
 import com.wynvers.quantum.dungeonutis.DungeonUtils;
 import io.lumine.mythic.bukkit.MythicBukkit;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -50,26 +51,34 @@ public class MobKillRewardListener implements Listener {
             plugin.getPlayerLevelManager().addExp(killer.getUniqueId(), playerExp);
         }
 
-        // 2) XP armure de donjon (chaque pièce équipée)
-        DungeonArmor dungeonArmor = plugin.getDungeonArmor();
-        if (dungeonArmor != null) {
-            applyArmorExp(killer, dungeonArmor, reward, "helmet",     killer.getInventory().getHelmet());
-            applyArmorExp(killer, dungeonArmor, reward, "chestplate", killer.getInventory().getChestplate());
-            applyArmorExp(killer, dungeonArmor, reward, "leggings",   killer.getInventory().getLeggings());
-            applyArmorExp(killer, dungeonArmor, reward, "boots",      killer.getInventory().getBoots());
-        }
+        // Defer item metadata modifications to the next tick to avoid
+        // "Failed to encode packet set_entity_data" crashes that occur when
+        // equipment metadata is updated while the dying entity (e.g. MythicMobs)
+        // is still being processed by the server.
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (!killer.isOnline()) return;
 
-        // 3) XP arme/outil de donjon (item en main)
-        DungeonUtils dungeonUtils = plugin.getDungeonUtils();
-        if (dungeonUtils != null) {
-            ItemStack mainHand = killer.getInventory().getItemInMainHand();
-            if (mainHand != null && dungeonUtils.isDungeonUtil(mainHand)) {
-                int weaponExp = reward.getWeaponExp();
-                for (int i = 0; i < weaponExp; i++) {
-                    dungeonUtils.addKillExperience(mainHand);
+            // 2) XP armure de donjon (chaque pièce équipée)
+            DungeonArmor dungeonArmor = plugin.getDungeonArmor();
+            if (dungeonArmor != null) {
+                applyArmorExp(killer, dungeonArmor, reward, "helmet",     killer.getInventory().getHelmet());
+                applyArmorExp(killer, dungeonArmor, reward, "chestplate", killer.getInventory().getChestplate());
+                applyArmorExp(killer, dungeonArmor, reward, "leggings",   killer.getInventory().getLeggings());
+                applyArmorExp(killer, dungeonArmor, reward, "boots",      killer.getInventory().getBoots());
+            }
+
+            // 3) XP arme/outil de donjon (item en main)
+            DungeonUtils dungeonUtils = plugin.getDungeonUtils();
+            if (dungeonUtils != null) {
+                ItemStack mainHand = killer.getInventory().getItemInMainHand();
+                if (mainHand != null && dungeonUtils.isDungeonUtil(mainHand)) {
+                    int weaponExp = reward.getWeaponExp();
+                    for (int i = 0; i < weaponExp; i++) {
+                        dungeonUtils.addKillExperience(mainHand);
+                    }
                 }
             }
-        }
+        });
     }
 
     /**

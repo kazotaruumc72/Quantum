@@ -22,6 +22,7 @@ public class MobConfig {
     private int defaultPlayerExp;
     private final Map<String, Integer> defaultArmorExp = new HashMap<>();
     private int defaultWeaponExp;
+    private double defaultMoney;
 
     // Config par mob: mobKey -> MobReward
     private final Map<String, MobReward> mobRewards = new HashMap<>();
@@ -49,9 +50,11 @@ public class MobConfig {
                 }
             }
             defaultWeaponExp = defaults.getInt("weapon_exp", 2);
+            defaultMoney = defaults.getDouble("money", 0);
         } else {
             defaultPlayerExp = 5;
             defaultWeaponExp = 2;
+            defaultMoney = 0;
         }
         // S'assurer que les 4 pièces ont une valeur par défaut
         defaultArmorExp.putIfAbsent("helmet", 1);
@@ -69,6 +72,7 @@ public class MobConfig {
 
                 int playerExp = mobSection.getInt("player_exp", defaultPlayerExp);
                 int weaponExp = mobSection.getInt("weapon_exp", defaultWeaponExp);
+                double money = mobSection.getDouble("money", defaultMoney);
 
                 Map<String, Integer> armorExp = new HashMap<>(defaultArmorExp);
                 ConfigurationSection armorSection = mobSection.getConfigurationSection("armor_exp");
@@ -78,7 +82,7 @@ public class MobConfig {
                     }
                 }
 
-                mobRewards.put(mobKey.toUpperCase(), new MobReward(playerExp, armorExp, weaponExp));
+                mobRewards.put(mobKey.toUpperCase(), new MobReward(playerExp, armorExp, weaponExp, money));
             }
         }
 
@@ -95,7 +99,7 @@ public class MobConfig {
     public MobReward getReward(String mobKey) {
         MobReward reward = mobRewards.get(mobKey.toUpperCase());
         if (reward != null) return reward;
-        return new MobReward(defaultPlayerExp, defaultArmorExp, defaultWeaponExp);
+        return new MobReward(defaultPlayerExp, defaultArmorExp, defaultWeaponExp, defaultMoney);
     }
 
     /**
@@ -105,7 +109,7 @@ public class MobConfig {
         // Essayer avec le préfixe mm:
         MobReward reward = mobRewards.get("MM:" + mythicId.toUpperCase());
         if (reward != null) return reward;
-        return new MobReward(defaultPlayerExp, defaultArmorExp, defaultWeaponExp);
+        return new MobReward(defaultPlayerExp, defaultArmorExp, defaultWeaponExp, defaultMoney);
     }
 
     /**
@@ -115,15 +119,18 @@ public class MobConfig {
         private final int playerExp;
         private final Map<String, Integer> armorExp;
         private final int weaponExp;
+        private final double money;
 
-        public MobReward(int playerExp, Map<String, Integer> armorExp, int weaponExp) {
+        public MobReward(int playerExp, Map<String, Integer> armorExp, int weaponExp, double money) {
             this.playerExp = playerExp;
             this.armorExp = new HashMap<>(armorExp);
             this.weaponExp = weaponExp;
+            this.money = money;
         }
 
         public int getPlayerExp() { return playerExp; }
         public int getWeaponExp() { return weaponExp; }
+        public double getMoney() { return money; }
         public int getArmorExp(String piece) {
             return armorExp.getOrDefault(piece.toLowerCase(), 1);
         }

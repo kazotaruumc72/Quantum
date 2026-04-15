@@ -7,6 +7,7 @@
 #   - armor_exp: XP donnée à chaque pièce d'armure de donjon équipée
 #     (helmet, chestplate, leggings, boots)
 #   - weapon_exp: XP donnée à l'arme de donjon utilisée pour tuer
+#   - money: Argent donné au joueur (via Vault/économie Quantum)
 #
 # Types de mobs supportés:
 #   - Mobs vanilla Minecraft (ZOMBIE, SKELETON, CREEPER, etc.)
@@ -25,6 +26,7 @@ defaults:
     leggings: 1
     boots: 1
   weapon_exp: 2
+  money: 0
 
 # ========================================
 #  Mobs configurés
@@ -51,6 +53,7 @@ mobs:
   #     leggings: 6
   #     boots: 6
   #   weapon_exp: 8
+  #   money: 10
   #
   # "mm:WaterGuard":
   #   player_exp: 30
@@ -60,6 +63,7 @@ mobs:
   #     leggings: 8
   #     boots: 8
   #   weapon_exp: 10
+  #   money: 15
   #
   # "mm:SkeletonKing":
   #   player_exp: 100
@@ -69,3 +73,4 @@ mobs:
   #     leggings: 25
   #     boots: 25
   #   weapon_exp: 30
+  #   money: 50

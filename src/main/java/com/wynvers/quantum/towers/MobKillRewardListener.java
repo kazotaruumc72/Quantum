@@ -3,6 +3,7 @@ package com.wynvers.quantum.towers;
 import com.wynvers.quantum.Quantum;
 import com.wynvers.quantum.armor.DungeonArmor;
 import com.wynvers.quantum.dungeonutis.DungeonUtils;
+import com.wynvers.quantum.managers.VaultManager;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -50,7 +51,16 @@ public class MobKillRewardListener implements Listener {
             plugin.getPlayerLevelManager().addExp(killer.getUniqueId(), playerExp);
         }
 
-        // 2) XP armure de donjon (chaque pièce équipée)
+        // 2) Argent (via Vault/QuantumEconomy)
+        double money = reward.getMoney();
+        if (money > 0) {
+            VaultManager vaultManager = plugin.getVaultManager();
+            if (vaultManager != null && vaultManager.isEnabled()) {
+                vaultManager.deposit(killer, money);
+            }
+        }
+
+        // 3) XP armure de donjon (chaque pièce équipée)
         DungeonArmor dungeonArmor = plugin.getDungeonArmor();
         if (dungeonArmor != null) {
             applyArmorExp(killer, dungeonArmor, reward, "helmet",     killer.getInventory().getHelmet());
@@ -59,7 +69,7 @@ public class MobKillRewardListener implements Listener {
             applyArmorExp(killer, dungeonArmor, reward, "boots",      killer.getInventory().getBoots());
         }
 
-        // 3) XP arme/outil de donjon (item en main)
+        // 4) XP arme/outil de donjon (item en main)
         DungeonUtils dungeonUtils = plugin.getDungeonUtils();
         if (dungeonUtils != null) {
             ItemStack mainHand = killer.getInventory().getItemInMainHand();
